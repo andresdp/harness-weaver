@@ -1,1 +1,14 @@
 .DS_Store
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Local ATAM reasoning traces and protocol smoke run
+case-studies/architecture-eval/ATAM/logs/**/*.log
+benchmarks/atam/runs/protocol-smoke-20261018/
+
+# Standalone repositories; keep their histories separate from this repository
+case-studies/atam-evaluator/archevaluation-llms/
+case-studies/software-architecture-agent/
