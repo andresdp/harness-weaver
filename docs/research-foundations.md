@@ -1,0 +1,41 @@
+# HarnessWeaver Research Foundations
+
+**Status:** Working synthesis of the papers currently in `papers/`. Use it to ground the roadmap and keep project claims within the evidence. It is not a systematic literature review.
+
+## What the papers support
+
+| Source | Contribution to HarnessWeaver | Limits to carry into the plan |
+|---|---|---|
+| [Harness: Structured Pre-Configuration for Enhancing LLM Code Agent Output Quality](../papers/harness-paper.pdf) | Supports the premise that structured pre-configuration—project instructions, skills, and role-based decomposition—can affect agent output quality. It motivates explicit harness structure as a design variable. | Studies a particular coding-agent setup and task set. It does not show that HarnessWeaver can generate domain harnesses or that every structure improves every task. Treat it as motivation, not validation of HarnessWeaver. |
+| [AutoOPT: A Domain-Specific Harness for End-to-End Automation of Optimization Research](../papers/autopt-2608.07407v1.pdf) | Offers a concrete example of combining domain-specific methodology with general-purpose model capabilities and formal tools in a staged harness. It supports treating methodology as an explicit asset that organizes different kinds of work. | The harness is specialized to optimization research, including numerical design, symbolic discovery, formal verification, and human interpretation. It is an existence example, not evidence of a general harness generator. |
+| [Agents as Architecture Evaluators: Automating ATAM and SAAM for Continuous Assessment](../papers/agentic-atam-3843282.3844431.pdf) | Supports studying agent-assisted architecture evaluation and separating evaluation inputs from reference outputs. The reported limitations reinforce human review for business relevance and domain judgment. | A short early study with bounded cases; reports useful drafts while identifying weak business-relevance filtering and risks when SAAM inputs are sparse. Do not treat it as evidence that autonomous evaluation is dependable. |
+| [Towards Software Architecture as an Auditable Practice](../papers/applsci-16-03020-v3.pdf) | Provides a progression-oriented evaluation scaffold around Architecture Description, Quality Attributes, Business Goals, Architecture Decisions, and Evaluation Adoption. It is relevant to methodology state, checklists, evidence, and reporting. | Observations come from two cases. The authors note the mechanism can be cumbersome for small systems or narrower tasks. Adapt it selectively and distinguish source guidance from HarnessWeaver's agent-specific choices. |
+| [Software architectural analysis: an experience report](../case-studies/architecture-eval/SAAM/data/revision_control_system.json) | Provides a source-linked SAAM example with system context, architecture description, scenarios, classifications, impact, interactions, and recommendations. Useful for a first evaluation methodology/state pilot. | The extraction explicitly says Partial: it includes six of fifteen scenarios and records inferred information. Score only known reference fields; treat absent content as unknown, not as a model error or correct answer. |
+| [Better Together: An LLM-assisted approach to designing software architectures using Attribute-Driven Design](../papers/Better_Together_An_LLM-assisted_approach_to_designing_software_architectures_using_Attribute-Driven_Design.pdf) | Supports using an explicit design methodology, architect persona, iteration plan, design artifacts, and human review in architecture-design exploration. It motivates making alternatives, decisions, and rationale visible. | Demonstrates a bounded set of design exercises and does not isolate the effect of human guidance in a controlled comparison. Critical design choices still need architect review. |
+| [Architecture Exploration and Reflection meet LLM-based Agents (ReArch)](../papers/_ICSA_NEMI_2025____ReArch.pdf) | Offers an exploration-oriented pattern involving agentic search, reflection, and ranking of architecture patterns/tactics. It is useful as a contrasting design-exploration method. | The paper reports risks such as hallucinated, overly general, or duplicated patterns and calls for stronger real-world evaluation. HarnessWeaver should not infer that it can search optimally from this work. |
+| [Large Language Models as Assistants in Software Architecture Design](../papers/mso202604-llm-arch-design.pdf) | Frames LLMs as assistants for generating options and supporting architect reasoning, including design-concept selection. Supports keeping the architect in the decision loop. | Workshop-based and exploratory; model suggestions can differ from expert judgments and do not account reliably for all project-specific constraints. |
+| [Improving LLM-assisted code generation through the use of architectural documents and implementation plans](../papers/kazman-llms-3786152.3788588.pdf) | Connects architecture descriptions and implementation plans to downstream code-generation conformance and correctness. It can inform a later handoff from a validated design prototype to implementation. | Small number of cases and a narrow domain limit generalization. It is adjacent evidence for downstream use, not a direct study of HarnessWeaver generation. |
+
+## Implications for the project model
+
+The current design should keep these concerns explicit and distinguishable:
+
+- **Intent:** the task goal, constraints, and success criteria.
+- **Domain knowledge:** concepts, source material, terminology, and architecture evidence.
+- **Methodology:** activities, techniques, dependencies/readiness, expected artifacts, validation, and completion.
+- **Methodology state:** semantic progress, evidence, gaps, confidence, and unresolved questions. Agents update this state; it is distinct from agent working state and runtime execution details such as messages or checkpoints.
+- **Harness IR:** an inspectable working representation connecting intent, domain, and methodology to a realizable harness. It supports generation and revision; it is not currently a design-space search or optimizer.
+- **Runtime realization:** skills, subagents, tools, orchestration, memory, and application wiring. Each adapter reports what it preserves, changes, or cannot express.
+- **Evaluation and evolution:** checkers can validate structure and completeness; verifiers can check claims against evidence or rules; evaluators judge broader quality. These are responsibilities, not necessarily separate agents. Feedback should identify which representation layer changes and preserve the earlier baseline.
+
+For small one-off tasks, the same concepts can be captured in a compact brief without creating a durable HarnessSpec. A saved, versioned spec is justified when reuse, validation, multiple realizations, or controlled evolution make it useful.
+
+## Case-study sequence
+
+1. **Architecture evaluation:** use the SAAM revision-control extract to exercise methodology state and evidence traceability, while explicitly accounting for its partial references. ATAM research can inform a later or complementary evaluation path; the two methods should not be collapsed into one workflow.
+2. **Architecture design exploration:** use Attribute-Driven Design and ReArch as distinct method sources. Define scenario-specific inputs, expert review criteria, and output artifacts before measuring results. Keep domain-method steps separate from choices made to implement them with agents.
+3. **Runtime realization:** only after these cases clarify the IR, compare supported skill-based and Python/DeepAgents forms. Runtime-neutral representation is a goal; equivalence and portability require evidence from each mapping.
+
+## Claim boundary
+
+The defensible current research direction is to investigate whether explicit intent, domain knowledge, methodology, and semantic state make it practical to generate and evolve architecture-task harness prototypes before committing to a concrete agent system. The project should measure prototype usefulness, change effort, and work quality in scoped case studies. It should not claim universal speed or flexibility gains, optimal harness discovery, autonomous architecture decisions, or full runtime portability without direct evidence.

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="980" viewBox="0 0 1600 980">
+<defs><style>
+.title{font:700 40px Arial,sans-serif;fill:#14263d}.sub{font:20px Arial,sans-serif;fill:#546579}.h{font:700 24px Arial,sans-serif;fill:#14263d}.body{font:19px Arial,sans-serif;fill:#33465b}.small{font:16px Arial,sans-serif;fill:#526477}.tag{font:700 16px Arial,sans-serif;letter-spacing:1px}.bold{font-weight:700}
+</style><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#76889a"/></marker></defs>
+<rect width="1600" height="980" fill="#fbfcfe"/>
+<text x="800" y="62" text-anchor="middle" class="title">Three paths to a domain-specific agent harness</text>
+<text x="800" y="98" text-anchor="middle" class="sub">Different starting points shape how methodology, implementation, and change are handled</text>
+<g transform="translate(60,140)">
+<!-- cols -->
+<rect x="0" y="0" width="460" height="630" rx="20" fill="#f0f4f8" stroke="#d6e0e9" stroke-width="2"/>
+<rect x="510" y="0" width="460" height="630" rx="20" fill="#f0f4f8" stroke="#d6e0e9" stroke-width="2"/>
+<rect x="1020" y="0" width="460" height="630" rx="20" fill="#edf7f5" stroke="#91c9bb" stroke-width="3"/>
+<text x="28" y="42" class="tag" fill="#637589">APPROACH 1</text><text x="28" y="82" class="h">Custom agentic application</text>
+<text x="28" y="126" class="body">Domain problem + expertise</text><text x="28" y="163" class="small">↓ implement directly in a framework</text>
+<rect x="28" y="185" width="404" height="93" rx="12" fill="#fff" stroke="#cbd7e2"/>
+<text x="48" y="220" class="body bold">Framework constructs</text><text x="48" y="251" class="small">workflows · agents · RAG · tools · state</text>
+<path d="M230 282 V315" stroke="#76889a" stroke-width="3" marker-end="url(#a)"/>
+<rect x="28" y="324" width="404" height="83" rx="12" fill="#fff" stroke="#cbd7e2"/><text x="48" y="359" class="body bold">One domain-specific system</text><text x="48" y="386" class="small">Architecture is expressed in application code</text>
+<text x="28" y="460" class="small bold">SPEED TO FIRST SYSTEM</text><text x="28" y="490" class="body">Variable; depends on scope and expertise</text>
+<text x="28" y="540" class="small bold">ADAPTING TO CHANGE</text><text x="28" y="570" class="body">Changes may require code and design updates</text>
+
+<text x="538" y="42" class="tag" fill="#637589">APPROACH 2</text><text x="538" y="82" class="h">Harness specialization</text>
+<text x="538" y="126" class="body">Existing general-purpose harness</text><text x="538" y="163" class="small">↓ manually specialize its capabilities</text>
+<rect x="538" y="185" width="404" height="93" rx="12" fill="#fff" stroke="#cbd7e2"/>
+<text x="558" y="220" class="body bold">Skills · tools · instructions</text><text x="558" y="251" class="small">possibly subagents and orchestration</text>
+<path d="M740 282 V315" stroke="#76889a" stroke-width="3" marker-end="url(#a)"/>
+<rect x="538" y="324" width="404" height="83" rx="12" fill="#fff" stroke="#cbd7e2"/><text x="558" y="359" class="body bold">Specialized general harness</text><text x="558" y="386" class="small">Design and instantiation are largely manual</text>
+<text x="538" y="460" class="small bold">SPEED TO FIRST SYSTEM</text><text x="538" y="490" class="body">Can be quick when the base harness fits</text>
+<text x="538" y="540" class="small bold">ADAPTING TO CHANGE</text><text x="538" y="570" class="body">Depends on modularity and harness constraints</text>
+
+<text x="1048" y="42" class="tag" fill="#16816c">APPROACH 3</text><text x="1048" y="82" class="h">HarnessWeaver</text>
+<text x="1048" y="126" class="body">Domain + methodology made explicit</text><text x="1048" y="163" class="small">↓ synthesize and iteratively refine</text>
+<rect x="1048" y="185" width="404" height="93" rx="12" fill="#fff" stroke="#9bcfc3"/>
+<text x="1068" y="220" class="body bold">Generated, evolvable harness</text><text x="1068" y="251" class="small">evaluate · revise · develop further</text>
+<path d="M1250 282 V315" stroke="#16816c" stroke-width="3" marker-end="url(#a)"/>
+<rect x="1048" y="324" width="404" height="83" rx="12" fill="#fff" stroke="#9bcfc3"/><text x="1068" y="359" class="body bold">Prototype before commitment</text><text x="1068" y="386" class="small">then retain or refine into a realization</text>
+<text x="1048" y="460" class="small bold" fill="#16816c">SPEED TO ITERATE</text><text x="1048" y="490" class="body">Designed to make prototyping efficient</text>
+<text x="1048" y="540" class="small bold" fill="#16816c">ADAPTING TO CHANGE</text><text x="1048" y="570" class="body">Explicit inputs support faster evolution</text>
+</g>
+<rect x="60" y="805" width="1480" height="105" rx="16" fill="#fff" stroke="#d6e0e9" stroke-width="2"/>
+<text x="90" y="845" class="body bold">HarnessWeaver's position</text>
+<text x="90" y="879" class="body">A prototyping and evolution layer that delays commitment to a concrete agent architecture or runtime.</text>
+<text x="800" y="948" text-anchor="middle" class="small">Qualitative tendencies, not benchmark results. HarnessWeaver does not claim to automatically find an optimal harness.</text>
+</svg>

@@ -5,6 +5,8 @@
 
 ## Purpose
 
+**Direction update (2026-10-18):** The product strategy and implementation sequence are authoritative in `STRATEGY.md` and `docs/harnessweaver-implementation-roadmap.md`. This consolidation document remains an architecture/reference proposal. Use **HarnessWeaver methodology** for the general process of designing a harness, and **domain methodology** for the process a generated harness carries out (for example, SAAM evaluation or architecture design exploration). The latter includes semantic progress and evidence, separate from agent and runtime state. A saved HarnessSpec is optional for a simple one-off. The [research-foundations note](research-foundations.md) records the paper evidence and its limits; HarnessWeaver is not currently an optimal-harness search system.
+
 > Ownership update (2026-10-17): this repository document records intended boundaries. It does not transfer ownership of the separate case-study projects. Their content remains in place until provenance and ownership are explicitly established.
 
 Consolidate the current repository into a coherent English-first system for designing and implementing domain-specific agent harnesses. The system should support multiple runtimes, including Claude Code and Python-based DeepAgents applications, and should make domain applications such as software architecture explicit, reusable packages rather than examples mixed into runtime guidance.

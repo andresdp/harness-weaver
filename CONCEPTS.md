@@ -24,11 +24,27 @@ The evidence-led process of using observed outcomes and feedback to improve an e
 
 ### HarnessSpec
 
-A versioned, runtime-neutral description of harness intent and workflow. HarnessSpec records sources, roles, stages, artifact contracts, verification, human gates, and runtime requirements. It describes a harness; it is not itself an executing agent, a runtime configuration, or a domain theory.
+A versioned, runtime-neutral artifact for describing harness intent and workflow. It can record sources, roles, stages, artifact contracts, verification, human gates, and runtime requirements, and may be extended to represent domain knowledge and methodology state. A saved HarnessSpec is useful when reuse, validation, or evolution justifies it; simple one-offs may use a compact brief. HarnessSpec is not itself an executing agent, a runtime configuration, or a domain theory.
 
 ### Methodology
 
-Reusable guidance for analyzing a task and designing a harness. It should remain independent of a particular runtime and should not absorb rules that are specific to one domain.
+The domain-specific process for doing the work: activities, techniques, dependencies or readiness, artifacts, validation, semantic state, and completion conditions. Agents enact the methodology and maintain its state. Methodology is distinct from the arrangement of agents and runtime execution details.
+
+### Intent
+
+The task goal, success criteria, constraints, and human decision requirements that determine what a harness should accomplish. Intent may be recorded in HarnessSpec or supplied in a compact brief for a one-off.
+
+### Domain knowledge
+
+Concepts, terminology, evidence, standards, and other knowledge about the task's subject area. Domain knowledge is distinct from the methodology used to perform work in that area.
+
+### Methodology state
+
+The semantic progress of work through a methodology, including completed or partial activities, supporting evidence, gaps, confidence, and unresolved questions. It is shared across agents and distinct from agent working state (such as role-specific notes) and runtime state (such as messages, tool calls, and checkpoints).
+
+### Harness IR
+
+An inspectable intermediate representation connecting intent, domain knowledge, and methodology to an agent-harness realization. The generator and evolver use it to produce and revise prototypes. It does not imply search over candidate harnesses or optimization for a best design.
 
 ### Domain materials
 
@@ -62,13 +78,14 @@ An observation from a run or user review that may inform a change. Feedback is e
 
 ## Keep these models distinct
 
-The **HarnessSpec** describes the workflow and contracts of an agent harness. A **software design space** describes the alternative software-design decisions explored by a software-design application. The application may itself use an agent harness, but its design space is a domain model inside that application, not a field or feature of HarnessSpec unless a future contract explicitly defines such a relationship.
+The **HarnessSpec** describes the task intent and contracts for an agent harness. A **software design space** describes the alternative software-design decisions explored by a software-design application. The application may itself use an agent harness, but its design space is a domain model inside that application, not a field or feature of HarnessSpec unless a future contract explicitly defines such a relationship.
 
 Likewise, the software-architecture-agent and architecture-evaluation projects are case studies or domain applications used to examine HarnessWeaver's approach. They are not the HarnessWeaver product itself.
 
 ## Source documents
 
 - [Implementation roadmap](docs/harnessweaver-implementation-roadmap.md) — product contract, scope, and implementation sequence.
+- [Research foundations](docs/research-foundations.md) — evidence and limitations from the papers used to ground the current direction.
 - [Consolidation plan](docs/consolidation-plan.md) — intended methodology, runtime, and domain boundaries; its repository paths should be kept current as the structure changes.
 - [HarnessSpec v0.1 schema](specs/harnessspec/v0.1.schema.json) — machine-readable contract fields.
 - [Software design exploration specification](docs/software_design_exploration_agent_harness_spec.md) — domain model and prototype vision for that application.

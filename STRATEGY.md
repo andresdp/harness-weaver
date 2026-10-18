@@ -7,11 +7,11 @@ last_updated: 2026-10-18
 
 ## Purpose
 
-Software architects currently assemble agent workflows ad hoc. Custom agents and workflows take time to build and are hard to adapt or use, while isolated skills require manual orchestration. This makes it difficult to learn what works for architecture evaluation and design exploration before investing in a complex architecture agent.
+Software architects currently build domain-specific agent systems ad hoc: custom applications encode methodology across code and orchestration, while harness-based skills still require manual instantiation and coordination. Both make it costly to learn from a working prototype and revise it as domain understanding changes.
 
 ## Positioning
 
-HarnessWeaver uses a shared, runtime-neutral description to generate a task-specific harness that can be tried as skills or as a DeepAgents backend, with the architect choosing the form. Keep the spec light enough for quick experiments; a simple one-off may be tried without a saved HarnessSpec when the contract adds more overhead than value. Earlier meta-harness work has been tried in other domains, but the software architecture focus remains to be validated.
+HarnessWeaver makes task intent, domain knowledge, and methodology explicit, including the semantic state that describes meaningful progress through the methodology. It uses these assets to create an inspectable Harness IR and a working, editable prototype, which can be evaluated and evolved before the architect commits to a concrete agent architecture or runtime. The same design may be materialized as a skills-based harness or a Python/DeepAgents application where supported. Keep the representation proportionate: a simple one-off may be tried without a saved HarnessSpec when the formal artifact costs more than it helps. Methodology and its state remain distinct from agent-specific and runtime execution state. The software-architecture use cases remain to be validated.
 
 ## Users
 
@@ -20,14 +20,19 @@ HarnessWeaver uses a shared, runtime-neutral description to generate a task-spec
 ## Boundaries
 
 - Keep the first proof focused on software architecture evaluation and design exploration.
+- Treat generation and feedback-driven evolution of a viable prototype as the current contribution. Do not claim autonomous search, ranking, or discovery of an optimal harness.
+- Treat portability as a design aim whose fidelity must be demonstrated for each runtime; runtime-neutral representation does not prove interchangeable implementations.
 
 _Resist a change when:_ it broadens the first proof to non-architecture domains before those architecture workflows have been evaluated.
 
 ## Key metrics
 
-- **Speed to generate** — time to produce a usable harness; definition and measurement location to be defined.
-- **Functional completeness** — whether generated agents, skills, or backend code provide the functions needed for the task; definition and measurement location to be defined.
-- **Result accuracy** — accuracy of the harness outputs for the architecture task; definition and measurement location to be defined.
+- **Time to a useful prototype** — time and effort to generate a harness that an architect can inspect and try.
+- **Change effort** — effort to accommodate representative changes to domain knowledge or methodology.
+- **Work quality** — methodology coverage, evidence-grounded outputs, and usefulness as judged against case-specific criteria.
+- **Retention and transition** — which prototype artifacts are retained as a harness or carried into a dedicated implementation.
+
+Definitions, baselines, and measurement locations remain to be established in the case studies.
 
 ## Tracks
 
