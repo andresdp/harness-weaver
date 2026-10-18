@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: harnessweaver
+Version: 0.1.0
+Summary: Runtime-neutral HarnessSpec loading and validation
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: jsonschema>=4.18
+Requires-Dist: PyYAML>=6.0
+
+# HarnessWeaver
+
+HarnessWeaver develops a runtime-neutral contract and tools for designing, validating, and evaluating agent harnesses. The implementation roadmap is in [docs/harnessweaver-implementation-roadmap.md](docs/harnessweaver-implementation-roadmap.md).
+
+## Repository map
+
+- `docs/` — project plans, methodology, and the HarnessSpec contract.
+- `specs/` — versioned machine-readable HarnessSpec schemas.
+- `examples/` — small, validated workflow specifications.
+- `src/harnessweaver/` — Python package and `hw` validation command.
+- `skills/` — current source skills for harness design and evolution.
+- `packages/harness-en/` — English distribution package and DeepAgents port guidance; its README currently describes it as generated from the root skills.
+- `case-studies/` — preserved research and application projects. Changes to their code/data remain owned by those projects; HarnessWeaver adds references and adapters around them.
+
+See [docs/consolidation-plan.md](docs/consolidation-plan.md) for the current ownership inventory and known provenance limits. Start with [the Python quickstart](docs/quickstart.md).

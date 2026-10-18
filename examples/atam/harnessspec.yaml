@@ -1,0 +1,62 @@
+spec_version: "0.1"
+id: archeval-atam
+domain: software architecture evaluation
+workflow:
+  id: atam-evaluation
+  purpose: Analyze an architecture description using ATAM concepts and produce a structured evaluation report.
+sources:
+  - id: archeval-workflow
+    ref: ../../case-studies/architecture-eval/ATAM/agents/main.py
+    kind: workflow-implementation
+    authority: ArchEval case study; reference only
+    notes: Existing multi-role ATAM workflow. HarnessWeaver does not own this source.
+  - id: atam-method-prompts
+    ref: ../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
+    kind: domain-guidance
+    authority: ArchEval case study; reference only
+  - id: harness-design-skill
+    ref: ../../harness-en/skills/harness/SKILL.md
+    kind: harness-methodology
+    authority: HarnessWeaver working-tree skill
+roles:
+  - id: evaluation-team
+    purpose: Synthesize architecture analysis and report risks, non-risks, sensitivity points, and tradeoff points.
+    skill_refs:
+      - ../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
+stages:
+  - id: conduct-evaluation
+    role: evaluation-team
+    purpose: Evaluate the supplied architecture context and produce the ATAM report.
+    inputs:
+      - ../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs
+    outputs:
+      - ATAM_Evaluation
+artifacts:
+  - id: architecture-context
+    kind: structured-case-input
+    direction: input
+    ref: ../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs
+    description: Evaluation inputs only; ground truth is explicitly excluded from generation.
+  - id: atam-report
+    kind: structured-evaluation
+    direction: output
+    ref: ATAM_Evaluation
+    description: ATAM findings, including utility tree, analysis records, risks, non-risks, sensitivity points, tradeoff points, and prioritized scenarios.
+    schema_ref: ../../case-studies/architecture-eval/ATAM/template.json
+verification:
+  - id: output-shape
+    criterion: Output conforms to the documented ATAM artifact structure.
+    method: Deterministic structural validation against the ATAM template and declared required sections.
+    artifact: atam-report
+  - id: evidence-grounding
+    criterion: Findings are supported by the supplied architecture context.
+    method: Domain expert review; record separately from structural checks.
+    artifact: atam-report
+human_gates:
+  - id: expert-review
+    point: Before accepting the evaluation report as a decision input.
+    reason: Architecture judgments and evidence interpretation require qualified human review.
+    required_artifacts:
+      - atam-report
+runtime_requirements:
+  - file-based artifact input and output

@@ -1,0 +1,135 @@
+"""Load and validate versioned HarnessSpec documents without a model runtime."""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+from urllib.parse import urlparse
+
+import jsonschema
+import yaml
+
+
+SCHEMA_PATH = Path(__file__).resolve().parents[2] / "specs" / "harnessspec" / "v0.1.schema.json"
+SUPPORTED_VERSION = "0.1"
+
+
+@dataclass(frozen=True)
+class ValidationIssue:
+    location: str
+    message: str
+
+    def __str__(self) -> str:
+        return f"{self.location}: {self.message}"
+
+
+class SpecLoadError(ValueError):
+    """A parse or spec-version error with a user-facing message."""
+
+
+def load_spec(path: str | Path) -> dict[str, Any]:
+    """Load JSON or YAML, returning the document without modifying its source."""
+    source = Path(path)
+    try:
+        raw = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise SpecLoadError(f"cannot read {source}: {exc.strerror or exc}") from exc
+    try:
+        document = json.loads(raw) if source.suffix.lower() == ".json" else yaml.safe_load(raw)
+    except (json.JSONDecodeError, yaml.YAMLError) as exc:
+        mark = getattr(exc, "problem_mark", None)
+        where = f"line {mark.line + 1}, column {mark.column + 1}: " if mark else ""
+        raise SpecLoadError(f"{source}: {where}invalid JSON/YAML: {exc}") from exc
+    if not isinstance(document, dict):
+        raise SpecLoadError(f"{source}: document must be a mapping/object")
+    version = document.get("spec_version")
+    if version != SUPPORTED_VERSION:
+        raise SpecLoadError(
+            f"{source}: unsupported spec_version {version!r}; supported version is {SUPPORTED_VERSION!r}"
+        )
+    return document
+
+
+def _schema_errors(document: dict[str, Any]) -> list[ValidationIssue]:
+    schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    validator = jsonschema.Draft202012Validator(schema)
+    issues = []
+    for error in validator.iter_errors(document):
+        location = ".".join(str(part) for part in error.absolute_path) or "$"
+        issues.append(ValidationIssue(location, error.message))
+    return issues
+
+
+def _unique_ids(document: dict[str, Any]) -> list[ValidationIssue]:
+    issues: list[ValidationIssue] = []
+    for section in ("sources", "roles", "stages", "artifacts", "verification", "human_gates"):
+        seen: set[str] = set()
+        for index, item in enumerate(document.get(section, [])):
+            if not isinstance(item, dict) or not isinstance(item.get("id"), str):
+                continue
+            value = item["id"]
+            if value in seen:
+                issues.append(ValidationIssue(f"{section}[{index}].id", f"duplicate id {value!r}"))
+            seen.add(value)
+    roles = {item.get("id") for item in document.get("roles", []) if isinstance(item, dict)}
+    artifacts = {item.get("id") for item in document.get("artifacts", []) if isinstance(item, dict)}
+    for index, stage in enumerate(document.get("stages", [])):
+        if isinstance(stage, dict) and stage.get("role") not in roles:
+            issues.append(ValidationIssue(f"stages[{index}].role", f"unknown role {stage.get('role')!r}; add it to roles"))
+    for index, gate in enumerate(document.get("human_gates", [])):
+        if isinstance(gate, dict):
+            for artifact in gate.get("required_artifacts", []):
+                if artifact not in artifacts:
+                    issues.append(ValidationIssue(f"human_gates[{index}].required_artifacts", f"unknown artifact {artifact!r}"))
+    for index, check in enumerate(document.get("verification", [])):
+        if isinstance(check, dict) and check.get("artifact") and check["artifact"] not in artifacts:
+            issues.append(ValidationIssue(f"verification[{index}].artifact", f"unknown artifact {check['artifact']!r}"))
+    return issues
+
+
+def _file_references(document: dict[str, Any], spec_path: Path) -> list[ValidationIssue]:
+    issues: list[ValidationIssue] = []
+    refs: list[tuple[str, str]] = []
+
+    def add(section: str, index: int, key: str, value: Any) -> None:
+        if isinstance(value, str):
+            refs.append((f"{section}[{index}].{key}", value))
+
+    for section in ("sources", "roles", "stages", "artifacts"):
+        for index, item in enumerate(document.get(section, [])):
+            if not isinstance(item, dict):
+                continue
+            keys = {"sources": ("ref",), "roles": ("skill_refs",), "stages": ("inputs",), "artifacts": ("ref", "schema_ref")}[section]
+            for key in keys:
+                value = item.get(key)
+                if isinstance(value, list):
+                    for nested_index, nested in enumerate(value):
+                        add(section, index, f"{key}[{nested_index}]", nested)
+                elif key == "schema_ref":
+                    add(section, index, key, value)
+                elif section in {"sources", "roles"}:
+                    add(section, index, key, value)
+                elif key == "ref" and section == "artifacts" and item.get("direction") == "input":
+                    add(section, index, key, value)
+    for location, reference in refs:
+        parsed = urlparse(reference)
+        if parsed.scheme:
+            continue
+        path_part = reference.split("#", 1)[0]
+        candidate = (spec_path.parent / path_part).resolve()
+        if not candidate.exists():
+            issues.append(ValidationIssue(location, f"referenced file {path_part!r} does not exist (relative to {spec_path.parent})"))
+    return issues
+
+
+def validate_spec(document: dict[str, Any], spec_path: str | Path | None = None) -> list[ValidationIssue]:
+    """Return actionable contract, cross-reference, and optional file-reference errors."""
+    issues = _schema_errors(document)
+    if any(issue.location == "spec_version" or issue.location.startswith("spec_version.") for issue in issues):
+        return issues
+    issues.extend(_unique_ids(document))
+    if spec_path is not None:
+        issues.extend(_file_references(document, Path(spec_path).resolve()))
+    return sorted(issues, key=lambda issue: (issue.location, issue.message))

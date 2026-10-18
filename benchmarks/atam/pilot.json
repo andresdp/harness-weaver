@@ -1,0 +1,16 @@
+{
+  "benchmark_version": "0.1",
+  "case_id": "archeval-atam-banking",
+  "source_case": "../../case-studies/architecture-eval/ATAM/data/banking.json",
+  "generation_input_pointer": "ATAM_Evaluation.evaluation_inputs",
+  "evaluation_only_pointer": "ATAM_Evaluation.ground_truth_outputs",
+  "harness_spec": "../../examples/atam/harnessspec.yaml",
+  "baseline_candidate": "../../case-studies/architecture-eval/ATAM/outputs/claude-sonnet-4-5@20250929/banking_output.json",
+  "required_sections": [
+    "architectural_approaches",
+    "utility_tree",
+    "scenarios",
+    "analysis_records"
+  ],
+  "required_finding_groups": ["risks", "non_risks", "sensitivity_points", "tradeoff_points"]
+}
