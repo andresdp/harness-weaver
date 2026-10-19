@@ -1,4 +1,5 @@
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from uuid import uuid4
@@ -27,6 +28,20 @@ class Operations:
 
     def join(self, inputs, results):
         raise AssertionError("not used")
+
+
+class ParallelOperations(Operations):
+    specialists = ("context", "analysis", "evidence")
+
+    def __init__(self):
+        self.barrier = threading.Barrier(len(self.specialists))
+
+    def run_specialist(self, specialist, inputs):
+        self.barrier.wait(timeout=2)
+        return ReportArtifact()
+
+    def join(self, inputs, results):
+        return ReportArtifact()
 
 
 class FakeAgent:
@@ -62,6 +77,26 @@ class DeepAgentsRuntimeTests(unittest.TestCase):
                                    event_callback=lambda event, label: calls.append((event["type"], label)))
             self.assertIsInstance(result["structured_response"], ReportArtifact)
             self.assertEqual(len(calls), 1 if streaming else 0)
+
+    def test_deepagents_fan_out_uses_parallel_langgraph_nodes_before_join(self):
+        operations = ParallelOperations()
+        with tempfile.TemporaryDirectory() as tmp:
+            request = RunRequest(
+                run_id=uuid4(),
+                case_id="case",
+                inputs={"source": "input only"},
+                profile=ExecutionProfile(
+                    WorkflowStrategy.FAN_OUT_FAN_IN,
+                    AgentInteraction.PARALLEL_SPECIALIST_DELEGATION,
+                ),
+                model="provider:model",
+                spec_path=Path(tmp) / "spec.yaml",
+                output_path=Path(tmp) / "report.json",
+            )
+            result = DeepAgentsRuntimeAdapter(lambda _request: operations).run(request)
+
+        self.assertEqual(result.artifact.model_dump(), {"report": "typed"})
+        self.assertIn("fan_out_fan_in", result.capabilities)
 
     def test_atam_harness_spec_declares_supervisor_default(self):
         from harnessweaver.spec import load_spec

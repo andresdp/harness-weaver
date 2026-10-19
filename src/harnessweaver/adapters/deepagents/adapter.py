@@ -4,10 +4,70 @@ from __future__ import annotations
 
 from collections.abc import Callable, Mapping
 from time import monotonic
-from typing import Any
+from typing import Annotated, Any, TypedDict
 from uuid import UUID
 
-from harnessweaver.runtime import RunRequest, RunResult, WorkflowOperations, execute_workflow
+from harnessweaver.runtime import (
+    ArtifactEnvelope,
+    RunRequest,
+    RunResult,
+    WorkflowOperations,
+    WorkflowStrategy,
+    execute_workflow,
+)
+
+
+def _merge_results(left: dict[str, ArtifactEnvelope], right: dict[str, ArtifactEnvelope]) -> dict[str, ArtifactEnvelope]:
+    """Merge specialist outputs from the same parallel LangGraph super-step."""
+    return {**left, **right}
+
+
+class _FanOutState(TypedDict):
+    """Shared graph state with a reducer for independent specialist results."""
+
+    inputs: Mapping[str, Any]
+    results: Annotated[dict[str, ArtifactEnvelope], _merge_results]
+    joined: Any
+
+
+def execute_fan_out_fan_in(operations: WorkflowOperations, inputs: Mapping[str, Any]) -> Any:
+    """Run DeepAgents specialists as parallel LangGraph nodes behind a join barrier."""
+    try:
+        from langgraph.graph import END, START, StateGraph
+    except ImportError as exc:
+        raise RuntimeError("LangGraph is required for fan_out_fan_in; install the 'deepagents' extra") from exc
+
+    specialists = tuple(operations.specialists)
+    if not specialists:
+        raise ValueError("fan_out_fan_in requires at least one declared specialist")
+    if "join" in specialists:
+        raise ValueError("'join' is reserved for the fan_out_fan_in synthesis node")
+
+    graph = StateGraph(_FanOutState)
+    for specialist in specialists:
+        def run_specialist(state: _FanOutState, *, role: str = specialist) -> dict[str, Any]:
+            # Validate each branch result before it can enter the graph's shared state.
+            artifact = operations.run_specialist(role, state["inputs"])
+            envelope = ArtifactEnvelope(role, artifact)
+            envelope.to_json_value()
+            return {"results": {role: envelope}}
+
+        graph.add_node(specialist, run_specialist)
+
+    def join_specialists(state: _FanOutState) -> dict[str, Any]:
+        # Multi-source edges ensure this node starts only after every branch finishes.
+        ordered = tuple(state["results"][role] for role in specialists)
+        joined = operations.join(state["inputs"], ordered)
+        ArtifactEnvelope("fan_out_fan_in_join", joined).to_json_value()
+        return {"joined": joined}
+
+    graph.add_node("join", join_specialists)
+    for specialist in specialists:
+        graph.add_edge(START, specialist)
+    graph.add_edge(list(specialists), "join")
+    graph.add_edge("join", END)
+    result = graph.compile().invoke({"inputs": inputs, "results": {}})
+    return result["joined"]
 
 
 def create_deep_agent(**kwargs: Any) -> Any:
@@ -64,7 +124,10 @@ class DeepAgentsRuntimeAdapter:
         """Execute a selected strategy and return the typed domain artifact plus fidelity."""
         started = monotonic()
         operations = self._operations_factory(request)
-        artifact = execute_workflow(request.profile, operations, request.inputs)
+        if request.profile.workflow_strategy is WorkflowStrategy.FAN_OUT_FAN_IN:
+            artifact = execute_fan_out_fan_in(operations, request.inputs)
+        else:
+            artifact = execute_workflow(request.profile, operations, request.inputs)
         return RunResult(
             run_id=request.run_id,
             status="succeeded",

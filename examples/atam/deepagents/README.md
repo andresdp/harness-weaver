@@ -72,7 +72,7 @@ Each invocation prints a unique session ID, which is also attached as the LangGr
 
 The runner reads only `ATAM_Evaluation.evaluation_inputs`; reference outputs are not sent to any strategy. DeepAgents requests generated artifacts through Pydantic `ToolStrategy` schemas; the report runner attaches the original inputs and validates the final document with the shared Pydantic report contract. Pipeline handoffs and fan-out joins fail before report publication if a required typed artifact is absent. Reports require architect review before decision use.
 
-The runtime-neutral contracts and strategy algorithms live under `src/harnessweaver/runtime/`; DeepAgents construction is isolated under `src/harnessweaver/adapters/deepagents/`. Optional provider and LangGraph dependencies are installed with `pip install -e '.[deepagents]'` when needed. Persistent peer-to-peer agent messaging and shared task-list collaboration are not mapped by this first adapter.
+The runtime-neutral contracts and strategy algorithms live under `src/harnessweaver/runtime/`; DeepAgents construction is isolated under `src/harnessweaver/adapters/deepagents/`. DeepAgents fan-out runs each specialist as a parallel LangGraph node and joins only after all declared branches finish. Optional provider and LangGraph dependencies are installed with `pip install -e '.[deepagents]'` when needed. Persistent peer-to-peer agent messaging and shared task-list collaboration are not mapped by this first adapter.
 
 ## Code layout
 
