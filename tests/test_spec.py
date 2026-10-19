@@ -6,12 +6,21 @@ from harnessweaver.spec import SpecLoadError, load_spec, validate_spec
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLE = ROOT / "examples" / "atam" / "harnessspec.yaml"
+EXAMPLE_V02 = ROOT / "examples" / "atam" / "harnessspec-v0.2.yaml"
 
 
 class SpecValidationTests(unittest.TestCase):
     def test_atam_example_is_valid_and_references_exist(self):
         document = load_spec(EXAMPLE)
         self.assertEqual(validate_spec(document, EXAMPLE), [])
+
+    def test_v02_atam_ir_models_method_and_semantic_state(self):
+        document = load_spec(EXAMPLE_V02)
+        self.assertEqual(validate_spec(document, EXAMPLE_V02), [])
+        self.assertEqual(document["spec_version"], "0.2")
+        self.assertIn("methodology", document)
+        self.assertIn("semantic_state", document)
+        self.assertTrue(document["semantic_state"]["assessments"][0]["evidence_refs"])
 
     def test_unknown_version_is_actionable(self):
         import tempfile
@@ -38,6 +47,26 @@ class SpecValidationTests(unittest.TestCase):
         document["sources"][0]["ref"] = "missing.py"
         issues = validate_spec(document, EXAMPLE)
         self.assertTrue(any("missing.py" in issue.message for issue in issues))
+
+    def test_v02_checks_source_skill_and_input_artifact_references(self):
+        document = load_spec(EXAMPLE_V02)
+        document["sources"][0]["ref"] = "missing-source.py"
+        document["roles"][0]["skill_refs"] = ["missing-skill.md"]
+        document["artifacts"][0]["ref"] = "missing-input.json"
+
+        messages = [str(issue) for issue in validate_spec(document, EXAMPLE_V02)]
+        self.assertTrue(any("missing-source.py" in message for message in messages))
+        self.assertTrue(any("missing-skill.md" in message for message in messages))
+        self.assertTrue(any("missing-input.json" in message for message in messages))
+
+    def test_v02_rejects_missing_methodology_and_invalid_semantic_status(self):
+        document = load_spec(EXAMPLE_V02)
+        del document["methodology"]
+        document["semantic_state"]["assessments"][0]["status"] = "finished"
+
+        messages = [str(issue) for issue in validate_spec(document)]
+        self.assertTrue(any("'methodology' is a required property" in message for message in messages))
+        self.assertTrue(any("finished" in message for message in messages))
 
 
 if __name__ == "__main__":

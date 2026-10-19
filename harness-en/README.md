@@ -10,6 +10,12 @@ The active skill sources in this checkout live under `harness-en/skills/`:
 | **evolve** | `harness-en/skills/evolve/` | Generalizes feedback and routes changes to the spec, runtime adapter, domain guidance, or project harness while preserving history. |
 | **deepagents-port** | `harness-en/skills/deepagents-port/` | Maps a HarnessSpec or existing harness to DeepAgents stages, skills, JSON contracts, and a backend handoff; reports fidelity limits. |
 
+## Design record
+
+Use the checked-in schema under `specs/harnessspec/` for a reusable or complex harness. v0.1 remains supported; v0.2 adds explicit intent, domain methodology and provenance, activity readiness/completion criteria, and evidence-linked semantic state and gaps. Semantic progress is domain meaning, not runtime task status. A short-lived, simple one-off may use a lightweight brief instead of a saved spec.
+
+When no method is supplied, distinguish a proposed procedure from source-derived methodology. Record conflicts and missing evidence instead of inferring a completed state. Keep validation of artifacts, verification against requirements, and quality evaluation as separate questions even when the same person or tool performs them.
+
 ## Runtime choices
 
 The architect can choose a skill-oriented harness or a DeepAgents backend when the selected adapter supports the declared design. When a HarnessSpec is present, it guides either form. The current DeepAgents skill emits a backend handoff and mapping report; it does not claim that every application is wired or executable without application-specific work.
@@ -50,7 +56,7 @@ cp -r /path/to/harness-weaver/harness-en/skills/evolve   ~/.claude/skills/evolve
 
 ### Other agents (Agent Skills standard)
 
-These skills follow the [Agent Skills](https://agentskills.io) open standard, so they work with any agent that supports it. See [the setup guide](../../docs/manual-setup_EN.md) for per-agent paths:
+These skills follow the [Agent Skills](https://agentskills.io) open standard, so they work with any agent that supports it. See [the setup guide](../docs/manual-setup_EN.md) for per-agent paths:
 
 - **Cursor**: `.agents/skills/` or `~/.agents/skills/`
 - **Gemini CLI**: `.gemini/skills/` or `~/.gemini/skills/`
@@ -101,11 +107,11 @@ Tracks the main repo: harness v2.1.0. Translation of the Korean originals at the
 
 ## Relationship to the main repo
 
-This checkout's active English skills are in `harness-en/skills/`. They are not generated from a root `skills/` directory in this repository. The skill materials originated in the [revfactory/harness project](https://github.com/revfactory/harness); check that project for its own plugin/marketplace distribution:
+This checkout's active English skills are maintained in `harness-en/skills/`; install commands above use that source tree. The skill materials originated in the [revfactory/harness project](https://github.com/revfactory/harness). That project owns its separate plugin/marketplace distribution:
 
 ```shell
 /plugin marketplace add revfactory/harness
 /plugin install harness@harness-marketplace
 ```
 
-For the full English documentation set — quickstart, v1→v2 migration, and manual setup — see [`docs/`](../../docs/).
+For the full English documentation set — quickstart, v1→v2 migration, and manual setup — see [`docs/`](../docs/).

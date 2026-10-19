@@ -19,6 +19,35 @@ Design a harness tailored to the project. Define each agent's role, and create t
 6. Write generated agent definitions, skills, orchestrators, and `CLAUDE.md` entries in the language the user writes in the conversation. Just because this skill document and the templates in `references/` are written in one language, do not write the artifacts in that language by default. Translate template headings and example phrasing into that user's language as well. If the user specifies a language, follow it; when extending an existing harness without a language specified, follow the language of the existing files.
 7. Use HarnessSpec as the explicit shared design for reusable or complex harnesses. Keep it compact. A simple one-off may be prototyped without a saved spec when the spec would take more effort than the experiment; state that choice and its tradeoff.
 8. Separate shared harness intent from runtime implementation. Generate only a runtime form that the selected adapter supports, and disclose any unsupported capability or meaning lost in translation.
+9. Make the generated Harness IR explain the work's intent, domain method, required evidence, and meaning of progress. Runtime counters, agent messages, retries, and task completion flags do not prove that domain work is ready or complete.
+
+## Resolve the design inputs
+
+Before choosing roles or runtime artifacts, inspect the supplied request and project materials for four distinct inputs:
+
+| Input | Record |
+|---|---|
+| **Intent** | Goal, scope, exclusions, users, and the decision or outcome the work should support. |
+| **Domain knowledge** | Relevant skills, standards, examples, schemas, project constraints, authority, revision, and provenance. Keep references to sources; do not silently replace or duplicate them. |
+| **Methodology** | The domain procedure, its source, required activities, decision criteria, and any HarnessWeaver adaptation. Distinguish this from the general method for designing a harness. |
+| **Runtime constraints** | Target runtime, supported coordination and interaction features, persistence, tool access, and materialization limits. Keep these out of domain-method claims. |
+
+Surface conflicts, assumptions, and missing evidence in the design record. Mark unknown or not-provided inputs explicitly; do not promote an inference into a source fact. If no recognized method is supplied, state the proposed procedure and label it as a design choice that needs review.
+
+For a reusable or complex workflow, create or update a compact HarnessSpec before materializing runtime artifacts. A lightweight brief in the conversation is sufficient for a simple, bounded one-off when a saved spec would cost more than it adds; record the choice and the tradeoff. Use the repository's canonical schema when available, and preserve source references and revisions.
+
+## Harness IR content
+
+Generate an inspectable, runtime-neutral design record with these semantic parts, whether represented in a HarnessSpec or a concise brief:
+
+- **Intent and methodology:** goal, scope, domain method and versioned sources, plus labeled adaptations.
+- **Activities and readiness:** ordered or otherwise related activities, responsible roles, inputs, outputs, and evidence-based prerequisites for starting each activity.
+- **Artifacts and validation:** expected artifacts and their contracts, plus checks that verify structure, content, provenance, and evidence links. Keep checker responsibility clear; it may be performed by the producer, a verifier, or deterministic code when risk and repeatability justify it. Do not require a separate agent by default.
+- **Semantic progress and completion:** domain-defined states or checkpoints, evidence supporting each assessment, unresolved gaps, next-state requirements, and explicit completion criteria. Execution bookkeeping can be included separately when useful, but cannot update semantic progress by itself.
+- **Evidence and uncertainty:** source and artifact references for claims; distinguish observed facts, assumptions, unknowns, conflicts, and accepted gaps.
+- **Runtime realization:** selected runtime form and supported mappings. Report any unsupported capability or change in meaning rather than implying equivalent behavior.
+
+Validation, verification, and evaluation have different jobs: validation checks the design and artifact contracts; verification checks whether a produced artifact meets a stated requirement; evaluation judges quality or usefulness against declared criteria. They may share a person or tool, but keep their questions and results distinguishable.
 
 ## Procedure
 

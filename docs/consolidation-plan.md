@@ -1,6 +1,6 @@
 # Harness Consolidation: Analysis and Plan
 
-**Status:** Current-state and target-architecture reference; HarnessSpec v0.1 and the Python validator are established. The active repository layout was reconciled on 2026-10-18.  
+**Status:** Current-state and target-architecture reference; HarnessSpec v0.1/v0.2 and the Python validator are established. The active repository layout was reconciled on 2026-10-18.  
 **Date:** 2026-10-18
 
 ## Purpose
@@ -92,7 +92,7 @@ Scale the work to the task. A small workflow can use one orchestrator skill and 
 | Area | Current location | Evidence and source of truth | HarnessWeaver boundary |
 |---|---|---|---|
 | Roadmap and project contracts | `docs/` | Root HarnessWeaver working tree | Canonical for project sequencing and shared contract decisions. |
-| Harness, evolve, and DeepAgents port skills | `harness-en/skills/` | Active English skill tree in this checkout; no root `skills/` tree remains | Current HarnessWeaver skill source. Keep shared design guidance separate from runtime-specific output and report adapter limits. |
+| Harness, evolve, and DeepAgents port skills | `harness-en/skills/` | Active English skill tree in this checkout; no root `skills/` or `packages/harness-en/` copy is maintained here | Canonical HarnessWeaver skill source. README install paths point into this tree; keep shared design guidance separate from runtime-specific output and report adapter limits. |
 | HarnessSpec and examples | `specs/`, `examples/` | HarnessWeaver-owned additions | Canonical shared contract and consumer fixtures. |
 | Python core | `src/harnessweaver/` | HarnessWeaver-owned additions | Runtime-independent loading and validation only in the first deliverable. |
 | ArchEval | `case-studies/architecture-eval/` | Separate Git repository at `main`; this worktree currently reports `origin/main`; project README identifies it as the ArchEval replication package | Preserve source, research inputs, ground truth, and outputs. HarnessWeaver may reference the ATAM workflow and data. The local Git metadata did not expose a remote URL in this inventory. |

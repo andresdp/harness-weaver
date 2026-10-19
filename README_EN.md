@@ -14,13 +14,17 @@
   <sub>15-second motion reel · <a href="https://revfactory.github.io/harness-animation/">Watch the full 2-minute interactive walkthrough (Korean) →</a></sub>
 </p>
 
-# Harness v2 — The Team-Architecture Factory for Claude Code
+# HarnessWeaver — Runtime-Neutral Harness Design
 
 **English** | [한국어](README_KO.md)
 
-> **Harness is a team-architecture factory for Claude Code.** One sentence — **"build a harness for this project"** · **"하네스 구성해줘"** — and the plugin turns your domain description into an agent team and the skills they use.
+> HarnessWeaver designs and validates agent harnesses from user intent, domain knowledge, and methodology, then maps them to supported runtime forms. The active English skill source in this checkout is `harness-en/skills/`; the upstream Claude Code plugin is a separate distribution path.
 
-## What's new in v2
+## Upstream Claude Code plugin background
+
+The details below describe the originating `revfactory/harness` plugin and its Claude Code-specific behavior. They are distribution and runtime examples, not portable HarnessWeaver contracts. For the current product direction and implementation roadmap, see [STRATEGY.md](STRATEGY.md) and [the roadmap](docs/harnessweaver-implementation-roadmap.md).
+
+### What's new in upstream v2
 
 v2 is a ground-up rebuild for the current Claude Code multi-agent runtime:
 
