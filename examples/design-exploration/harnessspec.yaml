@@ -1,0 +1,149 @@
+spec_version: "0.2"
+id: arch-design-exploration-add
+domain: software architecture design exploration
+intent:
+  goal: Generate and compare evidence-backed architecture alternatives for a supplied design task, leaving selection to a software architect.
+  scope: [design goals, constraints, quality attribute scenarios, alternatives, architecture decisions, rationale, views, iteration, human review]
+  exclusions: [claiming an optimal architecture, treating generated alternatives as validated designs, merging ADD and ReArch into one procedure]
+methodology:
+  id: add-informed-design-exploration
+  name: Attribute-Driven Design informed architecture exploration
+  source_refs:
+    - ../../papers/Better_Together_An_LLM-assisted_approach_to_designing_software_architectures_using_Attribute-Driven_Design.pdf
+    - ../../docs/research-foundations.md
+  adaptations:
+    - Preserve design goals, quality attribute scenarios, constraints, and selected architecture decisions as explicit artifacts.
+    - Permit bounded iteration and comparison of alternatives; an architect selects or revises the candidate.
+    - ReArch is a contrasting exploration source documented in the review protocol, not silently combined with ADD activities.
+    - Missing requirements and unsupported assumptions remain open questions rather than being filled with invented facts.
+semantic_state:
+  profile: architecture-design-exploration
+  assessments:
+    - id: design-input-readiness
+      status: unknown
+      evidence_refs: [../../docs/research-foundations.md]
+      rationale: This reusable profile has no concrete system brief or architecture inputs attached; readiness must be assessed for each case.
+      next_state_requirements: [Record the project goals, constraints, quality attribute scenarios, and available architecture evidence or explicit gaps.]
+    - id: alternatives-and-decisions
+      status: unknown
+      evidence_refs: [../../papers/Better_Together_An_LLM-assisted_approach_to_designing_software_architectures_using_Attribute-Driven_Design.pdf]
+      rationale: Alternatives and decisions are expected artifacts, not pre-populated results.
+      next_state_requirements: [Generate traceable alternatives and rationale; have an architect review the candidate and unresolved tradeoffs.]
+  gaps:
+    - id: concrete-design-case
+      description: A project-specific design brief and architecture evidence must be supplied before generating a prototype comparison.
+      status: open
+      evidence_refs: []
+    - id: expert-review
+      description: A qualified architect must review alternatives, tradeoffs, assumptions, and rationale before any design is accepted.
+      status: open
+      evidence_refs: []
+  completion_criteria:
+    - Every alternative traces to supplied goals, constraints, quality scenarios, and evidence or is labeled as an assumption.
+    - The decision record compares consequences and unresolved tradeoffs without claiming optimality.
+    - A qualified architect records acceptance, rejection, or requested changes.
+workflow:
+  id: add-informed-design-exploration
+  purpose: Produce a small, reviewable set of architecture alternatives and decision artifacts from explicit design inputs.
+  completion_criteria:
+    - Required design artifacts pass structural and traceability checks.
+    - A qualified architect reviews the proposed decisions and records the outcome.
+sources:
+  - id: add-design-assistant-study
+    ref: ../../papers/Better_Together_An_LLM-assisted_approach_to_designing_software_architectures_using_Attribute-Driven_Design.pdf
+    kind: methodology-research
+    authority: Published study; methodological motivation, not case-specific ground truth
+    notes: Use ADD as a method source for this profile; verify detailed procedure against the paper during case adaptation.
+  - id: rearch-contrast
+    ref: ../../papers/_ICSA_NEMI_2025____ReArch.pdf
+    kind: contrasting-exploration-research
+    authority: Published study; contrasting exploration pattern, not case-specific ground truth
+    notes: Agentic search, reflection, and ranking motivate a later distinct profile; do not conflate it with ADD here.
+  - id: review-criteria
+    ref: review-criteria.md
+    kind: human-review-protocol
+    authority: HarnessWeaver pilot protocol
+roles:
+  - id: design-facilitator
+    purpose: Maintain design goals, constraints, quality scenarios, and unresolved questions; identify missing input.
+  - id: alternative-designer
+    purpose: Propose a bounded set of architecture alternatives and explain their consequences against the supplied drivers.
+  - id: decision-reviewer
+    purpose: Check traceability, assumption labeling, tradeoff completeness, and design-artifact consistency before architect review.
+stages:
+  - id: frame-design-task
+    role: design-facilitator
+    purpose: Establish design goals, constraints, quality attribute scenarios, system boundary, and evidence gaps.
+    inputs: [artifact:design-brief]
+    outputs: [design-context]
+    readiness: [Goals, constraints, and quality scenarios are supplied or recorded as open questions.]
+    completion_criteria: [The design context separates supplied facts, derived interpretations, and unresolved questions.]
+  - id: develop-alternatives
+    role: alternative-designer
+    purpose: Develop a small set of architecture alternatives responsive to the prioritized drivers and constraints.
+    inputs: [artifact:design-context]
+    outputs: [architecture-alternatives]
+    readiness: [The design context has enough information to compare at least two options, or the blocker is documented.]
+    completion_criteria: [Each option states structural elements, rationale, driver coverage, and assumptions.]
+  - id: compare-decisions
+    role: alternative-designer
+    purpose: Compare alternatives against drivers, constraints, expected consequences, and unresolved tradeoffs; retain iteration history.
+    inputs: [artifact:design-context, artifact:architecture-alternatives]
+    outputs: [decision-record, architecture-views]
+    completion_criteria: [The record explains consequences and tradeoffs without asserting a universally best option.]
+  - id: validate-and-review
+    role: decision-reviewer
+    purpose: Check artifact traceability and prepare explicit questions for qualified architect review.
+    inputs: [artifact:design-context, artifact:architecture-alternatives, artifact:decision-record, artifact:architecture-views]
+    outputs: [design-exploration-report]
+    human_gate: architect-design-review
+artifacts:
+  - id: design-brief
+    kind: structured-design-input
+    direction: input
+    ref: artifact:design-brief-input
+    description: Project goals, constraints, quality attribute scenarios, system boundary, and existing architecture evidence supplied for a specific run.
+  - id: design-context
+    kind: methodology-state
+    direction: intermediate
+    ref: design-context.json
+    description: Normalized design drivers, evidence, assumptions, and unresolved questions.
+  - id: architecture-alternatives
+    kind: design-artifact
+    direction: intermediate
+    ref: architecture-alternatives.json
+    description: Bounded candidate architectures with structures, driver coverage, rationale, consequences, and assumptions.
+  - id: decision-record
+    kind: decision-artifact
+    direction: intermediate
+    ref: decision-record.json
+    description: Comparison, selected or deferred decisions, tradeoffs, confidence, and iteration provenance.
+  - id: architecture-views
+    kind: architecture-description
+    direction: intermediate
+    ref: architecture-views/
+    description: Views needed to communicate and inspect each candidate; selection depends on the concrete case.
+  - id: design-exploration-report
+    kind: structured-design-output
+    direction: output
+    ref: design-exploration-report.json
+    description: Review package linking inputs, alternatives, decisions, views, assumptions, and human review outcome.
+verification:
+  - id: driver-traceability
+    criterion: Each alternative and material decision traces to a supplied design driver, constraint, or labeled assumption.
+    method: Deterministic reference checks plus independent human review.
+    artifact: design-exploration-report
+  - id: alternative-comparison
+    criterion: Alternatives are compared against the same declared drivers and tradeoffs are explicit.
+    method: Check the review form and decision record for coverage; qualified architect judges adequacy.
+    artifact: decision-record
+  - id: no-optimality-claim
+    criterion: The report does not present generated options or ranking as proof of an optimal design.
+    method: Human review of claims, uncertainty, and rationale.
+    artifact: design-exploration-report
+human_gates:
+  - id: architect-design-review
+    point: Before selecting or accepting an architecture alternative as a design decision.
+    reason: Project priorities, feasibility, and acceptable tradeoffs require accountable architect judgment.
+    required_artifacts: [architecture-alternatives, decision-record, architecture-views, design-exploration-report]
+runtime_requirements: [file-based design brief and artifacts, iteration history, evidence and assumption traceability, human approval record]
