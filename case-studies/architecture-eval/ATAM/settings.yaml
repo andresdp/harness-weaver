@@ -1,0 +1,6 @@
+# Defaults for the ATAM DeepAgents backend; command-line options override these values.
+case: data/banking.json
+output: ../../../examples/atam/deepagents/runs/banking-report.json
+model: openai:gpt-5.4-mini
+streaming: true
+verbose: true
