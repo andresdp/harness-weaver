@@ -1,0 +1,8 @@
+{
+  "name": "atam-evaluation",
+  "description": "A bounded ATAM software architecture evaluation harness generated from a shared HarnessSpec.",
+  "version": "0.1.0",
+  "author": {
+    "name": "HarnessWeaver"
+  }
+}

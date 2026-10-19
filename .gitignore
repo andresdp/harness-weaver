@@ -1,5 +1,10 @@
 .DS_Store
 
+# Local secrets
+.env
+.env.*
+!.env.example
+
 # Python-generated files
 __pycache__/
 *.py[cod]
@@ -12,3 +17,5 @@ benchmarks/atam/runs/protocol-smoke-20261018/
 # Standalone repositories; keep their histories separate from this repository
 case-studies/atam-evaluator/archevaluation-llms/
 case-studies/software-architecture-agent/
+/.agents
+skills-lock.json

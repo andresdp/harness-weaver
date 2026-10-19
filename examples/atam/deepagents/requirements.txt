@@ -1,0 +1,11 @@
+# Agent runtime and core LangChain interfaces.
+deepagents>=0.5.2
+langchain>=1.0,<2.0
+langchain-core>=1.0,<2.0
+langsmith>=0.3.0
+# Include both integrations so the configured provider can be selected at runtime.
+langchain-anthropic>=1.0.0
+langchain-openai>=1.0.0
+# Load local configuration and define the structured response contract.
+python-dotenv>=1.0,<2.0
+pydantic>=2.7,<3.0
