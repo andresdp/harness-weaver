@@ -145,6 +145,28 @@ class AtamReportPayload(StrictModel):
     evaluation_results: AtamEvaluationResults = Field(description="Generated ATAM evaluation results")
 
 
+class AtamContextArtifact(StrictModel):
+    """Typed context handoff used by sequential and fan-out strategies."""
+
+    metadata: AtamMetadata = Field(description="Known evaluation metadata, leaving unsupported fields null")
+    scope_summary: str = Field(description="Concise scope and business-driver summary grounded in the case")
+    evidence_gaps: list[str] = Field(description="Missing or uncertain inputs that downstream agents must preserve")
+
+
+class AtamPlanningArtifact(StrictModel):
+    """Typed utility-tree and architecture-approach work product."""
+
+    utility_tree: AtamUtilityTree = Field(description="Prioritized quality-attribute scenarios")
+    architectural_approaches: list[AtamArchitecturalApproach] = Field(description="Evidence-based architecture approaches")
+    scenarios: list[AtamScenario] = Field(description="Evaluation scenarios")
+
+
+class AtamScenarioAnalysisArtifact(StrictModel):
+    """Typed analysis records produced by the scenario specialist."""
+
+    analysis_records: list[AtamAnalysisRecord] = Field(description="Scenario-based reasoning and ATAM findings")
+
+
 class AtamCaseBody(BaseModel):
     """Case-file section containing evaluation inputs and optional reference data."""
 

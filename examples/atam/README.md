@@ -17,11 +17,11 @@ The profile is an adaptation for a bounded prototype. It does not claim that a m
 
 ## Current DeepAgents scope
 
-The DeepAgents backend produces an evidence-grounded ATAM report draft from the case's existing `evaluation_inputs`. Its report contract includes metadata, a utility tree, architectural approaches, scenarios, and scenario analysis records covering risks, non-risks, sensitivity points, and tradeoff points. The coordinator delegates an initial analysis to `quality-attribute-analyst`, then asks `evidence-reviewer` to check coverage and evidence support.
+The DeepAgents backend produces an evidence-grounded ATAM report draft from the case's existing `evaluation_inputs`. Its report contract includes metadata, a utility tree, architectural approaches, scenarios, and scenario analysis records covering risks, non-risks, sensitivity points, and tradeoff points. The v0.2 HarnessSpec supports a supervisor with one-shot specialists, a sequential pipeline with typed artifact handoffs, and parallel specialist fan-out with a typed join. These are runtime coordination choices; the pipeline stages do not imply that every ATAM activity, workshop, or stakeholder interaction has been completed.
 
 This is a bounded model-led pass, not a full ATAM evaluation. It does not conduct stakeholder presentations or workshops, elicit and validate priorities directly with stakeholders, or run the ATAM activities as explicit, controlled phases. It works from the supplied case evidence, marks gaps and uncertainty, and does not claim that a structurally complete report means the method was fully completed. A software architect must review the draft and resolve material gaps before using it for decisions.
 
-The skills describe the intended ATAM analysis coverage, but the current DeepAgents runtime does not yet enforce completion of each activity as a separate stage. Its generated report should therefore be treated as an analysis aid and starting point for architect-led evaluation.
+All modes preserve the supplied-input boundary, shared report schema, and common evaluation skills. The supervisor follows the existing delegated-agent prompt; the other modes use explicit stage/specialist prompts because coordination is external to their agents. Their reports should be treated as analysis aids and starting points for architect-led evaluation. Mode differences are fidelity and quality evidence, not proof of runtime equivalence.
 
 ## Validate and try the Claude plugin
 

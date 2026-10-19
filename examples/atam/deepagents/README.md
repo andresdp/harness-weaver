@@ -24,6 +24,7 @@ The runner loads `settings.yaml` from the root of the case study. For this examp
 case: data/banking.json
 output: ../../../examples/atam/deepagents/runs/banking-report.json
 model: openai:gpt-5.4-mini
+harness_spec: ../../../examples/atam/harnessspec-v0.2.yaml
 streaming: true
 verbose: true
 ```
@@ -48,9 +49,30 @@ To choose a case study explicitly (for example, when the case path is not provid
 conda run -n harness python run.py --case-study ../../../case-studies/architecture-eval/ATAM --no-streaming --no-verbose
 ```
 
+## Coordination profiles
+
+The v0.2 HarnessSpec declares workflow coordination separately from agent interaction. CLI options override each dimension independently, and the supported pairings are validated before the model is initialized:
+
+| Workflow strategy | Agent interaction | Runtime mapping |
+|---|---|---|
+| `supervisor` | `one_shot_specialist_delegation` | The existing ATAM coordinator delegates once to its named analyst and evidence reviewer. |
+| `sequential_pipeline` | `typed_artifact_handoffs` | Context, analysis, and review agents run in order; each consumes prior Pydantic artifacts. |
+| `fan_out_fan_in` | `parallel_specialist_delegation` | Context, utility-tree, and scenario-analysis specialists run concurrently; a reviewer joins their typed outputs. |
+
+For example:
+
+```bash
+conda run -n harness python run.py --workflow-strategy sequential_pipeline --agent-interaction typed_artifact_handoffs
+conda run -n harness python run.py --workflow-strategy fan_out_fan_in --agent-interaction parallel_specialist_delegation
+```
+
+Streaming and verbose logging remain presentation settings independent of coordination. The runner prints the effective HarnessSpec path and selected values in its dimmed YAML settings block. Each report keeps the common Pydantic ATAM contract and a session-specific filename.
+
 Each invocation prints a unique session ID, which is also attached as the LangGraph root run ID. When streaming with verbose output, the console shows subagent calls, skill instruction/reference reads, and tool calls with truncated arguments. Reports contain the session ID in their title and filename, such as `banking-report-<session-id>.json`.
 
-The runner reads only `ATAM_Evaluation.evaluation_inputs`; reference outputs are not sent to the agent. The coordinator delegates analysis to `quality-attribute-analyst`, then asks `evidence-reviewer` to check coverage and evidence before returning the report. DeepAgents requests generated metadata and ATAM findings through a Pydantic `ToolStrategy`; the runner attaches the original inputs and validates the final document with the Pydantic report contract. Reports require architect review before decision use.
+The runner reads only `ATAM_Evaluation.evaluation_inputs`; reference outputs are not sent to any strategy. DeepAgents requests generated artifacts through Pydantic `ToolStrategy` schemas; the report runner attaches the original inputs and validates the final document with the shared Pydantic report contract. Pipeline handoffs and fan-out joins fail before report publication if a required typed artifact is absent. Reports require architect review before decision use.
+
+The runtime-neutral contracts and strategy algorithms live under `src/harnessweaver/runtime/`; DeepAgents construction is isolated under `src/harnessweaver/adapters/deepagents/`. Optional provider and LangGraph dependencies are installed with `pip install -e '.[deepagents]'` when needed. Persistent peer-to-peer agent messaging and shared task-list collaboration are not mapped by this first adapter.
 
 ## Code layout
 
@@ -59,6 +81,7 @@ The runner reads only `ATAM_Evaluation.evaluation_inputs`; reference outputs are
 - `atam_harness/models.py`: Pydantic case, report, and agent-configuration contracts. The shared `report-template.json` remains the readable example of the report shape.
 - `prompts/`: editable coordinator and evaluation prompts.
 - `atam_harness/agents.py` and `atam_harness/agents.yaml`: DeepAgents setup and externally defined specialists.
+- `atam_harness/orchestration.py` and `prompts/orchestration.yaml`: ATAM typed stages and specialist calls for sequential and fan-out/fan-in modes.
 - `atam_harness/execution.py`: streaming and non-streaming execution paths with one final-state contract.
 - `atam_harness/progress.py`: console event formatting.
 - `atam_harness/reports.py`: typed case loading, report composition, validation, and output serialization.

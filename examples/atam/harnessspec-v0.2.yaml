@@ -32,6 +32,9 @@ workflow:
   purpose: Analyze an architecture description using ATAM concepts and produce a structured evaluation report.
   completion_criteria:
     - The ATAM report is structurally valid and evidence-review is complete.
+orchestration:
+  workflow_strategy: supervisor
+  agent_interaction: one_shot_specialist_delegation
 sources:
   - id: archeval-workflow
     ref: ../../case-studies/architecture-eval/ATAM/agents/main.py

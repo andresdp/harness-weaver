@@ -11,9 +11,15 @@ from urllib.parse import urlparse
 import jsonschema
 import yaml
 
+from harnessweaver.runtime.contracts import SUPPORTED_PROFILES
+
 
 SCHEMA_DIR = Path(__file__).resolve().parents[2] / "specs" / "harnessspec"
 SUPPORTED_VERSIONS = ("0.1", "0.2")
+SUPPORTED_ORCHESTRATION_PROFILES = {
+    (strategy.value, interaction.value)
+    for strategy, interaction in SUPPORTED_PROFILES
+}
 
 
 @dataclass(frozen=True)
@@ -103,6 +109,18 @@ def _unique_ids(document: dict[str, Any]) -> list[ValidationIssue]:
     return issues
 
 
+def _orchestration_issues(document: dict[str, Any]) -> list[ValidationIssue]:
+    """Reject declared strategy/interaction pairings the initial adapters cannot map."""
+    orchestration = document.get("orchestration")
+    if not isinstance(orchestration, dict):
+        return []
+    profile = (orchestration.get("workflow_strategy"), orchestration.get("agent_interaction"))
+    if profile not in SUPPORTED_ORCHESTRATION_PROFILES:
+        supported = ", ".join(f"{strategy}+{interaction}" for strategy, interaction in sorted(SUPPORTED_ORCHESTRATION_PROFILES))
+        return [ValidationIssue("orchestration", f"unsupported workflow_strategy/agent_interaction combination {profile[0]!r}+{profile[1]!r}; supported combinations: {supported}")]
+    return []
+
+
 def _file_references(document: dict[str, Any], spec_path: Path) -> list[ValidationIssue]:
     issues: list[ValidationIssue] = []
     refs: list[tuple[str, str]] = []
@@ -155,6 +173,7 @@ def validate_spec(document: dict[str, Any], spec_path: str | Path | None = None)
     if any(issue.location == "spec_version" or issue.location.startswith("spec_version.") for issue in issues):
         return issues
     issues.extend(_unique_ids(document))
+    issues.extend(_orchestration_issues(document))
     if spec_path is not None:
         issues.extend(_file_references(document, Path(spec_path).resolve()))
     return sorted(issues, key=lambda issue: (issue.location, issue.message))

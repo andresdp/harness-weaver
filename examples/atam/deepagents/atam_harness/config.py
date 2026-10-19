@@ -8,7 +8,10 @@ from typing import Any
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from .paths import DEFAULT_CASE_STUDY_ROOT, SETTINGS_FILENAME
+from harnessweaver.runtime import AgentInteraction, ExecutionProfile, WorkflowStrategy, profile_from_spec
+from harnessweaver.spec import SpecLoadError, load_spec
+
+from .paths import DEFAULT_CASE_STUDY_ROOT, DEFAULT_HARNESS_SPEC_PATH, SETTINGS_FILENAME
 
 
 class RunSettings(BaseModel):
@@ -20,6 +23,7 @@ class RunSettings(BaseModel):
     case: Path = Field(default=Path("data/banking.json"), description="Case JSON, relative to the case-study root")
     output: Path = Field(default=Path("runs/banking-report.json"), description="Report path, relative to the case-study root")
     model: str = Field(default="openai:gpt-5.4-mini", description="LangChain provider:model identifier")
+    harness_spec: Path = Field(default=DEFAULT_HARNESS_SPEC_PATH, description="HarnessSpec path, relative to the case-study root")
     streaming: bool = Field(default=True, description="Stream execution events while the agent runs")
     verbose: bool = Field(default=True, description="Display agent, skill, and tool progress")
 
@@ -30,9 +34,20 @@ class ResolvedRunConfig(BaseModel):
     case: Path
     output: Path
     model: str
+    harness_spec: Path
+    workflow_strategy: str
+    agent_interaction: str
     streaming: bool
     verbose: bool
     case_study_root: Path
+
+    @property
+    def execution_profile(self) -> ExecutionProfile:
+        """Expose the validated, separate coordination and interaction selections."""
+        return ExecutionProfile(
+            WorkflowStrategy(self.workflow_strategy),
+            AgentInteraction(self.agent_interaction),
+        )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -43,6 +58,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--case-study", type=Path, help="case-study root containing settings.yaml")
     parser.add_argument("--output", type=Path, help="report path (overrides settings.yaml)")
     parser.add_argument("--model", help="LangChain provider:model (overrides HW_ATAM_MODEL and YAML)")
+    parser.add_argument("--harness-spec", type=Path, help="HarnessSpec path (overrides settings.yaml)")
+    parser.add_argument("--workflow-strategy", choices=tuple(item.value for item in WorkflowStrategy))
+    parser.add_argument("--agent-interaction", choices=tuple(item.value for item in AgentInteraction))
     parser.add_argument("--streaming", action=argparse.BooleanOptionalAction, default=None)
     parser.add_argument("--verbose", action=argparse.BooleanOptionalAction, default=None)
     return parser
@@ -101,6 +119,16 @@ def resolve_config(args: argparse.Namespace, environ: dict[str, str] | None = No
     case = case_argument.expanduser().resolve() if case_argument else _resolve_setting_path(configured.case, case_study_root)
     output = args.output.expanduser().resolve() if args.output else _resolve_setting_path(configured.output, case_study_root)
     model = args.model or environment.get("HW_ATAM_MODEL") or configured.model
+    harness_spec = args.harness_spec.expanduser().resolve() if args.harness_spec else _resolve_setting_path(configured.harness_spec, case_study_root)
+    try:
+        spec_document = load_spec(harness_spec)
+        profile = profile_from_spec(
+            spec_document,
+            strategy=args.workflow_strategy,
+            interaction=args.agent_interaction,
+        )
+    except (OSError, SpecLoadError, ValueError) as exc:
+        raise ValueError(f"cannot resolve HarnessSpec orchestration from {harness_spec}: {exc}") from exc
     streaming = configured.streaming if args.streaming is None else args.streaming
     verbose = configured.verbose if args.verbose is None else args.verbose
 
@@ -108,6 +136,9 @@ def resolve_config(args: argparse.Namespace, environ: dict[str, str] | None = No
         case=case,
         output=output,
         model=model,
+        harness_spec=harness_spec,
+        workflow_strategy=profile.workflow_strategy.value,
+        agent_interaction=profile.agent_interaction.value,
         streaming=streaming,
         verbose=verbose,
         case_study_root=case_study_root,

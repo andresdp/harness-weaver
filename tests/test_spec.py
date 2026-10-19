@@ -68,6 +68,25 @@ class SpecValidationTests(unittest.TestCase):
         self.assertTrue(any("'methodology' is a required property" in message for message in messages))
         self.assertTrue(any("finished" in message for message in messages))
 
+    def test_v02_accepts_each_declared_orchestration_profile(self):
+        document = load_spec(EXAMPLE_V02)
+        for strategy, interaction in (
+            ("supervisor", "one_shot_specialist_delegation"),
+            ("sequential_pipeline", "typed_artifact_handoffs"),
+            ("fan_out_fan_in", "parallel_specialist_delegation"),
+        ):
+            document["orchestration"] = {"workflow_strategy": strategy, "agent_interaction": interaction}
+            self.assertEqual(validate_spec(document, EXAMPLE_V02), [])
+
+    def test_v02_rejects_unsupported_orchestration_pairing(self):
+        document = load_spec(EXAMPLE_V02)
+        document["orchestration"] = {
+            "workflow_strategy": "sequential_pipeline",
+            "agent_interaction": "one_shot_specialist_delegation",
+        }
+        messages = [str(issue) for issue in validate_spec(document)]
+        self.assertTrue(any("unsupported workflow_strategy/agent_interaction combination" in message for message in messages))
+
 
 if __name__ == "__main__":
     unittest.main()

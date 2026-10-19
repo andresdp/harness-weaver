@@ -2,5 +2,6 @@
 case: data/banking.json
 output: ../../../examples/atam/deepagents/runs/banking-report.json
 model: openai:gpt-5.4-mini
+harness_spec: ../../../examples/atam/harnessspec-v0.2.yaml
 streaming: true
 verbose: true

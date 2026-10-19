@@ -13,7 +13,7 @@ __pycache__/
 # Local ATAM reasoning traces and protocol smoke run
 case-studies/architecture-eval/ATAM/logs/**/*.log
 examples/atam/deepagents/runs/
-benchmarks/atam/runs/protocol-smoke-20261018/
+benchmarks/atam/runs/
 
 # Standalone repositories; keep their histories separate from this repository
 case-studies/atam-evaluator/archevaluation-llms/

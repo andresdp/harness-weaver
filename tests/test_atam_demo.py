@@ -110,6 +110,8 @@ class AtamDemoTests(unittest.TestCase):
             self.assertEqual(defaults.case, (root / "data/from-yaml.json").resolve())
             self.assertEqual(defaults.output, (root / "runs/from-yaml.json").resolve())
             self.assertEqual(defaults.model, "openai:test")
+            self.assertEqual(defaults.workflow_strategy, "supervisor")
+            self.assertEqual(defaults.agent_interaction, "one_shot_specialist_delegation")
             self.assertFalse(defaults.streaming)
             self.assertFalse(defaults.verbose)
 
@@ -120,6 +122,8 @@ class AtamDemoTests(unittest.TestCase):
                         "--case", str(root / "data/cli.json"),
                         "--output", str(root / "runs/cli.json"),
                         "--model", "anthropic:test",
+                        "--workflow-strategy", "sequential_pipeline",
+                        "--agent-interaction", "typed_artifact_handoffs",
                         "--streaming",
                         "--verbose",
                     ]
@@ -129,6 +133,8 @@ class AtamDemoTests(unittest.TestCase):
             self.assertEqual(overrides.case, (root / "data/cli.json").resolve())
             self.assertEqual(overrides.output, (root / "runs/cli.json").resolve())
             self.assertEqual(overrides.model, "anthropic:test")
+            self.assertEqual(overrides.workflow_strategy, "sequential_pipeline")
+            self.assertEqual(overrides.agent_interaction, "typed_artifact_handoffs")
             self.assertTrue(overrides.streaming)
             self.assertTrue(overrides.verbose)
 
@@ -147,6 +153,9 @@ class AtamDemoTests(unittest.TestCase):
             case=Path("/case-study/data/example.json"),
             output=Path("/case-study/runs/example.json"),
             model="anthropic:override",
+            harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+            workflow_strategy="fan_out_fan_in",
+            agent_interaction="parallel_specialist_delegation",
             streaming=False,
             verbose=True,
             case_study_root=Path("/case-study"),
@@ -155,7 +164,17 @@ class AtamDemoTests(unittest.TestCase):
         self.assertIn("model: anthropic:override", rendered)
         self.assertIn("streaming: false", rendered)
         self.assertIn("verbose: true", rendered)
+        self.assertIn("workflow_strategy: fan_out_fan_in", rendered)
+        self.assertIn("agent_interaction: parallel_specialist_delegation", rendered)
+        self.assertIn("harness_spec:", rendered)
         self.assertNotIn("case_study_root", rendered)
+
+    def test_strategy_override_requires_a_supported_interaction_pair(self):
+        with self.assertRaisesRegex(ValueError, "unsupported workflow_strategy/agent_interaction combination"):
+            resolve_config(
+                build_parser().parse_args(["--workflow-strategy", "sequential_pipeline"]),
+                environ={},
+            )
 
     def test_case_path_discovers_case_study_settings(self):
         # Supplying only the case automatically discovers its root settings.yaml.

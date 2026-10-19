@@ -1,0 +1,29 @@
+sequential_pipeline:
+  stages:
+    context: >-
+      Examine only the supplied ATAM evaluation inputs. Return evaluation metadata,
+      a scope summary, and evidence gaps as the requested typed context artifact.
+      Keep unknowns explicit; do not invent attendees, dates, priorities, or facts.
+    analysis: >-
+      Build the complete ATAM evaluation results from the supplied inputs and the
+      prior typed context artifact. Return the requested typed result. Preserve
+      evidence gaps and distinguish source facts from assumptions.
+    review: >-
+      Review the supplied inputs, context artifact, and typed ATAM results. Return
+      a complete report payload using those handoffs. Correct unsupported claims,
+      preserve uncertainty, and do not add facts absent from the inputs.
+fan_out_fan_in:
+  specialists:
+    context: >-
+      Extract known evaluation metadata, scope, and evidence gaps from the supplied
+      inputs. Do not invent missing values.
+    utility: >-
+      Build the ATAM utility tree, architecture approaches, and scenarios grounded
+      in the supplied inputs. Preserve unknowns and assumptions.
+    scenario: >-
+      Analyze supplied prioritized scenarios against documented architecture
+      evidence. Return analysis records with explicit reasoning and uncertainties.
+  join: >-
+    Review the supplied inputs and all typed specialist artifacts. Join them into
+    one complete ATAM report payload. Resolve only structural inconsistencies;
+    do not add unsupported architecture facts. Preserve gaps and uncertainty.
