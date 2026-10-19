@@ -1,0 +1,103 @@
+spec_version: "0.2"
+id: archeval-saam-wrcs
+domain: software architecture evaluation
+intent:
+  goal: Evaluate the WRCS architecture for modifiability, portability, and extendibility using only the supplied partial SAAM extraction.
+  scope: [scenario classification, change impact analysis, scenario interactions, evidence-grounded conclusions]
+  exclusions: [claims about the nine scenarios absent from the extraction, treating inferred extraction fields as source facts]
+methodology:
+  id: saam-partial-reference
+  name: SAAM scenario-based architecture analysis
+  source_refs:
+    - ../../case-studies/architecture-eval/SAAM/data/revision_control_system.json
+  adaptations:
+    - Preserve unknowns for absent reference material and inferred extraction fields.
+    - Do not claim a complete 15-scenario reconstruction from the six represented scenarios.
+semantic_state:
+  profile: saam-wrcs-evaluation
+  assessments:
+    - id: input-completeness
+      status: achieved
+      evidence_refs: [../../case-studies/architecture-eval/SAAM/data/revision_control_system.json#evaluation_inputs]
+      rationale: Partialness is disclosed; evaluation inputs are available.
+    - id: scenario-analysis
+      status: unknown
+      evidence_refs: []
+      rationale: Must be assessed from generated artifacts and reviewed evidence.
+  gaps:
+    - id: absent-scenarios
+      description: Nine of fifteen source scenarios are not represented in the extracted reference.
+      status: open
+      evidence_refs: [../../case-studies/architecture-eval/SAAM/data/revision_control_system.json#extraction_metadata]
+    - id: inferred-fields
+      description: Architecture style, evaluator roles, and scenario interaction grouping include extraction inferences.
+      status: open
+      evidence_refs: [../../case-studies/architecture-eval/SAAM/data/revision_control_system.json#extraction_metadata]
+  completion_criteria: [All represented references are traceable, unknown references remain unknown, and a qualified human reviewer records method and evidence judgments.]
+workflow:
+  id: saam-evaluation
+  purpose: Produce a structured SAAM analysis of represented scenarios and explicitly report evidence gaps.
+  completion_criteria: [Deterministic checks pass, human review is recorded, and partialness is disclosed.]
+sources:
+  - id: saam-wrcs-extraction
+    ref: ../../case-studies/architecture-eval/SAAM/data/revision_control_system.json
+    kind: partial-case-and-reference
+    authority: Case-study source; ground truth is evaluator-only
+    notes: Six of fifteen scenarios represented; several metadata fields are inferred.
+roles:
+  - id: saam-analyst
+    purpose: Analyze the supplied architecture and represented scenarios using SAAM concepts.
+  - id: evidence-reviewer
+    purpose: Separate source-supported findings, extraction inferences, and unknowns.
+stages:
+  - id: establish-context
+    role: saam-analyst
+    purpose: Identify scope, architecture evidence, quality focus, and extraction limitations.
+    inputs: [../../case-studies/architecture-eval/SAAM/data/revision_control_system.json#evaluation_inputs]
+    outputs: [evaluation-context]
+  - id: analyze-scenarios
+    role: saam-analyst
+    purpose: Classify represented scenarios and analyze known change impacts and interactions.
+    inputs: [../../case-studies/architecture-eval/SAAM/data/revision_control_system.json#evaluation_inputs]
+    outputs: [scenario-analysis]
+  - id: review-evidence
+    role: evidence-reviewer
+    purpose: Check traceability, uncertainty, completeness, and report limitations.
+    inputs: [artifact:scenario-analysis]
+    outputs: [SAAM_Evaluation]
+    human_gate: qualified-architect-review
+artifacts:
+  - id: evaluation-context
+    kind: methodology-state
+    direction: intermediate
+    ref: evaluation-context.json
+    description: Scope and known extraction gaps.
+  - id: scenario-analysis
+    kind: methodology-artifact
+    direction: intermediate
+    ref: scenario-analysis.json
+    description: Scenario classifications, evaluations, and interactions.
+  - id: saam-report
+    kind: structured-evaluation
+    direction: output
+    ref: SAAM_Evaluation
+    description: Evidence-grounded SAAM report with explicit unknowns and partialness.
+verification:
+  - id: reference-bounds
+    criterion: Claims are limited to represented scenario references.
+    method: Deterministic identifier and structure checks against evaluator-only represented references.
+    artifact: saam-report
+  - id: evidence-grounding
+    criterion: Architecture findings are supported by supplied evidence and inference is labeled.
+    method: Independent blinded human review.
+    artifact: saam-report
+  - id: partialness-disclosure
+    criterion: The output does not imply all fifteen scenarios are represented.
+    method: Deterministic boundary check and human review.
+    artifact: saam-report
+human_gates:
+  - id: qualified-architect-review
+    point: Before accepting the report as an architecture decision input.
+    reason: Scenario interpretation and evidence quality require qualified human judgment.
+    required_artifacts: [saam-report]
+runtime_requirements: [file-based artifacts, separate evaluator-only reference access, immutable run records]

@@ -1,0 +1,12 @@
+{
+  "benchmark_version": "0.1",
+  "case_id": "archeval-saam-wrcs-partial",
+  "source_case": "../../case-studies/architecture-eval/SAAM/data/revision_control_system.json",
+  "generation_input_pointer": "SAAM_Evaluation_Extract.evaluation_inputs",
+  "evaluation_only_pointer": "SAAM_Evaluation_Extract.ground_truth_outputs",
+  "harness_spec": "../../examples/saam/harnessspec.yaml",
+  "represented_scenario_ids": ["S-01", "S-02", "S-03", "S-04", "S-05", "S-06"],
+  "represented_classifications": ["S-01", "S-02", "S-03", "S-04", "S-05", "S-06"],
+  "represented_evaluations": ["S-01", "S-03", "S-04", "S-05", "S-06"],
+  "required_sections": ["scenarios", "scenario_classification", "scenario_evaluations", "scenario_interactions", "overall_results", "recommendations"]
+}
