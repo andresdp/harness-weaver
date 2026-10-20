@@ -23,8 +23,31 @@ class DesignExplorationProfileTests(unittest.TestCase):
         self.assertEqual(self.spec["semantic_state"]["gaps"][0]["status"], "open")
         self.assertEqual(self.spec["artifacts"][0]["ref"], "artifact:design-brief-input")
         self.assertEqual(self.spec["human_gates"][0]["id"], "architect-design-review")
-        self.assertIn("architecture-alternatives", self.spec["stages"][1]["outputs"])
-        self.assertIn("decision-record", self.spec["stages"][2]["outputs"])
+        stages = {stage["id"]: stage for stage in self.spec["stages"]}
+        self.assertEqual(stages["set-iteration-goal"]["outputs"], ["iteration-goal"])
+        self.assertIn("artifact:iteration-goal", stages["develop-alternatives"]["inputs"])
+        self.assertIn("architecture-alternatives", stages["develop-alternatives"]["outputs"])
+        self.assertIn("decision-record", stages["compare-decisions"]["outputs"])
+
+    def test_add_method_mapping_is_resolvable_and_records_human_review_adaptation(self):
+        mapping = next(source for source in self.spec["sources"] if source["id"] == "add-method-mapping")
+        mapping_path = (self.path.parent / mapping["ref"]).resolve()
+        self.assertTrue(mapping_path.is_file())
+        text = mapping_path.read_text(encoding="utf-8")
+        for activity in (
+            "Review and prioritize architectural drivers",
+            "Establish the goal for the current design iteration",
+            "Select architectural elements to refine or decompose",
+            "Select design concepts",
+            "Instantiate elements, relationships, responsibilities, and interfaces",
+            "Sketch preliminary architecture views and record design decisions",
+            "Analyze whether the iteration goal was achieved",
+        ):
+            self.assertIn(activity, text)
+        self.assertIn("does not require approval after every intermediate step", text)
+        self.assertIn("ReArch", text)
+        criteria = (self.path.parent / "review-criteria.md").read_text(encoding="utf-8")
+        self.assertIn("**Iteration control:**", criteria)
 
 
 if __name__ == "__main__":

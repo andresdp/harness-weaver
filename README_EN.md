@@ -73,15 +73,17 @@ Phase 7: Maintenance — evolution via /harness:evolve
 ```shell
 cp -r harness-en/skills/harness ~/.claude/skills/harness
 cp -r harness-en/skills/evolve ~/.claude/skills/evolve
+cp -r harness-en/skills/deepagents-port ~/.claude/skills/deepagents-port
 ```
 
 ### Install from this repository
 
-Pure-English editions of both skills, installable without the marketplace or plugin system — including on agents other than Claude Code (Cursor, Gemini CLI, OpenCode, …):
+The English harness, evolve, and DeepAgents port skills, installable without the marketplace or plugin system — including on agents other than Claude Code (Cursor, Gemini CLI, OpenCode, …):
 
 ```shell
 cp -r /path/to/harness-weaver/harness-en/skills/harness .claude/skills/harness
 cp -r /path/to/harness-weaver/harness-en/skills/evolve   .claude/skills/evolve
+cp -r /path/to/harness-weaver/harness-en/skills/deepagents-port .claude/skills/deepagents-port
 ```
 
 See [harness-en](harness-en) and the [manual setup guide](docs/manual-setup_EN.md) for details.

@@ -45,6 +45,7 @@ harness skill ──► .claude/ harness (test in Claude Code)
 cd your-project
 cp -r /path/to/harness-weaver/harness-en/skills/harness .claude/skills/harness
 cp -r /path/to/harness-weaver/harness-en/skills/evolve   .claude/skills/evolve
+cp -r /path/to/harness-weaver/harness-en/skills/deepagents-port .claude/skills/deepagents-port
 ```
 
 ### Claude Code (user-level, all projects)
@@ -52,6 +53,7 @@ cp -r /path/to/harness-weaver/harness-en/skills/evolve   .claude/skills/evolve
 ```shell
 cp -r /path/to/harness-weaver/harness-en/skills/harness ~/.claude/skills/harness
 cp -r /path/to/harness-weaver/harness-en/skills/evolve   ~/.claude/skills/evolve
+cp -r /path/to/harness-weaver/harness-en/skills/deepagents-port ~/.claude/skills/deepagents-port
 ```
 
 ### Other agents (Agent Skills standard)
@@ -107,7 +109,7 @@ Tracks the main repo: harness v2.1.0. Translation of the Korean originals at the
 
 ## Relationship to the main repo
 
-This checkout's active English skills are maintained in `harness-en/skills/`; install commands above use that source tree. The skill materials originated in the [revfactory/harness project](https://github.com/revfactory/harness). That project owns its separate plugin/marketplace distribution:
+This checkout's active English skills are maintained in `harness-en/skills/`; install commands above use that source tree, which is canonical for HarnessWeaver-specific changes. This repository does not generate or maintain a second in-repository copy of these skills. The skill materials originated in the [revfactory/harness project](https://github.com/revfactory/harness), whose plugin/marketplace distribution is separate. When porting upstream changes, reconcile them against HarnessWeaver's runtime-neutral contracts and record the upstream release and any intentional differences here or in the consolidation plan; do not assume automatic synchronization.
 
 ```shell
 /plugin marketplace add revfactory/harness

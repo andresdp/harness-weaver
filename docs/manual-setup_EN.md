@@ -2,7 +2,9 @@
 
 This guide covers installing the harness skills by **copying files directly** into your project or home directory — no Claude Code plugin marketplace, no plugin system. Use this when you can't or don't want to install plugins, or when you're using a coding agent other than Claude Code.
 
-For the standard marketplace install, see [quickstart_EN.md](quickstart_EN.md). For the standalone English package containing these skills, see [packages/harness-en](../packages/harness-en).
+For the standard marketplace install, see [quickstart_EN.md](quickstart_EN.md). The maintained English skill sources live in [`harness-en/skills/`](../harness-en/skills/).
+
+Set `HARNESSWEAVER_ROOT` to the local HarnessWeaver checkout before copying skills, for example `export HARNESSWEAVER_ROOT=/path/to/harness-weaver`.
 
 ---
 
@@ -12,11 +14,11 @@ Harness v2 ships two core skills, plus a runtime-bridge skill in the English pac
 
 | Skill | Location in this repo | Role |
 |-------|----------------------|------|
-| **harness** | `skills/harness/` | The factory — designs an agent team + skills for your project |
-| **evolve** | `skills/evolve/` | The evolution mechanism — feeds run feedback back into the harness |
-| **deepagents-port** (EN package only) | `packages/harness-en/skills/deepagents-port/` | Bridges to DeepAgents (LangChain) runtimes — advises portability-aware generation, then ports a tested harness to stage-based `AGENTS.md`/`SKILL.md` + JSON artifacts |
+| **harness** | `harness-en/skills/harness/` | The factory — designs an agent team + skills for your project |
+| **evolve** | `harness-en/skills/evolve/` | The evolution mechanism — feeds run feedback back into the harness |
+| **deepagents-port** | `harness-en/skills/deepagents-port/` | Bridges to DeepAgents (LangChain) runtimes — advises portability-aware generation, then ports a tested harness to stage-based `AGENTS.md`/`SKILL.md` + JSON artifacts |
 
-The plugin edition (Korean originals) lives at `skills/`. The English translations live at `packages/harness-en/skills/`. Both editions contain a `SKILL.md` plus, for harness, nine `references/` documents. If you install both editions side by side, rename one to avoid two skills answering to the same triggers.
+The English skills in `harness-en/skills/` are the maintained source tree. Each skill has a `SKILL.md`; the harness skill also has supporting references.
 
 ## Compatibility notes
 
@@ -32,20 +34,18 @@ Claude Code discovers skills from `.claude/skills/` in the project and `~/.claud
 ```shell
 cd your-project
 
-# English edition
-cp -r packages/harness-en/skills/harness .claude/skills/harness
-cp -r packages/harness-en/skills/evolve   .claude/skills/evolve
-
-# or the Korean plugin edition
-cp -r skills/harness .claude/skills/harness
-cp -r skills/evolve   .claude/skills/evolve
+# Maintained English skills
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/harness"         .claude/skills/harness
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/evolve"          .claude/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/deepagents-port" .claude/skills/deepagents-port
 ```
 
 **User-level (all your projects):**
 
 ```shell
-cp -r packages/harness-en/skills/harness ~/.claude/skills/harness
-cp -r packages/harness-en/skills/evolve   ~/.claude/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/harness"         ~/.claude/skills/harness
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/evolve"          ~/.claude/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/deepagents-port" ~/.claude/skills/deepagents-port
 ```
 
 **Verify:** start `claude` in the project and type `/` — both `harness` and `evolve` should appear, and `build a harness for this project` should trigger the harness skill. Use `/doctor` to diagnose installation issues.
@@ -57,8 +57,9 @@ Cursor loads skills from `.agents/skills/` or `.cursor/skills/` at project level
 ```shell
 cd your-project
 mkdir -p .agents/skills
-cp -r packages/harness-en/skills/harness .agents/skills/harness
-cp -r packages/harness-en/skills/evolve   .agents/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/harness"         .agents/skills/harness
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/evolve"          .agents/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/deepagents-port" .agents/skills/deepagents-port
 ```
 
 **Verify:** start Cursor, open Agent chat, type `/` and search for `harness`. Skills are discovered automatically on startup; Agent decides relevance from your request context, and you can pin a skill for a whole session via Custom Modes.
@@ -70,8 +71,9 @@ Gemini CLI discovers skills from `~/.gemini/skills/` (user) and `.gemini/skills/
 ```shell
 cd your-project
 mkdir -p .agents/skills
-cp -r packages/harness-en/skills/harness .agents/skills/harness
-cp -r packages/harness-en/skills/evolve   .agents/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/harness"         .agents/skills/harness
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/evolve"          .agents/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/deepagents-port" .agents/skills/deepagents-port
 ```
 
 **Verify:** run `/skills list` in a session; the installed skills should appear. Use `/skills disable <name>` / `/skills enable <name>` to manage them.
@@ -82,8 +84,9 @@ OpenCode searches `.opencode/skills/`, `.claude/skills/`, and `.agents/skills/` 
 
 ```shell
 cd your-project
-cp -r packages/harness-en/skills/harness .claude/skills/harness
-cp -r packages/harness-en/skills/evolve   .claude/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/harness"         .claude/skills/harness
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/evolve"          .claude/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/deepagents-port" .claude/skills/deepagents-port
 ```
 
 **Verify:** skills appear in the `skill` tool description; the agent loads them on demand by name.
@@ -134,7 +137,7 @@ For v2-style prompts that regenerate selected harness-100 examples with this rep
 
 ## Companion skills for porting (langchain-skills)
 
-The `deepagents-port` skill (EN package) assumes the official [langchain-skills](https://github.com/langchain-ai/langchain-skills) are **installed and available to the same coding agent** that runs the port — it defers to them for all code-side decisions (factory wiring, backends, checkpointers, subagents, interrupt/resume flows). Without them, the port still works but its Python-side output is not cross-checked against the official guidance (the skill says so in its port report).
+The `deepagents-port` skill assumes the official [langchain-skills](https://github.com/langchain-ai/langchain-skills) are **installed and available to the same coding agent** that runs the port — it defers to them for code-side decisions such as factory wiring, backends, checkpointers, subagents, and interrupt/resume flows. Without them, the port still works but its Python-side output is not cross-checked against that guidance.
 
 Install for any agent that supports the Agent Skills specification:
 
@@ -157,8 +160,9 @@ The skills are plain files, so updating means re-copying:
 ```shell
 cd your-project
 git -C /path/to/harness pull   # or download the latest copy
-cp -r /path/to/harness/packages/harness-en/skills/harness .claude/skills/harness
-cp -r /path/to/harness/packages/harness-en/skills/evolve   .claude/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/harness"         .claude/skills/harness
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/evolve"          .claude/skills/evolve
+cp -r "$HARNESSWEAVER_ROOT/harness-en/skills/deepagents-port" .claude/skills/deepagents-port
 ```
 
 Consider committing the installed skills to your project's repo so teammates inherit them via version control, and so the `evolve` skill's change history stays durable.
@@ -168,7 +172,7 @@ Consider committing the installed skills to your project's repo so teammates inh
 Delete the copied directories:
 
 ```shell
-rm -rf .claude/skills/harness .claude/skills/evolve
+rm -rf .claude/skills/harness .claude/skills/evolve .claude/skills/deepagents-port
 ```
 
 Generated harness artifacts in other projects (`.claude/agents/`, `.claude/skills/`, `CLAUDE.md` pointers) are independent of the skills that created them and keep working after uninstall.

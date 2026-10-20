@@ -23,6 +23,12 @@ class RunSettings(BaseModel):
     case: Path = Field(default=Path("data/banking.json"), description="Case JSON, relative to the case-study root")
     output: Path = Field(default=Path("runs/banking-report.json"), description="Report path, relative to the case-study root")
     model: str = Field(default="openai:gpt-5.4-mini", description="LangChain provider:model identifier")
+    request_timeout_seconds: float = Field(
+        default=180,
+        gt=0,
+        le=3600,
+        description="Maximum time for an individual provider model request",
+    )
     harness_spec: Path = Field(default=DEFAULT_HARNESS_SPEC_PATH, description="HarnessSpec path, relative to the case-study root")
     streaming: bool = Field(default=True, description="Stream execution events while the agent runs")
     verbose: bool = Field(default=True, description="Display agent, skill, and tool progress")
@@ -34,6 +40,7 @@ class ResolvedRunConfig(BaseModel):
     case: Path
     output: Path
     model: str
+    request_timeout_seconds: float
     harness_spec: Path
     workflow_strategy: str
     agent_interaction: str
@@ -136,6 +143,7 @@ def resolve_config(args: argparse.Namespace, environ: dict[str, str] | None = No
         case=case,
         output=output,
         model=model,
+        request_timeout_seconds=configured.request_timeout_seconds,
         harness_spec=harness_spec,
         workflow_strategy=profile.workflow_strategy.value,
         agent_interaction=profile.agent_interaction.value,

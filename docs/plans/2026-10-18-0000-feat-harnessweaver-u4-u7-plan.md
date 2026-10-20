@@ -13,15 +13,16 @@ product_contract_source: docs/harnessweaver-implementation-roadmap.md, STRATEGY.
 ## Goal Capsule
 
 - **Objective:** Complete roadmap units U4-U7 by making intent, domain knowledge, methodology, and semantic state explicit in the generated Harness IR; validating it against architecture evaluation and design exploration; and testing supported realization and evolution paths.
-- **Means:** Finish U4, then develop and review the two distinct methodology cases (U5 and U6); use those findings to guide runtime materialization and controlled evolution in U7.
+- **Means:** Finish U4, then deliver and compare the ATAM Claude plugin and DeepAgents runtime prototype in U7. Treat the WRCS SAAM evaluation (U5) and architecture design-exploration case (U6) as separate later cases; they do not gate the ATAM demo.
 - **Authority:** `STRATEGY.md` sets product direction; `CONCEPTS.md` defines shared terminology; `docs/harnessweaver-implementation-roadmap.md` is the product source and is updated alongside this plan when direction changes.
 - **Stop condition:** Each unit has traceable artifacts and verification evidence; the evaluation pilot discloses partial SAAM reference data; the exploration case uses its own declared review criteria; both record failures and human intervention; standalone case studies remain intact unless ownership and provenance authorize a change.
+- **Sequencing:** U4 → U7 (ATAM Claude plugin and DeepAgents demonstration) → U5 (separate WRCS SAAM evaluation case) and U6 (separate architecture design-exploration case). SAAM is not the ATAM prototype and does not gate the ATAM demonstration.
 
 ## Product Contract
 
 ### Summary
 
-HarnessWeaver separates intent, domain knowledge, methodology, and domain-semantic methodology state from the agents and runtime that enact them. A proportionate saved HarnessSpec is useful for reusable or complex work, while a simple one-off may use a lightweight brief. This plan covers the work after the initial inventory, spec, and Python validator (U1-U3): generator/evolver behavior, separate evaluation and design-exploration case studies, and later materialization/evolution across supported realization paths. HarnessWeaver currently aims to generate and evolve viable prototypes; it does not search for or select an optimal harness.
+HarnessWeaver separates intent, domain knowledge, methodology, and domain-semantic methodology state from the agents and runtime that enact them. A proportionate saved HarnessSpec is useful for reusable or complex work, while a simple one-off may use a lightweight brief. This plan covers the work after the initial inventory, spec, and Python validator (U1-U3): generator/evolver behavior, separate evaluation and design-exploration case studies, and bounded materialization/evolution across supported realization paths. HarnessWeaver currently aims to generate and evolve viable prototypes; it does not search for or select an optimal harness.
 
 ### Requirements
 
@@ -33,19 +34,20 @@ HarnessWeaver separates intent, domain knowledge, methodology, and domain-semant
 - R6. Architecture design exploration is modeled as a distinct methodology, with its own design inputs, decision artifacts, evaluation criteria, and expert review.
 - R7. Portability and evolution scenarios retain baselines, disclose fidelity gaps, and compare revisions under the same evaluation protocol.
 - R8. Keep the first proof in software architecture evaluation and design exploration; preserve the roadmap’s scope boundaries, case-study provenance, and existing research/ground-truth data.
+- R9. Let an architect select supported workflow coordination strategies and agent interaction styles as separate HarnessSpec concerns; each runtime adapter reports supported combinations and unsupported or approximated behavior for both.
 
 ### Scope Boundaries
 
-Included: canonical skill-source and synchronization rules; explicit methodology and semantic state in generated Harness IR; saved-spec and lightweight one-off paths; a bounded SAAM evaluation pilot; an ADD/ReArch-informed design-exploration case; later skills/DeepAgents fidelity mapping; one evidence-linked evolution comparison for each selected case.
+Included: canonical skill-source and synchronization rules; explicit methodology and semantic state in generated Harness IR; saved-spec and lightweight one-off paths; a bounded SAAM evaluation pilot; an ADD/ReArch-informed design-exploration case; a reusable DeepAgents runtime boundary and three workflow strategies plus supported agent interaction styles exercised against the same ATAM harness; one evidence-linked evolution comparison for each selected case.
 
-Deferred: general workflow execution, broad automatic generation, multi-domain benchmark claims, full case-study consolidation, autonomous optimization, and provider/model selection loops. Do not rebuild the software-architecture-agent UI or change evaluation ground truth.
+Deferred: a general-purpose, user-authored workflow engine; persistent Claude-style agent messaging and task-list semantics; broad automatic generation; multi-domain benchmark claims; full case-study consolidation; autonomous optimization; and provider/model selection loops. Do not rebuild the software-architecture-agent UI or change evaluation ground truth.
 
 ## Planning Contract
 
 ### Key Technical Decisions
 
 - KTD1. The implementation roadmap and this execution plan are kept aligned; this update changes both because the user provided the conversation context and research assets.
-- KTD2. Use the SAAM WRCS revision-control case for the first bounded evaluation pilot. Its JSON extraction is partial (six of fifteen scenarios represented, with some inferred fields), so accuracy scoring is restricted to known references and claims stay case-scoped.
+- KTD2. Use the SAAM WRCS revision-control case as a separate later bounded evaluation pilot, after the ATAM prototype demonstration. Its JSON extraction is partial (six of fifteen scenarios represented, with some inferred fields), so accuracy scoring is restricted to known references and claims stay case-scoped.
 - KTD3. Compare baseline and HarnessWeaver-guided variants under matched inputs and settings. Keep generation inputs separate from the evaluator's reference outputs; record unavoidable differences.
 - KTD4. Keep generator inputs and evaluation-only ground truth in separate paths and permissions. Blind reviewers see anonymized arm labels until their scores are locked.
 - KTD5. Keep method-derived procedure distinct from HarnessWeaver's agent-specific adaptations. Report fidelity and semantic loss for each runtime; do not treat a runtime-neutral IR as proof of equivalent execution.
@@ -53,10 +55,14 @@ Deferred: general workflow execution, broad automatic generation, multi-domain b
 - KTD7. Keep runtime selection as an architect choice among supported forms. DeepAgents and skills are realization paths, not competing definitions of HarnessWeaver; report actual capability and fidelity limits.
 - KTD8. Store each attempt in a distinct immutable run directory with a manifest. Partial or failed runs remain recorded but do not count as a quality comparison. Missing cost data is unavailable, never zero.
 - KTD9. U6 may change nested case-study application source only after U1’s ownership/provenance boundary is established. First reconcile the Stage 1 `user_id`/`project_id` call mismatch; do not touch research inputs or ground truth.
+- KTD10. Store the selected workflow strategy and agent interaction style in HarnessSpec for now, with run-time CLI overrides for controlled comparisons (session-settled: user-approved — chosen over a runtime-only default so the harness design records its intended coordination while comparisons can reuse one spec).
+- KTD11. Model workflow coordination separately from agent interaction. Begin with three workflow strategies: `supervisor`, `sequential_pipeline`, and `fan_out_fan_in`; declare agent interaction independently, validate only supported pairings, and keep the two dimensions distinct so workflow control is not confused with how agents exchange work/results.
+- KTD12. Keep runtime contracts in `src/harnessweaver/runtime/` and DeepAgents-specific construction in `src/harnessweaver/adapters/deepagents/`; optional backend dependencies must not be required to load or validate a HarnessSpec. Declare DeepAgents and LangGraph in the optional backend dependency set because the fan-out/fan-in adapter relies on LangGraph graph execution.
+- KTD13. Treat persistent Claude-style agent-to-agent messaging and shared task-list collaboration as unsupported in the initial DeepAgents adapter; use explicit typed/artifact handoffs or one-shot subagent delegation and record that fidelity boundary.
 
 ### High-Level Technical Design
 
-The workflow identifies intent, domain assets, and methodology from supplied material. Depending on task complexity, the input is a lightweight brief or a saved HarnessSpec. The generator creates a Harness IR with activities, readiness, artifacts, verification, completion, and semantic state; Python validates saved forms. U5 evaluates the representation on the partial-reference SAAM case. U6 tests a distinct architecture design-exploration method. U7 materializes supported forms, records fidelity, and applies evidence-linked evolution while preserving baselines.
+The workflow identifies intent, domain assets, and methodology from supplied material. Depending on task complexity, the input is a lightweight brief or a saved HarnessSpec. The generator creates a Harness IR with activities, readiness, artifacts, verification, completion, and semantic state; Python validates saved forms. U4 establishes that representation. U7 first demonstrates the ATAM harness through Claude plugin and DeepAgents forms, compares supported DeepAgents workflow strategies while holding agent interaction style constant, records fidelity, and applies evidence-linked evolution while preserving baselines. U5 and U6 then test the representation in separate SAAM evaluation and architecture design-exploration cases.
 
 ```mermaid
 flowchart LR
@@ -76,6 +82,22 @@ flowchart LR
     A --> R[Architect retains harness or engineers application]
 ```
 
+U7 keeps reusable orchestration contracts separate from the optional DeepAgents adapter and the ATAM domain runner. Workflow coordination and agent interaction are separate HarnessSpec dimensions:
+
+```mermaid
+flowchart LR
+    S[HarnessSpec workflow strategy + agent interaction] --> C[Runtime-neutral contracts]
+    C --> D[Optional DeepAgents adapter]
+    D --> M1[Supervisor]
+    D --> M2[Sequential pipeline]
+    D --> M3[Fan-out / fan-in]
+    M1 --> A[ATAM runner]
+    M2 --> A
+    M3 --> A
+    A --> R[Report + immutable run record]
+    R --> B[Benchmark checks and review]
+```
+
 ## Implementation Units
 
 ### U4. Make methodology and semantic state first-class in generator/evolver
@@ -91,7 +113,7 @@ flowchart LR
 
 - **Goal:** Test whether the intent/domain/methodology/state representation produces a useful architecture-evaluation prototype with evidence-grounded outputs.
 - **Files:** HarnessWeaver-owned benchmark configuration, immutable run manifests/artifacts, deterministic check definitions, and pilot report. Inspect `case-studies/architecture-eval/SAAM/data/revision_control_system.json` as the bounded source; use existing architecture-evaluation execution and human-review assets only where their method and case match. Keep source inputs and ground truth unchanged.
-- **Approach:** Use `case-studies/architecture-eval/SAAM/data/revision_control_system.json` as a bounded SAAM source. Respect its `completeness: Partial` metadata: only six of fifteen scenarios are represented and some fields are inferred. Give generation only `evaluation_inputs`; keep reference outputs evaluator-only. Score only represented facts and outputs, mark missing data unknown, and compare baseline/guided arms under matched settings. Record run manifests and human review; latency/cost may be unavailable and must not be recorded as zero.
+- **Approach:** Use `case-studies/architecture-eval/SAAM/data/revision_control_system.json` as a bounded, separate SAAM case; the first-version ATAM demo is delivered through the Claude plugin and DeepAgents backend under U7. Respect the SAAM source's `completeness: Partial` metadata: only six of fifteen scenarios are represented and some fields are inferred. Give generation `evaluation_inputs` plus the six source scenario IDs/texts needed to analyze the case; keep classifications, impact assessments, and all other reference outputs evaluator-only. Score only represented facts and outputs, mark missing data unknown, and compare baseline/guided arms under matched settings. Record run manifests and human review; latency/cost may be unavailable and must not be recorded as zero.
 - **Test scenarios:** Both arms have complete manifests; outputs pass contract/artifact checks; represented SAAM scenario references and evidence links are checked deterministically; reviewers assess method completeness and evidence-grounded reasoning; failed/partial runs are traceable but excluded from paired quality claims.
 - **Verification:** Produce one baseline and one guided run on the same case. Report structural checks, scenario coverage, evidence support, expert judgments/disagreement, omissions, time/change effort, and available cost/latency. Define metric procedures during the pilot; disclose missing ground truth and avoid generalization from this single case. Similarity and LLM-judge results are supplementary.
 - **Depends on:** U2, U3, and U4.
@@ -107,12 +129,12 @@ flowchart LR
 
 ### U7. Materialize and evolve the prototypes across supported realization paths
 
-- **Goal:** Test realization fidelity and feedback-driven evolution, then define when a prototype remains a harness or graduates to a dedicated application.
-- **Files:** HarnessWeaver-owned skill and Python/DeepAgents mappings, fidelity reports, immutable evolution records; software-architecture-agent source only after ownership and Stage 1 contract are resolved.
-- **Approach:** Materialize evaluation and design-exploration intent in supported forms. Record unsupported features, semantic loss, manual steps, and methodology-state handling. Apply an evidence-linked revision to each selected prototype, preserve the baseline, and rerun its case-specific criteria. Keep Firebase/auth/API/UI concerns out of generic Harness IR. Portability is a measured property of each mapping.
-- **Test scenarios:** Realizations preserve methodology intent/state or report loss; feedback maps to an explicit layer; revisions retain history; evolved and baseline versions are compared under identical criteria.
-- **Verification:** Report fidelity, quality, change effort, cost/latency where available, and regressions within the tested runtime/method combinations.
-- **Depends on:** U4-U6.
+- **Goal:** Establish a reusable runtime boundary and compare supported DeepAgents workflow strategies on the same ATAM harness while making agent interaction style an independent, recorded choice, before extending materialization to other cases.
+- **Files:** `src/harnessweaver/runtime/`, `src/harnessweaver/adapters/deepagents/`, `src/harnessweaver/spec.py`, `specs/harnessspec/v0.2.schema.json`, `pyproject.toml`, `examples/atam/harnessspec.yaml`, `examples/atam/deepagents/atam_harness/`, `examples/atam/deepagents/run.py`, `benchmarks/atam/pilot.py`, `tests/test_spec.py`, `tests/test_runtime.py`, `tests/test_deepagents_runtime.py`, and `tests/test_atam_demo.py`.
+- **Approach:** Add versioned workflow-strategy and agent-interaction declarations to HarnessSpec as separate fields. Preserve v0.1 loading and validation, and reject unknown or unsupported combinations with actionable errors. The spec supplies defaults; CLI overrides support controlled comparisons and are recorded as effective run configuration. Keep `src/harnessweaver` importable without DeepAgents or LangChain by placing backend imports behind the optional adapter. Declare DeepAgents and LangGraph in the optional backend dependency group; LangGraph provides the fan-out barrier and synthesis graph, using its shared-state and parallel-node semantics ([Graph API](https://docs.langchain.com/oss/python/langgraph/graph-api)), while DeepAgents supplies context-isolated specialist delegation ([DeepAgents subagents](https://docs.langchain.com/oss/python/deepagents/subagents)). Define typed, runtime-neutral run/result contracts; keep Pydantic report models and ATAM report composition inside the ATAM boundary. Start with these explicitly supported profiles: `supervisor` plus one-shot specialist delegation; `sequential_pipeline` plus typed artifact handoffs between declared ATAM stages; `fan_out_fan_in` plus parallel specialist delegation and a typed result join before ATAM synthesis and evidence review. Keep the two HarnessSpec fields separate, but validate only these supported combinations in the first adapter; no persistent peer-to-peer collaboration is claimed. Keep streaming and verbosity as orthogonal presentation settings. Preserve ATAM methodology, role definitions, domain skills, evidence boundary, and report schema across strategies; strategy-specific orchestration instructions may differ. Keep `benchmarks/atam/runs/` as run data, with the execution entry point in `benchmarks/atam/` or the existing example runner. Record each run's effective strategy and interaction style, input/spec fingerprints, model/runtime settings, status, output path, and available timing/cost without secrets. Report unsupported Claude semantics such as persistent agent messaging, workflow resume/cache/budget behavior, and majority-vote verification rather than implying equivalence.
+- **Test scenarios:** A v0.1 spec remains valid and a v0.2 spec accepts the three supported strategy/interaction profiles while rejecting typos and unsupported combinations; core spec validation imports without optional runtime dependencies. Fake-agent tests prove pipeline order and artifact handoffs, fan-out branch completeness and join behavior, and supervisor delegation without provider calls. Required-branch failures stop report publication and leave a failed run record; successful profiles produce the same Pydantic ATAM report contract. Streaming and non-streaming execution produce equivalent final reports. The runner passes only `evaluation_inputs`; CLI overrides change the effective strategy or interaction style without mutating the source spec. Concurrent runs receive separate output paths and manifests. One ATAM run per profile uses the same case, model, prompts, skills, and report contract; deterministic structure checks, scenario coverage, evidence grounding, latency, and available cost are recorded separately. Results compare the profiles as complete orchestration choices rather than attributing differences solely to workflow strategy; model variation and missing references are disclosed.
+- **Verification:** Run schema and runtime unit tests with fake agents, then perform one provider-backed ATAM run for each supported profile using the `harness` Conda environment. Compare the outputs with `benchmarks/atam/pilot.py` deterministic checks and the case-specific review protocol; keep trials as distinct immutable run records. Report failures, partial runs, capability gaps, semantic loss, and regressions. Do not use this single case to claim general quality improvement or full Claude/DeepAgents equivalence.
+- **Depends on:** U4.
 
 ## Verification Contract
 
@@ -121,7 +143,7 @@ flowchart LR
 | Skill conformance | U4 | Scenario results, spec-valid outputs, provenance retained, canonical source/mirror consistency, explicit unsupported-capability report. |
 | Benchmark integrity | U5 | Paired manifests and settings, generator/evaluator data separation, deterministic checks, locked blind review, immutable run records. |
 | Evaluation and exploration validity | U5, U6 | Source-derived criteria, human review, partial references and unknowns disclosed, generation/evaluation data separated. |
-| Adapter fidelity | U7 | Methodology/state mapping, capability gaps, unsupported behavior, and semantic loss recorded. |
+| Runtime modes and adapter fidelity | U7 | Workflow strategy and agent interaction resolve independently from HarnessSpec or explicit overrides; capability gaps, unsupported behavior, semantic loss, and methodology/state mapping are recorded. |
 | Evolution quality | U7 | Feedback-linked change, preserved baseline, same-protocol comparison, improvement/regression evidence. |
 
 Use `conda run -n harness ...` for project Python commands, as required by `AGENTS.md`. Do not run model-based cases without recording model/runtime settings. Do not change standalone case-study source, research inputs, or ground truth before ownership and provenance are established.
@@ -131,7 +153,9 @@ Use `conda run -n harness ...` for project Python commands, as required by `AGEN
 - Harness and evolve skills consume HarnessSpec coherently, with a documented canonical source and reproducible mirror policy.
 - Baseline and HarnessWeaver-guided SAAM runs have immutable manifests and disclose partial reference data and unknowns.
 - An architecture design-exploration case has a source-traceable method mapping, declared review criteria, and expert-reviewed prototype results.
-- Skills/DeepAgents realization reports capability coverage and semantic loss; any nested application change respects established ownership.
+- The shared runtime remains optional-backend-safe; the optional DeepAgents/LangGraph adapter runs the ATAM harness in supervisor, sequential-pipeline, and fan-out/fan-in workflow strategies, with agent interaction declared separately, under one output contract.
+- Mode-specific runs record effective configuration and can be checked and compared with the existing ATAM benchmark protocol; capability coverage and semantic loss are reported.
+- Any nested application change respects established ownership.
 - Evidence-linked evolution comparisons preserve original baselines and use the same case-specific criteria.
 - Results state the tested scope and limitations; no broad quality claim rests on the single-case pilot.
 - `docs/harnessweaver-implementation-roadmap.md` remains the product source and stays aligned with this execution plan.

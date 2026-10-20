@@ -173,7 +173,22 @@
             "<Attribute 2>"
           ]
         }
-      ]
+      ],
+      "semantic_state": {
+        "context_status": {"value": "missing | partial | sufficient", "evidence": ["<Observed input or artifact fact>"]},
+        "driver_status": {"value": "missing | partial | sufficient", "evidence": ["<Observed input or artifact fact>"]},
+        "architecture_evidence_status": {"value": "missing | partial | sufficient", "evidence": ["<Observed input or artifact fact>"]},
+        "scenario_analysis_status": {"value": "not_started | partial | reviewed", "evidence": ["<Analysis or review evidence>"]},
+        "report_status": {"value": "not_started | draft | reviewed", "evidence": ["<Draft or review evidence>"]},
+        "gaps": [
+          {
+            "description": "<Unknown, conflict, or incomplete input>",
+            "affected_activity": "<ATAM activity ID>",
+            "missing_evidence": "<Evidence needed>",
+            "resolution_question": "<Question for the architect or stakeholder>"
+          }
+        ]
+      }
     }
   }
 }

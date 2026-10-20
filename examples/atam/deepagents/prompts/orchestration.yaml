@@ -1,17 +1,26 @@
 sequential_pipeline:
   stages:
-    context: >-
-      Examine only the supplied ATAM evaluation inputs. Return evaluation metadata,
-      a scope summary, and evidence gaps as the requested typed context artifact.
-      Keep unknowns explicit; do not invent attendees, dates, priorities, or facts.
-    analysis: >-
-      Build the complete ATAM evaluation results from the supplied inputs and the
-      prior typed context artifact. Return the requested typed result. Preserve
-      evidence gaps and distinguish source facts from assumptions.
-    review: >-
-      Review the supplied inputs, context artifact, and typed ATAM results. Return
-      a complete report payload using those handoffs. Correct unsupported claims,
-      preserve uncertainty, and do not add facts absent from the inputs.
+    establish-context: >-
+      Examine only the supplied evaluation inputs. Return evaluation metadata,
+      scope, business drivers, constraints, and evidence gaps as the requested typed
+      context artifact. Keep unknowns explicit; do not invent attendees, dates, or facts.
+    build-utility-tree: >-
+      Refine the supplied quality-attribute drivers into measurable, prioritized
+      utility-tree scenarios. Return the requested tree and evaluation scenarios;
+      preserve unresolved priorities as unknowns.
+    identify-approaches: >-
+      Identify architectural approaches supported by supplied architecture evidence.
+      Return the requested typed approaches and their addressed quality attributes;
+      do not infer undocumented decisions.
+    analyze-scenarios: >-
+      Analyze the supplied prioritized scenarios against the supplied architecture
+      approaches and evidence. Return typed analysis records with reasoning, risks,
+      non-risks, sensitivity points, and tradeoffs; preserve uncertainty.
+    synthesize-and-review: >-
+      Assemble the supplied typed context, utility tree, approaches, and analysis
+      into a complete ATAM report payload. Check evidence traceability, coverage,
+      uncertainty, semantic-state evidence, and structure; correct unsupported claims
+      without adding facts. Keep the report status at draft until architect review.
 fan_out_fan_in:
   specialists:
     context: >-
@@ -26,4 +35,6 @@ fan_out_fan_in:
   join: >-
     Review the supplied inputs and all typed specialist artifacts. Join them into
     one complete ATAM report payload. Resolve only structural inconsistencies;
-    do not add unsupported architecture facts. Preserve gaps and uncertainty.
+    do not add unsupported architecture facts. Preserve gaps and uncertainty, and
+    populate evidence-backed methodology status separately from runtime completion.
+    Keep the report status at draft until architect review.

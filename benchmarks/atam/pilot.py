@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
-from collections.abc import Mapping
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import yaml
 
+from harnessweaver._integrity import contains_secret_setting as _contains_secret_setting
+from harnessweaver._integrity import sha256_bytes, sha256_file as sha256
 from harnessweaver.runtime import AgentInteraction, ExecutionProfile, WorkflowStrategy
 
 CONFIG_PATH = Path(__file__).with_name("pilot.json")
@@ -21,14 +21,6 @@ RUNS_DIR = Path(__file__).with_name("runs")
 
 def read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
-
-
-def sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as source:
-        for chunk in iter(lambda: source.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 def resolve(reference: str) -> Path:
@@ -43,17 +35,21 @@ def prepare(run_id: str) -> Path:
     spec_path = resolve(config["harness_spec"])
     harness_assets = config["harness_assets"]
     harness_fingerprints = {asset: sha256(resolve(asset)) for asset in harness_assets}
-    harness_digest = hashlib.sha256(
+    harness_digest = sha256_bytes(
         "".join(f"{asset}:{fingerprint}\n" for asset, fingerprint in sorted(harness_fingerprints.items())).encode("utf-8")
-    ).hexdigest()
-    source = read_json(case_path)["ATAM_Evaluation"]
+    )
+    case_bytes = case_path.read_bytes()
+    source = json.loads(case_bytes.decode("utf-8"))["ATAM_Evaluation"]
     if "evaluation_inputs" not in source or "ground_truth_outputs" not in source:
         raise ValueError("source case must contain separate evaluation_inputs and ground_truth_outputs")
 
     run_dir = RUNS_DIR / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
     input_path = run_dir / "evaluation_input.json"
-    input_path.write_text(json.dumps({"ATAM_Evaluation": {"evaluation_inputs": source["evaluation_inputs"]}}, indent=2) + "\n", encoding="utf-8")
+    input_bytes = (
+        json.dumps({"ATAM_Evaluation": {"evaluation_inputs": source["evaluation_inputs"]}}, indent=2) + "\n"
+    ).encode("utf-8")
+    input_path.write_bytes(input_bytes)
     manifest = {
         "manifest_version": "0.1",
         "run_id": run_id,
@@ -62,9 +58,9 @@ def prepare(run_id: str) -> Path:
         "arm": "unassigned",
         "status": "prepared",
         "source_case": config["source_case"],
-        "source_case_sha256": sha256(case_path),
+        "source_case_sha256": sha256_bytes(case_bytes),
         "evaluation_input": "evaluation_input.json",
-        "evaluation_input_sha256": sha256(input_path),
+        "evaluation_input_sha256": sha256_bytes(input_bytes),
         "harness_spec": config["harness_spec"],
         "harness_spec_version": yaml.safe_load(spec_path.read_text(encoding="utf-8"))["spec_version"],
         "harness_spec_sha256": sha256(spec_path),
@@ -93,6 +89,39 @@ def check(prediction: Path) -> list[str]:
     for section in config["required_sections"]:
         if section not in generated:
             problems.append(f"missing required section: {section}")
+    semantic_state = generated.get("semantic_state")
+    state_statuses = {
+        "context_status": {"missing", "partial", "sufficient"},
+        "driver_status": {"missing", "partial", "sufficient"},
+        "architecture_evidence_status": {"missing", "partial", "sufficient"},
+        "scenario_analysis_status": {"not_started", "partial", "reviewed"},
+        "report_status": {"not_started", "draft", "reviewed"},
+    }
+    if not isinstance(semantic_state, dict):
+        problems.append("semantic_state must be an object with evidence-backed methodology status")
+    else:
+        for field, allowed_statuses in state_statuses.items():
+            assessment = semantic_state.get(field)
+            if not isinstance(assessment, dict):
+                problems.append(f"semantic_state.{field} must be an object")
+                continue
+            if assessment.get("value") not in allowed_statuses:
+                problems.append(f"semantic_state.{field}.value must be one of {sorted(allowed_statuses)}")
+            evidence = assessment.get("evidence")
+            if not isinstance(evidence, list) or not evidence or not all(isinstance(item, str) and item.strip() for item in evidence):
+                problems.append(f"semantic_state.{field}.evidence must contain at least one non-empty evidence item")
+        gaps = semantic_state.get("gaps")
+        if not isinstance(gaps, list):
+            problems.append("semantic_state.gaps must be an array")
+        else:
+            for index, gap in enumerate(gaps):
+                if not isinstance(gap, dict):
+                    problems.append(f"semantic_state.gaps[{index}] must be an object")
+                    continue
+                for field in ("description", "affected_activity", "missing_evidence", "resolution_question"):
+                    value = gap.get(field)
+                    if not isinstance(value, str) or not value.strip():
+                        problems.append(f"semantic_state.gaps[{index}].{field} is required")
     approaches = generated.get("architectural_approaches", [])
     if not isinstance(approaches, list) or not approaches:
         problems.append("architectural_approaches must be a non-empty array")
@@ -110,15 +139,12 @@ def check(prediction: Path) -> list[str]:
     scenarios = generated.get("scenarios", [])
     if not isinstance(scenarios, list) or not scenarios:
         problems.append("scenarios must be a non-empty array")
-    generated_scenario_ids = {item.get("scenario_id") for item in scenarios if isinstance(item, dict) and item.get("scenario_id")}
-    generated_scenario_texts = {
-        " ".join(item["scenario_text"].split())
-        for item in scenarios
-        if isinstance(item, dict) and isinstance(item.get("scenario_text"), str) and item["scenario_text"].strip()
-    }
-    # ATAM analysis records point to raw case scenarios; prioritized utility-tree
-    # scenarios are a different artifact and need not repeat those IDs or wording.
-    evaluation_inputs = atam.get("evaluation_inputs", {})
+    # Use the configured source case as the authority for generation inputs.
+    # A prediction is untrusted, so its copy of evaluation_inputs cannot validate
+    # its own scenario references.
+    source_case = read_json(resolve(config["source_case"]))
+    source_atam = source_case.get("ATAM_Evaluation", {})
+    evaluation_inputs = source_atam.get("evaluation_inputs", {}) if isinstance(source_atam, dict) else {}
     raw_scenarios = evaluation_inputs.get("raw_candidate_scenarios", []) if isinstance(evaluation_inputs, dict) else []
     source_scenario_ids = {item.get("id") for item in raw_scenarios if isinstance(item, dict) and item.get("id")}
     source_scenario_texts = {
@@ -126,8 +152,10 @@ def check(prediction: Path) -> list[str]:
         for item in raw_scenarios
         if isinstance(item, dict) and isinstance(item.get("description"), str) and item["description"].strip()
     }
-    reference_ids = source_scenario_ids or generated_scenario_ids
-    reference_texts = source_scenario_texts or generated_scenario_texts
+    reference_ids = source_scenario_ids
+    reference_texts = source_scenario_texts
+    if not reference_ids and not reference_texts:
+        problems.append("configured ATAM source case has no raw candidate scenarios to validate against")
     records = generated.get("analysis_records", [])
     if not isinstance(records, list) or not records:
         problems.append("analysis_records must be a non-empty array")
@@ -140,7 +168,7 @@ def check(prediction: Path) -> list[str]:
         raw_text = reference.get("text", "") if isinstance(reference, dict) else ""
         scenario_text = " ".join(raw_text.split()) if isinstance(raw_text, str) else ""
         if not ((scenario_id and scenario_id in reference_ids) or (scenario_text and scenario_text in reference_texts)):
-            problems.append(f"analysis_records[{index}].scenario_reference must match a generated scenario by id or text")
+            problems.append(f"analysis_records[{index}].scenario_reference must match a raw source scenario by id or text")
         findings = record.get("findings", {})
         if not isinstance(findings, dict):
             problems.append(f"analysis_records[{index}].findings must be an object")
@@ -175,19 +203,7 @@ def record_execution(
     if status not in {"succeeded", "partial", "failed"}:
         raise ValueError("status must be succeeded, partial, or failed")
     profile = ExecutionProfile.from_values(workflow_strategy, agent_interaction)
-    forbidden = {"api_key", "token", "secret", "password", "credential"}
-    def has_secret_key(value: Any) -> bool:
-        """Check nested settings too so a secret cannot hide inside a sub-object."""
-        if isinstance(value, Mapping):
-            return any(
-                any(secret in str(key).lower() for secret in forbidden) or has_secret_key(item)
-                for key, item in value.items()
-            )
-        if isinstance(value, list):
-            return any(has_secret_key(item) for item in value)
-        return False
-
-    if has_secret_key(settings):
+    if _contains_secret_setting(settings):
         raise ValueError("settings must not contain credentials or secrets")
     if prediction is not None:
         prediction = prediction.resolve()

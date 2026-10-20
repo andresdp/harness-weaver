@@ -14,6 +14,8 @@ methodology:
   adaptations:
     - Preserve design goals, quality attribute scenarios, constraints, and selected architecture decisions as explicit artifacts.
     - Permit bounded iteration and comparison of alternatives; an architect selects or revises the candidate.
+    - Group the source ADD activities into this profile's five stages; use method-mapping.md to retain the source-to-artifact trace rather than implying a canonical five-step ADD procedure.
+    - Preserve the paper's human-guided, stepwise review as the method source, while this initial prototype places its required gate after the bounded comparison. Add intermediate review gates when the case requires them.
     - ReArch is a contrasting exploration source documented in the review protocol, not silently combined with ADD activities.
     - Missing requirements and unsupported assumptions remain open questions rather than being filled with invented facts.
 semantic_state:
@@ -63,6 +65,10 @@ sources:
     ref: review-criteria.md
     kind: human-review-protocol
     authority: HarnessWeaver pilot protocol
+  - id: add-method-mapping
+    ref: method-mapping.md
+    kind: source-to-profile-method-mapping
+    authority: HarnessWeaver adaptation of the cited ADD source
 roles:
   - id: design-facilitator
     purpose: Maintain design goals, constraints, quality scenarios, and unresolved questions; identify missing input.
@@ -78,23 +84,30 @@ stages:
     outputs: [design-context]
     readiness: [Goals, constraints, and quality scenarios are supplied or recorded as open questions.]
     completion_criteria: [The design context separates supplied facts, derived interpretations, and unresolved questions.]
+  - id: set-iteration-goal
+    role: design-facilitator
+    purpose: Select the key design drivers for a bounded design iteration.
+    inputs: [artifact:design-context]
+    outputs: [iteration-goal]
+    readiness: [The design context has supplied or explicitly unresolved goals, constraints, and quality scenarios.]
+    completion_criteria: [The goal names the drivers this iteration will address and preserves their source or assumption status.]
   - id: develop-alternatives
     role: alternative-designer
-    purpose: Develop a small set of architecture alternatives responsive to the prioritized drivers and constraints.
-    inputs: [artifact:design-context]
-    outputs: [architecture-alternatives]
-    readiness: [The design context has enough information to compare at least two options, or the blocker is documented.]
-    completion_criteria: [Each option states structural elements, rationale, driver coverage, and assumptions.]
+    purpose: Select elements and design concepts, then instantiate a small set of alternatives responsive to the iteration goal.
+    inputs: [artifact:design-context, artifact:iteration-goal]
+    outputs: [architecture-alternatives, architecture-views]
+    readiness: [The iteration goal and enough design context to compare at least two options are available, or the blocker is documented.]
+    completion_criteria: [Each option states structural elements, relationships, rationale, driver coverage, views, and assumptions.]
   - id: compare-decisions
     role: alternative-designer
     purpose: Compare alternatives against drivers, constraints, expected consequences, and unresolved tradeoffs; retain iteration history.
-    inputs: [artifact:design-context, artifact:architecture-alternatives]
-    outputs: [decision-record, architecture-views]
+    inputs: [artifact:design-context, artifact:iteration-goal, artifact:architecture-alternatives, artifact:architecture-views]
+    outputs: [decision-record]
     completion_criteria: [The record explains consequences and tradeoffs without asserting a universally best option.]
   - id: validate-and-review
     role: decision-reviewer
     purpose: Check artifact traceability and prepare explicit questions for qualified architect review.
-    inputs: [artifact:design-context, artifact:architecture-alternatives, artifact:decision-record, artifact:architecture-views]
+    inputs: [artifact:design-context, artifact:iteration-goal, artifact:architecture-alternatives, artifact:decision-record, artifact:architecture-views]
     outputs: [design-exploration-report]
     human_gate: architect-design-review
 artifacts:
@@ -113,6 +126,11 @@ artifacts:
     direction: intermediate
     ref: architecture-alternatives.json
     description: Bounded candidate architectures with structures, driver coverage, rationale, consequences, and assumptions.
+  - id: iteration-goal
+    kind: methodology-artifact
+    direction: intermediate
+    ref: iteration-goal.md
+    description: Prioritized drivers and bounded goal for one design iteration.
   - id: decision-record
     kind: decision-artifact
     direction: intermediate

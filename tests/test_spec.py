@@ -1,4 +1,6 @@
 from pathlib import Path
+import subprocess
+import sys
 import unittest
 
 from harnessweaver.spec import SpecLoadError, load_spec, validate_spec
@@ -10,6 +12,30 @@ EXAMPLE_V02 = ROOT / "examples" / "atam" / "harnessspec-v0.2.yaml"
 
 
 class SpecValidationTests(unittest.TestCase):
+    def test_spec_validation_does_not_import_optional_agent_frameworks(self):
+        source = r'''
+import sys
+from importlib.abc import MetaPathFinder
+
+class BlockAgentFrameworks(MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname.split(".")[0] in {"deepagents", "langchain", "langgraph"}:
+            raise AssertionError(f"optional framework imported: {fullname}")
+
+sys.meta_path.insert(0, BlockAgentFrameworks())
+from harnessweaver.spec import load_spec, validate_spec
+from pathlib import Path
+spec = Path(sys.argv[1])
+assert validate_spec(load_spec(spec), spec) == []
+'''
+        result = subprocess.run(
+            [sys.executable, "-c", source, str(EXAMPLE_V02)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_atam_example_is_valid_and_references_exist(self):
         document = load_spec(EXAMPLE)
         self.assertEqual(validate_spec(document, EXAMPLE), [])
@@ -41,6 +67,14 @@ class SpecValidationTests(unittest.TestCase):
         messages = [str(issue) for issue in validate_spec(document)]
         self.assertTrue(any("unknown role 'missing'" in message for message in messages))
         self.assertTrue(any("'domain' is a required property" in message for message in messages))
+
+    def test_malformed_sections_return_schema_errors_without_crashing(self):
+        for section, malformed_value in (("sources", None), ("roles", {}), ("stages", "invalid")):
+            with self.subTest(section=section):
+                document = load_spec(EXAMPLE)
+                document[section] = malformed_value
+                issues = validate_spec(document)
+                self.assertTrue(any(issue.location.startswith(section) for issue in issues))
 
     def test_missing_local_reference_is_reported(self):
         document = load_spec(EXAMPLE)

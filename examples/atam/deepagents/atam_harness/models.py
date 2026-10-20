@@ -1,8 +1,9 @@
 """Pydantic contracts for ATAM model output and runner configuration."""
 
-from typing import Any
+from pathlib import Path
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class StrictModel(BaseModel):
@@ -122,6 +123,78 @@ class AtamAnalysisRecord(StrictModel):
     findings: AtamAnalysisFindings = Field(description="Risks, non-risks, sensitivity points, and tradeoffs")
 
 
+class AtamEvidenceBasis(StrictModel):
+    """Evidence-backed basis shared by ATAM methodology status assessments."""
+
+    evidence: list[str] = Field(
+        min_length=1,
+        description="At least one observed input or artifact fact supporting this status, including evidence of absence",
+    )
+
+    @field_validator("evidence")
+    @classmethod
+    def evidence_items_must_contain_text(cls, evidence: list[str]) -> list[str]:
+        # Match the benchmark contract: whitespace alone is not evidence.
+        if any(not item.strip() for item in evidence):
+            raise ValueError("evidence items must contain non-whitespace text")
+        return evidence
+
+
+class AtamAvailabilityAssessment(AtamEvidenceBasis):
+    """Status for context, drivers, or architecture evidence availability."""
+
+    value: Literal["missing", "partial", "sufficient"] = Field(description="Availability status")
+
+
+class AtamReviewAssessment(AtamEvidenceBasis):
+    """Status for analysis or report review progress."""
+
+    value: Literal["not_started", "partial", "reviewed"] = Field(description="Review progress status")
+
+
+class AtamReportAssessment(AtamEvidenceBasis):
+    """Status for report drafting and review progress."""
+
+    value: Literal["not_started", "draft", "reviewed"] = Field(description="Report progress status")
+
+
+class AtamEvidenceGap(StrictModel):
+    """A missing item that limits an ATAM activity or finding."""
+
+    description: str = Field(min_length=1, description="What is unknown, conflicting, or incomplete")
+    affected_activity: str = Field(min_length=1, description="ATAM methodology activity affected by this gap")
+    missing_evidence: str = Field(min_length=1, description="Evidence needed to resolve or reduce the gap")
+    resolution_question: str = Field(
+        min_length=1,
+        description="Question for the architect or stakeholder who can resolve the gap",
+    )
+
+    @field_validator("description", "affected_activity", "missing_evidence", "resolution_question")
+    @classmethod
+    def gap_fields_must_contain_text(cls, value: str) -> str:
+        # Keep typed reports consistent with the deterministic report checker.
+        if not value.strip():
+            raise ValueError("gap fields must contain non-whitespace text")
+        return value
+
+
+class AtamSemanticState(StrictModel):
+    """ATAM progress semantics kept distinct from runtime execution status."""
+
+    context_status: AtamAvailabilityAssessment = Field(description="Evidence-backed status for evaluation context")
+    driver_status: AtamAvailabilityAssessment = Field(description="Evidence-backed status for quality attribute drivers")
+    architecture_evidence_status: AtamAvailabilityAssessment = Field(
+        description="Evidence-backed status for architecture evidence"
+    )
+    scenario_analysis_status: AtamReviewAssessment = Field(
+        description="Evidence-backed status for scenario analysis; reviewed requires review evidence"
+    )
+    report_status: AtamReportAssessment = Field(
+        description="Evidence-backed status for report drafting and review"
+    )
+    gaps: list[AtamEvidenceGap] = Field(description="Material evidence gaps and questions that remain unresolved")
+
+
 class AtamScenario(StrictModel):
     """Evaluation scenario and the quality attributes it primarily exercises."""
 
@@ -136,6 +209,9 @@ class AtamEvaluationResults(StrictModel):
     architectural_approaches: list[AtamArchitecturalApproach] = Field(description="Approaches considered in the evaluation")
     analysis_records: list[AtamAnalysisRecord] = Field(description="Scenario-based analyses and their findings")
     scenarios: list[AtamScenario] = Field(description="Scenarios used to evaluate the architecture")
+    semantic_state: AtamSemanticState = Field(
+        description="Evidence-based ATAM progress, independent of agent calls and runtime task completion"
+    )
 
 
 class AtamReportPayload(StrictModel):
@@ -151,6 +227,19 @@ class AtamContextArtifact(StrictModel):
     metadata: AtamMetadata = Field(description="Known evaluation metadata, leaving unsupported fields null")
     scope_summary: str = Field(description="Concise scope and business-driver summary grounded in the case")
     evidence_gaps: list[str] = Field(description="Missing or uncertain inputs that downstream agents must preserve")
+
+
+class AtamUtilityTreeArtifact(StrictModel):
+    """Utility-tree output and its evaluation scenarios for a declared pipeline stage."""
+
+    utility_tree: AtamUtilityTree = Field(description="Prioritized quality-attribute scenarios")
+    scenarios: list[AtamScenario] = Field(description="Evaluation scenarios and their primary quality attributes")
+
+
+class AtamArchitectureApproachesArtifact(StrictModel):
+    """Architecture approaches emitted by the dedicated identification stage."""
+
+    architectural_approaches: list[AtamArchitecturalApproach] = Field(description="Evidence-based architecture approaches")
 
 
 class AtamPlanningArtifact(StrictModel):
@@ -222,3 +311,32 @@ class DeepAgentDefinitions(StrictModel):
     """External agent configuration document."""
 
     subagents: list[DeepAgentSubagent] = Field(description="Named specialist agents available to the coordinator")
+
+
+class AtamRunRecord(StrictModel):
+    """Session-scoped execution and adapter-fidelity metadata for one generated report."""
+
+    record_version: str = Field(description="Version of this runtime record contract")
+    status: str = Field(description="Outcome of the run that produced the report")
+    session_id: str = Field(description="Session identifier shared with the ATAM report title and filename")
+    runtime: str = Field(description="Runtime adapter that produced the report")
+    model: str = Field(description="LangChain provider:model identifier used for generation")
+    request_timeout_seconds: float = Field(description="Maximum duration configured for each provider request")
+    case_path: Path = Field(description="Source case file used to prepare evaluation inputs")
+    case_sha256: str | None = Field(description="Fingerprint of the source case, when it could be read")
+    evaluation_inputs_sha256: str | None = Field(description="Fingerprint of generation-visible inputs, when loaded")
+    harness_spec_path: Path = Field(description="HarnessSpec used to configure this run")
+    harness_spec_sha256: str | None = Field(description="Fingerprint of the HarnessSpec, when it could be read")
+    workflow_strategy: str = Field(description="Effective workflow strategy after CLI overrides")
+    agent_interaction: str = Field(description="Effective specialist interaction style after CLI overrides")
+    streaming: bool = Field(description="Whether execution events were streamed")
+    verbose: bool = Field(description="Whether progress events were displayed")
+    report_path: Path | None = Field(description="Session-specific generated report path, when one was written")
+    report_sha256: str | None = Field(description="Fingerprint of the generated report, when one was written")
+    elapsed_seconds: float | None = Field(description="Elapsed adapter execution time, if available")
+    cost_usd: float | None = Field(description="Provider cost in USD, or null when unavailable")
+    capabilities: list[str] = Field(description="Runtime capabilities exercised by this run")
+    approximations: list[str] = Field(description="Runtime behaviors approximated during this run")
+    unsupported: list[str] = Field(description="Declared behaviors this runtime does not support")
+    error_type: str | None = Field(description="Exception type when the run failed")
+    error_message: str | None = Field(description="Safe failure note; raw provider exception text is not persisted")

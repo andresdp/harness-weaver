@@ -9,9 +9,10 @@ This example demonstrates one shared ATAM methodology profile materialized as tw
 
 - `harnessspec.yaml` describes the workflow, roles, stages, sources, artifacts, and verification.
 - `methodology.yaml` makes ATAM activities and semantic methodology state explicit.
-- Both runtime forms consume only `ATAM_Evaluation.evaluation_inputs` from `data/banking.json`.
+- Both runtime forms consume only `ATAM_Evaluation.evaluation_inputs` from `case-studies/architecture-eval/ATAM/data/banking.json`.
 - `ground_truth_outputs` is reserved for evaluation after generation and execution; it must not be passed to either harness.
 - `report-template.json` defines the generated report structure. It is derived from `case-studies/architecture-eval/ATAM/template.json` and renames `ground_truth_outputs` to `evaluation_results` so generated findings cannot be confused with reference answers.
+- `evaluation_results.semantic_state` records evidence-backed methodology status and explicit gaps. Agent calls and completed runtime tasks do not establish method progress; generated reports remain drafts until an architect reviews them.
 
 The profile is an adaptation for a bounded prototype. It does not claim that a model-generated report is equivalent to a complete, expert-facilitated ATAM evaluation or ready for decision use without architect review.
 
@@ -25,18 +26,18 @@ All modes preserve the supplied-input boundary, shared report schema, and common
 
 ## Validate and try the Claude plugin
 
-From the repository root:
+The generated plugin and instructions for later Claude validation and generation experiments are in [`CLAUDE-TESTING.md`](CLAUDE-TESTING.md). Live Claude testing is deferred; structural plugin validation can be run from the repository root:
 
 ```bash
 claude plugin validate examples/atam/claude-plugin
 claude --plugin-dir examples/atam/claude-plugin
 ```
 
-In Claude Code, invoke `/atam-evaluation:evaluate-architecture` and provide the case's evaluation inputs or an architecture description. Invoke `/atam-evaluation:check-evaluation` to review a draft report.
+In Claude Code, invoke `/atam-evaluation:evaluate-architecture` and provide an evaluation-input-only case file or an architecture description. Invoke `/atam-evaluation:check-evaluation` to review a draft report. Do not provide `ground_truth_outputs` to either plugin skill.
 
 ## Run the DeepAgents backend
 
-Follow `deepagents/README.md`. The runner requires a provider API key and a working DeepAgents installation. It writes only the generated report to the path supplied with `--output`.
+Follow `deepagents/README.md`. The runner requires a provider API key and a working DeepAgents installation. It writes the generated report and a session-matched `.runtime.json` record beside it. The record fingerprints the source case, generation-visible inputs, HarnessSpec, and report, and preserves the adapter's runtime capability/fidelity information.
 
 ## Compare the runtime forms
 

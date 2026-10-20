@@ -14,9 +14,11 @@ __pycache__/
 case-studies/architecture-eval/ATAM/logs/**/*.log
 examples/atam/deepagents/runs/
 benchmarks/atam/runs/
+benchmarks/saam/runs/.review-keys/
 
 # Standalone repositories; keep their histories separate from this repository
 case-studies/atam-evaluator/archevaluation-llms/
 case-studies/software-architecture-agent/
 /.agents
 skills-lock.json
+/benchmarks/saam/runs

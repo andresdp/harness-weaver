@@ -115,6 +115,8 @@ def _orchestration_issues(document: dict[str, Any]) -> list[ValidationIssue]:
     if not isinstance(orchestration, dict):
         return []
     profile = (orchestration.get("workflow_strategy"), orchestration.get("agent_interaction"))
+    if not all(isinstance(value, str) for value in profile):
+        return []  # JSON Schema reports the malformed values; avoid hashing lists/maps here.
     if profile not in SUPPORTED_ORCHESTRATION_PROFILES:
         supported = ", ".join(f"{strategy}+{interaction}" for strategy, interaction in sorted(SUPPORTED_ORCHESTRATION_PROFILES))
         return [ValidationIssue("orchestration", f"unsupported workflow_strategy/agent_interaction combination {profile[0]!r}+{profile[1]!r}; supported combinations: {supported}")]
@@ -170,8 +172,18 @@ def _file_references(document: dict[str, Any], spec_path: Path) -> list[Validati
 def validate_spec(document: dict[str, Any], spec_path: str | Path | None = None) -> list[ValidationIssue]:
     """Return actionable contract, cross-reference, and optional file-reference errors."""
     issues = _schema_errors(document)
-    if any(issue.location == "spec_version" or issue.location.startswith("spec_version.") for issue in issues):
-        return issues
+    # The custom checks assume list/mapping containers. Skip them only when
+    # those containers are malformed; scalar field errors can still be reported
+    # alongside useful cross-reference errors.
+    list_sections = ("sources", "roles", "stages", "artifacts", "verification", "human_gates")
+    malformed_lists = any(section in document and not isinstance(document[section], list) for section in list_sections)
+    semantic_state = document.get("semantic_state", {})
+    malformed_semantic_state = not isinstance(semantic_state, dict) or any(
+        section in semantic_state and not isinstance(semantic_state[section], list)
+        for section in ("assessments", "gaps")
+    )
+    if malformed_lists or malformed_semantic_state:
+        return sorted(issues, key=lambda issue: (issue.location, issue.message))
     issues.extend(_unique_ids(document))
     issues.extend(_orchestration_issues(document))
     if spec_path is not None:

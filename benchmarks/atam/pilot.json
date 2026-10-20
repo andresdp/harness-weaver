@@ -10,7 +10,7 @@
     "../../examples/atam/deepagents/atam_harness/agents.py",
     "../../examples/atam/deepagents/atam_harness/agents.yaml",
     "../../examples/atam/deepagents/atam_harness/config.py",
-    "../../examples/atam/deepagents/atam_harness/execution.py",
+    "../../examples/atam/deepagents/atam_harness/filesystem.py",
     "../../examples/atam/deepagents/atam_harness/models.py",
     "../../examples/atam/deepagents/atam_harness/orchestration.py",
     "../../examples/atam/deepagents/atam_harness/prompts.py",

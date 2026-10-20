@@ -7,11 +7,12 @@ from unittest.mock import patch
 
 from harnessweaver.runtime import AgentInteraction, ExecutionProfile, RunRequest, WorkflowStrategy
 from examples.atam.deepagents.atam_harness.models import (
+    AtamArchitectureApproachesArtifact,
     AtamContextArtifact,
-    AtamEvaluationResults,
     AtamPlanningArtifact,
     AtamReportPayload,
     AtamScenarioAnalysisArtifact,
+    AtamUtilityTreeArtifact,
 )
 from examples.atam.deepagents.atam_harness.orchestration import AtamDeepAgentsOperations
 
@@ -33,6 +34,14 @@ def empty_evaluation_results() -> dict[str, object]:
         "architectural_approaches": [],
         "analysis_records": [],
         "scenarios": [],
+        "semantic_state": {
+            "context_status": {"value": "sufficient", "evidence": ["Scope is present in input."]},
+            "driver_status": {"value": "partial", "evidence": ["Some quality drivers are provided."]},
+            "architecture_evidence_status": {"value": "partial", "evidence": ["Architecture facts are limited."]},
+            "scenario_analysis_status": {"value": "not_started", "evidence": ["No review artifact is present."]},
+            "report_status": {"value": "draft", "evidence": ["This payload has not been reviewed by an architect."]},
+            "gaps": [],
+        },
     }
 
 
@@ -58,6 +67,7 @@ class AtamOrchestrationTests(unittest.TestCase):
                 profile=ExecutionProfile(
                     workflow,
                     {
+                        WorkflowStrategy.SUPERVISOR: AgentInteraction.ONE_SHOT_SPECIALIST_DELEGATION,
                         WorkflowStrategy.SEQUENTIAL_PIPELINE: AgentInteraction.TYPED_ARTIFACT_HANDOFFS,
                         WorkflowStrategy.FAN_OUT_FAN_IN: AgentInteraction.PARALLEL_SPECIALIST_DELEGATION,
                     }[workflow],
@@ -74,7 +84,13 @@ class AtamOrchestrationTests(unittest.TestCase):
             AtamContextArtifact: AtamContextArtifact.model_validate(
                 {"metadata": metadata(), "scope_summary": "Banking platform", "evidence_gaps": []}
             ),
-            AtamEvaluationResults: AtamEvaluationResults.model_validate(empty_evaluation_results()),
+            AtamUtilityTreeArtifact: AtamUtilityTreeArtifact.model_validate(
+                {"utility_tree": {"root": "Utility", "quality_attribute_nodes": []}, "scenarios": []}
+            ),
+            AtamArchitectureApproachesArtifact: AtamArchitectureApproachesArtifact.model_validate(
+                {"architectural_approaches": []}
+            ),
+            AtamScenarioAnalysisArtifact: AtamScenarioAnalysisArtifact.model_validate({"analysis_records": []}),
             AtamReportPayload: AtamReportPayload.model_validate(
                 {"metadata": metadata(), "evaluation_results": empty_evaluation_results()}
             ),
@@ -87,21 +103,44 @@ class AtamOrchestrationTests(unittest.TestCase):
             return agent
 
         with patch.object(operations, "_build_structured_agent", side_effect=build_agent):
-            context = operations.run_stage("context", operations.request.inputs, ())
+            self.assertEqual(
+                operations.pipeline_stages,
+                (
+                    "establish-context",
+                    "build-utility-tree",
+                    "identify-approaches",
+                    "analyze-scenarios",
+                    "synthesize-and-review",
+                ),
+            )
             from harnessweaver.runtime import ArtifactEnvelope
 
-            context_handoff = ArtifactEnvelope("context", context)
-            analysis = operations.run_stage("analysis", operations.request.inputs, (context_handoff,))
-            analysis_handoff = ArtifactEnvelope("analysis", analysis)
-            report = operations.run_stage(
-                "review", operations.request.inputs, (context_handoff, analysis_handoff)
-            )
+            handoffs = []
+            for stage in operations.pipeline_stages:
+                artifact = operations.run_stage(stage, operations.request.inputs, tuple(handoffs))
+                handoffs.append(ArtifactEnvelope(stage, artifact))
 
+        context, utility, approaches, analysis, report = [item.artifact for item in handoffs]
         self.assertIsInstance(context, AtamContextArtifact)
-        self.assertIsInstance(analysis, AtamEvaluationResults)
+        self.assertIsInstance(utility, AtamUtilityTreeArtifact)
+        self.assertIsInstance(approaches, AtamArchitectureApproachesArtifact)
+        self.assertIsInstance(analysis, AtamScenarioAnalysisArtifact)
         self.assertIsInstance(report, AtamReportPayload)
-        self.assertIn('"context_artifact"', agents[1].prompt)
-        self.assertIn('"analysis_artifact"', agents[2].prompt)
+        self.assertIn('"evaluation_context"', agents[1].prompt)
+        self.assertIn('"utility_tree"', agents[2].prompt)
+        self.assertIn('"scenario_analysis"', agents[4].prompt)
+
+    def test_supervisor_passes_configured_provider_timeout(self):
+        operations = self.make_operations(WorkflowStrategy.SUPERVISOR)
+        operations.request.settings["request_timeout_seconds"] = 37
+        payload = AtamReportPayload.model_validate(
+            {"metadata": metadata(), "evaluation_results": empty_evaluation_results()}
+        )
+        fake_agent = FakeAgent(payload)
+        with patch("examples.atam.deepagents.atam_harness.orchestration.build_agent", return_value=fake_agent) as build:
+            with patch.object(operations, "_execute", return_value={"structured_response": payload}):
+                operations.run_supervisor(operations.request.inputs)
+        build.assert_called_once_with(operations.request.model, 37)
 
     def test_fan_out_specialists_and_join_use_typed_contracts(self):
         operations = self.make_operations(WorkflowStrategy.FAN_OUT_FAN_IN)

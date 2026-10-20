@@ -10,16 +10,17 @@ from uuid import uuid4
 
 import yaml
 
-from harnessweaver.adapters.deepagents import create_deep_agent, execute_agent
+from harnessweaver.adapters.deepagents import execute_agent
 from harnessweaver.runtime import ArtifactEnvelope, RunRequest, WorkflowOperations, WorkflowStrategy
 
-from .agents import build_agent
+from .agents import build_agent, build_deep_agent
 from .models import (
+    AtamArchitectureApproachesArtifact,
     AtamContextArtifact,
-    AtamEvaluationResults,
     AtamPlanningArtifact,
     AtamReportPayload,
     AtamScenarioAnalysisArtifact,
+    AtamUtilityTreeArtifact,
 )
 from .paths import EXAMPLE_DIR
 from .progress import log_progress, progress_context
@@ -35,7 +36,9 @@ class AtamDeepAgentsOperations(WorkflowOperations):
     def __init__(self, request: RunRequest) -> None:
         self.request = request
         self._orchestration_prompts = yaml.safe_load(ORCHESTRATION_PROMPTS.read_text(encoding="utf-8"))
-        self._evaluation_prompt = load_prompt("evaluate_architecture.md")
+        # Supervisor mode builds its task prompt in one read; staged modes load
+        # and cache the shared evaluation instructions when composing a stage.
+        self._evaluation_prompt: str | None = None
         self._system_prompt = load_prompt(
             "system.md"
             if request.profile.workflow_strategy is WorkflowStrategy.SUPERVISOR
@@ -44,7 +47,13 @@ class AtamDeepAgentsOperations(WorkflowOperations):
 
     @property
     def pipeline_stages(self) -> Sequence[str]:
-        return ("context", "analysis", "review")
+        return (
+            "establish-context",
+            "build-utility-tree",
+            "identify-approaches",
+            "analyze-scenarios",
+            "synthesize-and-review",
+        )
 
     @property
     def specialists(self) -> Sequence[str]:
@@ -52,22 +61,42 @@ class AtamDeepAgentsOperations(WorkflowOperations):
 
     def run_supervisor(self, inputs: Mapping[str, Any]) -> AtamReportPayload:
         """Use the existing coordinator and specialist definitions for supervisor mode."""
-        state = self._execute(build_agent(self.request.model), build_task_prompt(dict(inputs)), "ATAM coordinator")
+        timeout = self.request.settings.get("request_timeout_seconds", 180)
+        state = self._execute(
+            build_agent(self.request.model, timeout),
+            build_task_prompt(dict(inputs)),
+            "ATAM coordinator",
+        )
         return AtamReportPayload.model_validate(self._structured_response(state, "ATAM coordinator"))
 
     def run_stage(self, stage: str, inputs: Mapping[str, Any], handoffs: tuple[ArtifactEnvelope, ...]) -> Any:
         """Run one declared pipeline stage and pass prior Pydantic artifacts as JSON."""
         prompts = self._orchestration_prompts["sequential_pipeline"]["stages"]
-        if stage == "context":
+        if stage == "establish-context":
             schema, context = AtamContextArtifact, {}
-        elif stage == "analysis":
-            schema = AtamEvaluationResults
-            context = {"context_artifact": self._artifact_value(handoffs, "context")}
-        elif stage == "review":
+        elif stage == "build-utility-tree":
+            schema = AtamUtilityTreeArtifact
+            context = {"evaluation_context": self._artifact_value(handoffs, "establish-context")}
+        elif stage == "identify-approaches":
+            schema = AtamArchitectureApproachesArtifact
+            context = {
+                "evaluation_context": self._artifact_value(handoffs, "establish-context"),
+                "utility_tree": self._artifact_value(handoffs, "build-utility-tree"),
+            }
+        elif stage == "analyze-scenarios":
+            schema = AtamScenarioAnalysisArtifact
+            context = {
+                "evaluation_context": self._artifact_value(handoffs, "establish-context"),
+                "utility_tree": self._artifact_value(handoffs, "build-utility-tree"),
+                "architecture_approaches": self._artifact_value(handoffs, "identify-approaches"),
+            }
+        elif stage == "synthesize-and-review":
             schema = AtamReportPayload
             context = {
-                "context_artifact": self._artifact_value(handoffs, "context"),
-                "analysis_artifact": self._artifact_value(handoffs, "analysis"),
+                "evaluation_context": self._artifact_value(handoffs, "establish-context"),
+                "utility_tree": self._artifact_value(handoffs, "build-utility-tree"),
+                "architecture_approaches": self._artifact_value(handoffs, "identify-approaches"),
+                "scenario_analysis": self._artifact_value(handoffs, "analyze-scenarios"),
             }
         else:
             raise ValueError(f"unknown ATAM pipeline stage: {stage}")
@@ -100,24 +129,12 @@ class AtamDeepAgentsOperations(WorkflowOperations):
 
     def _build_structured_agent(self, name: str, schema: type[Any]) -> Any:
         """Build a role-scoped DeepAgent with the same skills and read-only workspace."""
-        try:
-            from deepagents import FilesystemPermission
-            from deepagents.backends.filesystem import FilesystemBackend
-            from langchain.agents.structured_output import ToolStrategy
-            from langchain.chat_models import init_chat_model
-        except ImportError as exc:
-            raise RuntimeError("DeepAgents, LangChain, and the selected provider integration are required") from exc
-
-        return create_deep_agent(
+        return build_deep_agent(
+            self.request.model,
+            self.request.settings.get("request_timeout_seconds", 180),
             name=name,
-            model=init_chat_model(self.request.model),
-            # Preserve the existing coordinator prompt for supervisor mode. Other
-            # modes need instructions that defer coordination to typed stages.
             system_prompt=self._system_prompt,
-            backend=FilesystemBackend(root_dir=str(EXAMPLE_DIR), virtual_mode=True),
-            skills=["./skills/"],
-            response_format=ToolStrategy(schema, handle_errors=True),
-            permissions=[FilesystemPermission(operations=["write"], paths=["/**"], mode="deny")],
+            schema=schema,
         )
 
     def _execute(self, agent: Any, prompt: str, label: str) -> Mapping[str, Any]:
@@ -151,5 +168,7 @@ class AtamDeepAgentsOperations(WorkflowOperations):
 
     def _stage_prompt(self, instructions: str, inputs: Mapping[str, Any], handoffs: Mapping[str, Any]) -> str:
         """Keep the source case input and typed prior artifacts explicit in every call."""
+        if self._evaluation_prompt is None:
+            self._evaluation_prompt = load_prompt("evaluate_architecture.md")
         payload = {"evaluation_inputs": dict(inputs), "typed_handoffs": dict(handoffs)}
         return f"{self._evaluation_prompt}\n\nStage instructions:\n{instructions}\n\nStructured inputs:\n{json.dumps(payload, indent=2, ensure_ascii=False)}"

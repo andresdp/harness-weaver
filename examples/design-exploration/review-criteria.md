@@ -23,6 +23,7 @@ Two qualified software architects should independently review anonymized outputs
 5. **Option usefulness:** Alternatives are meaningfully distinct and feasible enough to inform architect deliberation; reviewers explain duplication or implausibility.
 6. **Uncertainty discipline:** The report avoids unsupported certainty, false precision, and claims of optimality.
 7. **Human usefulness:** The decision record supports, rather than replaces, accountable architect choice.
+8. **Iteration control:** Each iteration has a driver-linked goal; the record explains whether the goal was met, what remains unresolved, and why another iteration is or is not proposed. Reviewers assess whether the case needs architect feedback between ADD steps.
 
 Report reviewer scores separately, preserve disagreements, and record any adjudication. Do not collapse the dimensions into a single quality score without a declared weighting and rationale. If comparing a baseline and guided harness, use matched inputs/settings and blind reviewers to arm identity until reviews are locked.
 
