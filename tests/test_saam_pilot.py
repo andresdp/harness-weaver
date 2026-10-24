@@ -31,7 +31,7 @@ def valid_prediction():
 
 class SaamPilotTests(unittest.TestCase):
     def test_saam_harnessspec_v02_validates(self):
-        spec_path = Path(__file__).resolve().parents[1] / "examples/saam/harnessspec.yaml"
+        spec_path = Path(__file__).resolve().parents[1] / "pilots/saam/harnessspec.yaml"
         self.assertEqual(validate_spec(load_spec(spec_path), spec_path), [])
 
     def test_prepare_excludes_evaluator_truth_and_is_unique(self):

@@ -6,7 +6,7 @@ from harnessweaver.spec import load_spec, validate_spec
 
 class DesignExplorationProfileTests(unittest.TestCase):
     def setUp(self):
-        self.path = Path(__file__).resolve().parents[1] / "examples/design-exploration/harnessspec.yaml"
+        self.path = Path(__file__).resolve().parents[1] / "pilots/design-exploration/harnessspec.yaml"
         self.spec = load_spec(self.path)
 
     def test_profile_validates_and_source_files_resolve(self):

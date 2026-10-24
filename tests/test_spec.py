@@ -7,8 +7,8 @@ from harnessweaver.spec import SpecLoadError, load_spec, validate_spec
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXAMPLE = ROOT / "examples" / "atam" / "harnessspec.yaml"
-EXAMPLE_V02 = ROOT / "examples" / "atam" / "harnessspec-v0.2.yaml"
+EXAMPLE = ROOT / "pilots" / "atam" / "harnessspec.yaml"
+EXAMPLE_V02 = ROOT / "pilots" / "atam" / "harnessspec-v0.2.yaml"
 
 
 class SpecValidationTests(unittest.TestCase):

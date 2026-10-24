@@ -7,5 +7,5 @@ The profile has not been run against a project-specific design brief. See [revie
 Validate from the repository root with:
 
 ```sh
-conda run -n harness hw validate examples/design-exploration/harnessspec.yaml
+conda run -n harness hw validate pilots/design-exploration/harnessspec.yaml
 ```

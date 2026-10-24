@@ -29,8 +29,8 @@ All modes preserve the supplied-input boundary, shared report schema, and common
 The generated plugin and instructions for later Claude validation and generation experiments are in [`CLAUDE-TESTING.md`](CLAUDE-TESTING.md). Live Claude testing is deferred; structural plugin validation can be run from the repository root:
 
 ```bash
-claude plugin validate examples/atam/claude-plugin
-claude --plugin-dir examples/atam/claude-plugin
+claude plugin validate pilots/atam/claude-plugin
+claude --plugin-dir pilots/atam/claude-plugin
 ```
 
 In Claude Code, invoke `/atam-evaluation:evaluate-architecture` and provide an evaluation-input-only case file or an architecture description. Invoke `/atam-evaluation:check-evaluation` to review a draft report. Do not provide `ground_truth_outputs` to either plugin skill.

@@ -6,7 +6,7 @@ Each run is created once under `runs/<run-id>/`. Its input and manifest are writ
 
 The existing Claude Sonnet banking output is a historical baseline candidate, not a matched baseline: its exact prompt, runtime settings, and execution provenance have not been established by this protocol. A valid comparison still requires new baseline and spec-guided runs under matched settings, deterministic checks, and blinded independent review. The legacy evaluator includes an LLM judge and may download NLTK data; it is not part of the deterministic check command.
 
-The current ATAM DeepAgents runner reads its default workflow and interaction from `examples/atam/harnessspec-v0.2.yaml`. For controlled comparisons, override them independently with `--workflow-strategy` and `--agent-interaction`; only the three declared pairings are currently supported. Prepare a run first, pass its `evaluation_input.json` to the runner, and write a write-once execution record afterward. Successful runs require a prediction; failed or partial attempts can be recorded without one. Record non-secret settings only.
+The current ATAM DeepAgents runner reads its default workflow and interaction from `pilots/atam/harnessspec-v0.2.yaml`. For controlled comparisons, override them independently with `--workflow-strategy` and `--agent-interaction`; only the three declared pairings are currently supported. Prepare a run first, pass its `evaluation_input.json` to the runner, and write a write-once execution record afterward. Successful runs require a prediction; failed or partial attempts can be recorded without one. Record non-secret settings only.
 
 Use project Python only through the `harness` Conda environment. For example:
 
@@ -28,9 +28,9 @@ conda run -n harness python benchmarks/atam/pilot.py record benchmarks/atam/runs
 For the DeepAgents runner, use the prepared `evaluation_input.json` as the case and pass an output path inside that run directory. The report writer appends its own session ID, so use the printed report path for both `pilot.py check` and `pilot.py record`:
 
 ```sh
-conda run -n harness python examples/atam/deepagents/run.py \
+conda run -n harness python pilots/atam/deepagents/run.py \
   benchmarks/atam/runs/<run-id>/evaluation_input.json \
-  --harness-spec examples/atam/harnessspec-v0.2.yaml \
+  --harness-spec pilots/atam/harnessspec-v0.2.yaml \
   --workflow-strategy supervisor \
   --agent-interaction one_shot_specialist_delegation \
   --output benchmarks/atam/runs/<run-id>/prediction.json

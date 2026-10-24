@@ -1,6 +1,6 @@
 import unittest
 
-from examples.atam.deepagents.atam_harness.filesystem import atam_filesystem_permissions
+from pilots.atam.deepagents.atam_harness.filesystem import atam_filesystem_permissions
 
 
 class AtamFilesystemBoundaryTests(unittest.TestCase):

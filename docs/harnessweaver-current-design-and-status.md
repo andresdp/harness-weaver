@@ -44,7 +44,7 @@ Persistent peer-to-peer messaging and shared task-list collaboration are not map
 
 For the banking case, generation receives only `ATAM_Evaluation.evaluation_inputs` from `case-studies/architecture-eval/ATAM/data/banking.json`. `ground_truth_outputs` are reserved for evaluation and must not be passed to the generator or stored with generation runs. This keeps the prediction independent of the reference answers.
 
-The report template is at `examples/atam/report-template.json`; ATAM domain activities and semantic progress are described in `examples/atam/methodology.yaml`. The implementation is intentionally a bounded ATAM analysis aid, not a claim that all ATAM phases or stakeholder activities were completed.
+The report template is at `pilots/atam/report-template.json`; ATAM domain activities and semantic progress are described in `pilots/atam/methodology.yaml`. The implementation is intentionally a bounded ATAM analysis aid, not a claim that all ATAM phases or stakeholder activities were completed.
 
 ## 3. What to specify in a HarnessSpec
 
@@ -102,7 +102,7 @@ Run records and more detailed evidence are maintained in `benchmarks/atam/pilot-
 
 ### Claude runtime and generation
 
-- Run the prepared plugin's structural validation and smoke test in Claude Code using an input-only case. Instructions are in `examples/atam/CLAUDE-TESTING.md`.
+- Run the prepared plugin's structural validation and smoke test in Claude Code using an input-only case. Instructions are in `pilots/atam/CLAUDE-TESTING.md`.
 - Ask Claude to generate a second ATAM plugin from the v0.2 HarnessSpec in a scratch directory, then validate and compare it with the maintained plugin. Preserve the exact prompt, model/version, input hash, output, and manual edits.
 - Recheck Claude's generated report and skills against the newer semantic-state contract. The maintained Claude plugin's live execution has not been repeated against that contract.
 - Compare Claude and DeepAgents fidelity, artifact structure, evidence treatment, gaps, and human review behavior under matched inputs. Do not claim runtime equivalence from matching file layouts.
@@ -124,16 +124,16 @@ The implementation roadmap remains the product-level source of direction. The U4
 - `harness-en/skills/harness/SKILL.md` — shared harness-design approach.
 - `harness-en/skills/evolve/SKILL.md` — feedback and evolution approach.
 - `specs/harnessspec/v0.1.schema.json` and `specs/harnessspec/v0.2.schema.json` — machine-readable spec contracts.
-- `examples/atam/harnessspec-v0.2.yaml` — most complete current HarnessSpec example.
-- `examples/atam/methodology.yaml` and `examples/atam/report-template.json` — ATAM method profile and output contract.
-- `examples/atam/deepagents/README.md` — run/configuration guide for the DeepAgents implementation.
-- `examples/atam/CLAUDE-TESTING.md` — deferred Claude plugin and generation experiments.
-- `examples/saam/harnessspec.yaml` and `benchmarks/saam/pilot-report.md` — partial SAAM profile and evidence.
-- `examples/design-exploration/harnessspec.yaml`, `method-mapping.md`, and `review-criteria.md` — ADD-informed profile and pending review setup.
+- `pilots/atam/harnessspec-v0.2.yaml` — most complete current HarnessSpec example.
+- `pilots/atam/methodology.yaml` and `pilots/atam/report-template.json` — ATAM method profile and output contract.
+- `pilots/atam/deepagents/README.md` — run/configuration guide for the DeepAgents implementation.
+- `pilots/atam/CLAUDE-TESTING.md` — deferred Claude plugin and generation experiments.
+- `pilots/saam/harnessspec.yaml` and `benchmarks/saam/pilot-report.md` — partial SAAM profile and evidence.
+- `pilots/design-exploration/harnessspec.yaml`, `method-mapping.md`, and `review-criteria.md` — ADD-informed profile and pending review setup.
 - `benchmarks/atam/pilot-status.md` — ATAM provider runs, checks, failures, and fidelity limitations.
 
 To validate a spec from the repository root:
 
 ```bash
-conda run -n harness hw validate examples/atam/harnessspec-v0.2.yaml
+conda run -n harness hw validate pilots/atam/harnessspec-v0.2.yaml
 ```

@@ -7,8 +7,8 @@ Live Claude checks are deferred. This guide prepares two later experiments: runn
 From the repository root, validate and launch the local plugin:
 
 ```bash
-claude plugin validate examples/atam/claude-plugin
-claude --plugin-dir examples/atam/claude-plugin
+claude plugin validate pilots/atam/claude-plugin
+claude --plugin-dir pilots/atam/claude-plugin
 ```
 
 In the Claude Code session, use `/atam-evaluation:evaluate-architecture` with an evaluation-input-only JSON file or paste a small architecture description. Use `/atam-evaluation:check-evaluation` on the resulting draft. Check that the report follows the ATAM template, distinguishes evidence from assumptions, shows gaps, and asks for architect review. This is a qualitative smoke test; it is not evidence of ATAM completeness or accuracy.
@@ -38,7 +38,7 @@ Start Claude Code in `/tmp/hw-atam-generation` and use a prompt like:
 ```text
 Use the harness skill to materialize a Claude Code plugin for the ATAM harness
 described by the HarnessSpec at:
-<absolute-repository-path>/examples/atam/harnessspec-v0.2.yaml
+<absolute-repository-path>/pilots/atam/harnessspec-v0.2.yaml
 
 Read the referenced methodology, domain skills, report template, and the
 evaluation-input-only case data. Keep this as an ATAM evaluation prototype.
@@ -56,7 +56,7 @@ Replace `<absolute-repository-path>` with the checkout's full path. If Claude Co
 claude plugin validate /tmp/hw-atam-generation/generated/atam-plugin
 ```
 
-Then launch that generated plugin with `claude --plugin-dir /tmp/hw-atam-generation/generated/atam-plugin` and repeat the smoke test in section A. Compare it with `examples/atam/claude-plugin/` against the same input-only case: required report sections, evidence traceability, explicit unknowns, and disclosed fidelity gaps. Keep the generated files and observations as experiment artifacts; do not replace the maintained plugin based on one run.
+Then launch that generated plugin with `claude --plugin-dir /tmp/hw-atam-generation/generated/atam-plugin` and repeat the smoke test in section A. Compare it with `pilots/atam/claude-plugin/` against the same input-only case: required report sections, evidence traceability, explicit unknowns, and disclosed fidelity gaps. Keep the generated files and observations as experiment artifacts; do not replace the maintained plugin based on one run.
 
 ## Record the experiment
 

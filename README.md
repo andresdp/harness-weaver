@@ -4,9 +4,9 @@ HarnessWeaver develops a runtime-neutral contract and tools for designing, valid
 
 ## Repository map
 
-- `docs/` — project plans, methodology, and the HarnessSpec contract.
+- `docs/` — project plans, methodology, and the HarnessSpec contract; see [docs/README.md](docs/README.md). CAIN 2027 submission status: [docs/cain-2027/STATUS.md](docs/cain-2027/STATUS.md).
 - `specs/` — versioned machine-readable HarnessSpec schemas.
-- `examples/` — small, validated workflow specifications.
+- `pilots/` — pilot harnesses (HarnessSpec, methodology, runtime realizations); see [pilots/README.md](pilots/README.md) for which are active.
 - `src/harnessweaver/` — Python package and `hw` validation command.
 - `benchmarks/atam/` — HarnessWeaver-owned ATAM pilot protocol and run records.
 - `harness-en/skills/` — current English harness, evolve, and DeepAgents port skills.

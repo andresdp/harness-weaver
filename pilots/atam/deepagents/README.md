@@ -7,7 +7,7 @@ This is the DeepAgents realization of the ATAM methodology profile and report co
 Install the optional runtime dependencies into the repository's `harness` Conda environment:
 
 ```bash
-conda run -n harness python -m pip install -r examples/atam/deepagents/requirements.txt
+conda run -n harness python -m pip install -r pilots/atam/deepagents/requirements.txt
 ```
 
 Set the provider key in the repository-root `.env` file. The model defaults to the value in the case-study `settings.yaml`; `HW_ATAM_MODEL` or `--model` can override it.
@@ -22,10 +22,10 @@ The runner loads `settings.yaml` from the root of the case study. For this examp
 
 ```yaml
 case: data/banking.json
-output: ../../../examples/atam/deepagents/runs/banking-report.json
+output: ../../../pilots/atam/deepagents/runs/banking-report.json
 model: openai:gpt-5.4-mini
 request_timeout_seconds: 180
-harness_spec: ../../../examples/atam/harnessspec-v0.2.yaml
+harness_spec: ../../../pilots/atam/harnessspec-v0.2.yaml
 streaming: true
 verbose: true
 ```
@@ -35,7 +35,7 @@ Paths in YAML are resolved relative to the case-study root. Settings can be over
 Run with all settings from YAML:
 
 ```bash
-cd examples/atam/deepagents
+cd pilots/atam/deepagents
 conda run --no-capture-output -n harness python run.py
 ```
 

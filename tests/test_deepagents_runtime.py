@@ -100,7 +100,7 @@ class DeepAgentsRuntimeTests(unittest.TestCase):
 
     def test_atam_harness_spec_declares_supervisor_default(self):
         from harnessweaver.spec import load_spec
-        spec = load_spec(Path(__file__).resolve().parents[1] / "examples/atam/harnessspec-v0.2.yaml")
+        spec = load_spec(Path(__file__).resolve().parents[1] / "pilots/atam/harnessspec-v0.2.yaml")
         self.assertEqual(spec["orchestration"]["workflow_strategy"], "supervisor")
 
 

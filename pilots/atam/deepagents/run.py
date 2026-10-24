@@ -24,7 +24,7 @@ def main() -> int:
         from dotenv import load_dotenv
     except ImportError as exc:
         raise RuntimeError(
-            "python-dotenv is required; install examples/atam/deepagents/requirements.txt"
+            "python-dotenv is required; install pilots/atam/deepagents/requirements.txt"
         ) from exc
 
     # Shell variables remain authoritative; .env supplies local development defaults.

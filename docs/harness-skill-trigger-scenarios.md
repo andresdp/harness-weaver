@@ -35,7 +35,7 @@ Use these prompts to check whether the harness and evolve skills are invoked app
 3. “Create a skill that summarizes meeting notes.” This is direct skill authoring outside HarnessWeaver’s software-architecture focus.
 4. “Refactor this Python function to reduce duplication.” This is a code change, not harness design or evolution.
 5. “Use the ATAM evaluation skill to assess this architecture and draft the report.” This asks to run an existing harness, not create or evolve one.
-6. “Validate `examples/atam/harnessspec.yaml` and tell me whether it matches the schema.” This asks for structural validation only.
+6. “Validate `pilots/atam/harnessspec.yaml` and tell me whether it matches the schema.” This asks for structural validation only.
 7. “Summarize the attached architecture paper and list its design recommendations.” This is document analysis, not harness construction.
 8. “How do I install DeepAgents in my Conda environment?” This is setup guidance, not a request to port or evolve a harness.
 9. “Generate a Claude plugin that organizes my personal recipes.” This is plugin/skill creation outside the software-architecture harness scope.

@@ -93,7 +93,7 @@ Scale the work to the task. A small workflow can use one orchestrator skill and 
 |---|---|---|---|
 | Roadmap and project contracts | `docs/` | Root HarnessWeaver working tree | Canonical for project sequencing and shared contract decisions. |
 | Harness, evolve, and DeepAgents port skills | `harness-en/skills/` | Active English skill tree in this checkout; no root `skills/` or `packages/harness-en/` copy is maintained here | Canonical HarnessWeaver skill source. README install paths point into this tree; keep shared design guidance separate from runtime-specific output and report adapter limits. |
-| HarnessSpec and examples | `specs/`, `examples/` | HarnessWeaver-owned additions | Canonical shared contract and consumer fixtures. |
+| HarnessSpec and pilots | `specs/`, `pilots/` | HarnessWeaver-owned additions | Canonical shared contract and consumer fixtures. |
 | Python core | `src/harnessweaver/` | HarnessWeaver-owned additions | Runtime-independent loading and validation only in the first deliverable. |
 | ArchEval | `case-studies/architecture-eval/` | Separate Git repository at `main`; this worktree currently reports `origin/main`; project README identifies it as the ArchEval replication package | Preserve source, research inputs, ground truth, and outputs. HarnessWeaver may reference the ATAM workflow and data. The local Git metadata did not expose a remote URL in this inventory. |
 | ATAM LLM evaluation kit | `case-studies/atam-evaluator/archevaluation-llms/` | Nested Git checkout; `origin` is `andresdp/archevaluation-llms` | Preserve prompts, PDFs, and research records; use only as a separate portability case. |

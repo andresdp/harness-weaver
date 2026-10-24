@@ -10,14 +10,14 @@ from uuid import uuid4
 
 from pydantic import ValidationError
 
-from examples.atam.deepagents.atam_harness.agents import load_subagents
-from examples.atam.deepagents.atam_harness.config import (
+from pilots.atam.deepagents.atam_harness.agents import load_subagents
+from pilots.atam.deepagents.atam_harness.config import (
     ResolvedRunConfig,
     build_parser,
     format_resolved_settings,
     resolve_config,
 )
-from examples.atam.deepagents.atam_harness.models import (
+from pilots.atam.deepagents.atam_harness.models import (
     AtamCaseInputs,
     AtamEvaluationResults,
     AtamMetadata,
@@ -26,9 +26,9 @@ from examples.atam.deepagents.atam_harness.models import (
     AtamReportPayload,
     AtamSemanticState,
 )
-from examples.atam.deepagents.atam_harness.prompts import build_task_prompt
-from examples.atam.deepagents.atam_harness.progress import format_tool_args
-from examples.atam.deepagents.atam_harness.reports import (
+from pilots.atam.deepagents.atam_harness.prompts import build_task_prompt
+from pilots.atam.deepagents.atam_harness.progress import format_tool_args
+from pilots.atam.deepagents.atam_harness.reports import (
     compose_report,
     load_case,
     session_output_path,
@@ -40,7 +40,7 @@ from harnessweaver.runtime import RunResult
 
 ROOT = Path(__file__).resolve().parents[1]
 CASE = ROOT / "case-studies/architecture-eval/ATAM/data/banking.json"
-REPORT_TEMPLATE = ROOT / "examples/atam/report-template.json"
+REPORT_TEMPLATE = ROOT / "pilots/atam/report-template.json"
 
 
 class AtamDemoTests(unittest.TestCase):
@@ -76,8 +76,8 @@ class AtamDemoTests(unittest.TestCase):
         self.assertEqual(set(template["metadata"]), set(AtamMetadata.model_fields))
         self.assertEqual(set(template["evaluation_results"]), set(AtamEvaluationResults.model_fields))
         template_paths = [
-            *ROOT.joinpath("examples/atam/claude-plugin").glob("**/atam-report-template.json"),
-            *ROOT.joinpath("examples/atam/deepagents/skills").glob("**/atam-report-template.json"),
+            *ROOT.joinpath("pilots/atam/claude-plugin").glob("**/atam-report-template.json"),
+            *ROOT.joinpath("pilots/atam/deepagents/skills").glob("**/atam-report-template.json"),
         ]
         for path in template_paths:
             mirrored = json.loads(path.read_text(encoding="utf-8"))["ATAM_Evaluation"]["evaluation_results"]
@@ -86,8 +86,8 @@ class AtamDemoTests(unittest.TestCase):
 
         # Evaluation and checker skills must use the same ATAM method and output contract.
         for skill_root in (
-            ROOT / "examples/atam/claude-plugin/skills",
-            ROOT / "examples/atam/deepagents/skills",
+            ROOT / "pilots/atam/claude-plugin/skills",
+            ROOT / "pilots/atam/deepagents/skills",
         ):
             for filename in ("atam-methodology.yaml", "atam-report-template.json"):
                 evaluation_copy = skill_root / "evaluate-architecture/references" / filename
@@ -242,7 +242,7 @@ class AtamDemoTests(unittest.TestCase):
             output=Path("/case-study/runs/example.json"),
             model="anthropic:override",
             request_timeout_seconds=120,
-            harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+            harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
             workflow_strategy="fan_out_fan_in",
             agent_interaction="parallel_specialist_delegation",
             streaming=False,
@@ -275,7 +275,7 @@ class AtamDemoTests(unittest.TestCase):
         self.assertEqual(resolved.case, CASE.resolve())
         self.assertEqual(
             resolved.output,
-            (ROOT / "examples/atam/deepagents/runs/banking-report.json").resolve(),
+            (ROOT / "pilots/atam/deepagents/runs/banking-report.json").resolve(),
         )
 
     def test_session_filename_and_tool_argument_truncation(self):
@@ -314,7 +314,7 @@ class AtamDemoTests(unittest.TestCase):
             destination = session_output_path(output, "session-123")
             collision = Path(temporary_directory) / f".{destination.name}.deadbeefdeadbeef.tmp"
             collision.write_text("owned by another writer\n", encoding="utf-8")
-            with patch("examples.atam.deepagents.atam_harness.reports.secrets.token_hex", return_value="deadbeefdeadbeef"):
+            with patch("pilots.atam.deepagents.atam_harness.reports.secrets.token_hex", return_value="deadbeefdeadbeef"):
                 with self.assertRaises(FileExistsError):
                     write_report(report, output, "session-123")
 
@@ -322,7 +322,7 @@ class AtamDemoTests(unittest.TestCase):
             self.assertFalse(destination.exists())
 
     def test_run_writes_session_scoped_runtime_fidelity_record(self):
-        from examples.atam.deepagents.atam_harness import runner
+        from pilots.atam.deepagents.atam_harness import runner
 
         run_id = uuid4()
         payload = self._sample_payload()
@@ -334,7 +334,7 @@ class AtamDemoTests(unittest.TestCase):
                 output=output,
                 model="openai:test-model",
                 request_timeout_seconds=120,
-                harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+                harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
                 workflow_strategy="supervisor",
                 agent_interaction="one_shot_specialist_delegation",
                 streaming=False,
@@ -379,7 +379,7 @@ class AtamDemoTests(unittest.TestCase):
             self.assertIsNone(record["cost_usd"])
 
     def test_failed_run_writes_a_session_record_without_publishing_a_report(self):
-        from examples.atam.deepagents.atam_harness import runner
+        from pilots.atam.deepagents.atam_harness import runner
 
         run_id = uuid4()
         case = AtamCaseInputs(evaluation_inputs={"system_description": "Test system"})
@@ -390,7 +390,7 @@ class AtamDemoTests(unittest.TestCase):
                 output=output,
                 model="openai:test-model",
                 request_timeout_seconds=120,
-                harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+                harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
                 workflow_strategy="supervisor",
                 agent_interaction="one_shot_specialist_delegation",
                 streaming=False,
@@ -422,7 +422,7 @@ class AtamDemoTests(unittest.TestCase):
             self.assertFalse(report_path.exists())
 
     def test_keyboard_interrupt_writes_a_session_record_without_publishing_a_report(self):
-        from examples.atam.deepagents.atam_harness import runner
+        from pilots.atam.deepagents.atam_harness import runner
 
         run_id = uuid4()
         case = AtamCaseInputs(evaluation_inputs={"system_description": "Test system"})
@@ -433,7 +433,7 @@ class AtamDemoTests(unittest.TestCase):
                 output=output,
                 model="openai:test-model",
                 request_timeout_seconds=120,
-                harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+                harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
                 workflow_strategy="sequential_pipeline",
                 agent_interaction="typed_artifact_handoffs",
                 streaming=False,
@@ -462,7 +462,7 @@ class AtamDemoTests(unittest.TestCase):
             self.assertFalse(report_path.exists())
 
     def test_keyboard_interrupt_during_report_write_removes_partial_output(self):
-        from examples.atam.deepagents.atam_harness import reports, runner
+        from pilots.atam.deepagents.atam_harness import reports, runner
 
         run_id = uuid4()
         case = AtamCaseInputs(evaluation_inputs={"system_description": "Test system"})
@@ -482,7 +482,7 @@ class AtamDemoTests(unittest.TestCase):
                 output=output,
                 model="openai:test-model",
                 request_timeout_seconds=120,
-                harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+                harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
                 workflow_strategy="supervisor",
                 agent_interaction="one_shot_specialist_delegation",
                 streaming=False,
@@ -508,7 +508,7 @@ class AtamDemoTests(unittest.TestCase):
             self.assertEqual(list(Path(temporary_directory).glob(".*.tmp")), [])
 
     def test_case_load_failure_writes_a_session_record(self):
-        from examples.atam.deepagents.atam_harness import runner
+        from pilots.atam.deepagents.atam_harness import runner
 
         run_id = uuid4()
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -518,7 +518,7 @@ class AtamDemoTests(unittest.TestCase):
                 output=output,
                 model="openai:test-model",
                 request_timeout_seconds=120,
-                harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+                harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
                 workflow_strategy="supervisor",
                 agent_interaction="one_shot_specialist_delegation",
                 streaming=False,
@@ -541,7 +541,7 @@ class AtamDemoTests(unittest.TestCase):
             self.assertIsNone(record["evaluation_inputs_sha256"])
 
     def test_run_record_survives_transient_fingerprint_read_timeout(self):
-        from examples.atam.deepagents.atam_harness import reports
+        from pilots.atam.deepagents.atam_harness import reports
 
         case = AtamCaseInputs(evaluation_inputs={"system_description": "Test system"})
         config = ResolvedRunConfig(
@@ -549,7 +549,7 @@ class AtamDemoTests(unittest.TestCase):
             output=ROOT / "report.json",
             model="openai:test-model",
             request_timeout_seconds=120,
-            harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+            harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
             workflow_strategy="supervisor",
             agent_interaction="one_shot_specialist_delegation",
             streaming=False,
@@ -567,8 +567,8 @@ class AtamDemoTests(unittest.TestCase):
         self.assertEqual(record.error_type, "RuntimeError")
 
     def test_shared_agent_builder_keeps_role_schema_and_common_runtime_setup(self):
-        from examples.atam.deepagents.atam_harness import agents
-        from examples.atam.deepagents.atam_harness.models import AtamContextArtifact
+        from pilots.atam.deepagents.atam_harness import agents
+        from pilots.atam.deepagents.atam_harness.models import AtamContextArtifact
 
         model = object()
         sentinel_agent = object()
@@ -597,7 +597,7 @@ class AtamDemoTests(unittest.TestCase):
         self.assertIsNotNone(kwargs["permissions"])
 
     def test_coordinator_keeps_deepagents_default_name_and_original_schema(self):
-        from examples.atam.deepagents.atam_harness import agents
+        from pilots.atam.deepagents.atam_harness import agents
 
         with (
             patch.object(agents, "load_subagents", return_value=[]),
@@ -611,7 +611,7 @@ class AtamDemoTests(unittest.TestCase):
         self.assertEqual(build.call_args.kwargs["subagents"], [])
 
     def test_streaming_and_non_streaming_write_equivalent_report_content(self):
-        from examples.atam.deepagents.atam_harness import runner
+        from pilots.atam.deepagents.atam_harness import runner
 
         case = AtamCaseInputs(evaluation_inputs={"system_description": "Test system"})
         payload = self._sample_payload()
@@ -623,7 +623,7 @@ class AtamDemoTests(unittest.TestCase):
                 output=output,
                 model="openai:test-model",
                 request_timeout_seconds=120,
-                harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+                harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
                 workflow_strategy="supervisor",
                 agent_interaction="one_shot_specialist_delegation",
                 verbose=False,
@@ -660,7 +660,7 @@ class AtamDemoTests(unittest.TestCase):
             self.assertEqual(report_values[0], report_values[1])
 
     def test_concurrent_runs_write_distinct_reports_and_runtime_records(self):
-        from examples.atam.deepagents.atam_harness import runner
+        from pilots.atam.deepagents.atam_harness import runner
 
         case = AtamCaseInputs(evaluation_inputs={"system_description": "Test system"})
         payload = self._sample_payload()
@@ -671,7 +671,7 @@ class AtamDemoTests(unittest.TestCase):
                 output=output,
                 model="openai:test-model",
                 request_timeout_seconds=120,
-                harness_spec=ROOT / "examples/atam/harnessspec-v0.2.yaml",
+                harness_spec=ROOT / "pilots/atam/harnessspec-v0.2.yaml",
                 workflow_strategy="supervisor",
                 agent_interaction="one_shot_specialist_delegation",
                 streaming=False,

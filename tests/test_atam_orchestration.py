@@ -6,7 +6,7 @@ from uuid import uuid4
 from unittest.mock import patch
 
 from harnessweaver.runtime import AgentInteraction, ExecutionProfile, RunRequest, WorkflowStrategy
-from examples.atam.deepagents.atam_harness.models import (
+from pilots.atam.deepagents.atam_harness.models import (
     AtamArchitectureApproachesArtifact,
     AtamContextArtifact,
     AtamPlanningArtifact,
@@ -14,7 +14,7 @@ from examples.atam.deepagents.atam_harness.models import (
     AtamScenarioAnalysisArtifact,
     AtamUtilityTreeArtifact,
 )
-from examples.atam.deepagents.atam_harness.orchestration import AtamDeepAgentsOperations
+from pilots.atam.deepagents.atam_harness.orchestration import AtamDeepAgentsOperations
 
 
 def metadata() -> dict[str, object]:
@@ -137,7 +137,7 @@ class AtamOrchestrationTests(unittest.TestCase):
             {"metadata": metadata(), "evaluation_results": empty_evaluation_results()}
         )
         fake_agent = FakeAgent(payload)
-        with patch("examples.atam.deepagents.atam_harness.orchestration.build_agent", return_value=fake_agent) as build:
+        with patch("pilots.atam.deepagents.atam_harness.orchestration.build_agent", return_value=fake_agent) as build:
             with patch.object(operations, "_execute", return_value={"structured_response": payload}):
                 operations.run_supervisor(operations.request.inputs)
         build.assert_called_once_with(operations.request.model, 37)

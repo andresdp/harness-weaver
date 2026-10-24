@@ -4,7 +4,7 @@
   "source_case": "../../case-studies/architecture-eval/SAAM/data/revision_control_system.json",
   "generation_input_pointer": "SAAM_Evaluation_Extract.evaluation_inputs + ground_truth_outputs.scenarios[scenario_id, scenario_text]",
   "evaluation_only_pointer": "SAAM_Evaluation_Extract.ground_truth_outputs excluding the explicitly exposed source scenario IDs/texts",
-  "harness_spec": "../../examples/saam/harnessspec.yaml",
+  "harness_spec": "../../pilots/saam/harnessspec.yaml",
   "represented_scenario_ids": ["S-01", "S-02", "S-03", "S-04", "S-05", "S-06"],
   "represented_classifications": ["S-01", "S-02", "S-03", "S-04", "S-05", "S-06"],
   "represented_evaluations": ["S-01", "S-03", "S-04", "S-05", "S-06"],

@@ -35,7 +35,7 @@ def build_deep_agent(
         from langchain.chat_models import init_chat_model
     except ImportError as exc:
         raise RuntimeError(
-            "DeepAgents is required for this backend; install examples/atam/deepagents/requirements.txt"
+            "DeepAgents is required for this backend; install pilots/atam/deepagents/requirements.txt"
         ) from exc
 
     # Resolve the LangChain chat model explicitly so the provider is visible in settings.
