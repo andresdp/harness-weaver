@@ -113,7 +113,7 @@ Suggested change routing: shared methodology and project boundaries go in `docs/
 - `atam-evaluator/` is a separate evaluation/research bundle focused on ATAM prompts, example results, and source artifacts. It can inform a software-architecture domain package and its evaluation approach, but it is not itself part of the general harness methodology.
 - `atam-evaluator/applsci-16-03020-v3.pdf` provides a complementary software-architecture-evaluation practice model. It identifies five evaluation essentials—Architecture Description, Quality Attributes, Business Goals, Architecture Decisions, and Evaluation Adoption—and represents their healthy progression as states with checklists. Its domain guidance should inform how an architecture-evaluation workflow is designed and assessed, not be flattened into generic harness rules.
 - Root docs explain the upstream Claude plugin, this checkout's skills, manual installation, migration, and examples. The active skill sources are in `src/harnessweaver/skills/`; installation and ownership references should point there. Product, distribution, methodology, and runtime assumptions also overlap across README and skill content.
-- `docs/harness-100-prompts_EN.md` already contains examples for two related but distinct software-architecture workflows: a four-stage architecture decision pipeline (Appendix A) and ATAM architecture evaluation, including elicitation variants and practitioner versus research modes (Appendix B). These are prompt/specification examples, not yet canonical domain packages or verified runtime implementations, and should be reconciled with the proposed profile rather than duplicated.
+- `legacy/revfactory-harness/harness-100-prompts_EN.md` already contains examples for two related but distinct software-architecture workflows: a four-stage architecture decision pipeline (Appendix A) and ATAM architecture evaluation, including elicitation variants and practitioner versus research modes (Appendix B). These are prompt/specification examples, not yet canonical domain packages or verified runtime implementations, and should be reconciled with the proposed profile rather than duplicated.
 - The cookbook describes its ATAM evaluation corpus as eight anonymized reports, but the current `atam-evaluator/archevaluation-llms/input-artifacts/` inventory contains seven PDFs (G1–G4 and G6–G8). Confirm whether G5 is intentionally absent or missing before treating the local bundle as the full evaluation corpus.
 
 ### Main consolidation issues
@@ -182,8 +182,8 @@ Some or all of the domain-methodology profile may already be delivered as skills
 
 The first application should be **software architecture**, but it contains at least two separate workflows that should not be collapsed:
 
-- **Architecture decision/design pipeline:** requirements and drivers → solution design → alternative evaluation → architecture decision/diagram. This is the workflow implemented by the four-stage `software-architecture-agent` and specified in Appendix A of `docs/harness-100-prompts_EN.md`.
-- **Architecture evaluation:** assess a described architecture against quality concerns and business goals, using ATAM or another selected method to identify risks, sensitivity points, tradeoffs, and priorities. Appendix B of `docs/harness-100-prompts_EN.md` already sketches practitioner and multi-report research variants.
+- **Architecture decision/design pipeline:** requirements and drivers → solution design → alternative evaluation → architecture decision/diagram. This is the workflow implemented by the four-stage `software-architecture-agent` and specified in Appendix A of `legacy/revfactory-harness/harness-100-prompts_EN.md`.
+- **Architecture evaluation:** assess a described architecture against quality concerns and business goals, using ATAM or another selected method to identify risks, sensitivity points, tradeoffs, and priorities. Appendix B of `legacy/revfactory-harness/harness-100-prompts_EN.md` already sketches practitioner and multi-report research variants.
 
 The five-essentials progression profile from the supplied paper is an additional lens for guiding and auditing the **evaluation practice**. It may complement the architecture evaluation workflow, but it should not be conflated with the architecture decision pipeline or with ATAM's risk/tradeoff analysis. The domain package can share terminology, evidence and traceability contracts across these workflows while preserving their distinct purposes and outputs.
 
@@ -217,7 +217,7 @@ flowchart TB
 
 Here, the attribute-first and scenario-first paths are alternatives inside the domain-specific design. Both retain their own derivation and mapping evidence, then converge on the shared ATAM evaluation core. The SEMAT profile adds progress/checklist assessment across the evaluation effort; it does not select the elicitation path. The runtime adapters implement the same domain contracts using their own orchestration and storage mechanisms.
 
-For example, the supplied paper [Towards Software Architecture as an Auditable Practice](../atam-evaluator/applsci-16-03020-v3.pdf) proposes five evaluation essentials—Architecture Description, Quality Attributes, Business Goals, Architecture Decisions, and Evaluation Adoption—each with progression states and checklists. It also describes relationships among the essentials. When translating this into an agentic workflow, the domain profile should guide the system to:
+For example, the supplied paper [Towards Software Architecture as an Auditable Practice](../case-studies/atam-evaluator/applsci-16-03020-v3.pdf) proposes five evaluation essentials—Architecture Description, Quality Attributes, Business Goals, Architecture Decisions, and Evaluation Adoption—each with progression states and checklists. It also describes relationships among the essentials. When translating this into an agentic workflow, the domain profile should guide the system to:
 
 - establish and track the five essentials rather than treating evaluation as only a sequence of report-generation tasks;
 - make stage completion evidence-based, using the relevant state checklist and recording unmet checkpoints or assumptions;
@@ -264,7 +264,7 @@ The domain profile should also distinguish methods that answer different questio
 
 ### Lifecycle example: evolve an attribute-first harness to add scenario-first
 
-This example applies the two-part lifecycle to the software-architecture domain. The elicitation variants are already described in Appendix B of `docs/harness-100-prompts_EN.md`; the example below shows how they could be treated as harness capabilities over time.
+This example applies the two-part lifecycle to the software-architecture domain. The elicitation variants are already described in Appendix B of `legacy/revfactory-harness/harness-100-prompts_EN.md`; the example below shows how they could be treated as harness capabilities over time.
 
 **Initial generation (v1).** The user supplies the SEMAT-based architecture-evaluation guidance and asks:
 
@@ -509,7 +509,7 @@ The layout can be adjusted after ownership and repository boundaries are decided
 
 1. Rewrite the root README around the three layers and link to install/use instructions for each runtime and domain application.
 2. Consolidate quickstarts and setup guides so they accurately distinguish skill-format compatibility from runtime-feature compatibility.
-3. Retain and reconcile the local `docs/harness-100-prompts_EN.md` cookbook as a set of labeled design examples. Clearly caveat links to the external harness-100 collection and its older generated artifacts; do not present those artifacts as current without compatibility and migration guidance.
+3. Retain and reconcile the local `legacy/revfactory-harness/harness-100-prompts_EN.md` cookbook as a set of labeled design examples. Clearly caveat links to the external harness-100 collection and its older generated artifacts; do not present those artifacts as current without compatibility and migration guidance.
 4. Add a release process for methodology, runtime adapters, and domain packages. They may share a version initially, but declare compatibility explicitly.
 5. Add contribution guidance for deciding which layer a change belongs to and where translations or generated distributions come from.
 

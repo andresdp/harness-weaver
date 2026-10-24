@@ -20,7 +20,7 @@
 
 ## Upstream Claude Code plugin background
 
-The details below describe the originating `revfactory/harness` plugin and its Claude Code-specific behavior. They are distribution and runtime examples, not portable HarnessWeaver contracts. For the current product direction and implementation roadmap, see [STRATEGY.md](STRATEGY.md) and [the roadmap](docs/harnessweaver-implementation-roadmap.md).
+The details below describe the originating `revfactory/harness` plugin and its Claude Code-specific behavior. They are distribution and runtime examples, not portable HarnessWeaver contracts. For the current product direction and implementation roadmap, see [STRATEGY.md](../../STRATEGY.md) and [the roadmap](../../docs/harnessweaver-implementation-roadmap.md).
 
 ### What's new in upstream v2
 
@@ -82,9 +82,9 @@ cp -r /path/to/harness-weaver/src/harnessweaver/skills/harness .claude/skills/ha
 cp -r /path/to/harness-weaver/src/harnessweaver/skills/evolve   .claude/skills/evolve
 ```
 
-See [src/harnessweaver/skills](src/harnessweaver/skills) and the [manual setup guide](docs/manual-setup_EN.md) for details.
+See [src/harnessweaver/skills](../../src/harnessweaver/skills) and the [manual setup guide](manual-setup_EN.md) for details.
 
-Prefer ready-made? Browse [harness-100](https://github.com/revfactory/harness-100) — 100 pre-built harnesses across 10 domains (v1-generation; see the [setup guide](docs/manual-setup_EN.md#ready-made-harnesses-the-harness-100-collection) for caveats and v2 regeneration prompts).
+Prefer ready-made? Browse [harness-100](https://github.com/revfactory/harness-100) — 100 pre-built harnesses across 10 domains (v1-generation; see the [setup guide](manual-setup_EN.md#ready-made-harnesses-the-harness-100-collection) for caveats and v2 regeneration prompts).
 
 No environment variables or experimental flags required.
 
@@ -129,7 +129,7 @@ your-project/
 
 ## Migrating from v1
 
-See [docs/migration-v1-to-v2.md](docs/migration-v1-to-v2.md). Summary: remove `TeamCreate`/`TeamDelete`/broadcast/flag references, convert fan-outs to Workflow scripts, rewrite remaining collaboration with named agents + `SendMessage`, drop blanket `model: "opus"` pins. The factory automates this when it detects v1 artifacts (Phase 0).
+See [migration-v1-to-v2.md](migration-v1-to-v2.md). Summary: remove `TeamCreate`/`TeamDelete`/broadcast/flag references, convert fan-outs to Workflow scripts, rewrite remaining collaboration with named agents + `SendMessage`, drop blanket `model: "opus"` pins. The factory automates this when it detects v1 artifacts (Phase 0).
 
 ## Prior results (v1)
 

@@ -104,8 +104,10 @@ The skill keeps the existing gate discipline (ask before writing files; batch re
 ```text
 sandboxes/gen-<pilot>-<yyyymmddThhmm>/
   sources/              # read-only copy of pilots/<p>/sources/ (and the spec, when only materializing)
-  .claude/skills/       # harness, evolve (copied from src/harnessweaver/skills; digests recorded)
-                        # + langchain-skills deep-agents-* (consulted by the DeepAgents target; digests recorded)
+  skills-plugin/        # the arm's skills wrapped as a Claude Code plugin, loaded with --plugin-dir:
+                        #   HW arm: src/harnessweaver/skills/{harness,evolve}; baseline arm: baselines/revfactory-harness-v2.1.0
+                        #   (digests recorded)
+  .claude/skills/       # langchain-skills deep-agents-* (HW arm with a DeepAgents target only; digests recorded)
   harness-answers.yaml  # optional: pre-recorded gate answers
   generated/            # the only writable area: harnessspec.yaml, design-notes.md, claude/, deepagents/
   RUNBOOK.md            # what the user runs and what to send back (Claude sessions are run by the user, §9.8)
@@ -133,6 +135,12 @@ The materialization report is the fidelity record: each spec element is mapped, 
 5. Update `evolve` to route changes to `sources/`, the spec or `build/<target>/`, and to read the target references.
 
 Each revision is recorded by skill digest in the generation record.
+
+### 3.6 Generation baseline (Claude runtime only)
+
+To show what HarnessWeaver's skills add, the same pilot sources are also given to the **original revfactory/harness v2.1.0 skills**. These are vendored verbatim and pinned in [`baselines/revfactory-harness-v2.1.0/`](../../baselines/revfactory-harness-v2.1.0/BASELINE.md). The baseline arm runs in its own generation sandbox, with the same opening prompt, coding agent, model and equivalent live answers, and produces a Claude Code project. Both projects then run on the same case in execution sandboxes and are checked the same way.
+
+The baseline emits only the Claude Code form, so it serves Claude-runtime comparisons only. DeepAgents is compared against the hand-written reference runner instead (§4.1). The protocol, measures and threats are in `BASELINE.md`. A direct English translation of the baseline is an optional third arm that separates language effects from HarnessWeaver's changes.
 
 ## 4. Step ④ — Runtime hosts
 
@@ -232,6 +240,7 @@ P2 is also a fidelity check of the skill itself. The DeepAgents target pattern w
 | 3 | `hw sandbox create/collect/record` for generation and execution sandboxes; `run.sh` templates; `hw check-bundle` for both targets; `hw check` delegating to `benchmarks/atam/pilot.py check` | 1 d |
 | 4 | HarnessWeaver DeepAgents stage host (generic target-pattern runner) | 0.5–1 d |
 | 5 | P1: generate spec, Claude form and DeepAgents form; one execution run per target; checks | 0.5–1 d (LLM time dominates) |
+| 5b | P1 baseline arm: upstream skills in a generation sandbox → Claude project → execution run; coverage checklist for both arms | 0.5 d (user session + analysis) |
 | 6 | P2: harvest, spec, DeepAgents form, standalone run | 1 d |
 | 7 | P2 integration with SARA; P2b variation | stretch |
 
@@ -247,3 +256,4 @@ Items 1 and 3–6 take about 3.5–4.5 days. If time runs short, the cut order i
 6. Sandboxes use directory and permission isolation; containers are later work.
 7. The skills are `harness` (interactive generation, target choice at gate G4) and `evolve`, in `src/harnessweaver/skills/`. `deepagents-port` is merged into `harness`.
 8. **Claude sessions are run by the user.** Any step that runs Claude Code with skills is executed by the user, who reports back the sandbox's `record/` and `output/`. That covers generation in a generation sandbox and Claude-target runs in an execution sandbox. The development agent prepares the sandbox, its `run.sh`, a runbook and the answers file, then analyzes the returned records. DeepAgents execution runs are done by the development agent.
+9. **Generation baseline:** revfactory/harness v2.1.0 skills, vendored verbatim (Korean) and loaded as a plugin, for Claude-runtime comparisons only (§3.6). A directly translated arm is optional.

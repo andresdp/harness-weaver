@@ -36,7 +36,7 @@ If DeepAgents is selected at G4, or is likely to be, apply these constraints at 
 | Every task documents its input artifacts, output JSON structure, and read-back rule | Produces exactly the sections a target `SKILL.md` needs |
 | Verification as explicit task steps, not messaging loops | Verification intent survives as intra-agent steps |
 
-A worked example (the four-stage architecture decision pipeline) is in the repository's `docs/harness-100-prompts_EN.md`, appendix "portability-aware example".
+A worked example (the four-stage architecture decision pipeline) is in the repository's `legacy/revfactory-harness/harness-100-prompts_EN.md`, appendix "portability-aware example".
 
 ## Step D0: Inventory the inputs
 

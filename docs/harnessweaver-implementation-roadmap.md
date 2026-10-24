@@ -126,7 +126,7 @@ The IR is a working representation for generation and evolution, not a search sp
 ### U1. Establish repository inventory and ownership boundaries
 
 - **Goal:** Make the current repository and the three standalone case studies understandable before restructuring them.
-- **Files:** `README.md`, `README_EN.md`, `docs/consolidation-plan.md`, `case-studies/` and relevant nested repository metadata.
+- **Files:** `README.md`, `legacy/revfactory-harness/README_EN.md`, `docs/consolidation-plan.md`, `case-studies/` and relevant nested repository metadata.
 - **Approach:** Record tracked, untracked, ignored, and nested-repository content; identify canonical copies of skills and docs; record each case study's owner, license, runtime, purpose, and intended relationship to HarnessWeaver. Resolve existing contradictions in the root documentation without moving case-study files.
 - **Test scenarios:** The inventory accounts for all three case studies and distinguishes app code, skills, research inputs, ground truth, generated outputs, and duplicated package copies. A contributor can identify where a shared-methodology, Python, runtime, or domain change belongs.
 - **Verification:** Review the inventory against the repository tree and Git metadata. Confirm no case-study source or research artifact was changed.

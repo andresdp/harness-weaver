@@ -28,9 +28,11 @@ Files stay in place so existing links keep working; this index says which ones a
 
 - [consolidation-plan.md](consolidation-plan.md): layer boundaries and ownership inventory.
 - [harness-skill-trigger-scenarios.md](harness-skill-trigger-scenarios.md), [harness-skill-scenario-review.md](harness-skill-scenario-review.md): skill trigger fixtures and review.
-- [quickstart_EN.md](quickstart_EN.md), [manual-setup_EN.md](manual-setup_EN.md), [harness-100-prompts_EN.md](harness-100-prompts_EN.md): Claude Code plugin usage inherited from `revfactory/harness`.
-
 ## Historical
 
 - [harnessweaver-conversation-context.md](harnessweaver-conversation-context.md): early design conversation.
-- [migration-v1-to-v2.md](migration-v1-to-v2.md), [migration-v1-to-v2_EN.md](migration-v1-to-v2_EN.md): upstream plugin migration notes.
+
+## Legacy (upstream `revfactory/harness`)
+
+- [../legacy/revfactory-harness/](../legacy/revfactory-harness/README.md): upstream README, quickstart, manual setup, harness-100 prompt cookbook and v1→v2 migration notes, in Korean and in English translation.
+- [../baselines/revfactory-harness-v2.1.0/](../baselines/revfactory-harness-v2.1.0/BASELINE.md): verbatim upstream skills used as the Claude-runtime generation baseline.

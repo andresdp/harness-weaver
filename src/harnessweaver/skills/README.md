@@ -65,7 +65,7 @@ For the DeepAgents target, also install the official [langchain-skills](https://
 npx skills add langchain-ai/langchain-skills --skill '*' --yes
 ```
 
-Other agents that support Agent Skills can use the same directories (see [the setup guide](../../../docs/manual-setup_EN.md) for per-agent paths). The Claude Code target's orchestration details (`Workflow`, `Agent(name:)`, `SendMessage`) are Claude Code–native; the rest of the method is portable.
+Other agents that support Agent Skills can use the same directories (see [the setup guide](../../../legacy/revfactory-harness/manual-setup_EN.md) for per-agent paths). The Claude Code target's orchestration details (`Workflow`, `Agent(name:)`, `SendMessage`) are Claude Code–native; the rest of the method is portable.
 
 ## Provenance
 

@@ -2,7 +2,7 @@
 
 This guide covers installing the harness skills by **copying files directly** into your project or home directory — no Claude Code plugin marketplace, no plugin system. Use this when you can't or don't want to install plugins, or when you're using a coding agent other than Claude Code.
 
-For the standard marketplace install, see [quickstart_EN.md](quickstart_EN.md). The maintained skill sources live in [`src/harnessweaver/skills/`](../src/harnessweaver/skills/).
+For the standard marketplace install, see [quickstart_EN.md](quickstart_EN.md). The maintained skill sources live in [`src/harnessweaver/skills/`](../../src/harnessweaver/skills/).
 
 Set `HARNESSWEAVER_ROOT` to the local HarnessWeaver checkout before copying skills, for example `export HARNESSWEAVER_ROOT=/path/to/harness-weaver`.
 
