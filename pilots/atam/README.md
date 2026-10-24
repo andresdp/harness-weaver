@@ -1,18 +1,19 @@
-# HarnessWeaver ATAM Evaluation Demonstration
+# P1 · ArchEval-ATAM pilot
 
-This example demonstrates one shared ATAM methodology profile materialized as two runtime forms:
+This pilot carries one ATAM methodology through the HarnessWeaver flow ([docs/cain-2027/APPROACH.md](../../docs/cain-2027/APPROACH.md)):
 
-- `claude-plugin/` — a Claude Code plugin with evaluator skills and specialist subagents.
-- `deepagents/` — a Python backend using DeepAgents with the same workflow, skills, report template, and evidence boundaries.
+- `sources/` — **authored sources**, the input to the `harness` skill:
+  - `intent.yaml` — goal, scope, exclusions, user, decision supported, human review, target runtimes;
+  - `methodology.yaml` — ATAM activities, readiness, outputs, semantic-state fields and evidence rules, completion, review and the reference boundary;
+  - `domain/` — `sources.yaml` (knowledge index with authority), portable `skills/` (`evaluate-architecture`, `check-evaluation`), `contracts/atam-report.schema.json` (exported from the report model; regenerate with `python -m pilots.atam.deepagents.atam_harness.schema_export`), and `references/atam-report-template.json`.
+- `cases/banking.yaml` — **case binding**: `ATAM_Evaluation.evaluation_inputs` from `case-studies/architecture-eval/ATAM/data/banking.json` is a generation input; `ground_truth_outputs` is evaluator-only and never enters a sandbox.
+- `generated/<label>/` — collected generation runs (HarnessSpec, `design-notes.md`, `build/<target>/`, generation record), one directory per run or arm.
+- **Reference realizations** (hand-written, kept for comparison, not on the generated path):
+  - `claude-plugin/` — a Claude Code plugin with evaluator skills and specialist subagents;
+  - `deepagents/` — a DeepAgents backend with supervisor, sequential and fan-out profiles over Pydantic contracts;
+  - `harnessspec.yaml` (v0.1) and `harnessspec-v0.2.yaml` — the hand-written HarnessSpecs these realizations use.
 
-## Shared design
-
-- `harnessspec.yaml` describes the workflow, roles, stages, sources, artifacts, and verification.
-- `methodology.yaml` makes ATAM activities and semantic methodology state explicit.
-- Both runtime forms consume only `ATAM_Evaluation.evaluation_inputs` from `case-studies/architecture-eval/ATAM/data/banking.json`.
-- `ground_truth_outputs` is reserved for evaluation after generation and execution; it must not be passed to either harness.
-- `report-template.json` defines the generated report structure. It is derived from `case-studies/architecture-eval/ATAM/template.json` and renames `ground_truth_outputs` to `evaluation_results` so generated findings cannot be confused with reference answers.
-- `evaluation_results.semantic_state` records evidence-backed methodology status and explicit gaps. Agent calls and completed runtime tasks do not establish method progress; generated reports remain drafts until an architect reviews them.
+`evaluation_results.semantic_state` records evidence-backed methodology status and explicit gaps. Agent calls and completed runtime tasks do not establish method progress; generated reports remain drafts until an architect reviews them.
 
 The profile is an adaptation for a bounded prototype. It does not claim that a model-generated report is equivalent to a complete, expert-facilitated ATAM evaluation or ready for decision use without architect review.
 

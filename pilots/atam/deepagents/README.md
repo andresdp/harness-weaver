@@ -82,7 +82,7 @@ The runtime-neutral contracts and strategy algorithms live under `src/harnesswea
 
 - `run.py`: CLI entry point.
 - `atam_harness/config.py`: YAML settings, CLI overrides, and resolved run configuration.
-- `atam_harness/models.py`: Pydantic case, report, and agent-configuration contracts. The shared `report-template.json` remains the readable example of the report shape.
+- `atam_harness/models.py`: Pydantic case, report, and agent-configuration contracts. `schema_export.py` writes the JSON Schema of the report contract to `../sources/domain/contracts/atam-report.schema.json`; `../sources/domain/references/atam-report-template.json` remains the readable example of the report shape.
 - `prompts/`: editable coordinator and evaluation prompts.
 - `atam_harness/agents.py` and `atam_harness/agents.yaml`: DeepAgents setup and externally defined specialists.
 - `atam_harness/orchestration.py` and `prompts/orchestration.yaml`: ATAM typed stages and specialist calls for sequential and fan-out/fan-in modes.

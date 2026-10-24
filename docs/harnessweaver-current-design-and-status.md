@@ -46,7 +46,7 @@ Persistent peer-to-peer messaging and shared task-list collaboration are not map
 
 For the banking case, generation receives only `ATAM_Evaluation.evaluation_inputs` from `case-studies/architecture-eval/ATAM/data/banking.json`. `ground_truth_outputs` are reserved for evaluation and must not be passed to the generator or stored with generation runs. This keeps the prediction independent of the reference answers.
 
-The report template is at `pilots/atam/report-template.json`; ATAM domain activities and semantic progress are described in `pilots/atam/methodology.yaml`. The implementation is intentionally a bounded ATAM analysis aid, not a claim that all ATAM phases or stakeholder activities were completed.
+The report template is at `pilots/atam/sources/domain/references/atam-report-template.json`; ATAM domain activities and semantic progress are described in `pilots/atam/sources/methodology.yaml`. The implementation is intentionally a bounded ATAM analysis aid, not a claim that all ATAM phases or stakeholder activities were completed.
 
 ## 3. What to specify in a HarnessSpec
 
@@ -127,7 +127,7 @@ The implementation roadmap remains the product-level source of direction. The U4
 - `src/harnessweaver/skills/evolve/SKILL.md` — feedback and evolution approach.
 - `specs/harnessspec/v0.1.schema.json` and `specs/harnessspec/v0.2.schema.json` — machine-readable spec contracts.
 - `pilots/atam/harnessspec-v0.2.yaml` — most complete current HarnessSpec example.
-- `pilots/atam/methodology.yaml` and `pilots/atam/report-template.json` — ATAM method profile and output contract.
+- `pilots/atam/sources/methodology.yaml` and `pilots/atam/sources/domain/references/atam-report-template.json` — ATAM method profile and output contract.
 - `pilots/atam/deepagents/README.md` — run/configuration guide for the DeepAgents implementation.
 - `pilots/atam/CLAUDE-TESTING.md` — deferred Claude plugin and generation experiments.
 - `pilots/saam/harnessspec.yaml` and `benchmarks/saam/pilot-report.md` — partial SAAM profile and evidence.

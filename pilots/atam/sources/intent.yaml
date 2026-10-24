@@ -1,0 +1,22 @@
+# What the ATAM evaluation harness is for. Runtime choices and case data do not belong here.
+id: archeval-atam
+goal: Produce an evidence-grounded ATAM evaluation draft of a supplied software architecture for review by a software architect.
+scope:
+  - architecture description and supporting evidence
+  - business drivers and constraints
+  - quality attribute drivers refined into prioritized scenarios
+  - architecture approaches, scenario analysis, risks, non-risks, sensitivity points and tradeoff points
+  - evidence-backed methodology state and open gaps
+exclusions:
+  - conducting or simulating stakeholder workshops
+  - inventing stakeholder priorities, measurements or attendees
+  - accepting architecture decisions without expert review
+  - using reference evaluation outputs during generation
+intended_user: Software architect preparing or reviewing an architecture evaluation
+decision_supported: Whether the evaluated architecture adequately addresses its prioritized quality attribute scenarios, and which risks and tradeoffs need attention
+human_review:
+  required: true
+  reviewer: software architect familiar with the evaluated system
+  point: before the report informs a decision
+output: A JSON report conforming to domain/contracts/atam-report.schema.json, with status kept at draft until reviewed
+target_runtimes: [claude-code, deepagents]

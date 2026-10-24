@@ -40,7 +40,7 @@ from harnessweaver.runtime import RunResult
 
 ROOT = Path(__file__).resolve().parents[1]
 CASE = ROOT / "case-studies/architecture-eval/ATAM/data/banking.json"
-REPORT_TEMPLATE = ROOT / "pilots/atam/report-template.json"
+REPORT_TEMPLATE = ROOT / "pilots/atam/sources/domain/references/atam-report-template.json"
 
 
 class AtamDemoTests(unittest.TestCase):

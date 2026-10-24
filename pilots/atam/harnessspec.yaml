@@ -15,7 +15,7 @@ sources:
     kind: domain-guidance
     authority: ArchEval case study; reference only
   - id: atam-methodology
-    ref: methodology.yaml
+    ref: sources/methodology.yaml
     kind: methodology-and-semantic-state
     authority: HarnessWeaver demo profile, derived from the cited ATAM sources
     notes: Adaptation profile for this bounded demo; not a replacement for the source method.
@@ -27,16 +27,16 @@ roles:
   - id: atam-facilitator
     purpose: Sequence the evaluation, identify missing inputs, and maintain semantic methodology state.
     skill_refs:
-      - methodology.yaml
+      - sources/methodology.yaml
   - id: quality-attribute-analyst
     purpose: Build the utility tree and analyze architecture approaches against prioritized scenarios.
     skill_refs:
       - ../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
-      - methodology.yaml
+      - sources/methodology.yaml
   - id: evidence-reviewer
     purpose: Check that evaluation claims are traceable to supplied architecture evidence and report unknowns.
     skill_refs:
-      - methodology.yaml
+      - sources/methodology.yaml
 stages:
   - id: establish-context
     role: atam-facilitator
@@ -79,7 +79,7 @@ artifacts:
     direction: output
     ref: ATAM_Evaluation
     description: ATAM findings, including utility tree, analysis records, risks, non-risks, sensitivity points, tradeoff points, and prioritized scenarios.
-    schema_ref: report-template.json
+    schema_ref: sources/domain/references/atam-report-template.json
   - id: evaluation-context
     kind: methodology-state
     direction: intermediate

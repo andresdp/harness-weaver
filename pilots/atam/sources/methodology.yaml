@@ -2,9 +2,9 @@ id: atam-evaluation-methodology
 version: 0.1.0
 authority: HarnessWeaver adaptation profile based on the referenced ATAM materials
 sources:
-  - ../../case-studies/architecture-eval/ATAM/agents/main.py
-  - ../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
-  - ../../case-studies/architecture-eval/ATAM/template.json
+  - ../../../case-studies/architecture-eval/ATAM/agents/main.py
+  - ../../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
+  - ../../../case-studies/architecture-eval/ATAM/template.json
 purpose: >-
   Evaluate a supplied software architecture description against its quality
   attribute drivers and produce a structured, evidence-grounded ATAM report.
@@ -62,7 +62,7 @@ reference_boundary:
   evaluation_only: ATAM_Evaluation.ground_truth_outputs
   rule: Never include evaluation-only reference outputs in generation context.
 report_contract:
-  ref: report-template.json
+  ref: domain/references/atam-report-template.json
   findings_key: ATAM_Evaluation.evaluation_results
   provenance: >-
     The report template is derived from the ArchEval ATAM template. It renames

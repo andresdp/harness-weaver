@@ -1,0 +1,36 @@
+# Knowledge the ATAM harness may use. Paths are relative to this directory.
+sources:
+  - id: atam-methodology
+    ref: ../methodology.yaml
+    kind: methodology-and-semantic-state
+    authority: HarnessWeaver adaptation profile derived from the ArchEval ATAM materials below
+    notes: Bounded prototype; does not replace a facilitated ATAM workshop.
+  - id: atam-report-contract
+    ref: contracts/atam-report.schema.json
+    kind: output-contract
+    authority: Generated from the HarnessWeaver ATAM report model (pilots/atam/deepagents/atam_harness/models.py)
+    notes: Regenerate with `python -m pilots.atam.deepagents.atam_harness.schema_export`; a test guards drift.
+  - id: atam-report-template
+    ref: references/atam-report-template.json
+    kind: output-template
+    authority: Derived from the ArchEval ATAM template; renames ground_truth_outputs to evaluation_results
+  - id: evaluate-architecture
+    ref: skills/evaluate-architecture/SKILL.md
+    kind: domain-skill
+    authority: HarnessWeaver; consolidated from the two reference realizations' evaluate-architecture skills
+  - id: check-evaluation
+    ref: skills/check-evaluation/SKILL.md
+    kind: domain-skill
+    authority: HarnessWeaver; consolidated from the two reference realizations' check-evaluation skills
+  - id: archeval-atam-prompts
+    ref: ../../../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
+    kind: domain-guidance
+    authority: ArchEval case study; reference only, not owned by HarnessWeaver
+  - id: archeval-atam-workflow
+    ref: ../../../../case-studies/architecture-eval/ATAM/agents/main.py
+    kind: workflow-implementation
+    authority: ArchEval case study; reference only, not owned by HarnessWeaver
+  - id: archeval-atam-template
+    ref: ../../../../case-studies/architecture-eval/ATAM/template.json
+    kind: output-template
+    authority: ArchEval case study; origin of the report template
