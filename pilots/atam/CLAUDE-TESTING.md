@@ -1,5 +1,7 @@
 # Claude testing handoff for the ATAM prototype
 
+> **Superseded for the CAIN 2027 runs (2026-10-24).** Generation and Claude-target runs now use the generation and execution sandboxes in [docs/cain-2027/APPROACH.md](../../docs/cain-2027/APPROACH.md), with a `RUNBOOK.md` per sandbox. Section A below still describes the hand-maintained reference plugin. Section B's prompt is replaced by the `harness` skill's gates and `harness-answers.yaml`.
+
 Live Claude checks are deferred. This guide prepares two later experiments: running the generated ATAM plugin, and asking Claude to generate a plugin from the shared HarnessSpec. Keep the resulting runs separate and note the Claude Code version, model, date, and any changes made to the generated files.
 
 ## A. Try the generated ATAM plugin
@@ -29,8 +31,7 @@ Use a scratch directory so the generation experiment does not overwrite the main
 
 ```bash
 mkdir -p /tmp/hw-atam-generation/.claude/skills
-ln -s "$PWD/harness-en/skills/harness" /tmp/hw-atam-generation/.claude/skills/harness
-ln -s "$PWD/harness-en/skills/deepagents-port" /tmp/hw-atam-generation/.claude/skills/deepagents-port
+ln -s "$PWD/src/harnessweaver/skills/harness" /tmp/hw-atam-generation/.claude/skills/harness
 ```
 
 Start Claude Code in `/tmp/hw-atam-generation` and use a prompt like:

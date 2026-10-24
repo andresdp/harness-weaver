@@ -121,8 +121,8 @@ The implementation roadmap remains the product-level source of direction. The U4
 
 ## 6. Useful entry points
 
-- `harness-en/skills/harness/SKILL.md` — shared harness-design approach.
-- `harness-en/skills/evolve/SKILL.md` — feedback and evolution approach.
+- `src/harnessweaver/skills/harness/SKILL.md` — shared harness-design approach.
+- `src/harnessweaver/skills/evolve/SKILL.md` — feedback and evolution approach.
 - `specs/harnessspec/v0.1.schema.json` and `specs/harnessspec/v0.2.schema.json` — machine-readable spec contracts.
 - `pilots/atam/harnessspec-v0.2.yaml` — most complete current HarnessSpec example.
 - `pilots/atam/methodology.yaml` and `pilots/atam/report-template.json` — ATAM method profile and output contract.

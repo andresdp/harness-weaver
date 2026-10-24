@@ -20,7 +20,7 @@ sources:
     authority: HarnessWeaver demo profile, derived from the cited ATAM sources
     notes: Adaptation profile for this bounded demo; not a replacement for the source method.
   - id: harness-design-skill
-    ref: ../../harness-en/skills/harness/SKILL.md
+    ref: ../../src/harnessweaver/skills/harness/SKILL.md
     kind: harness-methodology
     authority: HarnessWeaver working-tree skill
 roles:

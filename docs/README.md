@@ -5,6 +5,7 @@ Files stay in place so existing links keep working; this index says which ones a
 ## CAIN 2027 submission
 
 - [cain-2027/STATUS.md](cain-2027/STATUS.md): implemented vs missing, pilots, ordered gaps. **Start here.**
+- [cain-2027/APPROACH.md](cain-2027/APPROACH.md): target approach (authored sources → IR → materialized bundles → sandboxed runs → evolution).
 - [cain-2027/HarnessWeaver_CAIN_2027_Coauthor_Plan.md](cain-2027/HarnessWeaver_CAIN_2027_Coauthor_Plan.md): co-author paper plan.
 - [harnessweaver_construction_strategies.svg](harnessweaver_construction_strategies.svg) / [.pdf](harnessweaver_construction_strategies.pdf): draft of Figure 1.
 - [harnessweaver_strategy_comparison.pdf](harnessweaver_strategy_comparison.pdf) / [.docx](harnessweaver_strategy_comparison.docx): construction-strategy comparison.

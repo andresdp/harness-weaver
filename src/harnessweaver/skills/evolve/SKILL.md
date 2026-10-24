@@ -22,7 +22,7 @@ initial harness ──▶ real project use ──▶ current harness
 ### Phase 1: Collect the delta
 
 1. Locate the HarnessSpec or lightweight brief that defines the design. Record its version and provenance; validate a saved spec when a validator is available. Do not create a formal spec just to evolve a simple one-off.
-2. Inspect the selected runtime's actual artifacts, declared domain methodology and sources, and project change history. For Claude Code, include `.claude/agents/`, `.claude/skills/`, and `CLAUDE.md`; for other runtimes, use the paths named by the spec or adapter. Do not invent a `.claude/` tree for a non-Claude harness.
+2. Inspect the authored sources (`sources/` when present), `design-notes.md`, each generated target's actual files and its `materialization-report.md`, and the project change history. For Claude Code, include `.claude/agents/`, `.claude/skills/` and `CLAUDE.md`. For DeepAgents, include the stage directories, `wiring.yaml` and the output `README.md`. The target conventions are in the harness skill's `references/targets/`. Do not invent a `.claude/` tree for a non-Claude harness.
 3. Establish a baseline before editing: identify the initial spec or brief, runtime artifact revision, methodology/profile revision, and run or evidence records being compared. Preserve that baseline by immutable copy, revision identifier, or repository history; never overwrite the only record of the prior design or results.
 4. If it's a git repository, inspect the change history of those harness files and spec (`git log --oneline -- <paths>`) — establish what changed, when, and why relative to the initial configuration.
 5. If `_workspace/` or another run-artifact location exists, skim recent intermediate artifacts and execution records:
@@ -50,12 +50,16 @@ initial harness ──▶ real project use ──▶ current harness
 | Shared workflow intent | HarnessSpec | "Every runtime needs the same stage, artifact, or verification change" → update the spec and preserve runtime-specific mapping notes |
 | Domain methodology or semantic progress | Domain profile/method reference, then HarnessSpec if its shared contract changes | A checkpoint, evidence rule, state meaning, or completion condition is wrong → trace the correction to its source, revise/version the method, and update semantic state without changing runtime bookkeeping |
 | Missing or conflicting evidence | Source inventory, gap record, or affected claim | A conclusion lacks support or sources disagree → retain provenance, mark the claim unknown or unresolved, and do not encode an unsupported state transition |
-| Run mechanics or execution bookkeeping | Runtime adapter or run record | Retries, task flags, persistence, tools, or handoffs are wrong → fix execution mechanics without treating the change as domain-method progress |
+| Authored intent or domain knowledge | `sources/intent.yaml` or `sources/domain/` | Scope was wrong, or a domain skill lacks a rule → change the source, then regenerate the spec and all targets with the harness skill |
+| Target mapping | The harness skill's target reference, or that target's generated files | One runtime lost or approximated a spec element that another kept → fix the mapping, regenerate only that target, and update its `materialization-report.md` |
+| Run mechanics or execution bookkeeping | Runtime host or run record | Retries, task flags, persistence, tools, or handoffs are wrong → fix execution mechanics without treating the change as domain-method progress |
 | Missing triggers | Skill description | "It doesn't fire with that phrasing" → expand the description |
 | Wrong execution mode | Orchestrator | "Same fan-out every time, and it's slow" → switch to workflow mode |
 | Scale/cost | Orchestrator | "It burns too many tokens" → shrink default scale, add budget integration |
 
-**Scope decision:** If adding/removing agents or redesigning the architecture is required, don't do it directly in this skill — guide the user to the harness skill (the extend-existing-configuration procedure in step 0). evolve focuses on **adjusting the existing configuration**.
+**Scope decision:** If adding/removing agents or redesigning the architecture is required, don't do it directly in this skill — guide the user to the harness skill (the Extend procedure in its Phase 0). evolve focuses on **adjusting the existing configuration**.
+
+**Change at the source, then regenerate.** When a change belongs to the sources or the spec, edit it there and regenerate every affected target with the harness skill's Regenerate procedure, reusing the recorded gate answers. Hand-editing only one target's generated files makes the targets diverge silently. If a generated file must be edited directly, record it as a manual intervention in that target's `materialization-report.md`.
 
 ### Phase 3: Generalize and apply
 
@@ -70,7 +74,7 @@ initial harness ──▶ real project use ──▶ current harness
 
 ### Phase 4: Update the change history and verify
 
-1. Record in the existing project change-history location (for Claude Code this is the **change history** table in `CLAUDE.md`):
+1. Record in `design-notes.md` and in each target's change-history location (Claude Code: the **change history** table in `CLAUDE.md`; DeepAgents: the output `README.md`):
 
 ```markdown
 **Change history:**
@@ -81,7 +85,7 @@ initial harness ──▶ real project use ──▶ current harness
 
 2. Validate the structure of the modified files (frontmatter, reference consistency). If a HarnessSpec changed, run the available validator; report explicitly when validation could not run.
 3. If a description was changed, run trigger validation (3+ should-trigger and 3+ near-miss cases each)
-4. Final check that CLAUDE.md and the actual files agree
+4. Final check that each target's change history, `materialization-report.md` and actual files agree
 
 ### Phase 5: Report the evolution
 

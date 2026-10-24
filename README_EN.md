@@ -16,9 +16,7 @@
 
 # HarnessWeaver — Runtime-Neutral Harness Design
 
-**English** | [한국어](README_KO.md)
-
-> HarnessWeaver designs and validates agent harnesses from user intent, domain knowledge, and methodology, then maps them to supported runtime forms. The active English skill source in this checkout is `harness-en/skills/`; the upstream Claude Code plugin is a separate distribution path.
+> HarnessWeaver designs and validates agent harnesses from user intent, domain knowledge, and methodology, then maps them to supported runtime forms. The active skill source in this checkout is `src/harnessweaver/skills/`; the upstream Claude Code plugin is a separate distribution path.
 
 ## Upstream Claude Code plugin background
 
@@ -71,22 +69,20 @@ Phase 7: Maintenance — evolution via /harness:evolve
 ### As global skills
 
 ```shell
-cp -r harness-en/skills/harness ~/.claude/skills/harness
-cp -r harness-en/skills/evolve ~/.claude/skills/evolve
-cp -r harness-en/skills/deepagents-port ~/.claude/skills/deepagents-port
+cp -r src/harnessweaver/skills/harness ~/.claude/skills/harness
+cp -r src/harnessweaver/skills/evolve ~/.claude/skills/evolve
 ```
 
 ### Install from this repository
 
-The English harness, evolve, and DeepAgents port skills, installable without the marketplace or plugin system — including on agents other than Claude Code (Cursor, Gemini CLI, OpenCode, …):
+The harness and evolve skills, installable without the marketplace or plugin system — including on agents other than Claude Code (Cursor, Gemini CLI, OpenCode, …):
 
 ```shell
-cp -r /path/to/harness-weaver/harness-en/skills/harness .claude/skills/harness
-cp -r /path/to/harness-weaver/harness-en/skills/evolve   .claude/skills/evolve
-cp -r /path/to/harness-weaver/harness-en/skills/deepagents-port .claude/skills/deepagents-port
+cp -r /path/to/harness-weaver/src/harnessweaver/skills/harness .claude/skills/harness
+cp -r /path/to/harness-weaver/src/harnessweaver/skills/evolve   .claude/skills/evolve
 ```
 
-See [harness-en](harness-en) and the [manual setup guide](docs/manual-setup_EN.md) for details.
+See [src/harnessweaver/skills](src/harnessweaver/skills) and the [manual setup guide](docs/manual-setup_EN.md) for details.
 
 Prefer ready-made? Browse [harness-100](https://github.com/revfactory/harness-100) — 100 pre-built harnesses across 10 domains (v1-generation; see the [setup guide](docs/manual-setup_EN.md#ready-made-harnesses-the-harness-100-collection) for caveats and v2 regeneration prompts).
 

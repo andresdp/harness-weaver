@@ -1,6 +1,6 @@
 # Harness → DeepAgents Mapping Table
 
-Concept-by-concept mapping used during Phase B of the port. "Default" is what the port emits when no contrary decision is recorded; the "Alternative" column feeds the B-2 decision table in the parent `SKILL.md`.
+Concept-by-concept mapping used in Steps D1–D3 of `deepagents.md`. "Default" is what the port emits when no contrary decision is recorded; the "Alternative" column feeds the D2 decision table in `deepagents.md`.
 
 ## People and roles
 

@@ -9,7 +9,7 @@ HarnessWeaver develops a runtime-neutral contract and tools for designing, valid
 - `pilots/` — pilot harnesses (HarnessSpec, methodology, runtime realizations); see [pilots/README.md](pilots/README.md) for which are active.
 - `src/harnessweaver/` — Python package and `hw` validation command.
 - `benchmarks/atam/` — HarnessWeaver-owned ATAM pilot protocol and run records.
-- `harness-en/skills/` — current English harness, evolve, and DeepAgents port skills.
+- `src/harnessweaver/skills/` — the two generation skills (`harness`, `evolve`) used by a coding agent; see [its README](src/harnessweaver/skills/README.md).
 - `STRATEGY.md` and `CONCEPTS.md` — product direction and shared terminology.
 - `case-studies/` — preserved research and application projects. Changes to their code/data remain owned by those projects; HarnessWeaver adds references and adapters around them.
 

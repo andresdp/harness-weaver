@@ -271,9 +271,9 @@ feedback — persistent agents.
 
 ## Appendix A: portability-aware example — architecture decision pipeline (DeepAgents target)
 
-A worked example of the **two-phase workflow** (generate with harness → test in Claude Code → port with `deepagents-port`), reconstructing a real production DeepAgents pipeline: software-architecture decision support, where a team takes a project from requirements to a documented architecture decision.
+A worked example of the **two-phase workflow** (generate with harness → test in Claude Code → generate the DeepAgents target with the harness skill), reconstructing a real production DeepAgents pipeline: software-architecture decision support, where a team takes a project from requirements to a documented architecture decision.
 
-The prompt is **contract-first**: it states the artifact sequence and ID-linkage rules up front, because those are the parts of the design that must survive the port unchanged (see the [mapping table's fidelity ladder](../harness-en/skills/deepagents-port/references/mapping-table.md) — artifact contracts are the strongest-surviving tier). Field-level details are left to the factory.
+The prompt is **contract-first**: it states the artifact sequence and ID-linkage rules up front, because those are the parts of the design that must survive the port unchanged (see the [mapping table's fidelity ladder](../src/harnessweaver/skills/deepagents-port/references/mapping-table.md) — artifact contracts are the strongest-surviving tier). Field-level details are left to the factory.
 
 ```
 claude "build a harness for software architecture decision-making: given a project
@@ -313,7 +313,7 @@ must carry source_requirement_ids referencing the requirements it derives from.
 
 Rule of thumb: **the prompt fixes what must survive; the factory designs what can vary.** When an existing consumer exists, its schemas move from "can vary" to "must survive" — and only then do they belong in the prompt.
 
-**Porting it:** after testing, invoke `deepagents-port` Phase B (see [`harness-en`](../harness-en/README.md); prerequisite: the official [langchain-skills](https://github.com/langchain-ai/langchain-skills) installed alongside it — `npx skills add langchain-ai/langchain-skills --skill '*' --yes`). The stages map 1:1 (each becomes `stage{N}-{name}/AGENTS.md` + its skills), the JSON contracts transfer nearly verbatim into each skill's Expected Output section, and the port emits a `port-manifest.md` with the Python wiring (`STAGES`, `STAGE_ARTIFACTS`, factory mounts). What changes: verification flattens from any multi-verifier fan-out to single-pass read-back + completion protocol, and model tiers collapse to one env-driven model with rationale preserved as comments.
+**Porting it:** after testing, select the DeepAgents target in the harness skill (gate G4; see [`src/harnessweaver/skills`](../src/harnessweaver/skills/README.md); prerequisite: the official [langchain-skills](https://github.com/langchain-ai/langchain-skills) installed alongside it — `npx skills add langchain-ai/langchain-skills --skill '*' --yes`). The stages map 1:1 (each becomes `stage{N}-{name}/AGENTS.md` + its skills), the JSON contracts transfer nearly verbatim into each skill's Expected Output section, and the port emits a `port-manifest.md` with the Python wiring (`STAGES`, `STAGE_ARTIFACTS`, factory mounts). What changes: verification flattens from any multi-verifier fan-out to single-pass read-back + completion protocol, and model tiers collapse to one env-driven model with rationale preserved as comments.
 
 ## Appendix B: portability-aware example — ATAM architecture evaluation (two modes to compare)
 

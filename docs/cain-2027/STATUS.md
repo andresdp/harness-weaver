@@ -17,7 +17,7 @@ The plan names five concepts. The repository realizes them inside HarnessSpec v0
 | Methodology | `methodology` section + `methodology.yaml` (ATAM) + `stages` readiness/completion criteria | Methodology file holds detailed activities and evidence rules. |
 | Methodology/semantic state | `semantic_state` in spec; `evaluation_results.semantic_state` in report contract | Kept separate from the runtime sidecar (`*.runtime.json`). |
 | HarnessSpec / IR | `specs/harnessspec/v0.2.schema.json`, `src/harnessweaver/spec.py` | Spec is a design record, not an executable workflow. |
-| Runtime adapter/materializer | DeepAgents adapter (`src/harnessweaver/adapters/deepagents/`) executes; **no materializer emits files for either runtime** | See gaps G1–G2. |
+| Runtime adapter/materializer | Target references inside the `harness` skill (`src/harnessweaver/skills/harness/references/targets/`), applied by a coding agent; no target has been generated yet | See [APPROACH.md](APPROACH.md) §3–4 and gaps G3–G6. |
 | Orchestration primitives | Three `workflow_strategy × agent_interaction` pairs (supervisor, sequential pipeline, fan-out/fan-in) | Plan's *Loop* primitive is not implemented; report it as future work. |
 | Checker / verifier / evaluator | Checker: `benchmarks/atam/pilot.py check` (deterministic). Evaluator: legacy ArchEval LLM judge (supplementary). Human review: protocol only. | No verifier with evidence trail beyond the checker. |
 
@@ -46,7 +46,7 @@ Other existing work not in the plan:
 
 - **SAAM WRCS pilot** (`pilots/saam/`, `benchmarks/saam/`): matched baseline vs spec-guided runs, DeepAgents/Pydantic only, partial reference (6/15 scenarios). Not a two-runtime case.
 - **Portable-skill preparation** (`benchmarks/atam/runs/u7-portability-skill-20261020/`): input preparation and mapping by a non-Claude coding agent; no execution.
-- **Harness design skills** (`harness-en/skills/harness`, `evolve`, `deepagents-port`): LLM-driven design/generation method. Derived from `revfactory/harness`; the paper must disclose this lineage.
+- **Generation skills** (`src/harnessweaver/skills/harness`, `evolve`; `deepagents-port` merged into `harness` on 2026-10-24): LLM-driven design and generation method. Derived from `revfactory/harness`; the paper must disclose this lineage.
 
 ## 3. Pilots for the submission
 
@@ -72,32 +72,35 @@ The resulting matrix is therefore asymmetric: P1 shows **runtime flexibility** (
 
 ## 4. Remaining work (ordered)
 
-| ID | Work | Pilot | Priority | Completion criterion |
-|---|---|---|---|---|
-| G1 | `hw materialize --target claude`: emit plugin (`plugin.json`, `agents/*.md` from `roles`, skills and shared references copied from one source) + `materialization-manifest.json` (concept → construct, unsupported/lossy list) | P1 | Must | Generated plugin passes `claude plugin validate`; diff against the hand-maintained plugin recorded as intervention log. |
-| G2 | `hw materialize --target deepagents`: emit `agents.yaml`, skills, references, manifest consumed by the existing runner | P1 | Must | Existing runner executes from generated assets; tests cover generation determinism. |
-| G3 | Live Claude run of the generated plugin on banking (inputs only) + `pilot.py check` | P1 | Must | Report file + check output + Claude Code/model versions recorded. |
-| G4 | DeepAgents supervisor run from generated assets (same case, `openai:gpt-5.4-mini`) | P1 | Must | Passing check under current contract. The model differs from the Claude cell; report it as a limitation. |
-| G5 | Version a curated evidence package (selected run records, manifests, checker outputs) outside ignored paths | P1 | Must | `docs/cain-2027/evidence/` (or equivalent) contains every record cited in the paper. |
-| G6 | Anonymized artifact (no author names, no third-party PDFs, no nested repos) | All | Must | Anonymous link builds and reproduces generation. |
-| G7 | Effort/intervention log started now; retrospective entries from git history labelled as such | All | Must | `docs/cain-2027/effort-log.md` with consistent fields. |
-| G8 | Evolution demo: one spec change → regenerate both targets → count changed files | P1 | Stretch | Before/after manifests and diff stats. |
-| G9 | SARA HarnessSpec v0.2 + `methodology.yaml` derived from its stage files | P2 | Must | Spec validates; every stage/task/artifact traces to a SARA source file. |
-| G9a | Generate the SARA DeepAgents backend (reuses G2) + standalone run on one input case | P2 | Must | Four stages produce their declared artifacts; run record kept. |
-| G9b | Connect SARA's API/frontend to the generated backend | P2 | Stretch | End-to-end run through SARA's UI or API; integration changes and effort logged in `pilots/sara/integration.md`. |
-| G10 | Bounded retries of sequential/fan-out under current contract | P1 | Optional | One attempt each with a hard timeout; record outcome either way. |
+The approach is defined in [APPROACH.md](APPROACH.md). **Owner:** *dev* = development agent; *user* = runs Claude Code sessions with skills and returns the records (APPROACH §9.8).
 
-Not planned for the submission: Loop primitive, separate Intent/Domain schemas, LLM-based spec generation, SAAM second runtime, human blind review.
+| ID | Work | Pilot | Owner | Priority | Completion criterion |
+|---|---|---|---|---|---|
+| G1 | ~~Unified `harness` + `evolve` skills~~ in `src/harnessweaver/skills/` | All | dev | Done 2026-10-24 | Gates G0–G6, answers file, both target references, materialization report template |
+| G2 | ATAM `sources/` layout (`intent.yaml`, `methodology.yaml`, `domain/` with skills and JSON Schema of the report); `cases/banking.yaml` | P1 | dev | Must | Sources contain no runtime constructs or case data; schema matches the Pydantic report model |
+| G3 | `hw sandbox create/collect/record` (generation and execution), `RUNBOOK.md` and `run.sh` templates, `hw check-bundle` for both targets, `hw check` delegating to `benchmarks/atam/pilot.py check` | All | dev | Must | Tests cover input-only extraction, no evaluator-only data in sandboxes, bundle checks |
+| G4 | HarnessWeaver DeepAgents stage host reading `wiring.yaml` | P1, P2 | dev | Must | Fake-agent tests for stage order, artifact checks and schema validation |
+| G5 | P1 generation sandbox: `harness` session producing spec, Claude form and DeepAgents form | P1 | user (dev prepares) | Must | Generated files collected into `pilots/atam/`; generation record; bundle checks pass or failures listed |
+| G6 | P1 execution runs: Claude form (user) and DeepAgents form on the stage host (dev, `openai:gpt-5.4-mini`) on banking | P1 | user + dev | Must | Outputs checked with the ATAM checker; records in the evidence package |
+| G7 | P2 harvest + design + DeepAgents form (user session), standalone stage-host run (dev) | P2 | user + dev | Must | Harvest report; spec validates; stage dirs compared with SARA's originals; run recorded |
+| G8 | Curated evidence package in `docs/cain-2027/evidence/` | All | dev | Must | Every record cited in the paper is versioned |
+| G9 | Effort and intervention log (`docs/cain-2027/effort-log.md`) | All | dev + user | Must | Consistent fields; retrospective entries labelled |
+| G10 | Anonymized artifact | All | dev | Must | No author names, third-party PDFs or nested repos |
+| G11 | P2b SARA methodology variation → regenerate → run | P2 | user + dev | Stretch | Diff sources → spec → bundle, files changed, run outcome |
+| G12 | Connect SARA's API/frontend to the generated backend | P2 | dev | Stretch | Integration changes logged in `pilots/sara/integration.md` |
+
+Not planned for the submission: the Loop primitive, separate Intent/Domain schemas, SAAM on a second runtime, human blind review, generating the U7 supervisor/fan-out profiles.
 
 ## 5. Decisions (2026-10-24)
 
-- **Pilots:** P1 ArchEval-ATAM (Claude + DeepAgents); P2 SARA (generated DeepAgents backend, SARA app adapted). SAAM and ADD parked.
-- **P1 DeepAgents model:** `openai:gpt-5.4-mini`, reusing existing evidence; model mismatch with the Claude cell is a declared limitation.
-- **Reorganization:** medium (see §6).
+- **Pilots:** P1 ArchEval-ATAM (Claude + DeepAgents); P2 SARA (generated DeepAgents backend, SARA app adapted), with an optional P2b methodology variation. SAAM and ADD are parked.
+- **P1 DeepAgents model:** `openai:gpt-5.4-mini`, reusing existing evidence; the model mismatch with the Claude cell is a declared limitation.
+- **Approach:** see [APPROACH.md](APPROACH.md) §9 (skill-driven generation, Claude project target, DeepAgents stage pattern with a HarnessWeaver host, committed generated files, `benchmarks/` kept for now, directory sandboxes, user-run Claude sessions).
 
 ## 6. Repository reorganization (applied 2026-10-24)
 
 - `examples/` → `pilots/` (`atam`, `saam`, `design-exploration`, new `sara`). Python imports changed from `examples.atam…` to `pilots.atam…`; spec-relative paths are unchanged because the depth is the same. Index: [`pilots/README.md`](../../pilots/README.md).
 - `docs/cain-2027/`: this file and the co-author plan (moved from the root). The effort log and evidence package go here (G5, G7).
-- [`docs/README.md`](../README.md): classifies docs as current, pilot-specific, reference, or historical. Files were not moved because the harness-skill docs cross-reference each other and `harness-en/`.
+- [`docs/README.md`](../README.md): classifies docs as current, pilot-specific, reference, or historical. Files were not moved because the harness-skill docs cross-reference each other and the skills.
+- `harness-en/` → `src/harnessweaver/skills/` (two skills, `harness` and `evolve`).
 - `benchmarks/` and `case-studies/`: unchanged. Git-ignored historical run records (`benchmarks/atam/runs/`, `pilots/atam/deepagents/runs/`) still cite `examples/…` paths; they are kept as recorded.

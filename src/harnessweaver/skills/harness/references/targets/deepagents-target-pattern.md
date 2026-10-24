@@ -1,6 +1,6 @@
 # DeepAgents Target Pattern — Stage Directories, AGENTS.md, Skills, JSON Artifacts
 
-This document defines the target conventions for a ported harness, distilled from a production DeepAgents application (a software-architecture pipeline: 4 stages, 11 skills, JSON artifacts in Firestore via a custom backend). The skill `SKILL.md` that references this document emits artifacts that follow this pattern exactly.
+This document defines the target conventions for a ported harness, distilled from a production DeepAgents application (a software-architecture pipeline: 4 stages, 11 skills, JSON artifacts in Firestore via a custom backend). `deepagents.md` (the DeepAgents target of the `harness` skill) emits artifacts that follow this pattern exactly.
 
 ## Runtime model
 
@@ -81,7 +81,7 @@ Body sections, in this order:
 - Every JSON structure block documents required keys and their types inline (`"priority": "high"` as an enum example).
 - The application's completion check (Python) asserts existence of every expected artifact after each stage run; per-skill read-back verification asserts validity within the run.
 
-## Application wiring (generated as port-manifest.md, not edited in place)
+## Application wiring (`wiring.yaml` for any host; `port-manifest.md` for an existing application, not edited in place)
 
 - `STAGES` registry: `{N: [stage_dir_name, handoff_prompt]}` — the prompt is one sentence stating the stage's responsibility and what it consumes.
 - `STAGE_ARTIFACTS`: `{N: [artifact filenames]}` — drives the completion check and the result API.
@@ -103,7 +103,7 @@ The Python side of a ported application follows the official [langchain-skills](
 
 - AGENTS.md and SKILL.md bodies stay lean; the reference application's files run 60–120 lines each. Anything beyond ~500 lines is a smell that the task should be split.
 - Imperative, declarative sentences; no hedging. The pattern relies on unambiguous MUST/NEVER statements.
-- English for ported artifacts unless the user's application uses another language consistently.
+- Write artifacts in the language the harness skill's language rule selects: the user's language, or the existing application's language when extending one.
 
 ## Known limitations of this pattern (port decisions, not defects)
 

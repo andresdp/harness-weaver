@@ -9,11 +9,11 @@
 
 > Ownership update (2026-10-17): this repository document records intended boundaries. It does not transfer ownership of the separate case-study projects. Their content remains in place until provenance and ownership are explicitly established.
 
-Consolidate the current repository into a coherent English-first system for designing and implementing domain-specific agent harnesses. The system should support multiple runtimes, including Claude Code and Python-based DeepAgents applications, and should make domain applications such as software architecture explicit, reusable packages rather than examples mixed into runtime guidance.
+Consolidate the current repository into a coherent system for designing and implementing domain-specific agent harnesses. The system should support multiple runtimes, including Claude Code and Python-based DeepAgents applications, and should make domain applications such as software architecture explicit, reusable packages rather than examples mixed into runtime guidance.
 
 The organizing principle is three layers:
 
-1. **Methodology:** English-first, runtime-neutral guidance for analyzing a domain and designing a harness.
+1. **Methodology:** runtime-neutral guidance for analyzing a domain and designing a harness.
 2. **Runtime implementations:** adapters and deliverables for particular agent runtimes, such as Claude Code skills and plugins or Python DeepAgents applications.
 3. **Domain applications:** domain-specific methods and workflow-design constraints, plus reusable workflows, schemas, examples, and evaluation assets that can be implemented on one or more runtimes.
 
@@ -21,7 +21,7 @@ The boundaries matter: the general methodology defines how to design harnesses; 
 
 ```mermaid
 flowchart TB
-    M["Layer 1 · English harness methodology<br/>How to analyze work and design a harness<br/>Harness Specification"]
+    M["Layer 1 · Harness methodology<br/>How to analyze work and design a harness<br/>Harness Specification"]
     D["Layer 3 · Domain application and supplied domain artifacts<br/>Skills, methods, workflow rules, evidence criteria<br/>Example: software architecture evaluation"]
     I["Input context bundle<br/>existing skills, standards, examples, constraints"]
     S["Resolved harness design<br/>General design + domain-specific constraints"]
@@ -92,7 +92,7 @@ Scale the work to the task. A small workflow can use one orchestrator skill and 
 | Area | Current location | Evidence and source of truth | HarnessWeaver boundary |
 |---|---|---|---|
 | Roadmap and project contracts | `docs/` | Root HarnessWeaver working tree | Canonical for project sequencing and shared contract decisions. |
-| Harness, evolve, and DeepAgents port skills | `harness-en/skills/` | Active English skill tree in this checkout; no root `skills/` or `packages/harness-en/` copy is maintained here | Canonical HarnessWeaver skill source. README install paths point into this tree; keep shared design guidance separate from runtime-specific output and report adapter limits. |
+| Harness and evolve skills (DeepAgents target inside harness) | `src/harnessweaver/skills/` | Active skill tree in this checkout; no root `skills/` or `packages/harness-en/` copy is maintained here | Canonical HarnessWeaver skill source. README install paths point into this tree; keep shared design guidance separate from runtime-specific output and report adapter limits. |
 | HarnessSpec and pilots | `specs/`, `pilots/` | HarnessWeaver-owned additions | Canonical shared contract and consumer fixtures. |
 | Python core | `src/harnessweaver/` | HarnessWeaver-owned additions | Runtime-independent loading and validation only in the first deliverable. |
 | ArchEval | `case-studies/architecture-eval/` | Separate Git repository at `main`; this worktree currently reports `origin/main`; project README identifies it as the ArchEval replication package | Preserve source, research inputs, ground truth, and outputs. HarnessWeaver may reference the ATAM workflow and data. The local Git metadata did not expose a remote URL in this inventory. |
@@ -105,30 +105,30 @@ Suggested change routing: shared methodology and project boundaries go in `docs/
 
 ### What already exists
 
-- `harness-en/skills/harness/` and `harness-en/skills/evolve/` are the active English skills in this checkout. Together with their references, they contain the harness design and evolution methods. Their content still includes Claude Code-specific paths and capabilities that need to be identified and bounded.
+- `src/harnessweaver/skills/harness/` and `src/harnessweaver/skills/evolve/` are the active skills in this checkout. Together with their references, they contain the harness design and evolution methods. Their content still includes Claude Code-specific paths and capabilities that need to be identified and bounded.
 - The `evolve` skill already provides the second lifecycle capability: it collects differences between the initial and current harness, classifies feedback, generalizes and applies changes, records history, and reports the update. Its current file conventions are Claude-oriented, so consolidation should preserve its portable feedback method while separating runtime-specific paths and update mechanics.
 - The current Harness skill already audits existing `.claude/agents/`, `.claude/skills/`, and `CLAUDE.md`, analyzes the codebase, and checks for duplicate agents/skills before generating them. The proposed shift extends this behavior: supplied domain-methodology skills and other source artifacts become normal inputs even when they are not already installed in those Harness-specific locations.
-- `harness-en/skills/deepagents-port/` defines the DeepAgents mapping workflow. It uses a staged agent/skill/JSON-artifact pattern and records fidelity limits; the current skill does not itself wire a target application's Python backend.
+- `src/harnessweaver/skills/harness/references/targets/deepagents.md` (formerly the `deepagents-port` skill) defines the DeepAgents mapping workflow. It uses a staged agent/skill/JSON-artifact pattern and records fidelity limits; the current skill does not itself wire a target application's Python backend.
 - `software-architecture-agent/` is an ignored nested application with a four-stage software-architecture workflow, DeepAgents backend, React frontend, and Firestore artifacts. Its stage instructions are a concrete software-architecture domain application, but its runtime wiring and domain methodology currently live together in this separate application.
 - `atam-evaluator/` is a separate evaluation/research bundle focused on ATAM prompts, example results, and source artifacts. It can inform a software-architecture domain package and its evaluation approach, but it is not itself part of the general harness methodology.
 - `atam-evaluator/applsci-16-03020-v3.pdf` provides a complementary software-architecture-evaluation practice model. It identifies five evaluation essentials—Architecture Description, Quality Attributes, Business Goals, Architecture Decisions, and Evaluation Adoption—and represents their healthy progression as states with checklists. Its domain guidance should inform how an architecture-evaluation workflow is designed and assessed, not be flattened into generic harness rules.
-- Root docs explain the upstream Claude plugin, this checkout's English skills, manual installation, migration, and examples. The active skill sources are in `harness-en/skills/`; installation and ownership references should point there. Product, distribution, methodology, and runtime assumptions also overlap across README and skill content.
-- `docs/harness-100-prompts_EN.md` already contains English examples for two related but distinct software-architecture workflows: a four-stage architecture decision pipeline (Appendix A) and ATAM architecture evaluation, including elicitation variants and practitioner versus research modes (Appendix B). These are prompt/specification examples, not yet canonical domain packages or verified runtime implementations, and should be reconciled with the proposed profile rather than duplicated.
+- Root docs explain the upstream Claude plugin, this checkout's skills, manual installation, migration, and examples. The active skill sources are in `src/harnessweaver/skills/`; installation and ownership references should point there. Product, distribution, methodology, and runtime assumptions also overlap across README and skill content.
+- `docs/harness-100-prompts_EN.md` already contains examples for two related but distinct software-architecture workflows: a four-stage architecture decision pipeline (Appendix A) and ATAM architecture evaluation, including elicitation variants and practitioner versus research modes (Appendix B). These are prompt/specification examples, not yet canonical domain packages or verified runtime implementations, and should be reconciled with the proposed profile rather than duplicated.
 - The cookbook describes its ATAM evaluation corpus as eight anonymized reports, but the current `atam-evaluator/archevaluation-llms/input-artifacts/` inventory contains seven PDFs (G1–G4 and G6–G8). Confirm whether G5 is intentionally absent or missing before treating the local bundle as the full evaluation corpus.
 
 ### Main consolidation issues
 
-1. **The current skill tree needs a clear portability boundary.** `harness-en/skills/` is the active English tree in this checkout, but it still contains Claude Code conventions alongside general harness-design guidance. Its synchronization and release relationship to the upstream project remains to be verified.
-2. **Runtime concepts are embedded in methodology.** Claude-specific paths, tools, model names, and orchestration behavior appear in the factory guidance. The English package can be loaded by other agents, but that does not make these runtime instructions portable.
+1. **The current skill tree needs a clear portability boundary.** `src/harnessweaver/skills/` is the active skill tree in this checkout, but it still contains Claude Code conventions alongside general harness-design guidance. Its synchronization and release relationship to the upstream project remains to be verified.
+2. **Runtime concepts are embedded in methodology.** Claude-specific paths, tools, model names, and orchestration behavior appear in the factory guidance. The skill package can be loaded by other agents, but that does not make these runtime instructions portable.
 3. **The current audit is harness-centered.** It checks existing generated agents and skills, but the richer context-driven process should also inspect user-supplied domain skills, research, standards, examples, and schemas. Keep the one-sentence prompt as a fast path.
 4. **The DeepAgents path is a port, not a peer implementation.** It starts from a Claude-designed harness and translates it to one fixed stage-oriented pattern. It is not yet a general runtime adapter that consumes a runtime-neutral harness specification.
 5. **Domain application and runtime implementation are entangled.** The software-architecture app includes domain stage definitions alongside Python/Firestore wiring and a frontend. It is not a cleanly reusable domain package.
-6. **External provenance remains incomplete.** This checkout has one active English skill tree, but its exact release/synchronization relationship to the upstream project has not been established. The standalone case studies also retain their own ownership and provenance boundaries.
+6. **External provenance remains incomplete.** This checkout has one active skill tree, but its exact release/synchronization relationship to the upstream project has not been established. The standalone case studies also retain their own ownership and provenance boundaries.
 7. **The current software-architecture app has a Stage 1 call mismatch.** `build_stage1_message(user_id, project_id)` is called without `user_id` through `get_stage_message` and `PipelineService.run_stage`. Treat the app as an in-progress reference until its contract and execution path are reconciled.
 
 ## Target architecture
 
-### Layer 1 — English methodology core
+### Layer 1 — Methodology core
 
 This layer defines the concepts and decision process without assuming a particular agent runtime or domain. It should cover:
 
@@ -422,7 +422,7 @@ This is a target, not a requirement to move everything in one commit:
 │   ├── consolidation-plan.md
 │   └── migration/                      # migration from current layouts
 ├── methodology/
-│   ├── skills/                         # English, runtime-neutral core skills
+│   ├── skills/                         # runtime-neutral core skills
 │   ├── references/
 │   └── schema/                         # Harness Specification and versions
 ├── runtimes/
@@ -472,16 +472,16 @@ The layout can be adjusted after ownership and repository boundaries are decided
 
 **Exit criteria:** a reviewer can classify current examples into layers, and both planned runtimes can represent the first lightweight specification without adding domain rules to the adapter.
 
-### Phase 2 — Make the English methodology canonical
+### Phase 2 — Make the methodology canonical
 
-1. Use the English skills as the editorial starting point, but refactor them to remove Claude-only paths and primitives from the shared methodology. Preserve the one-sentence trigger as a quick path and add progressive context/artifact inspection, targeted clarification, and a compact design brief as the context-assisted default.
+1. Use the current skills as the editorial starting point, but refactor them to remove Claude-only paths and primitives from the shared methodology. Preserve the one-sentence trigger as a quick path and add progressive context/artifact inspection, targeted clarification, and a compact design brief as the context-assisted default.
 2. Merge duplicated policy into a small set of canonical methodology documents, retaining focused references for patterns, quality, skill writing, and evaluation.
 3. Keep domain language and process variations out of the core unless they are general design principles. Make domain-provided skills and documents first-class inputs; do not require conversion to a formal schema before they can inform a harness.
 4. Refactor `evolve` as the second part of the lifecycle: identify the harness baseline, inspect real-use feedback, classify the change target across the layers, apply the smallest justified update, and record enough history to understand why the baseline changed. Keep project-specific changes local unless evidence supports generalizing them.
 5. Mark the Korean skills as legacy/source history or maintain them through an explicit translation workflow. Do not leave two independently edited canonical versions.
 6. Add version and provenance metadata so package copies and evolved baselines can be related to their source guidance and prior versions.
 
-**Exit criteria:** an English-language workflow can start from a short prompt or richer context bundle, scale its intake to the task, and produce an appropriately lightweight, runtime-neutral design; Korean content has a documented maintenance policy.
+**Exit criteria:** a workflow can start from a short prompt or richer context bundle, scale its intake to the task, and produce an appropriately lightweight, runtime-neutral design; Korean content has a documented maintenance policy.
 
 ### Phase 3 — Extract the software-architecture domain application
 
@@ -498,7 +498,7 @@ The layout can be adjusted after ownership and repository boundaries are decided
 
 ### Phase 4 — Build peer runtime implementations
 
-1. Refactor Claude Code packaging so the plugin is an adapter/distribution of the English methodology, not a separate source of methodology.
+1. Refactor Claude Code packaging so the plugin is an adapter/distribution of the methodology, not a separate source of methodology.
 2. Refactor the DeepAgents port into a reusable Python adapter that reads the Harness Specification and domain package. Keep app-specific integrations (Firebase, auth, API, frontend, deployment) in the application, not the generic adapter.
 3. Implement equivalent software-architecture examples on both runtimes using the same domain inputs, outputs, and verification intent.
 4. Document capability differences: parallel execution, persistent collaboration, model selection, memory, artifact persistence, human approval, and resumability.
@@ -532,13 +532,12 @@ Representative scenarios should include a deterministic pipeline, a workflow req
 ## Decisions to settle during Phase 0 or Phase 1
 
 - Should the three layers live in one monorepo, or should the deployable app and research kit remain separate repositories with explicit versioned dependencies?
-- Is English the sole canonical language, with translations generated or maintained from it, or will other languages remain first-class maintained sources?
 - Should the Harness Specification be YAML/JSON immediately, or begin as a documented conceptual contract with one example before formalizing a schema?
 - Is the desired DeepAgents deliverable a reusable framework/adapter, a code generator, or a reference application? These are different products and should not be conflated.
 - Should ATAM be one example domain workflow, a reusable methodology module, or both (generic evaluation patterns in methodology; ATAM specifics in the software-architecture domain package)?
 
 ## Recommended order
 
-Start with ownership and the specification contract, then canonicalize the English methodology. Extract the software-architecture domain package before generalizing the DeepAgents adapter, because it provides a concrete end-to-end use case for validating the layer boundaries. Keep the existing app as the first integration target, repair its known Stage 1 call mismatch, and migrate its runtime wiring only after the domain artifacts and contracts are stable.
+Start with ownership and the specification contract, then canonicalize the methodology. Extract the software-architecture domain package before generalizing the DeepAgents adapter, because it provides a concrete end-to-end use case for validating the layer boundaries. Keep the existing app as the first integration target, repair its known Stage 1 call mismatch, and migrate its runtime wiring only after the domain artifacts and contracts are stable.
 
 This sequence limits premature abstraction: the reusable adapter is shaped by a real domain workflow, while the domain workflow remains portable across runtimes.

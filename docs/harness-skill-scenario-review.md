@@ -1,7 +1,7 @@
 # Harness and evolve skill scenario review
 
 **Date:** 2026-10-20  
-**Scope:** U4 focused design scenarios in [harness-skill-trigger-scenarios.md](harness-skill-trigger-scenarios.md), checked against the canonical [harness skill](../harness-en/skills/harness/SKILL.md) and [evolve skill](../harness-en/skills/evolve/SKILL.md).
+**Scope:** U4 focused design scenarios in [harness-skill-trigger-scenarios.md](harness-skill-trigger-scenarios.md), checked against the canonical [harness skill](../src/harnessweaver/skills/harness/SKILL.md) and [evolve skill](../src/harnessweaver/skills/evolve/SKILL.md).
 
 This is a manual desk-check: the expected response for each fixture was worked through using the canonical skill instructions and the listed project artifacts. It is not a live Claude skill invocation or a model-generated test run. The trigger fixtures explicitly distinguish themselves from automated trigger validation. The Claude CLI is not authenticated in this environment.
 
@@ -18,7 +18,7 @@ This is a manual desk-check: the expected response for each fixture was worked t
 
 - `docs/harness-skill-trigger-scenarios.md` contains ten positive trigger prompts for each skill, ten boundary prompts, and the six focused design scenarios. These remain fixtures rather than measured activation results.
 - The saved ATAM, SAAM, and design-exploration HarnessSpecs validate with the `harness` Conda environment. Those checks validate spec structure, not skill-generated scenario outputs.
-- The shared canonical skill source is `harness-en/skills/`; `harness-en/README.md` documents its ownership and states that the repository does not maintain a second in-repository copy of those shared design skills.
-- `harness-en/skills/deepagents-port/` documents adapter losses. The ATAM runtime records its supported mappings and unsupported Claude collaboration semantics in `benchmarks/atam/pilot-status.md` and session sidecars.
+- The shared canonical skill source is `src/harnessweaver/skills/`; `src/harnessweaver/skills/README.md` documents its ownership and states that the repository does not maintain a second in-repository copy of those shared design skills.
+- `src/harnessweaver/skills/harness/references/targets/deepagents.md` documents adapter losses. The ATAM runtime records its supported mappings and unsupported Claude collaboration semantics in `benchmarks/atam/pilot-status.md` and session sidecars.
 
 **Gate status:** Manual desk-checks completed for all six U4 design scenarios. Runtime-generated outputs, live trigger/near-miss validation, and baseline-versus-skill comparisons remain unverified.
