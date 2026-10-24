@@ -11,7 +11,7 @@ HarnessWeaver develops a runtime-neutral contract and tools for designing, valid
 - `benchmarks/atam/` — HarnessWeaver-owned ATAM pilot protocol and run records.
 - `src/harnessweaver/skills/` — the two generation skills (`harness`, `evolve`) used by a coding agent; see [its README](src/harnessweaver/skills/README.md).
 - `STRATEGY.md` and `CONCEPTS.md` — product direction and shared terminology.
-- `baselines/` — pinned, unmodified comparison material (the upstream revfactory/harness v2.1.0 skills used as the Claude generation baseline).
+- `baselines/` — pinned comparison material: the upstream revfactory/harness v2.1.0 skills (verbatim Korean) and their English translation, used as the Claude generation baseline.
 - `legacy/` — upstream revfactory/harness documentation and its translations, kept for provenance.
 - `case-studies/` — preserved research and application projects. Changes to their code/data remain owned by those projects; HarnessWeaver adds references and adapters around them.
 

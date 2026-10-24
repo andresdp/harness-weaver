@@ -11,7 +11,7 @@ Software architects currently build domain-specific agent systems ad hoc: custom
 
 ## Positioning
 
-HarnessWeaver makes task intent, domain knowledge, and methodology explicit, including the semantic state that describes meaningful progress through the methodology. It uses these assets to create an inspectable Harness IR and a working, editable prototype, which can be evaluated and evolved before the architect commits to a concrete agent architecture or runtime. The same design may be materialized as a skills-based harness or a Python/DeepAgents application where supported. Keep the representation proportionate: a simple one-off may be tried without a saved HarnessSpec when the formal artifact costs more than it helps. Methodology and its state remain distinct from agent-specific and runtime execution state. The software-architecture use cases remain to be validated.
+HarnessWeaver makes task intent, domain knowledge, and methodology explicit, including the semantic state that describes meaningful progress through the methodology. It uses these assets to create an inspectable Harness IR and a working, editable prototype, which can be evaluated and evolved before the architect commits to a concrete agent architecture or runtime. The same design may be materialized, through the `harness` generation skill, as a Claude Code project or a DeepAgents stage pipeline where supported. Keep the representation proportionate: a simple one-off may be tried without a saved HarnessSpec when the formal artifact costs more than it helps. Methodology and its state remain distinct from agent-specific and runtime execution state. The software-architecture use cases remain to be validated.
 
 ## Users
 

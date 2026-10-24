@@ -4,15 +4,15 @@ Files stay in place so existing links keep working; this index says which ones a
 
 ## CAIN 2027 submission
 
-- [cain-2027/STATUS.md](cain-2027/STATUS.md): implemented vs missing, pilots, ordered gaps. **Start here.**
-- [cain-2027/APPROACH.md](cain-2027/APPROACH.md): target approach (authored sources → IR → materialized bundles → sandboxed runs → evolution).
+- [cain-2027/STATUS.md](cain-2027/STATUS.md): implemented vs missing, pilots, ordered work items (W1–W12). **Start here.**
+- [cain-2027/APPROACH.md](cain-2027/APPROACH.md): agreed approach: authored sources → `harness` skill (spec, then Claude Code and/or DeepAgents targets) → sandboxed runs → `evolve`; generation baseline; deviations from the co-author plan.
 - [cain-2027/HarnessWeaver_CAIN_2027_Coauthor_Plan.md](cain-2027/HarnessWeaver_CAIN_2027_Coauthor_Plan.md): co-author paper plan.
 - [harnessweaver_construction_strategies.svg](harnessweaver_construction_strategies.svg) / [.pdf](harnessweaver_construction_strategies.pdf): draft of Figure 1.
 - [harnessweaver_strategy_comparison.pdf](harnessweaver_strategy_comparison.pdf) / [.docx](harnessweaver_strategy_comparison.docx): construction-strategy comparison.
 
 ## Current design and direction
 
-- [harnessweaver-current-design-and-status.md](harnessweaver-current-design-and-status.md): current design, examples, and evidence.
+- [harnessweaver-current-design-and-status.md](harnessweaver-current-design-and-status.md): design, examples, and evidence as of 2026-10-20 (pre-CAIN; superseded for the prototype by `cain-2027/APPROACH.md`).
 - [harnessweaver-implementation-roadmap.md](harnessweaver-implementation-roadmap.md): product-level roadmap.
 - [plans/2026-10-18-0000-feat-harnessweaver-u4-u7-plan.md](plans/2026-10-18-0000-feat-harnessweaver-u4-u7-plan.md): U4–U7 technical plan.
 - [harnessweaver_vision_and_position.md](harnessweaver_vision_and_position.md), [research-foundations.md](research-foundations.md): positioning and literature evidence.
@@ -35,4 +35,4 @@ Files stay in place so existing links keep working; this index says which ones a
 ## Legacy (upstream `revfactory/harness`)
 
 - [../legacy/revfactory-harness/](../legacy/revfactory-harness/README.md): upstream README, quickstart, manual setup, harness-100 prompt cookbook and v1→v2 migration notes, in Korean and in English translation.
-- [../baselines/revfactory-harness-v2.1.0/](../baselines/revfactory-harness-v2.1.0/BASELINE.md): verbatim upstream skills used as the Claude-runtime generation baseline.
+- [../baselines/revfactory-harness-v2.1.0-en/](../baselines/revfactory-harness-v2.1.0-en/TRANSLATION.md): English translation of the upstream skills, the Claude-runtime generation baseline used in runs; [../baselines/revfactory-harness-v2.1.0/](../baselines/revfactory-harness-v2.1.0/BASELINE.md): the verbatim Korean original and the comparison protocol.

@@ -44,15 +44,35 @@ The semantic progress of work through a methodology, including completed or part
 
 ### Harness IR
 
-An inspectable intermediate representation connecting intent, domain knowledge, and methodology to an agent-harness realization. The generator and evolver use it to produce and revise prototypes. It does not imply search over candidate harnesses or optimization for a best design.
+An inspectable intermediate representation connecting intent, domain knowledge, and methodology to an agent-harness realization. In this repository it is the HarnessSpec plus its `design-notes.md`. The generation skills produce it, materialize targets from it, and revise it. It does not imply search over candidate harnesses or optimization for a best design.
 
 ### Domain materials
 
 Knowledge supplied for the task's subject area, such as standards, methods, skills, examples, schemas, or evaluation criteria. A harness-design workflow inspects and reuses applicable materials while recording their source and authority.
 
+### Authored sources
+
+What the architect provides for a pilot, under `pilots/<pilot>/sources/`: `intent.yaml`, `methodology.yaml`, and `domain/` (sources index, portable skills, output contracts, references). Authored sources contain no runtime constructs and no case data. They may also be drafted by harvesting an existing application, then reviewed.
+
+### Generation skills
+
+The two skills a coding agent uses to produce and revise harnesses: `harness` (intake, design, target selection, materialization) and `evolve` (feedback-driven revision). They live in `src/harnessweaver/skills/` and ask the user through question gates G0–G6, whose answers are recorded in `design-notes.md` and can be replayed from `harness-answers.yaml`.
+
+### Target
+
+A runtime form the `harness` skill can materialize: currently a **Claude Code project** or a **DeepAgents stage pipeline**. Each target has a reference under `references/targets/` that defines its mapping. The target is chosen at gate G4, never in the authored sources.
+
 ### Runtime adapter
 
-The runtime-specific implementation that maps HarnessSpec intent to a particular agent platform or application. An adapter may translate or omit features; it should make unsupported capabilities and meaningful fidelity loss visible.
+The runtime-specific part that realizes HarnessSpec intent on a particular platform. Here it has two pieces. The **target reference** (mapping rules the generation skill applies) produces data files. The **host** executes those files: the Claude Code CLI, the HarnessWeaver DeepAgents stage host, or an existing application such as SARA's pipeline. An adapter may translate or omit features; it makes unsupported capabilities and meaningful fidelity loss visible in the materialization report.
+
+### Materialization report
+
+The fidelity record each target writes (`materialization-report.md`): every spec stage, role, artifact, verification, human gate and the semantic state, each marked mapped, approximated or unsupported, plus decisions, manual setup and what was not verified.
+
+### Reference realization
+
+A hand-written runtime realization kept for comparison with generated ones, such as `pilots/atam/claude-plugin/` and the multi-profile ATAM DeepAgents runner. It is not on the generated path.
 
 ### Domain application
 
@@ -66,7 +86,15 @@ A separately maintained project or research artifact used to ground or evaluate 
 
 ### Baseline
 
-The recorded harness version or existing workflow used as a comparison point for an evaluation or evolution. A baseline remains available after revisions so changes can be attributed and compared.
+The recorded harness version or existing workflow used as a comparison point for an evaluation or evolution. A baseline remains available after revisions so changes can be attributed and compared. The **generation baseline** is the upstream revfactory/harness v2.1.0 skill set (`baselines/`), run in its English translation under the same inputs as the HarnessWeaver skills, for Claude-runtime comparisons.
+
+### Sandbox
+
+An isolated directory in which one step runs and is recorded. A **generation sandbox** gives a coding agent read-only sources, a pinned skill set and one writable `generated/` area. An **execution sandbox** gives a generated bundle only a case's generation inputs, one writable workspace and an output area. Evaluator-only data never enters a sandbox; checks run from outside it.
+
+### Case binding
+
+The file (`pilots/<pilot>/cases/<case>.yaml`) that names which parts of a case are generation inputs (copied into an execution sandbox) and which are evaluator-only (read only by checks).
 
 ### Run
 
@@ -87,5 +115,7 @@ Likewise, the software-architecture-agent and architecture-evaluation projects a
 - [Implementation roadmap](docs/harnessweaver-implementation-roadmap.md) — product contract, scope, and implementation sequence.
 - [Research foundations](docs/research-foundations.md) — evidence and limitations from the papers used to ground the current direction.
 - [Consolidation plan](docs/consolidation-plan.md) — intended methodology, runtime, and domain boundaries; its repository paths should be kept current as the structure changes.
-- [HarnessSpec v0.1 schema](specs/harnessspec/v0.1.schema.json) — machine-readable contract fields.
+- [CAIN 2027 approach](docs/cain-2027/APPROACH.md) and [status](docs/cain-2027/STATUS.md) — the current generation approach, pilots and remaining work.
+- [Generation skills](src/harnessweaver/skills/README.md) — `harness` and `evolve`.
+- [HarnessSpec v0.1](specs/harnessspec/v0.1.schema.json) and [v0.2](specs/harnessspec/v0.2.schema.json) schemas — machine-readable contract fields.
 - [Software design exploration specification](docs/software_design_exploration_agent_harness_spec.md) — domain model and prototype vision for that application.

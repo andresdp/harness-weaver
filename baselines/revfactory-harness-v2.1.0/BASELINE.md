@@ -1,6 +1,6 @@
 # Baseline: revfactory/harness v2.1.0 skills (verbatim)
 
-The **generation baseline** for Claude-runtime comparisons: the upstream skills that HarnessWeaver's `harness` and `evolve` skills were derived from, unmodified.
+The upstream skills that HarnessWeaver's `harness` and `evolve` skills were derived from, unmodified (Korean). **Runs use the English translation** in [`../revfactory-harness-v2.1.0-en/`](../revfactory-harness-v2.1.0-en/TRANSLATION.md), so that every arm runs in English. This directory is the authority that translation is checked against.
 
 ## Provenance
 
@@ -35,7 +35,7 @@ Verify with `cd baselines/revfactory-harness-v2.1.0 && shasum -a 256 -c BASELINE
 As upstream distributes it: as a Claude Code plugin named `harness`, whose skills are `harness:harness` and `harness:evolve`. In a generation sandbox:
 
 ```shell
-claude --plugin-dir <sandbox>/skills-plugin     # a read-only copy of this directory
+claude --plugin-dir <sandbox>/skills-plugin     # a read-only copy of ../revfactory-harness-v2.1.0-en
 ```
 
 The HarnessWeaver arm is loaded the same way, from a plugin wrapper that `hw sandbox create` builds around `src/harnessweaver/skills/{harness,evolve}`. Both arms then differ only in skill content, not in installation method.
@@ -44,7 +44,7 @@ The HarnessWeaver arm is loaded the same way, from a plugin wrapper that `hw san
 
 | | Baseline arm (B) | HarnessWeaver arm (HW) |
 |---|---|---|
-| Skills | this directory | `src/harnessweaver/skills/` at a recorded commit |
+| Skills | `baselines/revfactory-harness-v2.1.0-en/` (English translation of this directory) | `src/harnessweaver/skills/` at a recorded commit |
 | Inputs | the pilot's `sources/` (intent, methodology, domain) | the same `sources/` |
 | Request | the same opening prompt, verbatim (runtime-neutral: build an ATAM evaluation harness from `sources/`, output in `generated/`) | same |
 | Target | Claude Code project (the only form the upstream skill emits) | Claude Code project (gate G4 = claude) |
@@ -67,11 +67,11 @@ Where the two skills ask equivalent questions, the user gives equivalent answers
 **Threats to record:**
 
 - Single run per arm and LLM nondeterminism.
-- The baseline is in Korean, so differences may partly reflect language (see below).
+- Translation fidelity of the English baseline (see `../revfactory-harness-v2.1.0-en/TRANSLATION.md`).
 - Live answers by one person.
 - The HW skills were developed by the same team that runs the comparison.
 - The upstream skill does not read a HarnessSpec, so the HW arm's design phase is part of the treatment, not a confound to remove.
 
 ## Language
 
-The upstream skills are Korean. This verbatim copy is the primary baseline, because it is exactly what upstream ships. HarnessWeaver's skills started from an English translation, then were modified, so B vs HW mixes **translation** and **HarnessWeaver changes**. If time permits, a third arm (B-en) can use a direct English translation of these files, recorded as a derived artifact in `../revfactory-harness-v2.1.0-en/` with the translator (model or person) and its own digests. B-en vs HW then isolates the HarnessWeaver changes, and B vs B-en shows the effect of language.
+All runs are in English: the opening prompt, live answers, and both arms' skills. The baseline arm uses the direct English translation ([`../revfactory-harness-v2.1.0-en/`](../revfactory-harness-v2.1.0-en/TRANSLATION.md)), so baseline vs HarnessWeaver isolates HarnessWeaver's changes rather than the language of the skills. This Korean original is kept as the authority for the translation and is not run.

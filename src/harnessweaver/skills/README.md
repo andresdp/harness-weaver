@@ -65,6 +65,8 @@ For the DeepAgents target, also install the official [langchain-skills](https://
 npx skills add langchain-ai/langchain-skills --skill '*' --yes
 ```
 
+In generation sandboxes the two skills are loaded as a Claude Code plugin wrapper (`--plugin-dir`); publishing them as a released plugin is planned ([APPROACH.md](../../../docs/cain-2027/APPROACH.md) §10).
+
 Other agents that support Agent Skills can use the same directories (see [the setup guide](../../../legacy/revfactory-harness/manual-setup_EN.md) for per-agent paths). The Claude Code target's orchestration details (`Workflow`, `Agent(name:)`, `SendMessage`) are Claude Code–native; the rest of the method is portable.
 
 ## Provenance

@@ -1,6 +1,8 @@
 # HarnessWeaver: current design, examples, and open work
 
 **Status reviewed:** 2026-10-20  
+> **Superseded for the CAIN 2027 prototype (2026-10-24):** generation now runs through the unified `harness` skill in `src/harnessweaver/skills/`, with targets, sandboxes and baselines defined in [cain-2027/APPROACH.md](cain-2027/APPROACH.md) and current status in [cain-2027/STATUS.md](cain-2027/STATUS.md). The evidence recorded below remains valid as history.
+
 **Purpose:** A practical reference for the current HarnessWeaver approach: what an architect supplies, what the examples produce, what belongs in a HarnessSpec, and what remains unverified.
 
 ## 1. What HarnessWeaver is

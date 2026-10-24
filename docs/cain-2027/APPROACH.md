@@ -13,7 +13,7 @@ A coding agent equipped with the HarnessWeaver skills (`src/harnessweaver/skills
    intent.yaml          ──────────▶   target gate: "Claude Code, DeepAgents, or both?"
    methodology.yaml                   materialize phase ─▶ build/claude/      (Claude Code project)
    domain/                                              └▶ build/deepagents/  (stage dirs + wiring)
-                                      each target writes a materialization report (mapped / lossy / unsupported)
+                                      each target writes a materialization report (mapped / approximated / unsupported)
         ▲                                         │
         │                                         ▼  ③ CHECK BUNDLE (deterministic: hw check-bundle)
  ⑤ EVOLVE (coding agent + evolve skill)           │
@@ -72,7 +72,7 @@ src/harnessweaver/skills/
       intake-and-harvest.md      # design inputs; harvesting sources from an existing app/harness
       materialization-report.md  # fidelity report template (both targets)
       targets/
-        claude-code.md           # former Steps 3–6 (agents, skills, orchestrator, CLAUDE.md, tests)
+        claude-code.md           # former Steps 3–7 (agents, skills, orchestrator, CLAUDE.md, tests, operations)
         deepagents.md            # former deepagents-port skill, as Steps D0–D5, plus wiring.yaml
         deepagents-target-pattern.md, deepagents-mapping-table.md
       execution-modes.md, orchestrator-template.md, workflow-recipes.md, model-selection-guide.md, qa-agent-guide.md   # Claude Code details
@@ -105,7 +105,7 @@ The skill keeps the existing gate discipline (ask before writing files; batch re
 sandboxes/gen-<pilot>-<yyyymmddThhmm>/
   sources/              # read-only copy of pilots/<p>/sources/ (and the spec, when only materializing)
   skills-plugin/        # the arm's skills wrapped as a Claude Code plugin, loaded with --plugin-dir:
-                        #   HW arm: src/harnessweaver/skills/{harness,evolve}; baseline arm: baselines/revfactory-harness-v2.1.0
+                        #   HW arm: src/harnessweaver/skills/{harness,evolve}; baseline arm: baselines/revfactory-harness-v2.1.0-en
                         #   (digests recorded)
   .claude/skills/       # langchain-skills deep-agents-* (HW arm with a DeepAgents target only; digests recorded)
   harness-answers.yaml  # optional: pre-recorded gate answers
@@ -122,14 +122,14 @@ The coding agent is **Claude Code**. A second coding agent (e.g., Codex) is an o
 | Target | Emits into `build/<target>/` | Checked by |
 |---|---|---|
 | Claude Code | `.claude/agents/*.md`, `.claude/skills/*/SKILL.md` (domain skills + orchestrator), `CLAUDE.md` pointer, `materialization-report.md` | `hw check-bundle --target claude` |
-| DeepAgents | `stage{N}-{name}/AGENTS.md` + `skills/*/SKILL.md`, `wiring.yaml` (stages, hand-off prompts, expected artifacts), `port-manifest.md` (Python-side notes for an existing host app), `materialization-report.md` | `hw check-bundle --target deepagents` (automates today's B-5 checklist) |
+| DeepAgents | `stage{N}-{name}/AGENTS.md` + `skills/*/SKILL.md`, `wiring.yaml` (stages, hand-off prompts, expected artifacts), `port-manifest.md` (Python-side notes for an existing host app), `materialization-report.md` | `hw check-bundle --target deepagents` (automates the Step D5 checklist) |
 
 The materialization report is the fidelity record: each spec element is mapped, approximated or unsupported, with the reason.
 
 ### 3.5 Skill changes (done 2026-10-24)
 
 1. Merge `deepagents-port` into `harness` as `references/targets/deepagents.md` (plus the pattern and mapping files). Delete the `deepagents-port` skill directory.
-2. Move the Claude-specific Steps 3–5 of `harness/SKILL.md` into `references/targets/claude-code.md`. `SKILL.md` keeps the runtime-neutral procedure and the gates.
+2. Move the Claude-specific Steps 3–7 of `harness/SKILL.md` into `references/targets/claude-code.md` (as Steps C1–C5). `SKILL.md` keeps the runtime-neutral procedure and the gates.
 3. Add the G4/G5 target gates and the `harness-answers.yaml` rule.
 4. Add `wiring.yaml` and `materialization-report.md` as required outputs per target.
 5. Update `evolve` to route changes to `sources/`, the spec or `build/<target>/`, and to read the target references.
@@ -138,9 +138,11 @@ Each revision is recorded by skill digest in the generation record.
 
 ### 3.6 Generation baseline (Claude runtime only)
 
-To show what HarnessWeaver's skills add, the same pilot sources are also given to the **original revfactory/harness v2.1.0 skills**. These are vendored verbatim and pinned in [`baselines/revfactory-harness-v2.1.0/`](../../baselines/revfactory-harness-v2.1.0/BASELINE.md). The baseline arm runs in its own generation sandbox, with the same opening prompt, coding agent, model and equivalent live answers, and produces a Claude Code project. Both projects then run on the same case in execution sandboxes and are checked the same way.
+To show what HarnessWeaver's skills add, the same pilot sources are also given to the **original revfactory/harness v2.1.0 skills**, run in a direct English translation ([`baselines/revfactory-harness-v2.1.0-en/`](../../baselines/revfactory-harness-v2.1.0-en/TRANSLATION.md)). The Korean original is vendored verbatim in [`baselines/revfactory-harness-v2.1.0/`](../../baselines/revfactory-harness-v2.1.0/BASELINE.md) as the authority for the translation. The baseline arm runs in its own generation sandbox, with the same opening prompt, coding agent, model and equivalent live answers, and produces a Claude Code project. Both projects then run on the same case in execution sandboxes and are checked the same way.
 
-The baseline emits only the Claude Code form, so it serves Claude-runtime comparisons only. DeepAgents is compared against the hand-written reference runner instead (§4.1). The protocol, measures and threats are in `BASELINE.md`. A direct English translation of the baseline is an optional third arm that separates language effects from HarnessWeaver's changes.
+The baseline emits only the Claude Code form, so it serves Claude-runtime comparisons only. DeepAgents is compared against the hand-written reference runner instead (§4.1). The protocol, measures and threats are in `BASELINE.md`.
+
+**Everything runs in English:** both arms' skills, the opening prompt, the gate answers and the generated artifacts. Comparing against the English baseline isolates HarnessWeaver's changes from the language of the skills.
 
 ## 4. Step ④ — Runtime hosts
 
@@ -164,7 +166,7 @@ Alternatives considered:
 
 | Option | Generated DeepAgents output | Keeps U7 profiles on the generated path | Cost | Risk |
 |---|---|---|---|---|
-| **A. Stage pattern + stage host** (proposed) | Markdown + `wiring.yaml` | No (reference only) | host ≈ 0.5–1 d | low; matches the skill and SARA |
+| **A. Stage pattern + stage host** (chosen) | Markdown + `wiring.yaml` | No (reference only) | host ≈ 0.5–1 d | low; matches the skill and SARA |
 | B. Config for the U7 runner | `agents.yaml`, `orchestration.yaml`, schemas | Yes | generalize the ATAM-specific runner (Pydantic → schema) ≈ 1.5–2 d; rewrite the skill's target reference | medium; SARA does not use this runner |
 | C. Full Python app | Python + Markdown | Possibly | low upfront | high: large, variable generated code that is hard to check and compare |
 
@@ -225,8 +227,8 @@ Remove `benchmarks/` later, once `hw sandbox` and the per-pilot checks cover eve
 
 | Pilot | ① Sources | ② Generation | ④ Hosts | Cases | Evidence for the paper |
 |---|---|---|---|---|---|
-| **P1 ArchEval-ATAM** | migrated from existing spec, methodology, skills, template | one `harness` session: design, then G4 = both targets | Claude Code; HarnessWeaver stage host | banking | generation records; materialization and port reports (mapping/loss); bundle checks; one run per target; diff against reference realizations |
-| **P2 SARA** | harvested (G0) from SARA's 4 `AGENTS.md` + 11 `SKILL.md` | one `harness` session: harvest, design, G4 = DeepAgents, G5 host = SARA | HarnessWeaver stage host (standalone); SARA's `PipelineService` (integration, stretch) | one project + requirements | harvest provenance; regenerated stage directories vs SARA's originals; standalone run; integration changes |
+| **P1 ArchEval-ATAM** | migrated from existing spec, methodology, skills, template | one `harness` session: design, then G4 = both targets | Claude Code; HarnessWeaver stage host | banking | generation records; materialization reports (mapping/loss); bundle checks; one run per target; diff against reference realizations |
+| **P2 SARA** | harvested (G0) from SARA's 4 `AGENTS.md` + 11 `SKILL.md` | one `harness` session: harvest, design, G4 = DeepAgents, G5 host = SARA (the emitted `wiring.yaml` also lets the HarnessWeaver stage host run it standalone) | HarnessWeaver stage host (standalone); SARA's `PipelineService` (integration, stretch) | one project + requirements | harvest provenance; regenerated stage directories vs SARA's originals; standalone run; integration changes |
 | **P2b SARA variation** (if time) | change `methodology.yaml` or a domain skill (method variant; runtime unchanged) | `evolve` or a `harness` replay with recorded answers | stage host | same case | diff sources → spec → bundle; files changed; run outcome |
 
 P2 is also a fidelity check of the skill itself. The DeepAgents target pattern was distilled from SARA, so regenerating SARA's stage directories from harvested sources and comparing them with the originals measures how much of the pattern the skill reproduces.
@@ -240,11 +242,11 @@ P2 is also a fidelity check of the skill itself. The DeepAgents target pattern w
 | 3 | `hw sandbox create/collect/record` for generation and execution sandboxes; `run.sh` templates; `hw check-bundle` for both targets; `hw check` delegating to `benchmarks/atam/pilot.py check` | 1 d |
 | 4 | HarnessWeaver DeepAgents stage host (generic target-pattern runner) | 0.5–1 d |
 | 5 | P1: generate spec, Claude form and DeepAgents form; one execution run per target; checks | 0.5–1 d (LLM time dominates) |
-| 5b | P1 baseline arm: upstream skills in a generation sandbox → Claude project → execution run; coverage checklist for both arms | 0.5 d (user session + analysis) |
+| 5b | P1 baseline arm: English baseline skills in a generation sandbox → Claude project → execution run; coverage checklist for both arms | 0.5 d (user session + analysis) |
 | 6 | P2: harvest, spec, DeepAgents form, standalone run | 1 d |
 | 7 | P2 integration with SARA; P2b variation | stretch |
 
-Items 1 and 3–6 take about 3.5–4.5 days. If time runs short, the cut order is: P2b, SARA integration, a second generation run for variance, and then ②b (keep the existing hand-written spec and say so, still materializing from it with the skills).
+Items 1 and 3–6 take about 3.5–4.5 days. If time runs short, the cut order is: P2b, SARA integration, a second generation run for variance, and then the design step (keep the existing hand-written spec and say so, still materializing from it with the skills).
 
 ## 9. Decisions (agreed 2026-10-24)
 
@@ -256,4 +258,22 @@ Items 1 and 3–6 take about 3.5–4.5 days. If time runs short, the cut order i
 6. Sandboxes use directory and permission isolation; containers are later work.
 7. The skills are `harness` (interactive generation, target choice at gate G4) and `evolve`, in `src/harnessweaver/skills/`. `deepagents-port` is merged into `harness`.
 8. **Claude sessions are run by the user.** Any step that runs Claude Code with skills is executed by the user, who reports back the sandbox's `record/` and `output/`. That covers generation in a generation sandbox and Claude-target runs in an execution sandbox. The development agent prepares the sandbox, its `run.sh`, a runbook and the answers file, then analyzes the returned records. DeepAgents execution runs are done by the development agent.
-9. **Generation baseline:** revfactory/harness v2.1.0 skills, vendored verbatim (Korean) and loaded as a plugin, for Claude-runtime comparisons only (§3.6). A directly translated arm is optional.
+9. **Generation baseline:** revfactory/harness v2.1.0 skills in a direct English translation, loaded as a plugin, for Claude-runtime comparisons only (§3.6). The verbatim Korean original is kept as the translation's authority. All runs are in English.
+
+## 10. Later (not for the submission)
+
+- **Package the HarnessWeaver skills as a Claude Code plugin.** For now, `hw sandbox create` builds a temporary plugin wrapper around `src/harnessweaver/skills/{harness,evolve}`, which is the same layout a released plugin would use (`.claude-plugin/plugin.json` + `skills/`). Publishing it means fixing the plugin name and namespace (skills then become `<plugin>:harness` and `<plugin>:evolve`) and updating the skills' cross-references.
+- Containers for sandboxes; a third target runtime; the Loop primitive; LLM-free regeneration checks.
+
+## 11. Deviations from the co-author plan
+
+The co-author plan ([HarnessWeaver_CAIN_2027_Coauthor_Plan.md](HarnessWeaver_CAIN_2027_Coauthor_Plan.md)) was written before this approach was agreed. Where they differ, this file governs the prototype; the paper text should follow it.
+
+| Plan | Prototype | Why |
+|---|---|---|
+| Separate IntentSpec, DomainSpec and Methodology schemas | Authored `sources/` (`intent.yaml`, `methodology.yaml`, `domain/`) feeding one HarnessSpec v0.2 | Same separation of concerns without three new schemas in a six-day sprint |
+| A deterministic generator and materializers | Generation by a coding agent with the `harness` skill, recorded in generation sandboxes; deterministic tools check, run and record | The method lives in the skills; recording plus checks gives the evidence |
+| Orchestration primitives Sequence/Parallel/Delegate/Loop | Claude target: what the skill selects at gate G2. DeepAgents target: a sequential stage pipeline. The U7 supervisor/fan-out profiles remain a hand-written reference | Matches what each target can express; Loop is future work |
+| One domain × two runtimes; second domain as a stretch | P1 ATAM × {Claude, DeepAgents}; P2 SARA × DeepAgents (harvested), P2b methodology variation as a stretch | SARA provides an independently written design method and the "bespoke application" example |
+| No generation baseline | revfactory/harness v2.1.0 (English) as the Claude-runtime generation baseline | Shows what HarnessWeaver adds over its closest prior art |
+
