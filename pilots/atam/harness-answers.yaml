@@ -1,0 +1,40 @@
+# Pre-recorded facts and decisions for the CAIN P1 ATAM generation session.
+# Gates not settled here remain interactive; in particular, G6 requires live
+# confirmation after the generated-file plan and fidelity limits are shown.
+answers_version: "0.1"
+
+G0:
+  sources: sources/
+  start_from: none
+  saved_spec: true
+  output_root: generated/
+
+G1:
+  scope: >-
+    Produce a bounded, evidence-grounded ATAM evaluation draft from a supplied
+    architecture case. Do not claim to conduct stakeholder workshops or a full
+    expert-facilitated ATAM evaluation.
+  human_review: >-
+    A software architect familiar with the evaluated system must review the
+    draft and material gaps before it informs a decision.
+  case_boundary: >-
+    Generation-time assets must remain case-independent. Do not copy case data
+    or evaluator-only reference outputs into the generated project; the
+    execution sandbox will supply only the declared evaluation inputs.
+
+G3:
+  contracts: use-supplied
+
+G4:
+  targets: [claude, deepagents]
+  output_root: generated/
+
+G5:
+  deepagents:
+    host: harnessweaver
+    model: "openai:gpt-5.4-mini"
+    hitl: none
+    subagents: false
+
+# G2 (design), Claude-specific G5 choices, and G6 (write confirmation) remain
+# open for the interactive session. Do not pre-authorize file generation.
