@@ -1,6 +1,6 @@
 # CAIN 2027: implementation status, pilots, and gaps
 
-**Reviewed:** 2026-10-24 (branch `feat/harnessweaver-u4-u7`, 75 unit tests passing).
+**Reviewed:** 2026-10-25 (branch `feat/cain-sources-sandbox-host`, 103 unit tests passing).
 **Source plan:** [`HarnessWeaver_CAIN_2027_Coauthor_Plan.md`](HarnessWeaver_CAIN_2027_Coauthor_Plan.md).
 **Purpose:** Separate what exists and runs today from what the paper plan assumes, fix the pilots, and list the remaining work in priority order. Update this file when evidence changes; it is the single status reference for the submission.
 
@@ -28,10 +28,10 @@ The plan names five concepts. The repository realizes them inside HarnessSpec v0
 | Freeze pilot method and example (ATAM banking) | **Done** | `pilots/atam/methodology.yaml`, `report-template.json`, `case-studies/architecture-eval/ATAM/data/banking.json` (inputs only) | — |
 | Minimal versioned schemas + diagnostics | **Done** | `specs/harnessspec/v0.{1,2}.schema.json`, `hw validate`, `tests/test_spec.py` | — |
 | Methodology state separate from runtime state | **Done** | `semantic_state` contract; `.runtime.json` sidecar; `tests/test_atam_demo.py` | — |
-| Generator shared assets → HarnessSpec | **Partial** | Design phase of the `harness` skill (gates G0–G3); not yet run. The existing ATAM HarnessSpec v0.2 is hand-authored | W2 (sources), W5 (generation session). If time runs short, keep the hand-written spec and say so. |
+| Generator shared assets → HarnessSpec | **Partial** | Authored sources in `pilots/atam/sources/` (W2); design phase of the `harness` skill (gates G0–G3) not yet run. The existing ATAM HarnessSpec v0.2 is hand-authored | W5 (generation session). If time runs short, keep the hand-written spec and say so. |
 | Claude materializer | **Partial** | Claude Code target reference in the `harness` skill; never run. `pilots/atam/claude-plugin/` is a hand-written reference realization | W5 (generation), W6 (execution) |
-| DeepAgents adapter | **Partial** | Execution adapter + 3 profiles, fake-agent tests; provider runs in `benchmarks/atam/pilot-status.md` | The generated path (stage directories + `wiring.yaml`) needs the stage host (W4) and a generation session (W5). The hand-written runner is a reference realization; under the current semantic-state contract only its **supervisor** profile has a passing provider run. |
-| Checks/evaluators | **Done** (checker) / **Partial** (review) | `pilot.py check`; blind review protocol defined, no reviews done | Human review is out of scope for the submission; state it. |
+| DeepAgents adapter | **Partial** | Execution adapter + 3 profiles, fake-agent tests; provider runs in `benchmarks/atam/pilot-status.md` | The generated path (stage directories + `wiring.yaml`) runs on the stage host (W4, tested offline through real DeepAgents middleware) once a generation session (W5) produces it. The hand-written runner is a reference realization; under the current semantic-state contract only its **supervisor** profile has a passing provider run. |
+| Checks/evaluators | **Done** (checks) / **Partial** (review) | `hw check-bundle`; `hw check` (schema, `atam-pilot` via `pilot.py check`, reference leakage); blind review protocol defined, no reviews done | Human review is out of scope for the submission; state it. |
 | Reproducible packaging | **Partial** | `docs/quickstart.md`, `pilots/atam/deepagents/README.md` | Run records under `benchmarks/*/runs/` and `pilots/atam/deepagents/runs/` are **git-ignored**, so the evidence package is not versioned (W8). No anonymized artifact (W10). |
 
 Stretch items:
@@ -77,9 +77,9 @@ The approach is defined in [APPROACH.md](APPROACH.md). Work items are numbered W
 | ID | Work | Pilot | Owner | Priority | Completion criterion |
 |---|---|---|---|---|---|
 | W1 | ~~Unified `harness` + `evolve` skills~~ in `src/harnessweaver/skills/` | All | dev | Done 2026-10-24 | Gates G0–G6, answers file, both target references, materialization report template |
-| W2 | ATAM `sources/` layout (`intent.yaml`, `methodology.yaml`, `domain/` with skills and JSON Schema of the report); `cases/banking.yaml` | P1 | dev | Must | Sources contain no runtime constructs or case data; schema matches the Pydantic report model. (The current hand-written spec still cites `banking.json` as stage inputs; generated specs must use artifact ids.) |
-| W3 | `hw sandbox create/collect/record` (generation and execution), `RUNBOOK.md` and `run.sh` templates, `hw check-bundle` for both targets, `hw check` delegating to `benchmarks/atam/pilot.py check` | All | dev | Must | Tests cover input-only extraction, no evaluator-only data in sandboxes, bundle checks |
-| W4 | HarnessWeaver DeepAgents stage host reading `wiring.yaml` | P1, P2 | dev | Must | Fake-agent tests for stage order, artifact checks and schema validation |
+| W2 | ~~ATAM `sources/` layout (`intent.yaml`, `methodology.yaml`, `domain/` with skills and JSON Schema of the report); `cases/banking.yaml`~~ | P1 | dev | Done 2026-10-25 | Sources contain no runtime constructs or case data; schema matches the Pydantic report model. (The current hand-written spec still cites `banking.json` as stage inputs; generated specs must use artifact ids.) |
+| W3 | ~~`hw sandbox create-generation/create-execution/collect/record`, `RUNBOOK.md` and `run.sh` templates, `hw check-bundle` for both targets, `hw check` (schema, `atam-pilot`, reference leakage)~~ | All | dev | Done 2026-10-25 | Tests cover input-only extraction, no evaluator-only data in sandboxes, bundle checks |
+| W4 | ~~HarnessWeaver DeepAgents stage host reading `wiring.yaml`~~ (`src/harnessweaver/hosts/deepagents.py`) | P1, P2 | dev | Done 2026-10-25 | Fake-agent tests for stage order, artifact checks and schema validation |
 | W5 | P1 generation sandbox: `harness` session producing spec, Claude form and DeepAgents form | P1 | user (dev prepares) | Must | Generated files collected into `pilots/atam/`; generation record; bundle checks pass or failures listed |
 | W5b | P1 baseline arm: revfactory/harness v2.1.0 skills in English (`baselines/revfactory-harness-v2.1.0-en/`) in a generation sandbox with the same sources and prompt → Claude project → execution run | P1 | user (dev prepares, analyzes) | Must | Both arms scored with the same coverage checklist and ATAM checker (`BASELINE.md`) |
 | W6 | P1 execution runs: Claude form (user) and DeepAgents form on the stage host (dev, `openai:gpt-5.4-mini`) on banking | P1 | user + dev | Must | Outputs checked with the ATAM checker; records in the evidence package |

@@ -44,6 +44,9 @@ pilots/<pilot>/
       contracts/         # JSON Schemas of output (and key intermediate) artifacts
       references/        # templates, glossaries, method excerpts
   cases/<case>.yaml      # case binding (§5); never read during generation
+  pilot.yaml             # sandbox configuration: prompts, report schema, named checkers (implemented for ATAM)
+  prompts/               # generation prompt (identical for every arm) and execution prompts per target
+  generated/<label>/     # collected generation runs: spec, design-notes.md, build/<target>/, generation-record.json
 ```
 
 | File | Must say | Must not contain |
@@ -101,21 +104,24 @@ The skill keeps the existing gate discipline (ask before writing files; batch re
 
 ### 3.3 Generation sandbox
 
+Implemented as `hw sandbox create-generation <pilot> --arm harnessweaver|revfactory-en [--answers FILE] [--model M]`:
+
 ```text
-sandboxes/gen-<pilot>-<yyyymmddThhmm>/
-  sources/              # read-only copy of pilots/<p>/sources/ (and the spec, when only materializing)
-  skills-plugin/        # the arm's skills wrapped as a Claude Code plugin, loaded with --plugin-dir:
-                        #   HW arm: src/harnessweaver/skills/{harness,evolve}; baseline arm: baselines/revfactory-harness-v2.1.0-en
-                        #   (digests recorded)
-  .claude/skills/       # langchain-skills deep-agents-* (HW arm with a DeepAgents target only; digests recorded)
-  harness-answers.yaml  # optional: pre-recorded gate answers
-  generated/            # the only writable area: harnessspec.yaml, design-notes.md, claude/, deepagents/
+<repo>-sandboxes/gen-<pilot>-<arm>-<yyyymmddThhmmss>/     # outside the repository (override with HW_SANDBOX_ROOT or --root)
+  sources/              # read-only copy of pilots/<p>/sources/
+  skills-plugin/        # the arm's skills as a Claude Code plugin (--plugin-dir); HW arm adds the langchain deep-agents skills
+  prompt.md             # the pilot's generation prompt, identical for every arm
+  harness-answers.yaml  # optional, HW arm only: pre-recorded gate answers
+  generated/            # the only writable area
+  claude-settings.json  # allow writes under generated/ only; deny reads of the repository, WebFetch, WebSearch
+  run.sh                # interactive session with a fixed --session-id; ISOLATION=bare (default, needs ANTHROPIC_API_KEY) or settings
   RUNBOOK.md            # what the user runs and what to send back (Claude sessions are run by the user, §9.8)
-  run.sh                # launches Claude Code in this directory (interactive by default; `-p` when replaying answers)
-  record/               # transcript, agent/model/version, input and skill digests, duration, cost if available
+  sandbox.yaml, manifest.json, record/   # metadata, input digests, Claude version, isolation, times
 ```
 
-The coding agent is **Claude Code**. A second coding agent (e.g., Codex) is an optional robustness check. `hw sandbox collect` copies `generated/` into `pilots/<p>/` (`harnessspec.yaml`, `design-notes.md`, `build/<target>/`) together with `generation-record.json`. Generated files are committed.
+Sandboxes live outside the repository because Claude Code deny rules override allow rules: a sandbox inside the repository could not deny reads of `case-studies/` (which holds reference outputs) while allowing its own files. Creation refuses a root inside the repository.
+
+The coding agent is **Claude Code**. A second coding agent (e.g., Codex) is an optional robustness check. `hw sandbox collect <sandbox> --label <label>` copies `generated/` into `pilots/<p>/generated/<label>/`, finds the session transcript by its id under `~/.claude/projects/`, runs `hw check-bundle` on every `build/claude/` and `build/deepagents/`, and writes `generation-record.json`. Generated files are committed. A label per run keeps the HarnessWeaver and baseline arms, and any repeated generation, side by side.
 
 ### 3.4 What each target emits
 
@@ -174,15 +180,17 @@ The hand-written `pilots/atam/claude-plugin/` is likewise the Claude reference r
 
 ## 5. Step ④ — Execution sandboxes
 
+Implemented as `hw sandbox create-execution <pilot> --target claude|deepagents --bundle <dir> --case <case> [--model M]`:
+
 ```text
-sandboxes/run-<pilot>-<target>-<case>-<yyyymmddThhmm>/
-  sandbox.yaml        # pilot, target, model, timeouts; digests of spec, bundle, case binding
-  bundle/             # read-only copy of build/<target>/
-  input/              # generation inputs only, extracted per the case binding
-  workspace/          # the only writable area for the runtime
-  output/             # report, artifacts, transcript, runtime sidecar
-  run.sh              # single entry point
-  manifest.json       # SHA-256 of bundle, input and outputs; tool versions
+<repo>-sandboxes/run-<pilot>-<target>-<case>-<yyyymmddThhmmss>/
+  sandbox.yaml        # pilot, target, case, bundle source, model, repository commit
+  bundle/             # read-only copy of the generated bundle
+  input/<id>.json     # generation inputs only, one file per case-binding id, wrapped in their original envelope
+  workspace/          # writable: the Claude project copy, or the DeepAgents /artifacts/ workspace
+  output/             # report (Claude: report.json; DeepAgents: the wiring output artifact + host-record.json), transcript
+  prompt.md, claude-settings.json   # Claude target only
+  run.sh, RUNBOOK.md, manifest.json, record/
 ```
 
 Case binding (`pilots/<p>/cases/<case>.yaml`):
@@ -194,19 +202,26 @@ generation_inputs:          # copied into input/
     from: ../../../case-studies/architecture-eval/ATAM/data/banking.json
     select: ATAM_Evaluation.evaluation_inputs
 evaluator_only:             # never copied; read only by hw check
-  - from: ../../../case-studies/architecture-eval/ATAM/data/banking.json
+  - id: reference-outputs
+    from: ../../../case-studies/architecture-eval/ATAM/data/banking.json
     select: ATAM_Evaluation.ground_truth_outputs
-checks: [schema, semantic-state, atam-source-scenarios]
+checks: [schema, atam-pilot]   # no-reference-leakage always runs
 ```
 
 | Target | `run.sh` essentials | Isolation |
 |---|---|---|
-| Claude Code | copy `bundle/` into `workspace/` (it is a project); `cd workspace && claude -p --bare --no-session-persistence --append-system-prompt-file CLAUDE.md --settings ../claude-settings.json --add-dir ../input --output-format stream-json --model <m> "<invoke orchestrator on input>"` | `--bare` skips user hooks, plugins and CLAUDE.md discovery (the user's global RTK and graphify setup stays out). The generated settings allow reads in `input/`, writes in `workspace/`, and deny Bash and web tools. **To verify:** that project `.claude/agents` and `.claude/skills` load under `--bare`. `--bare` also requires `ANTHROPIC_API_KEY` (OAuth is not read). |
-| DeepAgents | `python -m harnessweaver.hosts.deepagents --bundle ../bundle --input ../input --workspace . --out ../output --config ../sandbox.yaml` | Backend rooted at the sandbox; `/agent/` read-only from `bundle/`; env vars only from the sandbox `.env` |
+| Claude Code (run by the user) | `cd workspace && claude -p --session-id <id> --settings ../claude-settings.json --add-dir ../input --add-dir ../output --output-format stream-json --verbose "<prompt.md>" > ../output/transcript.jsonl`, plus `--bare --append-system-prompt-file CLAUDE.md` (default) or `--setting-sources project` (`ISOLATION=settings`) | `--bare` skips user hooks, plugins and CLAUDE.md discovery and needs `ANTHROPIC_API_KEY`. The settings allow reads of `workspace/` and `input/`, writes to `workspace/` and `output/`, and deny reads of the repository and web tools. **To verify on the first run:** that the project's `.claude/agents` and `.claude/skills` load under `--bare`; if not, rerun with `ISOLATION=settings`. |
+| DeepAgents (run by the development agent) | `python -m harnessweaver.hosts.deepagents --bundle bundle --input input --workspace workspace --out output --model <m>` | One deep agent per stage; the stage directory is mounted read-only at `/agent/`; artifacts go to `workspace/artifacts/`; provider keys from the environment or a sandbox `.env`. The host stops at a mid-pipeline human gate unless `--continue-past-gates` is passed. |
 
 This is directory and permission isolation. A container is later work. The leakage claim does not depend on it, because evaluator-only data is never copied in.
 
-`hw check <sandbox>` runs outside the sandbox and writes `check.json`. `hw sandbox record` copies the manifest, outputs and check result to `docs/cain-2027/evidence/<run-id>/`.
+`hw check <sandbox>` runs outside the sandbox and writes `check.json` with three kinds of check:
+
+- **no-reference-leakage** (always): no evaluator-only passage of 60 or more characters that is absent from the generation inputs appears anywhere in `input/`, `bundle/`, `workspace/` or `output/`;
+- **schema**: the report validates against the pilot's JSON Schema;
+- **named pilot checkers** from `pilot.yaml`; for ATAM, `atam-pilot` calls `benchmarks/atam/pilot.py check`.
+
+`hw sandbox record` copies `sandbox.yaml`, `check.json`, `output/`, `record/`, the intermediate artifacts and a digest manifest to `docs/cain-2027/evidence/<sandbox-name>/`.
 
 ## 6. `benchmarks/` (kept for now)
 
@@ -237,23 +252,23 @@ P2 is also a fidelity check of the skill itself. The DeepAgents target pattern w
 
 | # | Work | Est. |
 |---|---|---|
-| 1 | ATAM `sources/` layout; JSON Schema export of the report contract; case binding file | 0.5 d |
+| 1 | ~~ATAM `sources/` layout; JSON Schema export; case binding~~ done 2026-10-25 (W2) | — |
 | 2 | ~~Unified skill~~ done 2026-10-24 (structure and gates; prose refinement continues as runs expose gaps) | — |
-| 3 | `hw sandbox create/collect/record` for generation and execution sandboxes; `run.sh` templates; `hw check-bundle` for both targets; `hw check` delegating to `benchmarks/atam/pilot.py check` | 1 d |
-| 4 | HarnessWeaver DeepAgents stage host (generic target-pattern runner) | 0.5–1 d |
+| 3 | ~~`hw sandbox`, `hw check-bundle`, `hw check`~~ done 2026-10-25 (W3) | — |
+| 4 | ~~DeepAgents stage host~~ done 2026-10-25 (W4): `src/harnessweaver/hosts/deepagents.py`, `wiring.py` | — |
 | 5 | P1: generate spec, Claude form and DeepAgents form; one execution run per target; checks | 0.5–1 d (LLM time dominates) |
 | 5b | P1 baseline arm: English baseline skills in a generation sandbox → Claude project → execution run; coverage checklist for both arms | 0.5 d (user session + analysis) |
 | 6 | P2: harvest, spec, DeepAgents form, standalone run | 1 d |
 | 7 | P2 integration with SARA; P2b variation | stretch |
 
-Items 1 and 3–6 take about 3.5–4.5 days. If time runs short, the cut order is: P2b, SARA integration, a second generation run for variance, and then the design step (keep the existing hand-written spec and say so, still materializing from it with the skills).
+Remaining items 5–6 take about 2–3 days, dominated by generation sessions and runs. If time runs short, the cut order is: P2b, SARA integration, a second generation run for variance, and then the design step (keep the existing hand-written spec and say so, still materializing from it with the skills).
 
 ## 9. Decisions (agreed 2026-10-24)
 
 1. Generation is done by a coding agent (Claude Code) with the HarnessWeaver skills, recorded in a generation sandbox. Deterministic tools only check, run and record.
 2. The Claude target is a Claude Code **project** (what the `harness` skill emits), not a plugin. The existing plugin is a reference realization.
 3. The DeepAgents target is the stage-pipeline pattern with a small HarnessWeaver stage host (option A, §4.1). The existing multi-profile runner is a reference realization.
-4. Generated files are committed under `pilots/<p>/build/`, with generation records.
+4. Generated files are committed under `pilots/<p>/generated/<label>/` (one directory per generation run or arm), with generation records.
 5. `benchmarks/` is kept during the sprint and reused by the new tooling; it is removed later.
 6. Sandboxes use directory and permission isolation; containers are later work.
 7. The skills are `harness` (interactive generation, target choice at gate G4) and `evolve`, in `src/harnessweaver/skills/`. `deepagents-port` is merged into `harness`.
