@@ -1,7 +1,7 @@
 # HarnessWeaver approach: inputs, generation, runtimes, sandboxes
 
 **Status:** agreed approach for the CAIN 2027 prototype, 2026-10-24. Decisions in §9.
-**Relation to other docs:** [STATUS.md](STATUS.md) lists what exists; this file defines what the prototype should be.
+**Related docs:** [STATUS.md](STATUS.md) lists what exists; this file defines what the prototype should be; [SANDBOX-RUNBOOK.md](SANDBOX-RUNBOOK.md) gives the commands for running and collecting generation and execution sandboxes.
 
 ## 1. Summary
 

@@ -24,6 +24,7 @@ import yaml
 
 from harnessweaver._integrity import sha256_file
 from harnessweaver.bundles import TARGETS
+from harnessweaver.wiring import WiringError, load_wiring
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 SKILLS_DIR = REPOSITORY_ROOT / "src/harnessweaver/skills"
@@ -170,6 +171,53 @@ def _envelope(pointer: str, value: Any) -> Any:
     return value
 
 
+def _deepagents_input_map(bundle: Path, generation_inputs: list[tuple[dict[str, Any], Any]]) -> list[tuple[str, Any]]:
+    """Map case generation inputs to the input port filenames required by a DeepAgents bundle."""
+    try:
+        ports = load_wiring(bundle).inputs
+    except WiringError as exc:
+        raise SandboxError(f"cannot map case inputs to DeepAgents ports: {exc}") from exc
+
+    if len(ports) != len(generation_inputs):
+        raise SandboxError(
+            f"DeepAgents bundle declares {len(ports)} input port(s), but the case provides "
+            f"{len(generation_inputs)} generation input(s); add explicit port mappings to the case or align the bundle."
+        )
+
+    assignments: dict[str, int] = {}
+    used: set[int] = set()
+    for port in ports:
+        matches = []
+        for index, (item, _) in enumerate(generation_inputs):
+            selectors = [item.get("envelope"), item.get("select")]
+            selector_names = {str(selector).rsplit(".", 1)[-1] for selector in selectors if selector}
+            aliases = {str(item.get("id", "")), str(item.get("port", "")), *selector_names}
+            if port.port in aliases:
+                matches.append(index)
+        if len(matches) > 1:
+            raise SandboxError(f"DeepAgents input port {port.port!r} matches multiple case generation inputs; specify a unique port mapping.")
+        if matches:
+            index = matches[0]
+            if index in used:
+                raise SandboxError(f"case generation input {generation_inputs[index][0].get('id')!r} maps to multiple DeepAgents ports.")
+            assignments[port.port] = index
+            used.add(index)
+
+    unmatched_ports = [port.port for port in ports if port.port not in assignments]
+    unmatched_inputs = [index for index in range(len(generation_inputs)) if index not in used]
+    if len(unmatched_ports) == 1 and len(unmatched_inputs) == 1:
+        assignments[unmatched_ports[0]] = unmatched_inputs[0]
+    elif unmatched_ports or unmatched_inputs:
+        raise SandboxError(
+            "could not map every case generation input to a DeepAgents input port; "
+            f"unmatched ports: {unmatched_ports}, unmatched case input ids: "
+            f"{[generation_inputs[index][0].get('id') for index in unmatched_inputs]}. "
+            "Set a matching `port` on each case generation input or align its id/envelope with the bundle port."
+        )
+
+    return [(port.port, generation_inputs[assignments[port.port]][1]) for port in ports]
+
+
 def _claude_settings(writable: list[Path], readable: list[Path], denied_reads: list[Path], allow_bash: list[str]) -> str:
     """Permission rules for a sandboxed Claude Code session (absolute `//` paths)."""
     def rule(tool: str, path: Path) -> str:
@@ -239,8 +287,25 @@ claude --version > record/claude-version.txt 2>&1 || true
 printf '%s\\n' "$ISOLATION" > record/isolation.txt
 printf '%s\\n' "${{MODEL:-<claude default>}}" > record/model-requested.txt
 date -u +%Y-%m-%dT%H:%M:%SZ > record/started-at.txt
-claude "${{args[@]}}" "$(cat prompt.md)"
+echo "Starting Claude Code generation. Generated files belong under: $PWD/generated"
+echo "Session ID: $SESSION_ID"
+if claude "${{args[@]}}" "$(cat prompt.md)"; then
+  status=0
+else
+  status=$?
+fi
 date -u +%Y-%m-%dT%H:%M:%SZ > record/finished-at.txt
+printf '%s\\n' "$status" > record/exit-code.txt
+if [ "$status" -eq 0 ]; then
+  printf '%s\\n' completed > record/status.txt
+  echo "Generation session finished. Review generated/ and this sandbox's RUNBOOK.md."
+  echo "Next: from the repository root, run hw sandbox collect '$PWD' --label <unique-label>"
+else
+  printf '%s\\n' failed > record/status.txt
+  echo "Claude exited with status $status. Check authentication/usage limits and resume the recorded session if needed."
+  echo "Session ID: $SESSION_ID; sandbox: $PWD; started/finished and exit status are in record/."
+fi
+exit "$status"
 """
 
 GENERATION_RUNBOOK = """# Generation sandbox: {name}
@@ -252,25 +317,28 @@ You run this session; Claude Code with the arm's skills generates the harness. E
 ## Before you start
 
 - `cd {root}`
+- Activate the Python environment where HarnessWeaver is installed before running collection commands.
 - With the default `ISOLATION=bare`, export `ANTHROPIC_API_KEY` (bare mode ignores OAuth login). It keeps your global hooks, plugins and `CLAUDE.md` out of the session. Use `ISOLATION=settings` to keep OAuth; it loads only this sandbox's settings, but your user-level `CLAUDE.md` may still load. Note which you used.
 - Optionally set `MODEL` (default: {model_label}). Use the same model for every arm you compare.
 
 ## Run
 
 ```shell
-./run.sh
+ISOLATION=settings ./run.sh    # subscription OAuth; use bare only with ANTHROPIC_API_KEY
 ```
 
 The session starts with the request in `prompt.md`{answers_note}. Answer the skill's questions as you normally would; for a comparison with another arm, give equivalent answers to equivalent questions. Writes are allowed only under `generated/`. Reads of the repository are denied.
 
 When the skill has finished, ask it to confirm where it wrote each file, then exit the session.
 
+The launcher prints the session ID and records `record/started-at.txt`, `record/finished-at.txt`, `record/exit-code.txt`, and `record/status.txt`, including when Claude exits with an error.
+
 ## Afterwards
 
-From the repository root:
+From the repository root (with your HarnessWeaver Python environment active):
 
 ```shell
-conda run -n harness hw sandbox collect {root} --label <label>
+hw sandbox collect {root} --label <label>
 ```
 
 `collect` copies `generated/` into `pilots/{pilot}/generated/<label>/`, copies the session transcript (`~/.claude/projects/*/{session_id}.jsonl`) into the sandbox `record/`, writes `generation-record.json`, and runs `hw check-bundle` on any `build/claude/` and `build/deepagents/` it finds. Send back the label and anything you noticed: questions you were asked, files you had to fix by hand, and whether the session hit errors.
@@ -343,6 +411,12 @@ cd "$(dirname "$0")"
 SESSION_ID="{session_id}"
 MODEL="${{MODEL:-{model}}}"
 ISOLATION="${{ISOLATION:-bare}}"
+HW_PYTHON="${{HW_PYTHON:-python}}"
+read -r -a python_cmd <<< "$HW_PYTHON"
+if [ -f record/started-at.txt ]; then
+  echo "This execution sandbox already has a run attempt. Create a new execution sandbox for a clean run; reusing this one can mix stale artifacts." >&2
+  exit 10
+fi
 args=(-p --session-id "$SESSION_ID" --settings ../claude-settings.json --add-dir ../input --add-dir ../output
       --output-format stream-json --verbose)
 if [ -n "$MODEL" ]; then args+=(--model "$MODEL"); fi
@@ -353,26 +427,98 @@ if [ "$ISOLATION" = "bare" ]; then
 else
   args+=(--setting-sources project)
 fi
+repair_args=(-p --resume "$SESSION_ID" --settings ../claude-settings.json --add-dir ../input --add-dir ../output
+             --output-format stream-json --verbose)
+if [ -n "$MODEL" ]; then repair_args+=(--model "$MODEL"); fi
+if [ "$ISOLATION" = "bare" ]; then
+  repair_args=(--bare "${{repair_args[@]}}")
+  if [ -f workspace/CLAUDE.md ]; then repair_args+=(--append-system-prompt-file CLAUDE.md); fi
+else
+  repair_args+=(--setting-sources project)
+fi
 mkdir -p record output
 claude --version > record/claude-version.txt 2>&1 || true
 printf '%s\\n' "$ISOLATION" > record/isolation.txt
 date -u +%Y-%m-%dT%H:%M:%SZ > record/started-at.txt
-(cd workspace && claude "${{args[@]}}" "$(cat ../prompt.md)") > output/transcript.jsonl
+echo "Starting Claude Code execution on case {case}; workspace: $PWD/workspace"
+echo "Claude progress will appear here; raw stream: $PWD/output/transcript.jsonl"
+if (cd workspace && claude "${{args[@]}}" "$(cat ../prompt.md)") | "${{python_cmd[@]}}" stream_claude.py --transcript output/transcript.jsonl; then
+  status=0
+else
+  status=$?
+fi
+if [ "$status" -eq 0 ] && [ -f output/{report_filename} ]; then
+  echo "Checking report JSON/schema from outside the Claude sandbox…"
+  if "${{python_cmd[@]}}" -m harnessweaver.cli check "$PWD" --repair-prompt output/repair-prompt.md; then
+    check_status=0
+  else
+    check_status=$?
+  fi
+  if [ "$check_status" -gt 1 ]; then
+    status=$check_status
+  fi
+  if [ "$status" -eq 0 ] && [ -f output/repair-prompt.md ]; then
+    cp check.json record/check-before-repair.json
+    echo "The report has a structural JSON/schema issue. Asking Claude for one bounded repair; evaluator findings are not sent to the model."
+    if (cd workspace && claude "${{repair_args[@]}}" "$(cat ../output/repair-prompt.md)") | "${{python_cmd[@]}}" stream_claude.py --transcript output/transcript.jsonl --append; then
+      repair_status=0
+    else
+      repair_status=$?
+    fi
+    if [ "$repair_status" -eq 0 ]; then
+      if "${{python_cmd[@]}}" -m harnessweaver.cli check "$PWD"; then
+        :
+      else
+        final_check_status=$?
+        if [ "$final_check_status" -gt 1 ]; then status=$final_check_status; fi
+      fi
+    else
+      status=$repair_status
+    fi
+  fi
+fi
 date -u +%Y-%m-%dT%H:%M:%SZ > record/finished-at.txt
+printf '%s\\n' "$status" > record/exit-code.txt
+if [ "$status" -eq 0 ] && [ -f output/{report_filename} ]; then
+  printf '%s\\n' completed > record/status.txt
+  echo "Execution finished. Report: $PWD/output/{report_filename}; next: hw check '$PWD'"
+else
+  if [ "$status" -eq 0 ]; then status=4; printf '%s\\n' "$status" > record/exit-code.txt; fi
+  printf '%s\\n' failed > record/status.txt
+  echo "Execution stopped with status $status. Review output/transcript.jsonl and record/."
+  echo "Run hw check '$PWD' to see which outputs are present."
+fi
+exit "$status"
 """,
     "deepagents": """#!/usr/bin/env bash
 # Run the generated DeepAgents stages with the HarnessWeaver stage host. See RUNBOOK.md.
 set -euo pipefail
 cd "$(dirname "$0")"
+if [ -f record/started-at.txt ]; then
+  echo "This execution sandbox already has a run attempt. Create a new execution sandbox for a clean run; reusing this one can mix stale artifacts." >&2
+  exit 10
+fi
 MODEL="${{MODEL:-{model}}}"
 TIMEOUT="${{TIMEOUT:-180}}"
-HW_PYTHON="${{HW_PYTHON:-conda run --no-capture-output -n harness python}}"
+HW_PYTHON="${{HW_PYTHON:-python}}"
 if [ -f .env ]; then set -a; . ./.env; set +a; fi
 mkdir -p record output
 date -u +%Y-%m-%dT%H:%M:%SZ > record/started-at.txt
-$HW_PYTHON -m harnessweaver.hosts.deepagents --bundle bundle --input input --workspace workspace --out output \\
+echo "Starting DeepAgents execution on model $MODEL; workspace: $PWD/workspace"
+read -r -a python_cmd <<< "$HW_PYTHON"
+if "${{python_cmd[@]}}" -m harnessweaver.hosts.deepagents --bundle bundle --input input --workspace workspace --out output \\
   --model "$MODEL" --timeout "$TIMEOUT" "$@"
+then status=0; else status=$?; fi
 date -u +%Y-%m-%dT%H:%M:%SZ > record/finished-at.txt
+printf '%s\\n' "$status" > record/exit-code.txt
+if [ "$status" -eq 0 ]; then
+  printf '%s\\n' completed > record/status.txt
+  echo "Execution finished. Review output/ and record/host-record.json; next: hw check '$PWD'"
+else
+  printf '%s\\n' failed > record/status.txt
+  echo "DeepAgents exited with status $status. Review record/host-record.json and output/; sandbox: $PWD"
+fi
+exit "$status"
 """,
 }
 
@@ -389,21 +535,22 @@ cd {root}
 {run_hint}
 ```
 
+The launcher prints live progress and records its exit status and finish time under `record/`. Each DeepAgents stage or final Claude report receives at most one repair attempt for JSON/schema errors, based only on deterministic structural validation. Pilot-specific evaluation and reference-leakage findings are never sent back to the model. Each execution sandbox is single-use; create a fresh one for every attempt so old artifacts cannot be mistaken for new results. Claude runs also save the complete JSONL event stream in `output/transcript.jsonl`.
+
 ## Afterwards
 
-From the repository root:
+From the repository root with your HarnessWeaver Python environment active (or prefix `hw` with `conda run -n <environment> --no-capture-output`):
 
 ```shell
-conda run -n harness hw check {root}
-conda run -n harness hw sandbox record {root}
+hw check {root}
+hw sandbox record {root}
 ```
 
-`check` writes `check.json` next to this file; `record` copies the sandbox record, outputs and check result into `docs/cain-2027/evidence/{name}/`.
+`check` writes `check.json` next to this file; `record` copies the sandbox record, outputs and check result into `docs/cain-2027/evidence/{name}/`. A report schema failure may trigger one automatic Claude repair in the launcher; review `record/check-before-repair.json` and final `check.json`. DeepAgents applies the same one-retry limit to each stage artifact it validates.
 """
 
 RUN_HINTS = {
-    "claude": ("./run.sh    # you run this one; export ANTHROPIC_API_KEY for the default ISOLATION=bare, "
-               "or use ISOLATION=settings"),
+    "claude": "ISOLATION=settings ./run.sh    # Claude subscription OAuth; raw transcript is saved in output/",
     "deepagents": "./run.sh    # provider keys come from the environment or a .env file placed in this directory",
 }
 
@@ -420,6 +567,22 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
     if not bundle.is_dir():
         raise SandboxError(f"bundle not found: {bundle}")
     case_path, binding = pilot.case(case)
+
+    generation_inputs = []
+    for item in binding.get("generation_inputs") or []:
+        if "value" in item:
+            value = item["value"]
+            document = _envelope(item["envelope"], value) if item.get("envelope") else value
+        else:
+            source = (case_path.parent / item["from"]).resolve()
+            value = select(json.loads(source.read_text(encoding="utf-8")), item["select"])
+            document = _envelope(item["select"], value)
+        generation_inputs.append((item, document))
+    if target == "deepagents":
+        named_inputs = _deepagents_input_map(bundle, generation_inputs)
+    else:
+        named_inputs = [(str(item["id"]), document) for item, document in generation_inputs]
+
     created = _now()
     name = f"run-{pilot.name}-{target}-{case}-{_stamp(created)}"
     sandbox = _new_sandbox_dir(root, name)
@@ -429,16 +592,9 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
     input_dir = sandbox / "input"
     input_dir.mkdir()
     input_ids = []
-    for item in binding.get("generation_inputs") or []:
-        if "value" in item:
-            value = item["value"]
-            document = _envelope(item["envelope"], value) if item.get("envelope") else value
-        else:
-            source = (case_path.parent / item["from"]).resolve()
-            value = select(json.loads(source.read_text(encoding="utf-8")), item["select"])
-            document = _envelope(item["select"], value)
-        _write(input_dir / f"{item['id']}.json", json.dumps(document, indent=2, ensure_ascii=False) + "\n")
-        input_ids.append(item["id"])
+    for input_name, document in named_inputs:
+        _write(input_dir / f"{input_name}.json", json.dumps(document, indent=2, ensure_ascii=False) + "\n")
+        input_ids.append(input_name)
     _make_read_only(input_dir)
     (sandbox / "output").mkdir()
     (sandbox / "record").mkdir()
@@ -448,17 +604,21 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
         first_input = f"../input/{input_ids[0]}.json" if input_ids else "../input/"
         _write(sandbox / "prompt.md", pilot.prompt("execution", "claude").format(
             input=first_input, output=f"../output/{CLAUDE_REPORT_FILENAME}"))
+        # The generated ATAM Claude harness runs this local deterministic validator between stages.
+        # Keep Bash narrowly scoped to that script; the session otherwise has no shell allowance.
         _write(sandbox / "claude-settings.json", _claude_settings(
             writable=[sandbox / "workspace", sandbox / "output"],
             readable=[sandbox / "workspace", sandbox / "input"],
             denied_reads=[REPOSITORY_ROOT],
-            allow_bash=[],
+            allow_bash=["python3 .claude/skills/check-evaluation/scripts/validate_artifacts.py:*"],
         ))
+        shutil.copyfile(Path(__file__).with_name("stream.py"), sandbox / "stream_claude.py")
     else:
         (sandbox / "workspace").mkdir()
 
     session_id = str(uuid4()) if target == "claude" else None
-    _write(sandbox / "run.sh", EXECUTION_RUN_SH[target].format(session_id=session_id, model=model), executable=True)
+    _write(sandbox / "run.sh", EXECUTION_RUN_SH[target].format(
+        session_id=session_id, model=model, case=case, report_filename=CLAUDE_REPORT_FILENAME), executable=True)
     _write(sandbox / "RUNBOOK.md", EXECUTION_RUNBOOK.format(
         name=name, target=target, pilot=pilot.name, case=case, bundle=bundle, inputs=", ".join(input_ids) or "none",
         root=sandbox, run_hint=RUN_HINTS[target]))
@@ -476,7 +636,10 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
         "session_id": session_id,
         "model_requested": model or None,
     })
-    _write(sandbox / MANIFEST_FILE, json.dumps({"inputs": _digests(sandbox, ["bundle", "input", "prompt.md"])}, indent=2) + "\n")
+    input_paths = ["bundle", "input", "prompt.md"]
+    if target == "claude":
+        input_paths.append("stream_claude.py")
+    _write(sandbox / MANIFEST_FILE, json.dumps({"inputs": _digests(sandbox, input_paths)}, indent=2) + "\n")
     return sandbox
 
 

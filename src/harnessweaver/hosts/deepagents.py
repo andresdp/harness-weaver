@@ -19,6 +19,8 @@ from time import monotonic
 from typing import Any, Protocol
 
 from jsonschema import Draft202012Validator
+from rich.console import Console
+from rich.panel import Panel
 
 from harnessweaver._integrity import sha256_file
 from harnessweaver.wiring import WIRING_FILENAME, Wiring, WiringError, WiringStage, load_wiring
@@ -26,6 +28,8 @@ from harnessweaver.wiring import WIRING_FILENAME, Wiring, WiringError, WiringSta
 RECORD_FILENAME = "host-record.json"
 GATE_PENDING = "pending"
 GATE_BYPASSED = "bypassed (unattended run)"
+MAX_ARTIFACT_REPAIR_ATTEMPTS = 1
+console = Console(stderr=True, highlight=False)
 
 
 class StageAgent(Protocol):
@@ -44,6 +48,7 @@ class StageRun:
     elapsed_seconds: float
     artifacts: tuple[str, ...]
     problems: tuple[str, ...] = ()
+    repair_attempts: int = 0
 
 
 @dataclass(frozen=True)
@@ -155,16 +160,46 @@ def run_stages(
     for stage in wiring.stages:
         stage_dir = bundle / stage.dir
         begin = monotonic()
+        console.print(f"[cyan]Stage {stage.number}/{len(wiring.stages)}[/] · {stage.dir} — starting")
         try:
             agent = agent_factory(stage_dir, workspace)
-            agent.invoke({"messages": [{"role": "user", "content": stage.handoff_prompt}]})
+            with console.status(f"Stage {stage.number}/{len(wiring.stages)} · {stage.dir} is working…", spinner="dots"):
+                agent.invoke({"messages": [{"role": "user", "content": stage.handoff_prompt}]})
         except Exception as exc:  # the record must survive any provider or tool failure
             state.stages.append(StageRun(stage.number, stage.dir, "failed", round(monotonic() - begin, 3), stage.artifacts,
                                          (f"{type(exc).__name__}: {exc}",)))
             return finish("failed", wiring=wiring)
         problems = _check_stage_artifacts(wiring, stage, workspace, validators)
+        repair_attempts = 0
+        while problems and repair_attempts < MAX_ARTIFACT_REPAIR_ATTEMPTS:
+            repair_attempts += 1
+            console.print(f"[yellow]RETRY[/] · stage {stage.number}/{len(wiring.stages)} · "
+                          f"{stage.dir}: repairing artifact validation issues "
+                          f"({repair_attempts}/{MAX_ARTIFACT_REPAIR_ATTEMPTS})")
+            repair_prompt = (
+                "The host's deterministic artifact validation found these structural problems in the files "
+                "produced by your stage:\n\n"
+                + "\n".join(f"- {problem}" for problem in problems)
+                + "\n\nCorrect only the listed missing-artifact, JSON syntax, or schema problems in this stage's "
+                  "declared artifacts. "
+                  "Use the schemas and instructions already available to you. Preserve the supplied evidence, "
+                  "methodology, and factual meaning; do not invent or remove substantive content to satisfy a "
+                  "constraint. Do not edit prior-stage artifacts unless your stage explicitly owns them. "
+                  "Then re-read and validate every artifact your stage produces."
+            )
+            try:
+                with console.status(f"Stage {stage.number}/{len(wiring.stages)} · {stage.dir} is repairing…", spinner="dots"):
+                    agent.invoke({"messages": [{"role": "user", "content": repair_prompt}]})
+            except Exception as exc:  # retain diagnostics from both validation and repair invocation
+                problems.append(f"repair attempt failed: {type(exc).__name__}: {exc}")
+                break
+            problems = _check_stage_artifacts(wiring, stage, workspace, validators)
         state.stages.append(StageRun(stage.number, stage.dir, "failed" if problems else "completed",
-                                     round(monotonic() - begin, 3), stage.artifacts, tuple(problems)))
+                                     round(monotonic() - begin, 3), stage.artifacts, tuple(problems), repair_attempts))
+        console.print(f"[{'red' if problems else 'green'}]{'FAILED' if problems else 'PASS'}[/] · "
+                      f"stage {stage.number}/{len(wiring.stages)} · {stage.dir} "
+                      f"({round(monotonic() - begin, 1)}s)"
+                      + (f" · structural repairs: {repair_attempts}" if repair_attempts else ""))
         if problems:
             return finish("failed", wiring=wiring)
 
@@ -233,9 +268,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     result = run_stages(args.bundle, args.input, args.workspace, args.out,
                         deepagents_factory(args.model, args.timeout), continue_past_gates=args.continue_past_gates)
-    print(f"{result.status}: {args.out / RECORD_FILENAME}")
+    status_style = "green" if result.status in ("completed", "awaiting_review") else "red"
+    console.print(Panel(f"Status: {result.status}\nRun record: {args.out / RECORD_FILENAME}\n"
+                        f"Outputs: {args.out}", title="DeepAgents run", border_style=status_style, expand=False))
     for stage in result.stages:
-        print(f"  stage {stage.number} {stage.dir}: {stage.status}" + "".join(f"\n    {p}" for p in stage.problems))
+        console.print(f"  stage {stage.number} {stage.dir}: {stage.status}" + "".join(f"\n    {p}" for p in stage.problems))
     for problem in result.problems:
         print(f"  {problem}", file=sys.stderr)
     return 0 if result.status in ("completed", "awaiting_review") else 1

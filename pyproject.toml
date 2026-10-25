@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Runtime-neutral HarnessSpec loading and validation"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["jsonschema>=4.18", "PyYAML>=6.0"]
+dependencies = ["jsonschema>=4.18", "PyYAML>=6.0", "rich>=13.9,<15.0"]
 
 [project.optional-dependencies]
 deepagents = [
@@ -17,7 +17,6 @@ deepagents = [
     "langgraph>=1.0,<2.0",
     "langchain-anthropic>=1.0.0",
     "langchain-openai>=1.0.0",
-    "rich>=13.9,<15.0",
 ]
 
 [project.scripts]
