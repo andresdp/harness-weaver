@@ -10,7 +10,7 @@ Install the optional runtime dependencies into the repository's `harness` Conda 
 conda run -n harness python -m pip install -r pilots/atam/deepagents/requirements.txt
 ```
 
-Set the provider key in the repository-root `.env` file. The model defaults to the value in the case-study `settings.yaml`; `HW_ATAM_MODEL` or `--model` can override it.
+Set the provider key in the repository-root `.env` file. The model defaults to the value in this pilot’s `settings.yaml`; `HW_ATAM_MODEL` or `--model` can override it.
 
 ```dotenv
 OPENAI_API_KEY=your-key
@@ -18,7 +18,7 @@ OPENAI_API_KEY=your-key
 
 ## Configuration and run
 
-The runner loads `settings.yaml` from the root of the case study. For this example, that file is `case-studies/architecture-eval/ATAM/settings.yaml`:
+The runner loads the self-contained `settings.yaml` in this directory. Its input JSON contains only `evaluation_inputs`; evaluator-only reference outputs remain in the pilot case YAML and are not read by the runner:
 
 ```yaml
 case: data/banking.json
@@ -30,7 +30,7 @@ streaming: true
 verbose: true
 ```
 
-Paths in YAML are resolved relative to the case-study root. Settings can be overridden by command-line options. The model precedence is `--model`, `HW_ATAM_MODEL`, YAML, then the built-in default. `request_timeout_seconds` bounds each provider request and defaults to 180 seconds. Use Conda's `--no-capture-output` option when launching the runner so console progress is streamed and Ctrl-C reaches Python to write the failed-run sidecar.
+Paths in YAML are resolved relative to this pilot directory. Settings can be overridden by command-line options. The model precedence is `--model`, `HW_ATAM_MODEL`, YAML, then the built-in default. `request_timeout_seconds` bounds each provider request and defaults to 180 seconds. Use Conda's `--no-capture-output` option when launching the runner so console progress is streamed and Ctrl-C reaches Python to write the failed-run sidecar.
 
 Run with all settings from YAML:
 
@@ -42,13 +42,13 @@ conda run --no-capture-output -n harness python run.py
 Pass a case and output path explicitly, preserving the positional case argument supported by earlier versions:
 
 ```bash
-conda run --no-capture-output -n harness python run.py ../../../case-studies/architecture-eval/ATAM/data/banking.json --output ./runs/banking-report.json
+conda run --no-capture-output -n harness python run.py ./data/banking-inputs.json --output ./runs/banking-report.json
 ```
 
-To choose a case study explicitly (for example, when the case path is not provided), use `--case-study`. `--case` is also available as a named alternative to the positional case argument. `--streaming`/`--no-streaming` select event streaming; `--verbose`/`--no-verbose` control progress display independently:
+To choose another pilot settings directory explicitly (for example, when the case path is not provided), use `--pilot`. `--case` is also available as a named alternative to the positional case argument. `--streaming`/`--no-streaming` select event streaming; `--verbose`/`--no-verbose` control progress display independently:
 
 ```bash
-conda run --no-capture-output -n harness python run.py --case-study ../../../case-studies/architecture-eval/ATAM --no-streaming --no-verbose
+conda run --no-capture-output -n harness python run.py --pilot . --no-streaming --no-verbose
 ```
 
 ## Coordination profiles

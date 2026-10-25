@@ -1,156 +1,191 @@
-spec_version: "0.2"
+# Standalone HarnessSpec; all case inputs and source-derived guidance live in this pilot.
+spec_version: '0.2'
 id: archeval-atam
 domain: software architecture evaluation
 intent:
   goal: Produce an evidence-grounded ATAM evaluation for human review.
-  scope: [architecture description, business drivers, quality scenarios, architecture approaches]
-  exclusions: [accepting architecture decisions without expert review]
+  scope:
+  - architecture description
+  - business drivers
+  - quality scenarios
+  - architecture approaches
+  exclusions:
+  - accepting architecture decisions without expert review
 methodology:
   id: atam-bounded-profile
   name: ATAM evaluation with explicit evidence and readiness checkpoints
-  source_refs: [sources/methodology.yaml, ../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py]
-  adaptations: [Record missing inputs as gaps; keep semantic progress separate from runtime task status.]
+  source_refs:
+  - sources/methodology.yaml
+  adaptations:
+  - Record missing inputs as gaps; keep semantic progress separate from runtime task status.
 semantic_state:
   profile: atam-evaluation-progress
   completion_criteria:
-    - All required evaluation activities have evidence or explicit unknown/gap records.
-    - Findings cite architecture evidence and the report passes its declared checks.
-    - A qualified human reviews the report before it informs a decision.
+  - All required evaluation activities have evidence or explicit unknown/gap records.
+  - Findings cite architecture evidence and the report passes its declared checks.
+  - A qualified human reviews the report before it informs a decision.
   assessments:
-    - id: evaluation-context
-      status: unknown
-      evidence_refs: [../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs]
-      rationale: The runtime must assess supplied inputs; a spec does not assert case-specific completion.
-      next_state_requirements: [Record scope, stakeholders, drivers, and evidence gaps.]
+  - id: evaluation-context
+    status: unknown
+    evidence_refs:
+    - architecture-context
+    rationale: The runtime must assess supplied inputs; a spec does not assert case-specific completion.
+    next_state_requirements:
+    - Record scope
+    - stakeholders
+    - drivers
+    - and evidence gaps.
   gaps:
-    - id: case-input-gaps
-      description: Missing evaluation inputs remain unknown until supplied or explicitly accepted.
-      status: open
-      evidence_refs: [../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs]
+  - id: case-input-gaps
+    description: Missing evaluation inputs remain unknown until supplied or explicitly accepted.
+    status: open
+    evidence_refs:
+    - architecture-context
 workflow:
   id: atam-evaluation
-  purpose: Analyze an architecture description using ATAM concepts and produce a structured evaluation report.
+  purpose: Analyze an architecture description using ATAM concepts and produce a structured evaluation
+    report.
   completion_criteria:
-    - The ATAM report is structurally valid and evidence-review is complete.
+  - The ATAM report is structurally valid and evidence-review is complete.
 orchestration:
   workflow_strategy: supervisor
   agent_interaction: one_shot_specialist_delegation
 sources:
-  - id: archeval-workflow
-    ref: ../../case-studies/architecture-eval/ATAM/agents/main.py
-    kind: workflow-implementation
-    authority: ArchEval case study; reference only
-    notes: Existing multi-role ATAM workflow. HarnessWeaver does not own this source.
-  - id: atam-method-prompts
-    ref: ../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
-    kind: domain-guidance
-    authority: ArchEval case study; reference only
-  - id: atam-methodology
-    ref: sources/methodology.yaml
-    kind: methodology-and-semantic-state
-    authority: HarnessWeaver demo profile, derived from the cited ATAM sources
-    notes: Adaptation profile for this bounded demo; not a replacement for the source method.
-  - id: harness-design-skill
-    ref: ../../src/harnessweaver/skills/harness/SKILL.md
-    kind: harness-methodology
-    authority: HarnessWeaver working-tree skill
+- id: archeval-workflow
+  kind: workflow-implementation
+  authority: ArchEval case study; reference only
+  notes: HarnessWeaver implementation is an adaptation; the original case-study files are not required.
+  summary: 'Copied workflow: extract approaches, build utility tree, generate scenarios, analyze risks
+    and sensitivity points, then serialize a structured report.'
+- id: atam-method-prompts
+  kind: domain-guidance
+  authority: ArchEval case study; reference only
+  summary: 'Copied role protocol: Customer supplies input; Architect reviews technical claims and utility
+    trees; Manager coordinates; EvaluationTeam analyzes scenarios and risks.'
+  notes: Peer requests and reviews use explicit JSON messages conforming to the report contract.
+- id: atam-methodology
+  ref: sources/methodology.yaml
+  kind: methodology-and-semantic-state
+  authority: Self-contained HarnessWeaver adaptation profile with copied source-derived method notes.
+  notes: Bounded demo profile; original source files are not required.
+- id: harness-design-skill
+  ref: ../../src/harnessweaver/skills/harness/SKILL.md
+  kind: harness-methodology
+  authority: HarnessWeaver working-tree skill
 roles:
-  - id: atam-facilitator
-    purpose: Sequence the evaluation, identify missing inputs, and maintain semantic methodology state.
-    skill_refs:
-      - sources/methodology.yaml
-  - id: quality-attribute-analyst
-    purpose: Build the utility tree and analyze architecture approaches against prioritized scenarios.
-    skill_refs:
-      - ../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
-      - sources/methodology.yaml
-  - id: evidence-reviewer
-    purpose: Check that evaluation claims are traceable to supplied architecture evidence and report unknowns.
-    skill_refs:
-      - sources/methodology.yaml
+- id: atam-facilitator
+  purpose: Sequence the evaluation, identify missing inputs, and maintain semantic methodology state.
+  skill_refs:
+  - sources/methodology.yaml
+- id: quality-attribute-analyst
+  purpose: Build the utility tree and analyze architecture approaches against prioritized scenarios.
+  skill_refs:
+  - sources/methodology.yaml
+- id: evidence-reviewer
+  purpose: Check that evaluation claims are traceable to supplied architecture evidence and report unknowns.
+  skill_refs:
+  - sources/methodology.yaml
 stages:
-  - id: establish-context
-    role: atam-facilitator
-    purpose: Establish scope, business drivers, architecture description, constraints, and evidence gaps.
-    inputs:
-      - ../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs
-    outputs: [evaluation-context]
-    readiness: [Evaluation inputs are present or explicitly listed as unknown.]
-    completion_criteria: [Scope, business drivers, constraints, and source gaps are recorded.]
-  - id: build-utility-tree
-    role: quality-attribute-analyst
-    purpose: Refine quality attribute drivers into prioritized, measurable scenarios; retain unresolved items as gaps.
-    inputs:
-      - ../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs
-    outputs: [utility-tree]
-  - id: identify-approaches
-    role: quality-attribute-analyst
-    purpose: Record architecture approaches supported by the supplied description and their evidence.
-    inputs:
-      - ../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs
-    outputs: [architecture-approaches]
-  - id: analyze-scenarios
-    role: quality-attribute-analyst
-    purpose: Analyze prioritized scenarios against documented architecture decisions and response measures.
-    inputs:
-      - ../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs
-    outputs: [analysis-records]
-  - id: synthesize-and-review
-    role: evidence-reviewer
-    purpose: Assemble the ATAM report and check evidence, coverage, uncertainty, and output structure.
-    inputs:
-      - ../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs
-    outputs: [ATAM_Evaluation]
+- id: establish-context
+  role: atam-facilitator
+  purpose: Establish scope, business drivers, architecture description, constraints, and evidence gaps.
+  inputs:
+  - architecture-context
+  outputs:
+  - evaluation-context
+  readiness:
+  - Evaluation inputs are present or explicitly listed as unknown.
+  completion_criteria:
+  - Scope
+  - business drivers
+  - constraints
+  - and source gaps are recorded.
+- id: build-utility-tree
+  role: quality-attribute-analyst
+  purpose: Refine quality attribute drivers into prioritized, measurable scenarios; retain unresolved
+    items as gaps.
+  inputs:
+  - architecture-context
+  outputs:
+  - utility-tree
+- id: identify-approaches
+  role: quality-attribute-analyst
+  purpose: Record architecture approaches supported by the supplied description and their evidence.
+  inputs:
+  - architecture-context
+  outputs:
+  - architecture-approaches
+- id: analyze-scenarios
+  role: quality-attribute-analyst
+  purpose: Analyze prioritized scenarios against documented architecture decisions and response measures.
+  inputs:
+  - architecture-context
+  outputs:
+  - analysis-records
+- id: synthesize-and-review
+  role: evidence-reviewer
+  purpose: Assemble the ATAM report and check evidence, coverage, uncertainty, and output structure.
+  inputs:
+  - architecture-context
+  outputs:
+  - ATAM_Evaluation
 artifacts:
-  - id: architecture-context
-    kind: structured-case-input
-    direction: input
-    ref: ../../case-studies/architecture-eval/ATAM/data/banking.json#ATAM_Evaluation.evaluation_inputs
-    description: Evaluation inputs only; ground truth is explicitly excluded from generation.
-  - id: atam-report
-    kind: structured-evaluation
-    direction: output
-    ref: ATAM_Evaluation
-    description: ATAM findings, including utility tree, analysis records, risks, non-risks, sensitivity points, tradeoff points, and prioritized scenarios.
-    schema_ref: sources/domain/references/atam-report-template.json
-  - id: evaluation-context
-    kind: methodology-state
-    direction: intermediate
-    ref: evaluation-context.json
-    description: Transient structured stage output carried in the runtime context and summarized in the final report; no standalone file is emitted.
-  - id: utility-tree
-    kind: methodology-artifact
-    direction: intermediate
-    ref: utility-tree.json
-    description: Transient utility-tree output carried in the runtime context and included in the final report; no standalone file is emitted.
-  - id: architecture-approaches
-    kind: methodology-artifact
-    direction: intermediate
-    ref: architecture-approaches.json
-    description: Transient architecture-approach output carried in the runtime context and included in the final report; no standalone file is emitted.
-  - id: analysis-records
-    kind: methodology-artifact
-    direction: intermediate
-    ref: analysis-records.json
-    description: Transient analysis output carried in the runtime context and included in the final report; no standalone file is emitted.
+- id: architecture-context
+  kind: structured-case-input
+  direction: input
+  description: Evaluation inputs only; ground truth is explicitly excluded from generation.
+  source: Embedded in cases/banking.yaml generation_inputs; only ATAM_Evaluation.evaluation_inputs is
+    materialized for execution.
+- id: atam-report
+  kind: structured-evaluation
+  direction: output
+  ref: ATAM_Evaluation
+  description: ATAM findings, including utility tree, analysis records, risks, non-risks, sensitivity
+    points, tradeoff points, and prioritized scenarios.
+  schema_ref: sources/domain/references/atam-report-template.json
+- id: evaluation-context
+  kind: methodology-state
+  direction: intermediate
+  ref: evaluation-context.json
+  description: Transient structured stage output carried in the runtime context and summarized in the
+    final report; no standalone file is emitted.
+- id: utility-tree
+  kind: methodology-artifact
+  direction: intermediate
+  ref: utility-tree.json
+  description: Transient utility-tree output carried in the runtime context and included in the final
+    report; no standalone file is emitted.
+- id: architecture-approaches
+  kind: methodology-artifact
+  direction: intermediate
+  ref: architecture-approaches.json
+  description: Transient architecture-approach output carried in the runtime context and included in the
+    final report; no standalone file is emitted.
+- id: analysis-records
+  kind: methodology-artifact
+  direction: intermediate
+  ref: analysis-records.json
+  description: Transient analysis output carried in the runtime context and included in the final report;
+    no standalone file is emitted.
 verification:
-  - id: output-shape
-    criterion: Output conforms to the documented ATAM artifact structure.
-    method: Deterministic structural validation against the ATAM template and declared required sections.
-    artifact: atam-report
-  - id: evidence-grounding
-    criterion: Findings are supported by the supplied architecture context.
-    method: Domain expert review; record separately from structural checks.
-    artifact: atam-report
-  - id: no-reference-leakage
-    criterion: Ground-truth outputs are used only during evaluation and never passed to the generated harness.
-    method: Inspect the harness input-selection instructions and backend serialization; where runtime traces are available, verify only evaluation_inputs reaches the model.
-    artifact: atam-report
+- id: output-shape
+  criterion: Output conforms to the documented ATAM artifact structure.
+  method: Deterministic structural validation against the ATAM template and declared required sections.
+  artifact: atam-report
+- id: evidence-grounding
+  criterion: Findings are supported by the supplied architecture context.
+  method: Domain expert review; record separately from structural checks.
+  artifact: atam-report
+- id: no-reference-leakage
+  criterion: Ground-truth outputs are used only during evaluation and never passed to the generated harness.
+  method: Inspect the harness input-selection instructions and backend serialization; where runtime traces
+    are available, verify only evaluation_inputs reaches the model.
+  artifact: atam-report
 human_gates:
-  - id: expert-review
-    point: Before accepting the evaluation report as a decision input.
-    reason: Architecture judgments and evidence interpretation require qualified human review.
-    required_artifacts:
-      - atam-report
+- id: expert-review
+  point: Before accepting the evaluation report as a decision input.
+  reason: Architecture judgments and evidence interpretation require qualified human review.
+  required_artifacts:
+  - atam-report
 runtime_requirements:
-  - file-based artifact input and output
+- file-based artifact input and output

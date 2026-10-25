@@ -15,15 +15,7 @@ claude --plugin-dir pilots/atam/claude-plugin
 
 In the Claude Code session, use `/atam-evaluation:evaluate-architecture` with an evaluation-input-only JSON file or paste a small architecture description. Use `/atam-evaluation:check-evaluation` on the resulting draft. Check that the report follows the ATAM template, distinguishes evidence from assumptions, shows gaps, and asks for architect review. This is a qualitative smoke test; it is not evidence of ATAM completeness or accuracy.
 
-If using the repository's banking case, give Claude only `ATAM_Evaluation.evaluation_inputs` from `case-studies/architecture-eval/ATAM/data/banking.json`. Never provide `ground_truth_outputs` to the generation or review session. If the plugin cannot select that field without reading the whole JSON, prepare an input-only copy first.
-
-Create that safe copy from the repository root with:
-
-```bash
-conda run -n harness python -c 'import json; from pathlib import Path; source=Path("case-studies/architecture-eval/ATAM/data/banking.json"); data=json.loads(source.read_text()); target=Path("/tmp/hw-atam-evaluation-inputs.json"); target.write_text(json.dumps({"ATAM_Evaluation":{"evaluation_inputs":data["ATAM_Evaluation"]["evaluation_inputs"]}}, indent=2) + "\n"); print(target)'
-```
-
-Use `/tmp/hw-atam-evaluation-inputs.json` for the plugin smoke test. The extraction writes only the generation input field.
+The banking case is embedded in `pilots/atam/cases/banking.yaml`. Give Claude only `generation_inputs[0].value`, wrapped as `ATAM_Evaluation.evaluation_inputs`; never provide `evaluator_only` or `ground_truth_outputs` to generation or review. Prefer the execution sandbox's `input/architecture-context.json`, which contains only the generation input. For a manual run, create an input-only JSON file from the embedded case YAML and pass only that file.
 
 ## B. Ask Claude to generate the ATAM plugin
 
@@ -41,8 +33,8 @@ Use the harness skill to materialize a Claude Code plugin for the ATAM harness
 described by the HarnessSpec at:
 <absolute-repository-path>/pilots/atam/harnessspec-v0.2.yaml
 
-Read the referenced methodology, domain skills, report template, and the
-evaluation-input-only case data. Keep this as an ATAM evaluation prototype.
+Read the methodology, domain skills, report template, and the
+evaluation-input-only case data bundled in the pilot. Do not read external case-study files. Keep this as an ATAM evaluation prototype.
 Preserve the evaluation-input boundary: never read or copy ground_truth_outputs
 into generation context or generated plugin assets. Put the generated plugin in
 ./generated/atam-plugin. Keep methodology progress distinct from agent/runtime

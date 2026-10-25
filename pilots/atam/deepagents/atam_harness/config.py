@@ -1,4 +1,4 @@
-"""Load case-study YAML defaults and merge command-line overrides."""
+"""Load pilot-local YAML defaults and merge command-line overrides."""
 
 import argparse
 import os
@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from harnessweaver.runtime import AgentInteraction, ExecutionProfile, WorkflowStrategy, profile_from_spec
 from harnessweaver.spec import SpecLoadError, load_spec
 
-from .paths import DEFAULT_CASE_STUDY_ROOT, DEFAULT_HARNESS_SPEC_PATH, SETTINGS_FILENAME
+from .paths import DEFAULT_PILOT_ROOT, DEFAULT_HARNESS_SPEC_PATH, SETTINGS_FILENAME
 
 
 class RunSettings(BaseModel):
@@ -19,9 +19,9 @@ class RunSettings(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    # These paths are interpreted relative to the case-study settings file.
-    case: Path = Field(default=Path("data/banking.json"), description="Case JSON, relative to the case-study root")
-    output: Path = Field(default=Path("runs/banking-report.json"), description="Report path, relative to the case-study root")
+    # These paths are interpreted relative to the pilot settings file.
+    case: Path = Field(default=Path("data/banking.json"), description="Case JSON, relative to the pilot settings directory")
+    output: Path = Field(default=Path("runs/banking-report.json"), description="Report path, relative to the pilot settings directory")
     model: str = Field(default="openai:gpt-5.4-mini", description="LangChain provider:model identifier")
     request_timeout_seconds: float = Field(
         default=180,
@@ -29,7 +29,7 @@ class RunSettings(BaseModel):
         le=3600,
         description="Maximum time for an individual provider model request",
     )
-    harness_spec: Path = Field(default=DEFAULT_HARNESS_SPEC_PATH, description="HarnessSpec path, relative to the case-study root")
+    harness_spec: Path = Field(default=DEFAULT_HARNESS_SPEC_PATH, description="HarnessSpec path, relative to the pilot settings directory")
     streaming: bool = Field(default=True, description="Stream execution events while the agent runs")
     verbose: bool = Field(default=True, description="Display agent, skill, and tool progress")
 
@@ -46,7 +46,7 @@ class ResolvedRunConfig(BaseModel):
     agent_interaction: str
     streaming: bool
     verbose: bool
-    case_study_root: Path
+    settings_root: Path
 
     @property
     def execution_profile(self) -> ExecutionProfile:
@@ -62,7 +62,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the ATAM evaluation harness with DeepAgents.")
     parser.add_argument("case_argument", nargs="?", type=Path, help="case JSON (overrides settings.yaml)")
     parser.add_argument("--case", dest="case_option", type=Path, help="case JSON (overrides settings.yaml)")
-    parser.add_argument("--case-study", type=Path, help="case-study root containing settings.yaml")
+    parser.add_argument("--case-study", "--pilot", dest="case_study", type=Path, help="pilot settings directory containing settings.yaml")
     parser.add_argument("--output", type=Path, help="report path (overrides settings.yaml)")
     parser.add_argument("--model", help="LangChain provider:model (overrides HW_ATAM_MODEL and YAML)")
     parser.add_argument("--harness-spec", type=Path, help="HarnessSpec path (overrides settings.yaml)")
@@ -73,8 +73,8 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _infer_case_study_root(case_path: Path) -> Path:
-    """Find the nearest case-study settings file or use the conventional data/ layout."""
+def _infer_settings_root(case_path: Path) -> Path:
+    """Find the nearest pilot settings file or use the conventional data/ layout."""
     absolute_case = case_path.expanduser().resolve()
     for parent in absolute_case.parents:
         if (parent / SETTINGS_FILENAME).is_file():
@@ -84,9 +84,9 @@ def _infer_case_study_root(case_path: Path) -> Path:
     return absolute_case.parent
 
 
-def _load_yaml_settings(case_study_root: Path) -> dict[str, Any]:
+def _load_yaml_settings(settings_root: Path) -> dict[str, Any]:
     """Read settings.yaml, treating a missing file as an empty settings document."""
-    settings_path = case_study_root / SETTINGS_FILENAME
+    settings_path = settings_root / SETTINGS_FILENAME
     if not settings_path.exists():
         return {}
     parsed = yaml.safe_load(settings_path.read_text(encoding="utf-8"))
@@ -98,7 +98,7 @@ def _load_yaml_settings(case_study_root: Path) -> dict[str, Any]:
 
 
 def _resolve_setting_path(value: Path, root: Path) -> Path:
-    """Resolve YAML paths from the case-study folder and absolute paths as given."""
+    """Resolve YAML paths from the pilot settings folder and absolute paths as given."""
     expanded = value.expanduser()
     return expanded.resolve() if expanded.is_absolute() else (root / expanded).resolve()
 
@@ -111,22 +111,22 @@ def resolve_config(args: argparse.Namespace, environ: dict[str, str] | None = No
         raise ValueError("provide the case either positionally or with --case, not both")
 
     if args.case_study:
-        case_study_root = args.case_study.expanduser().resolve()
+        settings_root = args.case_study.expanduser().resolve()
     elif case_argument is not None:
-        case_study_root = _infer_case_study_root(case_argument)
+        settings_root = _infer_settings_root(case_argument)
     else:
-        case_study_root = DEFAULT_CASE_STUDY_ROOT.resolve()
+        settings_root = DEFAULT_PILOT_ROOT.resolve()
 
     try:
-        configured = RunSettings.model_validate(_load_yaml_settings(case_study_root))
+        configured = RunSettings.model_validate(_load_yaml_settings(settings_root))
     except ValidationError as exc:
-        raise ValueError(f"invalid {case_study_root / SETTINGS_FILENAME}: {exc}") from exc
+        raise ValueError(f"invalid {settings_root / SETTINGS_FILENAME}: {exc}") from exc
 
     # Command-line case/output paths retain the shell's current-directory semantics.
-    case = case_argument.expanduser().resolve() if case_argument else _resolve_setting_path(configured.case, case_study_root)
-    output = args.output.expanduser().resolve() if args.output else _resolve_setting_path(configured.output, case_study_root)
+    case = case_argument.expanduser().resolve() if case_argument else _resolve_setting_path(configured.case, settings_root)
+    output = args.output.expanduser().resolve() if args.output else _resolve_setting_path(configured.output, settings_root)
     model = args.model or environment.get("HW_ATAM_MODEL") or configured.model
-    harness_spec = args.harness_spec.expanduser().resolve() if args.harness_spec else _resolve_setting_path(configured.harness_spec, case_study_root)
+    harness_spec = args.harness_spec.expanduser().resolve() if args.harness_spec else _resolve_setting_path(configured.harness_spec, settings_root)
     try:
         spec_document = load_spec(harness_spec)
         profile = profile_from_spec(
@@ -149,11 +149,11 @@ def resolve_config(args: argparse.Namespace, environ: dict[str, str] | None = No
         agent_interaction=profile.agent_interaction.value,
         streaming=streaming,
         verbose=verbose,
-        case_study_root=case_study_root,
+        settings_root=settings_root,
     )
 
 
 def format_resolved_settings(config: ResolvedRunConfig) -> str:
     """Render the effective YAML settings without internal path-discovery metadata."""
-    visible_settings = config.model_dump(mode="json", exclude={"case_study_root"})
+    visible_settings = config.model_dump(mode="json", exclude={"settings_root"})
     return yaml.safe_dump(visible_settings, sort_keys=False)

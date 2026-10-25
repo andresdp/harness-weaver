@@ -1,0 +1,8 @@
+# Pilot-local defaults; paths resolve relative to this directory.
+case: data/banking-inputs.json
+output: runs/banking-report.json
+model: openai:gpt-5.4-mini
+request_timeout_seconds: 180
+harness_spec: ../harnessspec-v0.2.yaml
+streaming: true
+verbose: true

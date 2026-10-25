@@ -6,7 +6,7 @@ This pilot carries one ATAM methodology through the HarnessWeaver flow ([docs/ca
   - `intent.yaml` — goal, scope, exclusions, user, decision supported, human review, target runtimes;
   - `methodology.yaml` — ATAM activities, readiness, outputs, semantic-state fields and evidence rules, completion, review and the reference boundary;
   - `domain/` — `sources.yaml` (knowledge index with authority), portable `skills/` (`evaluate-architecture`, `check-evaluation`), `contracts/atam-report.schema.json` (exported from the report model; regenerate with `python -m pilots.atam.deepagents.atam_harness.schema_export`), and `references/atam-report-template.json`.
-- `cases/banking.yaml` — **case binding**: `ATAM_Evaluation.evaluation_inputs` from `case-studies/architecture-eval/ATAM/data/banking.json` is a generation input; `ground_truth_outputs` is evaluator-only and never enters a sandbox.
+- `cases/banking.yaml` — **case binding**: `ATAM_Evaluation.evaluation_inputs` and evaluator-only reference outputs are embedded in the YAML; only the generation input enters a sandbox.
 - `generated/<label>/` — collected generation runs (HarnessSpec, `design-notes.md`, `build/<target>/`, generation record), one directory per run or arm.
 - **Reference realizations** (hand-written, kept for comparison, not on the generated path):
   - `claude-plugin/` — a Claude Code plugin with evaluator skills and specialist subagents;

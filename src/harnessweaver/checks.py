@@ -37,8 +37,14 @@ def _normalize(text: str) -> str:
 
 
 def _selected_strings(case_path: Path, items: list[dict[str, Any]]) -> list[str]:
-    return [text for item in items
-            for text in _strings(select(json.loads((case_path.parent / item["from"]).read_text(encoding="utf-8")), item["select"]))]
+    result = []
+    for item in items:
+        if "value" in item:
+            value = item["value"]
+        else:
+            value = select(json.loads((case_path.parent / item["from"]).read_text(encoding="utf-8")), item["select"])
+        result.extend(_strings(value))
+    return result
 
 
 def find_report(sandbox: Path) -> Path | None:

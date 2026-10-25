@@ -1,62 +1,98 @@
+# Standalone ATAM methodology profile; source-derived method notes are copied below.
 id: atam-evaluation-methodology
 version: 0.1.0
 authority: HarnessWeaver adaptation profile based on the referenced ATAM materials
-sources:
-  - ../../../case-studies/architecture-eval/ATAM/agents/main.py
-  - ../../../case-studies/architecture-eval/ATAM/agents/prompt_manager.py
-  - ../../../case-studies/architecture-eval/ATAM/template.json
-purpose: >-
-  Evaluate a supplied software architecture description against its quality
-  attribute drivers and produce a structured, evidence-grounded ATAM report.
-  This bounded prototype does not claim to conduct a complete stakeholder
-  workshop when stakeholder evidence is unavailable.
+purpose: Evaluate a supplied software architecture description against its quality attribute drivers and
+  produce a structured, evidence-grounded ATAM report. This bounded prototype does not claim to conduct
+  a complete stakeholder workshop when stakeholder evidence is unavailable.
 activities:
-  - id: establish-context
-    readiness: evaluation_inputs are present
-    outputs: [system_scope, business_drivers, architecture_evidence, open_questions]
-  - id: build-utility-tree
-    readiness: business_drivers are identified; unknown details remain explicit
-    outputs: [quality_attribute_scenarios, priority_tuples, response_measures]
-  - id: identify-approaches
-    readiness: architecture_evidence is available
-    outputs: [architecture_approaches, source_evidence]
-  - id: analyze-scenarios
-    readiness: scenarios and relevant architecture evidence are available
-    outputs: [analysis_records, risks, non_risks, sensitivity_points, tradeoff_points]
-  - id: synthesize-and-review
-    readiness: previous artifacts are present; unresolved gaps are recorded
-    outputs: [atam_report, review_findings]
+- id: establish-context
+  readiness: evaluation_inputs are present
+  outputs:
+  - system_scope
+  - business_drivers
+  - architecture_evidence
+  - open_questions
+- id: build-utility-tree
+  readiness: business_drivers are identified; unknown details remain explicit
+  outputs:
+  - quality_attribute_scenarios
+  - priority_tuples
+  - response_measures
+- id: identify-approaches
+  readiness: architecture_evidence is available
+  outputs:
+  - architecture_approaches
+  - source_evidence
+- id: analyze-scenarios
+  readiness: scenarios and relevant architecture evidence are available
+  outputs:
+  - analysis_records
+  - risks
+  - non_risks
+  - sensitivity_points
+  - tradeoff_points
+- id: synthesize-and-review
+  readiness: previous artifacts are present; unresolved gaps are recorded
+  outputs:
+  - atam_report
+  - review_findings
 semantic_state:
   fields:
-    - name: context_status
-      values: [missing, partial, sufficient]
-      evidence_required: true
-    - name: driver_status
-      values: [missing, partial, sufficient]
-      evidence_required: true
-    - name: architecture_evidence_status
-      values: [missing, partial, sufficient]
-      evidence_required: true
-    - name: scenario_analysis_status
-      values: [not_started, partial, reviewed]
-      evidence_required: true
-    - name: report_status
-      values: [not_started, draft, reviewed]
-      evidence_required: true
-  shared_gap_fields: [description, affected_activity, missing_evidence, resolution_question]
-  separation: >-
-    This state records ATAM progress and evidence. Agent scratch work, messages,
-    tool calls, checkpoints, and token usage belong to the runtime and are not
-    proof of methodology completion.
+  - name: context_status
+    values:
+    - missing
+    - partial
+    - sufficient
+    evidence_required: true
+  - name: driver_status
+    values:
+    - missing
+    - partial
+    - sufficient
+    evidence_required: true
+  - name: architecture_evidence_status
+    values:
+    - missing
+    - partial
+    - sufficient
+    evidence_required: true
+  - name: scenario_analysis_status
+    values:
+    - not_started
+    - partial
+    - reviewed
+    evidence_required: true
+  - name: report_status
+    values:
+    - not_started
+    - draft
+    - reviewed
+    evidence_required: true
+  shared_gap_fields:
+  - description
+  - affected_activity
+  - missing_evidence
+  - resolution_question
+  separation: This state records ATAM progress and evidence. Agent scratch work, messages, tool calls,
+    checkpoints, and token usage belong to the runtime and are not proof of methodology completion.
 completion:
-  required: [context_status, driver_status, architecture_evidence_status, atam_report]
-  rule: >-
-    A report may be completed with partial inputs only when every material gap
-    and assumption is identified and no unsupported claim is presented as fact.
+  required:
+  - context_status
+  - driver_status
+  - architecture_evidence_status
+  - atam_report
+  rule: A report may be completed with partial inputs only when every material gap and assumption is identified
+    and no unsupported claim is presented as fact.
 human_review:
   required_before_decision_use: true
   reviewer: software architect familiar with the evaluated system
-  focus: [method_coverage, evidence_grounding, risks, tradeoffs, unknowns]
+  focus:
+  - method_coverage
+  - evidence_grounding
+  - risks
+  - tradeoffs
+  - unknowns
 reference_boundary:
   generation_input: ATAM_Evaluation.evaluation_inputs
   evaluation_only: ATAM_Evaluation.ground_truth_outputs
@@ -64,7 +100,20 @@ reference_boundary:
 report_contract:
   ref: domain/references/atam-report-template.json
   findings_key: ATAM_Evaluation.evaluation_results
-  provenance: >-
-    The report template is derived from the ArchEval ATAM template. It renames
-    ground_truth_outputs to evaluation_results so generated findings cannot be
-    confused with the dataset's evaluation-only reference answers.
+  provenance: The report template is derived from the ArchEval ATAM template. It renames ground_truth_outputs
+    to evaluation_results so generated findings cannot be confused with the dataset's evaluation-only
+    reference answers.
+source_basis:
+  materials:
+  - ArchEval ATAM multi-agent workflow
+  - ArchEval ATAM prompt protocol
+  - ArchEval ATAM report template
+  copied_method_summary:
+  - The reference workflow extracts architectural approaches, builds a utility tree, generates scenarios,
+    analyzes risks and sensitivities, and writes structured results.
+  - The reference prompt protocol assigns Customer, Architect, Manager, and EvaluationTeam roles; supports
+    information requests and reviews; and requires JSON outputs conforming to a shared report template.
+  - The reference report structure covers architectural approaches, utility tree, scenarios, and analysis
+    records with risks, non-risks, sensitivity points, and tradeoff points.
+  adaptation: The HarnessWeaver profile adds explicit readiness, evidence and gap tracking, evaluator-only
+    reference separation, and human review.

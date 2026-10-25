@@ -430,9 +430,14 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
     input_dir.mkdir()
     input_ids = []
     for item in binding.get("generation_inputs") or []:
-        source = (case_path.parent / item["from"]).resolve()
-        value = select(json.loads(source.read_text(encoding="utf-8")), item["select"])
-        _write(input_dir / f"{item['id']}.json", json.dumps(_envelope(item["select"], value), indent=2, ensure_ascii=False) + "\n")
+        if "value" in item:
+            value = item["value"]
+            document = _envelope(item["envelope"], value) if item.get("envelope") else value
+        else:
+            source = (case_path.parent / item["from"]).resolve()
+            value = select(json.loads(source.read_text(encoding="utf-8")), item["select"])
+            document = _envelope(item["select"], value)
+        _write(input_dir / f"{item['id']}.json", json.dumps(document, indent=2, ensure_ascii=False) + "\n")
         input_ids.append(item["id"])
     _make_read_only(input_dir)
     (sandbox / "output").mkdir()
