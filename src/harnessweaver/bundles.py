@@ -40,7 +40,8 @@ def _frontmatter(path: Path) -> tuple[dict[str, Any] | None, str]:
     return (data if isinstance(data, dict) else None), match.group(2)
 
 
-def _check_skill(path: Path, root: Path, issues: list[ValidationIssue]) -> dict[str, Any] | None:
+def _check_frontmatter_file(path: Path, root: Path, issues: list[ValidationIssue]) -> dict[str, Any] | None:
+    """Check an agent or skill Markdown file's frontmatter and body length; return its frontmatter."""
     where = str(path.relative_to(root))
     meta, body = _frontmatter(path)
     if meta is None or not meta.get("name") or not meta.get("description"):
@@ -92,14 +93,14 @@ def _check_claude(root: Path, issues: list[ValidationIssue]) -> None:
     agents_dir, skills_dir = root / ".claude/agents", root / ".claude/skills"
     agent_names: set[str] = set()
     for path in sorted(agents_dir.glob("*.md")):
-        meta = _check_skill(path, root, issues)
+        meta = _check_frontmatter_file(path, root, issues)
         if meta and meta.get("name"):
             agent_names.add(str(meta["name"]))
     skills = sorted(skills_dir.glob("*/SKILL.md"))
     if not skills:
         issues.append(ValidationIssue(".claude/skills", "no skills found; expected domain skills and an orchestrator skill"))
     for path in skills:
-        _check_skill(path, root, issues)
+        _check_frontmatter_file(path, root, issues)
     if not (root / "CLAUDE.md").is_file():
         issues.append(ValidationIssue("CLAUDE.md", "missing harness pointer (trigger conditions and change history)"))
     commands = root / ".claude/commands"
@@ -130,7 +131,7 @@ def _check_deepagents(root: Path, issues: list[ValidationIssue]) -> None:
         if not skills:
             issues.append(ValidationIssue(stage.dir, "no skills/<task>/SKILL.md found"))
         for path in skills:
-            _check_skill(path, root, issues)
+            _check_frontmatter_file(path, root, issues)
         text = agents_md.read_text(encoding="utf-8")
         if text.count("\n") > MAX_BODY_LINES:
             issues.append(ValidationIssue(f"{stage.dir}/AGENTS.md", f"exceeds {MAX_BODY_LINES} lines"))

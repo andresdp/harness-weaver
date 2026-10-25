@@ -82,6 +82,9 @@ def _sandbox(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
+    from .bundles import TARGETS
+    from .sandbox import ARMS
+
     parser = argparse.ArgumentParser(prog="hw", description="HarnessWeaver tools.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -92,7 +95,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     bundle = subparsers.add_parser("check-bundle", help="structurally check a generated runtime bundle")
     bundle.add_argument("bundle", type=Path, help="bundle directory (e.g. build/claude or build/deepagents)")
-    bundle.add_argument("--target", required=True, choices=["claude", "deepagents"])
+    bundle.add_argument("--target", required=True, choices=TARGETS)
     bundle.add_argument("--spec", type=Path, help="HarnessSpec the bundle was generated from (checks the materialization report covers it)")
     bundle.set_defaults(handler=_check_bundle)
 
@@ -104,14 +107,14 @@ def build_parser() -> argparse.ArgumentParser:
     box_commands = box.add_subparsers(dest="sandbox_command", required=True)
     generation = box_commands.add_parser("create-generation", help="sandbox for a user-run generation session")
     generation.add_argument("pilot", help="pilot name (pilots/<name>) or directory with pilot.yaml")
-    generation.add_argument("--arm", default="harnessweaver", choices=["harnessweaver", "revfactory-en"])
+    generation.add_argument("--arm", default="harnessweaver", choices=ARMS)
     generation.add_argument("--answers", type=Path, help="harness-answers.yaml to pre-answer gates (harnessweaver arm only)")
     generation.add_argument("--model", default="", help="Claude model for the session (default: Claude Code default)")
     generation.add_argument("--root", type=Path, help="parent directory (default: HW_SANDBOX_ROOT or a sibling of the repository)")
     generation.add_argument("--no-langchain-skills", action="store_true", help="do not add the langchain deep-agents skills")
     execution = box_commands.add_parser("create-execution", help="sandbox that runs one generated bundle on one case")
     execution.add_argument("pilot")
-    execution.add_argument("--target", required=True, choices=["claude", "deepagents"])
+    execution.add_argument("--target", required=True, choices=TARGETS)
     execution.add_argument("--bundle", required=True, type=Path)
     execution.add_argument("--case", required=True, help="case binding name (pilots/<pilot>/cases/<case>.yaml)")
     execution.add_argument("--model", default="", help="model id (required for deepagents, e.g. openai:gpt-5.4-mini)")

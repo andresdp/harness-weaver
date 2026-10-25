@@ -21,17 +21,19 @@ from typing import Any, Protocol
 from jsonschema import Draft202012Validator
 
 from harnessweaver._integrity import sha256_file
-from harnessweaver.wiring import WIRING_FILENAME, Wiring, WiringError, load_wiring
+from harnessweaver.wiring import WIRING_FILENAME, Wiring, WiringError, WiringStage, load_wiring
 
 RECORD_FILENAME = "host-record.json"
+GATE_PENDING = "pending"
+GATE_BYPASSED = "bypassed (unattended run)"
 
 
 class StageAgent(Protocol):
     def invoke(self, payload: Mapping[str, Any]) -> Any: ...
 
 
+# Builds the agent for one stage from (stage directory, run workspace).
 StageAgentFactory = Callable[[Path, Path], StageAgent]
-"""Build the agent for one stage from (stage directory, run workspace)."""
 
 
 @dataclass(frozen=True)
@@ -63,9 +65,9 @@ def _workspace_path(workspace: Path, virtual: str) -> Path:
     return workspace / virtual.lstrip("/")
 
 
-def _check_stage_artifacts(wiring: Wiring, stage_number: int, workspace: Path) -> list[str]:
+def _check_stage_artifacts(wiring: Wiring, stage: WiringStage, workspace: Path,
+                           validators: dict[str, Draft202012Validator]) -> list[str]:
     """Each declared artifact must exist, parse as JSON, and satisfy its schema when one is named."""
-    stage = wiring.stages[stage_number - 1]
     problems: list[str] = []
     for artifact in stage.artifacts:
         path = _workspace_path(workspace, f"/artifacts/{artifact}")
@@ -79,8 +81,9 @@ def _check_stage_artifacts(wiring: Wiring, stage_number: int, workspace: Path) -
             continue
         schema_ref = stage.schemas.get(artifact) or (wiring.output_schema if artifact == wiring.output_artifact else None)
         if schema_ref:
-            schema = json.loads((wiring.root / schema_ref).read_text(encoding="utf-8"))
-            errors = sorted(Draft202012Validator(schema).iter_errors(value), key=lambda error: list(error.path))
+            if schema_ref not in validators:
+                validators[schema_ref] = Draft202012Validator(json.loads((wiring.root / schema_ref).read_text(encoding="utf-8")))
+            errors = sorted(validators[schema_ref].iter_errors(value), key=lambda error: list(error.path))
             if errors:
                 first = errors[0]
                 where = "/".join(str(part) for part in first.path) or "<root>"
@@ -144,6 +147,7 @@ def run_stages(
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(input_dir / f"{item.port}.json", target)
 
+    validators: dict[str, Draft202012Validator] = {}
     gates_by_stage: dict[int, list[str]] = {}
     for gate in wiring.human_gates:
         gates_by_stage.setdefault(gate.after_stage, []).append(gate.id)
@@ -158,7 +162,7 @@ def run_stages(
             state.stages.append(StageRun(stage.number, stage.dir, "failed", round(monotonic() - begin, 3), stage.artifacts,
                                          (f"{type(exc).__name__}: {exc}",)))
             return finish("failed", wiring=wiring)
-        problems = _check_stage_artifacts(wiring, stage.number, workspace)
+        problems = _check_stage_artifacts(wiring, stage, workspace, validators)
         state.stages.append(StageRun(stage.number, stage.dir, "failed" if problems else "completed",
                                      round(monotonic() - begin, 3), stage.artifacts, tuple(problems)))
         if problems:
@@ -167,17 +171,15 @@ def run_stages(
         is_last = stage.number == len(wiring.stages)
         for gate_id in gates_by_stage.get(stage.number, []):
             # The host never approves a gate; it records it and, mid-pipeline, stops for review.
-            if is_last or not continue_past_gates:
-                state.gates.append({"id": gate_id, "after_stage": stage.number, "status": "pending"})
-            else:
-                state.gates.append({"id": gate_id, "after_stage": stage.number, "status": "bypassed (unattended run)"})
-        if not is_last and any(gate["status"] == "pending" for gate in state.gates):
+            status = GATE_PENDING if is_last or not continue_past_gates else GATE_BYPASSED
+            state.gates.append({"id": gate_id, "after_stage": stage.number, "status": status})
+        if not is_last and any(gate["status"] == GATE_PENDING for gate in state.gates):
             return finish("awaiting_review", wiring=wiring)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     output_path = out_dir / wiring.output_artifact
     shutil.copyfile(_workspace_path(workspace, f"/artifacts/{wiring.output_artifact}"), output_path)
-    status = "awaiting_review" if any(gate["status"] == "pending" for gate in state.gates) else "completed"
+    status = "awaiting_review" if any(gate["status"] == GATE_PENDING for gate in state.gates) else "completed"
     return finish(status, output_path, wiring=wiring)
 
 

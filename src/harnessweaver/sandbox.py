@@ -23,6 +23,7 @@ from uuid import uuid4
 import yaml
 
 from harnessweaver._integrity import sha256_file
+from harnessweaver.bundles import TARGETS
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 SKILLS_DIR = REPOSITORY_ROOT / "src/harnessweaver/skills"
@@ -31,9 +32,9 @@ LANGCHAIN_SKILLS_DIR = REPOSITORY_ROOT / ".agents/skills"
 LANGCHAIN_SKILLS = ("deep-agents-core", "deep-agents-orchestration", "deep-agents-memory", "langgraph-human-in-the-loop")
 EVIDENCE_DIR = REPOSITORY_ROOT / "docs/cain-2027/evidence"
 ARMS = ("harnessweaver", "revfactory-en")
-EXECUTION_TARGETS = ("claude", "deepagents")
 SANDBOX_FILE = "sandbox.yaml"
 MANIFEST_FILE = "manifest.json"
+CLAUDE_REPORT_FILENAME = "report.json"   # where Claude execution runs are asked to write the report
 
 
 class SandboxError(ValueError):
@@ -299,6 +300,7 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
     _make_read_only(sandbox / "skills-plugin")
 
     session_id = str(uuid4())
+    commit = _git_commit()
     _write(sandbox / "claude-settings.json", _claude_settings(
         writable=[sandbox / "generated"],
         readable=[sandbox],
@@ -309,7 +311,7 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
     _write(sandbox / "run.sh", GENERATION_RUN_SH.format(session_id=session_id, model=model), executable=True)
     _write(sandbox / "RUNBOOK.md", GENERATION_RUNBOOK.format(
         name=name, arm=arm, pilot=pilot.name, created=created.isoformat(timespec="seconds"),
-        commit=_git_commit() or "unknown", root=sandbox, model_label=model or "the Claude Code default",
+        commit=commit or "unknown", root=sandbox, model_label=model or "the Claude Code default",
         session_id=session_id,
         answers_note=" and `harness-answers.yaml` (pre-recorded gate answers; the skill asks only what it leaves open)" if answers else "",
     ))
@@ -320,7 +322,7 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
         "pilot_dir": str(pilot.root),
         "arm": arm,
         "created_at": created.isoformat(timespec="seconds"),
-        "repository_commit": _git_commit(),
+        "repository_commit": commit,
         "sources_dirty": _git_dirty([pilot.path("sources")]),
         "session_id": session_id,
         "model_requested": model or None,
@@ -409,8 +411,8 @@ RUN_HINTS = {
 def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, case: str, *,
                              root: Path | None = None, model: str = "") -> Path:
     """Create a sandbox that runs one generated bundle on one case with generation inputs only."""
-    if target not in EXECUTION_TARGETS:
-        raise SandboxError(f"unknown target {target!r}; expected one of {', '.join(EXECUTION_TARGETS)}")
+    if target not in TARGETS:
+        raise SandboxError(f"unknown target {target!r}; expected one of {', '.join(TARGETS)}")
     if target == "deepagents" and not model:
         raise SandboxError("a DeepAgents execution needs --model (for example openai:gpt-5.4-mini)")
     pilot = Pilot.load(pilot_name)
@@ -439,7 +441,8 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
         # The generated project is the working directory; it may write its own _workspace/.
         shutil.copytree(bundle, sandbox / "workspace")
         first_input = f"../input/{input_ids[0]}.json" if input_ids else "../input/"
-        _write(sandbox / "prompt.md", pilot.prompt("execution", "claude").format(input=first_input, output="../output/report.json"))
+        _write(sandbox / "prompt.md", pilot.prompt("execution", "claude").format(
+            input=first_input, output=f"../output/{CLAUDE_REPORT_FILENAME}"))
         _write(sandbox / "claude-settings.json", _claude_settings(
             writable=[sandbox / "workspace", sandbox / "output"],
             readable=[sandbox / "workspace", sandbox / "input"],
@@ -449,7 +452,7 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
     else:
         (sandbox / "workspace").mkdir()
 
-    session_id = str(uuid4())
+    session_id = str(uuid4()) if target == "claude" else None
     _write(sandbox / "run.sh", EXECUTION_RUN_SH[target].format(session_id=session_id, model=model), executable=True)
     _write(sandbox / "RUNBOOK.md", EXECUTION_RUNBOOK.format(
         name=name, target=target, pilot=pilot.name, case=case, bundle=bundle, inputs=", ".join(input_ids) or "none",
@@ -465,7 +468,7 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
         "bundle_source": str(bundle),
         "created_at": created.isoformat(timespec="seconds"),
         "repository_commit": _git_commit(),
-        "session_id": session_id if target == "claude" else None,
+        "session_id": session_id,
         "model_requested": model or None,
     })
     _write(sandbox / MANIFEST_FILE, json.dumps({"inputs": _digests(sandbox, ["bundle", "input", "prompt.md"])}, indent=2) + "\n")
@@ -513,7 +516,7 @@ def collect_generation(sandbox: str | Path, label: str, *, projects_dir: Path | 
 
     spec_candidates = sorted(destination.glob("**/harnessspec*.yaml"))
     bundle_checks: dict[str, Any] = {}
-    for target in ("claude", "deepagents"):
+    for target in TARGETS:
         for bundle in sorted(destination.glob(f"**/build/{target}")):
             spec = spec_candidates[0] if spec_candidates else None
             issues = check_bundle(target, bundle, spec)

@@ -56,12 +56,9 @@ class Wiring:
     output_schema: str | None
     human_gates: tuple[HumanGate, ...]
 
-    def stage_for(self, artifact: str) -> WiringStage | None:
-        return next((stage for stage in self.stages if artifact in stage.artifacts), None)
-
 
 def _is_plain_json_name(value: Any) -> bool:
-    return isinstance(value, str) and value.endswith(".json") and PurePosixPath(value).name == value and value not in (".json",)
+    return isinstance(value, str) and value.endswith(".json") and PurePosixPath(value).name == value and value != ".json"
 
 
 def _is_bundle_relative(value: Any) -> bool:

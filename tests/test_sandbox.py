@@ -6,7 +6,6 @@ from pathlib import Path
 
 import yaml
 
-from harnessweaver import sandbox as sandbox_module
 from harnessweaver.bundles import check_bundle
 from harnessweaver.checks import run_checks
 from harnessweaver.cli import main
