@@ -109,7 +109,7 @@ When both targets are selected, materialize them from the **same** spec revision
 
 ### Phase 5: Validate and report
 
-1. Run each target's checklist. Where available, run `hw check-bundle --target <t> <output-dir>`, and for Claude Code also `claude plugin validate` if the output is packaged as a plugin.
+1. Run each target's checklist. Where available, run `hw check-bundle <output-dir> --target <claude|deepagents> --spec <spec>` (in the HarnessWeaver environment: `conda run -n harness hw check-bundle ...`); it also confirms the materialization report accounts for every spec element. Fix what it reports before handing off. For Claude Code, also run `claude plugin validate` if the output is packaged as a plugin.
 2. Run skill and trigger tests as the target reference describes, when the user asks for them or the environment allows.
 3. Report to the user: spec path and version, targets generated, output directories, the counts of mapped, approximated and unsupported elements, manual setup required, what was not verified, and a suggested smoke test per target.
 

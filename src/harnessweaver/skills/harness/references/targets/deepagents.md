@@ -78,7 +78,8 @@ For each stage, follow `deepagents-target-pattern.md` exactly:
 
 1. `stage{N}-{name}/AGENTS.md`: role header, responsibility, strictly ordered task list, Input Artifacts, execution Rules, scope boundaries, Mandatory Completion Protocol, post-task protocol.
 2. `stage{N}-{name}/skills/{task}/SKILL.md`: frontmatter (`name`, `description`), Objective, Input Artifacts, Procedure, Rules with a Correct/Incorrect pair, Expected Output (path, JSON structure block, read-back verification), and the boundary line.
-3. JSON contracts: one artifact file per task, `{NN}_{step}.json` in stage order, with cross-stage references by ID fields. When the spec supplies a JSON Schema for an artifact, the JSON structure block must agree with it; name the schema in `wiring.yaml`.
+3. JSON contracts: one artifact file per task, `{NN}_{step}.json` in stage order, with cross-stage references by ID fields. When the spec supplies a JSON Schema for an artifact, the JSON structure block must agree with it. Copy that schema into `<output>/contracts/` and name it in `wiring.yaml` by its bundle-relative path (for example `contracts/atam-report.schema.json`); the host resolves schema paths inside the bundle only.
+4. Supporting material: copy the methodology file and any templates a skill reads into that skill's `references/` (for example `skills/<task>/references/methodology.yaml`), and point the skill at those local paths. A stage directory is mounted alone at `/agent/`, so it can read nothing outside itself.
 
 Carry over the domain skills' content (procedures, rules, examples, evidence standards). Rewrite only the runtime sections: paths, collaboration and output location.
 
@@ -119,6 +120,7 @@ Checklist (`hw check-bundle --target deepagents` automates the structural items)
 - [ ] No Claude Code constructs remain (`SendMessage`, `Workflow`, `subagent_type`, `agentType`, `.claude/` paths, `model: opus` pins).
 - [ ] No `AGENTS.md` or `SKILL.md` body exceeds ~500 lines.
 - [ ] Each stage has a scope-boundary section.
+- [ ] Every schema named in `wiring.yaml` exists under the bundle, and every file a skill reads is inside its stage directory.
 
 Then write `materialization-report.md` (template: `../materialization-report.md`) with a suggested smoke test: run stage 1 on a minimal input and check that all stage-1 artifacts parse. The report is the fidelity record. Do not modify the HarnessSpec to hide target limitations.
 

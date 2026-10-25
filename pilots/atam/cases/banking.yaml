@@ -4,10 +4,9 @@ description: ArchEval ATAM banking case study (case-studies/architecture-eval/AT
 generation_inputs:            # copied into an execution sandbox's input/
   - id: architecture-context
     from: ../../../case-studies/architecture-eval/ATAM/data/banking.json
-    select: ATAM_Evaluation.evaluation_inputs
-    to: evaluation_input.json   # written as {"ATAM_Evaluation": {"evaluation_inputs": ...}}
+    select: ATAM_Evaluation.evaluation_inputs   # written to input/<id>.json, wrapped back into its envelope
 evaluator_only:               # never copied into a sandbox; read only by `hw check`
   - id: reference-outputs
     from: ../../../case-studies/architecture-eval/ATAM/data/banking.json
     select: ATAM_Evaluation.ground_truth_outputs
-checks: [schema, atam-pilot]
+checks: [schema, atam-pilot]   # no-reference-leakage always runs

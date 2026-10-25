@@ -2,7 +2,7 @@
 
 Read this file when gate G4 selects **Claude Code**. It turns a validated HarnessSpec (or a recorded lightweight brief) into a Claude Code project: `.claude/agents/`, `.claude/skills/` (domain skills plus one orchestrator skill), and a `CLAUDE.md` pointer. "Project" below means the **target output directory** chosen at G4 (default `build/claude/` next to the spec; the user's own repository when they build a harness in place).
 
-Inputs: the spec, `design-notes.md` (gate answers), the domain skills and contracts it references. Outputs: the project files plus `materialization-report.md` (see `../materialization-report.md`). Copy domain skills from their source paths rather than rewriting them; adapt only paths, frontmatter, and collaboration sections, and record each adaptation in the report.
+Inputs: the spec, `design-notes.md` (gate answers), the domain skills and contracts it references. Outputs: the project files plus `materialization-report.md` (see `../materialization-report.md`). Copy domain skills from their source paths rather than rewriting them; adapt only paths, frontmatter, and collaboration sections, and record each adaptation in the report. Copy the methodology file, output contracts (JSON Schemas) and templates the skills read into each skill's `references/`, and point the skills at those local paths, so the project is self-contained when it runs without the sources.
 
 ## Contents
 

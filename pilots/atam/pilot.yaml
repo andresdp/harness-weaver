@@ -1,0 +1,13 @@
+# Sandbox configuration for the ATAM pilot (read by `hw sandbox` and `hw check`). Paths are relative to this file.
+pilot: atam
+sources: sources
+cases: cases
+prompts:
+  generation: prompts/generation.md          # identical for every generation arm
+  execution:
+    claude: prompts/execution-claude.md      # {input} and {output} are filled in by `hw sandbox create-execution`
+report_schema: sources/domain/contracts/atam-report.schema.json
+checkers:
+  atam-pilot:
+    script: ../../benchmarks/atam/pilot.py   # deterministic ATAM checker; check(prediction) -> problems
+    function: check
