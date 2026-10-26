@@ -11,6 +11,8 @@ Read this file at gate G0.
 | **Domain knowledge** | `sources/domain/` (`sources.yaml`, `skills/`, `contracts/`, `references/`) | Every source with authority, revision and provenance; portable domain skills; JSON Schemas of outputs |
 | **Runtime constraints** | Gate G4/G5 answers | Target runtimes and their limits; keep them out of domain-method claims |
 
+When the user needs to author a methodology source, follow [`methodology-authoring-guide.md`](methodology-authoring-guide.md). It explains the recommended content and which sections are conditional; it is an authoring convention, not a formal YAML schema.
+
 Keep references to sources; do not copy long guidance into the spec. Mark missing inputs as unknown. Never let an inference become a source fact. If no recognized method is supplied, propose one and label it as a design choice that needs review.
 
 **Case data is not a design input.** Example cases may help understanding, but never copy case facts or reference outputs (ground truth) into the spec, design notes or generated files. Cases are bound when the generated harness runs.

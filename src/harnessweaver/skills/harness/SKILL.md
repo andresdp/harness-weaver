@@ -50,6 +50,7 @@ Validation checks the design and contracts. Verification checks whether a produc
 ### Phase 1: Analyze the domain and the work (gate G1)
 
 1. Resolve the four design inputs (intent, methodology, domain knowledge, runtime constraints) as described in `references/intake-and-harvest.md`.
+   - If the user is authoring or revising a methodology source, use `references/methodology-authoring-guide.md` to clarify the expected content and distinguish universal needs from conditional sections.
 2. Break the work into its kinds (generation, verification, editing, analysis) and examine the workflow:
    - Can the items be enumerated in advance?
    - Is an iterate-verify-fix loop needed?
