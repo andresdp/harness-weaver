@@ -138,6 +138,8 @@ def _sandbox(args: argparse.Namespace) -> int:
             f"Pilot: {args.pilot} · arm: {args.arm}",
             "Read-only inputs: pilot sources and the selected harness skill.",
             "Writable output: generated/ inside the sandbox.",
+            f"Skills bundle guide: {path / 'skills-plugin/BUNDLE-GUIDE.md'}",
+            f"Skills bundle ZIP: {path / 'skills-plugin.zip'}",
             f"Next (OAuth): cd {shlex.quote(str(path))} && ISOLATION=settings ./run.sh",
             f"Runbook: {path / 'RUNBOOK.md'}",
         ])
@@ -161,6 +163,12 @@ def _sandbox(args: argparse.Namespace) -> int:
         ], style="green" if record.get("bundle_checks") and all(x.get("passed") for x in record["bundle_checks"].values()) else "yellow")
         if record.get("bundle_checks"):
             _print_bundle_checks(record["bundle_checks"])
+        if record.get("packaged_bundles"):
+            package_lines = []
+            for bundle, package in record["packaged_bundles"].items():
+                package_lines.extend([f"{bundle}", f"Guide: {path / package['guide']}",
+                                      f"ZIP: {path / package['archive']}"])
+            _panel("Portable bundles", package_lines, style="green")
         if not record["transcript"]:
             console.print("[yellow]Transcript not found.[/] Copy it into record/transcript.jsonl if available.")
         passed = [bundle for bundle, result in record.get("bundle_checks", {}).items() if result.get("passed")]
@@ -217,7 +225,8 @@ def build_parser() -> argparse.ArgumentParser:
     bundle.set_defaults(handler=_check_bundle)
 
     check = subparsers.add_parser("check", help="check an execution sandbox's outputs from outside the sandbox")
-    check.add_argument("sandbox", type=Path, help="execution sandbox directory printed by create-execution")
+    check.add_argument("sandbox", nargs="?", type=Path, default=Path("."),
+                       help="execution sandbox directory (default: current directory)")
     check.add_argument("--repair-prompt", type=Path,
                        help="write a bounded repair prompt for final-report JSON/schema errors only")
     check.set_defaults(handler=_check)
@@ -242,7 +251,8 @@ def build_parser() -> argparse.ArgumentParser:
     collect.add_argument("sandbox", type=Path)
     collect.add_argument("--label", required=True)
     record = box_commands.add_parser("record", help="copy an execution sandbox's evidence into docs/cain-2027/evidence/")
-    record.add_argument("sandbox", type=Path)
+    record.add_argument("sandbox", nargs="?", type=Path, default=Path("."),
+                        help="execution sandbox directory (default: current directory)")
     box.set_defaults(handler=_sandbox)
     return parser
 

@@ -14,6 +14,7 @@ import os
 import shutil
 import stat
 import subprocess
+import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -114,6 +115,58 @@ def _write(path: Path, text: str, *, executable: bool = False) -> None:
 
 def _write_yaml(path: Path, document: dict[str, Any]) -> None:
     _write(path, yaml.safe_dump(document, sort_keys=False, allow_unicode=True))
+
+
+def _bundle_zip(bundle: Path, archive: Path) -> None:
+    """Write a portable archive of a bundle, excluding caches and the archive itself."""
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as output:
+        for path in sorted(p for p in bundle.rglob("*") if p.is_file()):
+            relative = path.relative_to(bundle)
+            if any(part in {"__pycache__", ".DS_Store"} for part in relative.parts):
+                continue
+            info = zipfile.ZipInfo(f"{bundle.name}/{relative.as_posix()}", date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = (path.stat().st_mode & 0xFFFF) << 16
+            output.writestr(info, path.read_bytes())
+
+
+def _bundle_guide(target: str, bundle: Path, *, pilot: str, arm: str | None = None) -> str:
+    if target == "generation-skills":
+        contents = "HarnessWeaver's `harness` and `evolve` skills, their reference guides and templates, and any selected supporting LangChain skills."
+        structure = "`.claude-plugin/` identifies the Claude Code plugin; `skills/` contains each skill and its references."
+        run = ("From the generation sandbox, run `ISOLATION=settings ./run.sh` to start the configured Claude Code session. "
+               "The sandbox launcher loads this plugin and the pilot prompt; use that launcher so outputs stay in `generated/`.")
+        label = f"{arm or 'HarnessWeaver'} generation skills for {pilot}"
+    elif target == "revfactory-skills":
+        contents = "The English-translated RevFactory/Harness baseline plugin and its skills, included as the comparison generation arm."
+        structure = "`.claude-plugin/` identifies the plugin; `skills/` contains the translated baseline skill files."
+        run = "Run the generation sandbox's `ISOLATION=settings ./run.sh` launcher. It starts Claude Code with this plugin and the sandbox prompt."
+        label = f"RevFactory English baseline skills for {pilot}"
+    elif target == "claude":
+        contents = "A generated Claude Code implementation of the domain workflow, including its orchestrator instructions, domain skills and agents, validation helpers, and materialization report when present."
+        structure = "`CLAUDE.md` is the entry point; `.claude/agents/` and `.claude/skills/` hold runtime instructions; supporting contracts and scripts remain beside them."
+        run = ("From the HarnessWeaver repository root, create an isolated execution sandbox, replacing the bundle path and case name:\n\n"
+               f"```shell\nhw sandbox create-execution {pilot} --target claude --bundle <path-to-this-bundle> --case <case>\n```\n\n"
+               "Then follow the printed runbook; "
+               "for Claude OAuth, run `ISOLATION=settings ./run.sh` inside that execution sandbox.")
+        label = f"{pilot} Claude Code runtime bundle"
+    elif target == "deepagents":
+        contents = "A generated DeepAgents runtime implementation with stage instructions, orchestration wiring, artifact contracts, and a materialization report."
+        structure = "`wiring.yaml` maps the pipeline; `stage*/` contains each stage's agent instructions and skills; `contracts/` contains artifact schemas; `README.md` has domain details."
+        run = ("From the HarnessWeaver repository root, create an isolated execution sandbox, replacing the bundle path, case name, and model:\n\n"
+               f"```shell\nhw sandbox create-execution {pilot} --target deepagents --bundle <path-to-this-bundle> --case <case> --model <provider:model>\n```\n\n"
+               "Configure the provider credentials in the environment or sandbox `.env`, then run `./run.sh` there. "
+               "The execution runbook lists checks and recording steps.")
+        label = f"{pilot} DeepAgents runtime bundle"
+    else:
+        raise SandboxError(f"unknown bundle guide target: {target}")
+    return (f"# {label}\n\n"
+            f"This folder is a portable **{target}** bundle generated for the `{pilot}` pilot.\n\n"
+            f"## What it contains\n\n{contents}\n\n"
+            f"## Structure\n\n{structure}\n\n"
+            f"## How to run it\n\n{run}\n\n"
+            "The ZIP next to this bundle folder contains this guide and the complete bundle tree. Keep the guide with the files when moving or sharing the bundle.\n")
 
 
 @dataclass(frozen=True)
@@ -359,9 +412,32 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
 
     shutil.copytree(pilot.path("sources"), sandbox / "sources")
     plugin_notes = _build_skills_plugin(arm, sandbox / "skills-plugin", include_langchain_skills)
+    guide_target = "generation-skills" if arm == "harnessweaver" else "revfactory-skills"
+    _write(sandbox / "skills-plugin/BUNDLE-GUIDE.md",
+           _bundle_guide(guide_target, sandbox / "skills-plugin", pilot=pilot.name, arm=arm))
+    _bundle_zip(sandbox / "skills-plugin", sandbox / "skills-plugin.zip")
+    plugin_notes["guide"] = "BUNDLE-GUIDE.md"
+    plugin_notes["archive"] = "skills-plugin.zip"
     (sandbox / "generated").mkdir()
     (sandbox / "record").mkdir()
-    _write(sandbox / "prompt.md", pilot.prompt("generation"))
+    generation_prompt = pilot.prompt("generation")
+    if arm == "revfactory-en":
+        generation_prompt += (
+            "\n\nBaseline comparison scope and implementation boundary:\n"
+            "- Generate only a Claude Code-native harness using this arm's documented forms: agents, skills, "
+            "CLAUDE.md, and its orchestrator skill. For fixed sequences, use the documented Claude Code Workflow "
+            "pattern in the orchestrator skill when supported.\n"
+            "- Do not create standalone application/runtime code or executable scripts, such as a project-specific "
+            "Python runner, ledger/gate engine, artifact projection framework, or validator framework. Keep the "
+            "harness behavior in the baseline's agents, skills, and orchestrator. Declarative artifacts such as "
+            "JSON Schemas and static references may accompany them. If a requirement appears to need external "
+            "runtime enforcement, explain the limitation and record the requirement as unsupported or approximated "
+            "instead of adding custom code.\n"
+            "- If the supplied intent or other source mentions DeepAgents or another runtime, treat that as "
+            "context for the overall project and do not generate, plan, or ask whether to generate it in this "
+            "baseline session. The DeepAgents target is handled separately by HarnessWeaver.\n"
+        )
+    _write(sandbox / "prompt.md", generation_prompt)
     if answers is not None:
         shutil.copyfile(answers, sandbox / "harness-answers.yaml")
     _make_read_only(sandbox / "sources")
@@ -695,8 +771,17 @@ def collect_generation(sandbox: str | Path, label: str, *, projects_dir: Path | 
 
     spec_candidates = sorted(destination.glob("**/harnessspec*.yaml"))
     bundle_checks: dict[str, Any] = {}
+    packaged_bundles: dict[str, dict[str, str]] = {}
     for target in TARGETS:
         for bundle in sorted(destination.glob(f"**/build/{target}")):
+            _write(bundle / "BUNDLE-GUIDE.md",
+                   _bundle_guide(target, bundle, pilot=str(meta["pilot"])))
+            archive = bundle.parent / f"{target}.zip"
+            _bundle_zip(bundle, archive)
+            packaged_bundles[str(bundle.relative_to(destination))] = {
+                "guide": str((bundle / "BUNDLE-GUIDE.md").relative_to(destination)),
+                "archive": str(archive.relative_to(destination)),
+            }
             spec = spec_candidates[0] if spec_candidates else None
             issues = check_bundle(target, bundle, spec)
             bundle_checks[str(bundle.relative_to(destination))] = {
@@ -713,6 +798,7 @@ def collect_generation(sandbox: str | Path, label: str, *, projects_dir: Path | 
         "outputs": _digests(path, ["generated"]),
         "specs": [str(spec.relative_to(destination)) for spec in spec_candidates],
         "bundle_checks": bundle_checks,
+        "packaged_bundles": packaged_bundles,
     }
     _write(destination / "generation-record.json", json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     return destination
