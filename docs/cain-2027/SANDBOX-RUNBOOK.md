@@ -157,11 +157,15 @@ DeepAgents uses Pydantic models derived from each declared JSON Schema. Single-a
 
 ### 4. Check and record execution evidence
 
-From the repository root:
+From the repository root, pass the sandbox path. If your current directory is the execution sandbox itself, omit the path:
 
 ```bash
 hw check "/path/to/execution-sandbox"
 hw sandbox record "/path/to/execution-sandbox"
+
+# When your current directory is the execution sandbox:
+hw check
+hw sandbox record
 ```
 
 `check` reports schema, pilot-specific, and reference-leakage results and writes `check.json`. `record` copies the sandbox metadata, check result, output, intermediate artifacts, and runtime records into `docs/cain-2027/evidence/`. Use the check command even if the runner failed, to see which expected outputs are present.
@@ -209,8 +213,8 @@ Then run Claude, check, and record:
 ```bash
 cd "/path/printed/by/the-create-execution-command"
 ISOLATION=settings ./run.sh
-hw check "/path/to/execution-sandbox"
-hw sandbox record "/path/to/execution-sandbox"
+hw check
+hw sandbox record
 ```
 
 The sandbox receives `input/architecture-context.json` with only `evaluation_inputs`. `ground_truth_outputs` remain in the pilot case YAML for the external checker and are never copied into the sandbox.
