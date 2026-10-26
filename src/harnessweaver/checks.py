@@ -49,11 +49,19 @@ def _selected_strings(case_path: Path, items: list[dict[str, Any]]) -> list[str]
 
 def find_report(sandbox: Path) -> Path | None:
     """The host record names the output; Claude runs are asked to write output/report.json."""
+    sandbox = sandbox.resolve()
     record = sandbox / "output" / RECORD_FILENAME
     if record.is_file():
         output = json.loads(record.read_text(encoding="utf-8")).get("output")
-        if output and Path(output).is_file():
-            return Path(output)
+        if output:
+            report = Path(output)
+            report = (report if report.is_absolute() else sandbox / report).resolve()
+            try:
+                report.relative_to(sandbox)
+            except ValueError as exc:
+                raise SandboxError(f"host record output points outside the execution sandbox: {report}") from exc
+            if report.is_file():
+                return report
     report = sandbox / "output" / CLAUDE_REPORT_FILENAME
     return report if report.is_file() else None
 

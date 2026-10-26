@@ -11,6 +11,13 @@ sources:
   authority: Generated from the HarnessWeaver ATAM report model (pilots/atam/deepagents/atam_harness/models.py)
   notes: Regenerate with `python -m pilots.atam.deepagents.atam_harness.schema_export`; a test guards
     drift.
+- id: atam-analysis-artifact-contract
+  ref: contracts/analysis.schema.json
+  kind: intermediate-artifact-contract
+  authority: HarnessWeaver ATAM pilot intermediate artifact contract.
+  notes: >-
+    Constrains the stage 4 analysis artifact. Findings may cite only schema-approved evidence identifiers;
+    G-stage-n identifiers are reserved for gap records.
 - id: atam-report-template
   ref: references/atam-report-template.json
   kind: output-template
@@ -23,6 +30,10 @@ sources:
   ref: skills/check-evaluation/SKILL.md
   kind: domain-skill
   authority: HarnessWeaver; consolidated from the two reference realizations' check-evaluation skills
+- id: revise-report
+  ref: skills/revise-report/SKILL.md
+  kind: report-revision-protocol
+  authority: HarnessWeaver ATAM pilot; one evidence-preserving correction pass before readiness is reported
 - id: archeval-atam-reference-basis
   kind: copied-domain-guidance-and-report-contract
   authority: Copied into this pilot from the ArchEval ATAM workflow, prompt protocol, and report template.

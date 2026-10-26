@@ -23,7 +23,8 @@ def _panel(title: str, lines: list[str], *, style: str = "cyan") -> None:
     for index, line in enumerate(lines):
         if index:
             body.append("\n")
-        body.append(line)
+        line_style = "green" if title.lower().startswith("next") or line.startswith(("Next:", "Next (")) else None
+        body.append(line, style=line_style)
     console.print(Panel(body, title=title, border_style=style, expand=False))
 
 
@@ -175,14 +176,22 @@ def _sandbox(args: argparse.Namespace) -> int:
                     f"hw sandbox create-execution {pilot} --target {target} "
                     f"--bundle {shlex.quote(str(path / bundle))} --case {example_case}"
                 )
-            _panel("Next step", next_steps)
+            _panel("Next step", next_steps, style="green")
         elif record.get("bundle_checks"):
-            _panel("Next step", ["Review the materialization reports and fix bundle-check failures before execution."], style="yellow")
+            _panel("Bundle checks need attention", [
+                "Next: review the materialization reports, fix bundle-check failures, then create an execution sandbox."
+            ], style="yellow")
     else:
         path = sandbox.record_execution(args.sandbox)
-        _panel("Execution evidence recorded", [
-            f"Evidence directory: {path}",
-            "Next: review sandbox.yaml, check.json, output/, and record/ in the evidence directory.",
+        _panel("Execution evidence recorded", [f"Evidence directory: {path}"], style="green")
+        _panel("Next: review the recorded evidence", [
+            "sandbox.yaml — Confirm the pilot, target, case, bundle, model, and repository revision match this run.",
+            "manifest.json — Check the recorded input and output digests for provenance.",
+            "check.json — Confirm schema, ATAM pilot, and reference-leakage checks passed; inspect any problems.",
+            "output/05_atam_report.json — Review evidence links, findings, gaps, and draft status before relying on the report.",
+            "output/06_review_findings.json — Review check results, applied or remaining corrections, and architect-review focus.",
+            "record/host-record.json — Confirm every stage completed; inspect warnings, repairs, and the pending human gate.",
+            "record/*.txt — Confirm run status, exit code, and start/finish times.",
         ], style="green")
     # Keep the path alone on stdout so scripts can capture it; Rich summaries go to stderr.
     print(path)

@@ -76,6 +76,18 @@ semantic_state:
   - resolution_question
   separation: This state records ATAM progress and evidence. Agent scratch work, messages, tool calls,
     checkpoints, and token usage belong to the runtime and are not proof of methodology completion.
+evidence_rules:
+  basis:
+    observed: A claim directly stated by the supplied inputs or a validated upstream artifact.
+    inferred: A conclusion derived by reasoning from evidence, including any conclusion drawn from missing or
+      absent evidence; state the reasoning and preserve uncertainty.
+    assumption: A claim not supported by supplied evidence; record it as a gap and never present it as fact.
+  identifiers:
+    architecture_evidence: AE-n identifiers only.
+    supporting_context: AP-n or BD-n identifiers where the contract permits them.
+    gaps: G-stage-n identifiers belong only to gap records and must never appear in evidence_ids or evidence citations.
+  measurement: If a scenario lacks a response measure, benchmark, workload, or target, do not claim that a
+    performance threshold is met or violated; state the uncertainty and record the missing measure as a gap.
 completion:
   required:
   - context_status

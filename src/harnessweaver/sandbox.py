@@ -299,7 +299,7 @@ printf '%s\\n' "$status" > record/exit-code.txt
 if [ "$status" -eq 0 ]; then
   printf '%s\\n' completed > record/status.txt
   echo "Generation session finished. Review generated/ and this sandbox's RUNBOOK.md."
-  echo "Next: from the repository root, run hw sandbox collect '$PWD' --label <unique-label>"
+  printf '\\033[32mNext: from the repository root, run hw sandbox collect "%s" --label <unique-label>\\033[0m\\n' "$PWD"
 else
   printf '%s\\n' failed > record/status.txt
   echo "Claude exited with status $status. Check authentication/usage limits and resume the recorded session if needed."
@@ -481,7 +481,8 @@ date -u +%Y-%m-%dT%H:%M:%SZ > record/finished-at.txt
 printf '%s\\n' "$status" > record/exit-code.txt
 if [ "$status" -eq 0 ] && [ -f output/{report_filename} ]; then
   printf '%s\\n' completed > record/status.txt
-  echo "Execution finished. Report: $PWD/output/{report_filename}; next: hw check '$PWD'"
+  echo "Execution finished. Report: $PWD/output/{report_filename}"
+  printf '\\033[32mNext: hw check "%s"\\033[0m\\n' "$PWD"
 else
   if [ "$status" -eq 0 ]; then status=4; printf '%s\\n' "$status" > record/exit-code.txt; fi
   printf '%s\\n' failed > record/status.txt
@@ -494,9 +495,18 @@ exit "$status"
 # Run the generated DeepAgents stages with the HarnessWeaver stage host. See RUNBOOK.md.
 set -euo pipefail
 cd "$(dirname "$0")"
-if [ -f record/started-at.txt ]; then
-  echo "This execution sandbox already has a run attempt. Create a new execution sandbox for a clean run; reusing this one can mix stale artifacts." >&2
+clean=0
+if [ "${{1:-}}" = "--clean" ]; then
+  clean=1
+  shift
+fi
+if [ -f record/started-at.txt ] && [ "$clean" -ne 1 ]; then
+  echo "This execution sandbox already has a run attempt. Use ./run.sh --clean to rerun the full pipeline here, or create a fresh sandbox." >&2
   exit 10
+fi
+if [ "$clean" -eq 1 ]; then
+  echo "Cleaning prior workspace, outputs, and run records; restarting all stages from stage 1."
+  rm -rf workspace output record check.json
 fi
 MODEL="${{MODEL:-{model}}}"
 TIMEOUT="${{TIMEOUT:-180}}"
@@ -513,7 +523,8 @@ date -u +%Y-%m-%dT%H:%M:%SZ > record/finished-at.txt
 printf '%s\\n' "$status" > record/exit-code.txt
 if [ "$status" -eq 0 ]; then
   printf '%s\\n' completed > record/status.txt
-  echo "Execution finished. Review output/ and record/host-record.json; next: hw check '$PWD'"
+  echo "Execution finished. Review output/ and record/host-record.json."
+  printf '\\033[32mNext: hw check "%s"\\033[0m\\n' "$PWD"
 else
   printf '%s\\n' failed > record/status.txt
   echo "DeepAgents exited with status $status. Review record/host-record.json and output/; sandbox: $PWD"
@@ -535,7 +546,7 @@ cd {root}
 {run_hint}
 ```
 
-The launcher prints live progress and records its exit status and finish time under `record/`. Each DeepAgents stage or final Claude report receives at most one repair attempt for JSON/schema errors, based only on deterministic structural validation. Pilot-specific evaluation and reference-leakage findings are never sent back to the model. Each execution sandbox is single-use; create a fresh one for every attempt so old artifacts cannot be mistaken for new results. Claude runs also save the complete JSONL event stream in `output/transcript.jsonl`.
+The launcher prints live progress and records its exit status and finish time under `record/`. Each DeepAgents stage or final Claude report receives at most one repair attempt for JSON/schema errors, based only on deterministic structural validation. Pilot-specific evaluation and reference-leakage findings are never sent back to the model. Claude execution sandboxes are single-use because the Claude session ID is fixed. For DeepAgents, `./run.sh --clean` clears the prior workspace, outputs and run records, then reruns the full pipeline from stage 1 in the same sandbox; it does not resume the failed model conversation or skip completed stages. Use `--clean` before rerunning in place so old artifacts cannot be mistaken for new results. Claude runs also save the complete JSONL event stream in `output/transcript.jsonl`.
 
 ## Afterwards
 
@@ -551,7 +562,7 @@ hw sandbox record {root}
 
 RUN_HINTS = {
     "claude": "ISOLATION=settings ./run.sh    # Claude subscription OAuth; raw transcript is saved in output/",
-    "deepagents": "./run.sh    # provider keys come from the environment or a .env file placed in this directory",
+    "deepagents": "./run.sh    # provider keys come from the environment or a .env file; retry from scratch here with ./run.sh --clean",
 }
 
 

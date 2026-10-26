@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,6 +18,15 @@ from harnessweaver.runtime import AgentInteraction, ExecutionProfile, WorkflowSt
 
 CONFIG_PATH = Path(__file__).with_name("pilot.json")
 RUNS_DIR = Path(__file__).with_name("runs")
+EVIDENCE_SUFFIX = re.compile(r"\(evidence:\s*([^;)]*)\s*;\s*basis:\s*(observed|inferred)\s*\)\s*$")
+EVIDENCE_ID = re.compile(r"^(?:AE|AP|BD)-[0-9]+$")
+INFERENCE_MARKERS = (
+    "suggests", "potential", "not described", "does not describe",
+    "absence of", "cannot be determined", "cannot conclude", "unlikely", "appears to",
+)
+BLOCKING_REVIEW_CATEGORIES = {
+    "structure", "semantic_state", "evidence_traceability", "uncertainty", "method_coverage", "reference_boundary",
+}
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -25,6 +35,89 @@ def read_json(path: Path) -> dict[str, Any]:
 
 def resolve(reference: str) -> Path:
     return (CONFIG_PATH.parent / reference).resolve()
+
+
+def _check_finding_evidence(findings: dict[str, Any], record_index: int, problems: list[str]) -> None:
+    for group in ("risks", "non_risks"):
+        values = findings.get(group, [])
+        if not isinstance(values, list):
+            continue
+        for finding_index, finding in enumerate(values):
+            if not isinstance(finding, dict):
+                continue
+            location = f"analysis_records[{record_index}].findings.{group}[{finding_index}]"
+            rationale = finding.get("rationale")
+            if not isinstance(rationale, str):
+                problems.append(f"{location}.rationale must include evidence and a basis")
+                continue
+            match = EVIDENCE_SUFFIX.search(rationale)
+            if not match:
+                problems.append(f"{location}.rationale must end with an evidence citation and basis (observed|inferred)")
+                continue
+            cited_ids = [item.strip() for item in match.group(1).split(",") if item.strip()]
+            if not cited_ids:
+                problems.append(f"{location}.rationale has an empty evidence citation")
+            for cited_id in cited_ids:
+                if not EVIDENCE_ID.fullmatch(cited_id):
+                    problems.append(f"{location}.rationale cites invalid evidence id {cited_id!r}; gap ids are not evidence")
+            if match.group(2) == "observed" and any(marker in rationale.casefold() for marker in INFERENCE_MARKERS):
+                problems.append(f"{location}.rationale uses inference/uncertainty wording but is labeled observed")
+
+
+def _check_review_readiness(report_path: Path, problems: list[str]) -> None:
+    """For DeepAgents runs, require the final review artifact and completed revision stage."""
+    sandbox = report_path.resolve().parent.parent
+    host_path = sandbox / "output/host-record.json"
+    if not host_path.is_file():
+        return
+    try:
+        host = read_json(host_path)
+    except (OSError, json.JSONDecodeError) as exc:
+        problems.append(f"cannot read host record for review-readiness check: {exc}")
+        return
+    if host.get("host") != "harnessweaver.hosts.deepagents":
+        return
+
+    review_candidates = (
+        sandbox / "workspace/artifacts/06_review_findings.json",
+        sandbox / "output/06_review_findings.json",
+    )
+    review_path = next((path for path in review_candidates if path.is_file()), None)
+    if review_path is None:
+        problems.append("DeepAgents run is missing final 06_review_findings.json")
+        return
+    try:
+        review = read_json(review_path)
+    except (OSError, json.JSONDecodeError) as exc:
+        problems.append(f"cannot read final review findings: {exc}")
+        return
+
+    stages = host.get("stages", [])
+    revision_stages = [stage for stage in stages if isinstance(stage, dict) and stage.get("dir") == "stage7-revise_report"]
+    if len(stages) >= 7 and not revision_stages:
+        problems.append("seven-stage ATAM workflow did not record stage7-revise_report")
+    if revision_stages and revision_stages[-1].get("status") != "completed":
+        problems.append("final report revision stage did not complete")
+    if revision_stages and stages and revision_stages[-1] is not stages[-1]:
+        problems.append("final report revision stage must be the last workflow stage")
+
+    checks = review.get("checks", [])
+    blocking_findings = [
+        check for check in checks
+        if isinstance(check, dict)
+        and check.get("category") in BLOCKING_REVIEW_CATEGORIES
+        and check.get("result") in {"fail", "warn"}
+    ]
+    if review.get("ready_for_architect_review") is not True:
+        problems.append("06_review_findings.json does not mark the revised draft ready for architect review")
+    if blocking_findings:
+        labels = [f"{item.get('id')} ({item.get('category')}: {item.get('result')})" for item in blocking_findings]
+        problems.append("blocking review findings remain after revision: " + ", ".join(labels))
+    revision = review.get("revision") or {}
+    if revision.get("remaining_failures"):
+        problems.append("06_review_findings.json still lists unresolved failed checks")
+    if blocking_findings and (revision.get("applied") is not True or not revision.get("changed_locations")):
+        problems.append("review corrections were not recorded as applied before readiness")
 
 
 def prepare(run_id: str) -> Path:
@@ -177,6 +270,8 @@ def check(prediction: Path) -> list[str]:
             group = findings.get(field)
             if not isinstance(group, list):
                 problems.append(f"analysis_records[{index}].findings.{field} must be an array")
+        _check_finding_evidence(findings, index, problems)
+    _check_review_readiness(prediction, problems)
     return problems
 
 

@@ -29,6 +29,7 @@ RECORD_FILENAME = "host-record.json"
 GATE_PENDING = "pending"
 GATE_BYPASSED = "bypassed (unattended run)"
 MAX_ARTIFACT_REPAIR_ATTEMPTS = 1
+MAX_SCHEMA_DIAGNOSTICS = 20
 console = Console(stderr=True, highlight=False)
 
 
@@ -49,6 +50,8 @@ class StageRun:
     artifacts: tuple[str, ...]
     problems: tuple[str, ...] = ()
     repair_attempts: int = 0
+    structured_output: bool = False
+    warnings: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -68,6 +71,28 @@ class _RunState:
 
 def _workspace_path(workspace: Path, virtual: str) -> Path:
     return workspace / virtual.lstrip("/")
+
+
+def _schema_error_problems(artifact: str, schema_ref: str, errors: list[Any]) -> list[str]:
+    """Group repeated array-item violations so repair feedback covers every error shape."""
+    grouped: dict[tuple[str, str], list[str]] = {}
+    for error in errors:
+        parts = list(error.path)
+        path = "/".join(str(part) for part in parts) or "<root>"
+        pattern = "/".join("[*]" if isinstance(part, int) else str(part) for part in parts) or "<root>"
+        grouped.setdefault((pattern, error.message), []).append(path)
+
+    problems = []
+    for (pattern, message), paths in list(grouped.items())[:MAX_SCHEMA_DIAGNOSTICS]:
+        detail = f"/artifacts/{artifact} violates {schema_ref} at {pattern}: {message}"
+        if len(paths) > 1:
+            examples = ", ".join(paths[:3])
+            detail += f" (applies to {len(paths)} locations; examples: {examples})"
+        problems.append(detail)
+    omitted = sum(len(paths) for paths in list(grouped.values())[MAX_SCHEMA_DIAGNOSTICS:])
+    if omitted:
+        problems.append(f"/artifacts/{artifact}: {omitted} additional schema error(s) omitted")
+    return problems
 
 
 def _check_stage_artifacts(wiring: Wiring, stage: WiringStage, workspace: Path,
@@ -90,10 +115,41 @@ def _check_stage_artifacts(wiring: Wiring, stage: WiringStage, workspace: Path,
                 validators[schema_ref] = Draft202012Validator(json.loads((wiring.root / schema_ref).read_text(encoding="utf-8")))
             errors = sorted(validators[schema_ref].iter_errors(value), key=lambda error: list(error.path))
             if errors:
-                first = errors[0]
-                where = "/".join(str(part) for part in first.path) or "<root>"
-                problems.append(f"/artifacts/{artifact} violates {schema_ref} at {where}: {first.message} ({len(errors)} error(s))")
+                problems.extend(_schema_error_problems(artifact, schema_ref, errors))
     return problems
+
+
+def _persist_structured_response(stage: WiringStage, workspace: Path, result: Any) -> list[str]:
+    """Persist the Pydantic structured response as the stage's declared JSON artifacts."""
+    if not isinstance(result, Mapping) or result.get("structured_response") is None:
+        return ["agent returned no structured_response"]
+    response = result["structured_response"]
+    if hasattr(response, "model_dump"):
+        payload = response.model_dump(mode="json", by_alias=True, exclude_unset=True)
+    elif isinstance(response, Mapping):
+        payload = dict(response)
+    else:
+        return [f"structured_response has unsupported type {type(response).__name__}"]
+
+    if len(stage.artifacts) == 1:
+        artifact_values = {stage.artifacts[0]: payload}
+    else:
+        artifact_values = {}
+        for index, artifact in enumerate(stage.artifacts, start=1):
+            key = f"artifact_{index}"
+            if key not in payload:
+                return [f"structured_response is missing {key} for /artifacts/{artifact}"]
+            artifact_values[artifact] = payload[key]
+
+    for artifact, value in artifact_values.items():
+        if not isinstance(value, (dict, list)):
+            return [f"structured response for /artifacts/{artifact} must be a JSON object or array"]
+
+    for artifact, value in artifact_values.items():
+        path = _workspace_path(workspace, f"/artifacts/{artifact}")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return []
 
 
 def _write_record(out_dir: Path, wiring: Wiring | None, bundle: Path, state: _RunState, status: str,
@@ -125,6 +181,7 @@ def run_stages(
     agent_factory: StageAgentFactory,
     *,
     continue_past_gates: bool = False,
+    require_structured_output: bool = False,
 ) -> HostResult:
     """Run every stage in order; stop at the first incomplete stage or at an unreviewed human gate."""
     bundle, input_dir, workspace, out_dir = Path(bundle), Path(input_dir), Path(workspace), Path(out_dir)
@@ -161,17 +218,46 @@ def run_stages(
         stage_dir = bundle / stage.dir
         begin = monotonic()
         console.print(f"[cyan]Stage {stage.number}/{len(wiring.stages)}[/] · {stage.dir} — starting")
+        structured_output_warning: str | None = None
+        invocation_error: Exception | None = None
+        problems: list[str] = []
+        agent: StageAgent | None = None
         try:
             agent = agent_factory(stage_dir, workspace)
             with console.status(f"Stage {stage.number}/{len(wiring.stages)} · {stage.dir} is working…", spinner="dots"):
-                agent.invoke({"messages": [{"role": "user", "content": stage.handoff_prompt}]})
+                stage_result = agent.invoke({"messages": [{"role": "user", "content": stage.handoff_prompt}]})
         except Exception as exc:  # the record must survive any provider or tool failure
-            state.stages.append(StageRun(stage.number, stage.dir, "failed", round(monotonic() - begin, 3), stage.artifacts,
-                                         (f"{type(exc).__name__}: {exc}",)))
-            return finish("failed", wiring=wiring)
-        problems = _check_stage_artifacts(wiring, stage, workspace, validators)
+            invocation_error = exc
+            # Some agents write schema-valid artifacts through filesystem tools,
+            # then fail only while parsing their separate final status response.
+            # Preserve those files only when deterministic validation confirms all
+            # declared outputs; a Pydantic/parser failure never bypasses schemas.
+            if require_structured_output and type(exc).__name__ == "StructuredOutputValidationError":
+                existing_problems = _check_stage_artifacts(wiring, stage, workspace, validators)
+                if not existing_problems:
+                    stage_result = None
+                    structured_output_warning = (
+                        "Final structured response did not match the Pydantic artifact model; "
+                        "accepted the stage's existing files after JSON Schema validation."
+                    )
+                else:
+                    problems = [f"{type(exc).__name__}: {str(exc)[:4000]}", *existing_problems]
+            else:
+                state.stages.append(StageRun(stage.number, stage.dir, "failed", round(monotonic() - begin, 3), stage.artifacts,
+                                             (f"{type(exc).__name__}: {exc}",),
+                                             structured_output=require_structured_output))
+                return finish("failed", wiring=wiring)
+        if structured_output_warning:
+            problems = _check_stage_artifacts(wiring, stage, workspace, validators)
+        elif invocation_error is None:
+            has_response = isinstance(stage_result, Mapping) and stage_result.get("structured_response") is not None
+            problems = _persist_structured_response(stage, workspace, stage_result) if require_structured_output and has_response else []
+            if not problems:
+                problems = _check_stage_artifacts(wiring, stage, workspace, validators)
         repair_attempts = 0
         while problems and repair_attempts < MAX_ARTIFACT_REPAIR_ATTEMPTS:
+            if agent is None:
+                break
             repair_attempts += 1
             console.print(f"[yellow]RETRY[/] · stage {stage.number}/{len(wiring.stages)} · "
                           f"{stage.dir}: repairing artifact validation issues "
@@ -180,25 +266,54 @@ def run_stages(
                 "The host's deterministic artifact validation found these structural problems in the files "
                 "produced by your stage:\n\n"
                 + "\n".join(f"- {problem}" for problem in problems)
-                + "\n\nCorrect only the listed missing-artifact, JSON syntax, or schema problems in this stage's "
+                + "\n\nResolve every listed problem, not only the first one. Correct only the listed "
+                  "missing-artifact, JSON syntax, or schema problems in this stage's "
                   "declared artifacts. "
-                  "Use the schemas and instructions already available to you. Preserve the supplied evidence, "
-                  "methodology, and factual meaning; do not invent or remove substantive content to satisfy a "
-                  "constraint. Do not edit prior-stage artifacts unless your stage explicitly owns them. "
-                  "Then re-read and validate every artifact your stage produces."
+                  "Read the applicable schemas and treat them as authoritative if an instruction or example "
+                  "conflicts. Use only identifiers and facts present in the available artifacts; do not invent "
+                  "replacement IDs or remove substantive analysis to satisfy a constraint. Make the smallest "
+                  "correction that brings each field into schema compliance while preserving its meaning. "
+                  "Do not edit prior-stage artifacts unless your stage explicitly owns them. "
+                + (
+                    "Use the matching Pydantic-validated artifact writer tool to save each corrected output; "
+                    "do not write paths under /artifacts/ with filesystem tools. "
+                    if require_structured_output and len(stage.artifacts) > 1
+                    else "Return the required structured response; the host writes its contents to the declared artifact files. "
+                )
+                + "Then re-read and validate every artifact your stage produces."
             )
             try:
                 with console.status(f"Stage {stage.number}/{len(wiring.stages)} · {stage.dir} is repairing…", spinner="dots"):
-                    agent.invoke({"messages": [{"role": "user", "content": repair_prompt}]})
+                    repair_result = agent.invoke({"messages": [{"role": "user", "content": repair_prompt}]})
             except Exception as exc:  # retain diagnostics from both validation and repair invocation
-                problems.append(f"repair attempt failed: {type(exc).__name__}: {exc}")
+                if require_structured_output and type(exc).__name__ == "StructuredOutputValidationError":
+                    remaining = _check_stage_artifacts(wiring, stage, workspace, validators)
+                    if not remaining:
+                        problems = []
+                        structured_output_warning = (
+                            "Repair response did not match the Pydantic artifact model; "
+                            "accepted repaired files after JSON Schema validation."
+                        )
+                    else:
+                        problems = remaining + [
+                            f"repair structured response failed: {type(exc).__name__}: {str(exc)[:4000]}"
+                        ]
+                else:
+                    problems.append(f"repair attempt failed: {type(exc).__name__}: {exc}")
                 break
-            problems = _check_stage_artifacts(wiring, stage, workspace, validators)
+            has_repair_response = isinstance(repair_result, Mapping) and repair_result.get("structured_response") is not None
+            problems = _persist_structured_response(stage, workspace, repair_result) if require_structured_output and has_repair_response else []
+            if not problems:
+                problems = _check_stage_artifacts(wiring, stage, workspace, validators)
         state.stages.append(StageRun(stage.number, stage.dir, "failed" if problems else "completed",
-                                     round(monotonic() - begin, 3), stage.artifacts, tuple(problems), repair_attempts))
+                                     round(monotonic() - begin, 3), stage.artifacts, tuple(problems), repair_attempts,
+                                     require_structured_output,
+                                     (structured_output_warning,) if structured_output_warning else ()))
         console.print(f"[{'red' if problems else 'green'}]{'FAILED' if problems else 'PASS'}[/] · "
                       f"stage {stage.number}/{len(wiring.stages)} · {stage.dir} "
                       f"({round(monotonic() - begin, 1)}s)"
+                      + (" · accepted schema-valid files after structured-response parse failure"
+                         if structured_output_warning and not problems else "")
                       + (f" · structural repairs: {repair_attempts}" if repair_attempts else ""))
         if problems:
             return finish("failed", wiring=wiring)
@@ -218,15 +333,18 @@ def run_stages(
     return finish(status, output_path, wiring=wiring)
 
 
-def stage_permissions() -> list[Any]:
+def stage_permissions(*, artifact_writer_tools: bool = False) -> list[Any]:
     """Stage definitions are read-only; agents write only into the workspace."""
     from deepagents import FilesystemPermission
 
-    return [FilesystemPermission(operations=["write"], paths=["/agent/**"], mode="deny")]
+    permissions = [FilesystemPermission(operations=["write"], paths=["/agent/**"], mode="deny")]
+    if artifact_writer_tools:
+        permissions.append(FilesystemPermission(operations=["write"], paths=["/artifacts/**"], mode="deny"))
+    return permissions
 
 
-def build_stage_agent(stage_dir: Path, workspace: Path, chat_model: Any) -> StageAgent:
-    """Create one stage agent following the DeepAgents target pattern."""
+def build_stage_agent(stage_dir: Path, workspace: Path, chat_model: Any, *, structured_output: bool = False) -> StageAgent:
+    """Create one stage agent, optionally enforcing its schema through Pydantic structured output."""
     try:
         from deepagents import create_deep_agent
         from deepagents.backends import CompositeBackend, FilesystemBackend
@@ -237,12 +355,44 @@ def build_stage_agent(stage_dir: Path, workspace: Path, chat_model: Any) -> Stag
         default=FilesystemBackend(root_dir=str(workspace), virtual_mode=True),
         routes={"/agent/": FilesystemBackend(root_dir=str(stage_dir), virtual_mode=True)},
     )
+    declared_stage = next(
+        (item for item in load_wiring(stage_dir.parent).stages if item.dir == stage_dir.name), None
+    )
+    if declared_stage is None:
+        raise ValueError(f"stage {stage_dir.name!r} is not declared by {stage_dir.parent / WIRING_FILENAME}")
+    multi_artifact_writer = structured_output and len(declared_stage.artifacts) > 1
+    agent_options: dict[str, Any] = {
+        "model": chat_model,
+        "memory": ["/agent/AGENTS.md"],
+        "skills": ["/agent/skills/"],
+        "backend": backend,
+        "permissions": stage_permissions(artifact_writer_tools=multi_artifact_writer),
+        "system_prompt": (
+            "Complete the stage's ordered tasks and write each final artifact using its matching "
+            "Pydantic-validated write_artifact tool. The tool validates and saves one artifact at a time; call it "
+            "again if a later task revises that artifact. Do not use filesystem write or edit tools for paths under "
+            "/artifacts/. You may use the workspace filesystem to read inputs and for scratch work."
+            if multi_artifact_writer else (
+                "Produce the declared artifact contents using the configured structured response. "
+                "The final structured response must contain exactly the artifact data defined by its schema, not a "
+                "progress summary, status report, or tool bookkeeping. The host persists that validated response "
+                "to the artifact files. You may use the workspace filesystem to read inputs and for scratch work."
+            )
+        ) if structured_output else None,
+    }
+    if structured_output:
+        if multi_artifact_writer:
+            from harnessweaver.hosts.structured_output import stage_artifact_writer_tools
+
+            agent_options["tools"] = stage_artifact_writer_tools(stage_dir.parent, stage_dir.name, workspace)
+        else:
+            from harnessweaver.hosts.structured_output import stage_response_model
+
+            response_model, _ = stage_response_model(stage_dir.parent, stage_dir.name)
+            # LangChain selects ProviderStrategy when supported and ToolStrategy otherwise.
+            agent_options["response_format"] = response_model
     return create_deep_agent(
-        model=chat_model,
-        memory=["/agent/AGENTS.md"],
-        skills=["/agent/skills/"],
-        backend=backend,
-        permissions=stage_permissions(),
+        **agent_options,
     )
 
 
@@ -251,7 +401,7 @@ def deepagents_factory(model_name: str, request_timeout_seconds: float) -> Stage
     from langchain.chat_models import init_chat_model
 
     chat_model = init_chat_model(model_name, timeout=request_timeout_seconds)
-    return lambda stage_dir, workspace: build_stage_agent(stage_dir, workspace, chat_model)
+    return lambda stage_dir, workspace: build_stage_agent(stage_dir, workspace, chat_model, structured_output=True)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -267,7 +417,8 @@ def main(argv: list[str] | None = None) -> int:
                         help="record mid-pipeline human gates as bypassed instead of stopping")
     args = parser.parse_args(argv)
     result = run_stages(args.bundle, args.input, args.workspace, args.out,
-                        deepagents_factory(args.model, args.timeout), continue_past_gates=args.continue_past_gates)
+                        deepagents_factory(args.model, args.timeout), continue_past_gates=args.continue_past_gates,
+                        require_structured_output=True)
     status_style = "green" if result.status in ("completed", "awaiting_review") else "red"
     console.print(Panel(f"Status: {result.status}\nRun record: {args.out / RECORD_FILENAME}\n"
                         f"Outputs: {args.out}", title="DeepAgents run", border_style=status_style, expand=False))

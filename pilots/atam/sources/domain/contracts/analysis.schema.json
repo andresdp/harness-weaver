@@ -1,0 +1,446 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamAnalysisArtifact",
+  "description": "Stage 4 (analyze-scenarios) output: 04_analysis.json",
+  "$defs": {
+    "SourceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(evaluation_inputs|metadata|title)(\\.|\\[|$)"
+      },
+      "description": "JSON paths into 00_evaluation_inputs.json, e.g. evaluation_inputs.business_context.business_goals[0]. Required (non-empty) when basis is observed."
+    },
+    "Basis": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "inferred",
+        "assumption"
+      ],
+      "description": "observed means the finding is directly stated in supplied evidence; inferred means the conclusion is reasoned from evidence, including missing evidence."
+    },
+    "Gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^G-[0-9]+-[0-9]+$",
+          "description": "G-<stage>-<n>"
+        },
+        "gap_type": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "conflict",
+            "incomplete",
+            "assumption"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What is unknown, conflicting, incomplete or assumed"
+        },
+        "affected_activity": {
+          "type": "string",
+          "enum": [
+            "establish-context",
+            "build-utility-tree",
+            "identify-approaches",
+            "analyze-scenarios",
+            "synthesize-and-review"
+          ]
+        },
+        "missing_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Evidence needed to resolve or reduce the gap"
+        },
+        "resolution_question": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Question for the architect or a stakeholder"
+        }
+      },
+      "required": [
+        "id",
+        "gap_type",
+        "description",
+        "affected_activity",
+        "missing_evidence",
+        "resolution_question"
+      ]
+    },
+    "AvailabilityAssessment": {
+      "additionalProperties": false,
+      "description": "Status for context, drivers, or architecture evidence availability.",
+      "properties": {
+        "evidence": {
+          "description": "At least one observed input or artifact fact supporting this status, including evidence of absence",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "value": {
+          "description": "Availability status",
+          "enum": [
+            "missing",
+            "partial",
+            "sufficient"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ],
+      "title": "AtamAvailabilityAssessment",
+      "type": "object"
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "analysis_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "pattern": "^AR-[0-9]+$"
+          },
+          "scenario_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "scenario_id from 02_utility_tree.json"
+          },
+          "approach_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^AP-[0-9]+$"
+            }
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^AE-[0-9]+$"
+            }
+          },
+          "scenario_reference": {
+            "additionalProperties": false,
+            "description": "Reference to a scenario used in an analysis record.",
+            "properties": {
+              "id": {
+                "description": "Scenario identifier",
+                "title": "Id",
+                "type": "string"
+              },
+              "text": {
+                "description": "Scenario text",
+                "title": "Text",
+                "type": "string"
+              },
+              "type": {
+                "description": "Scenario category, such as utility-tree or evaluation scenario",
+                "title": "Type",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "text",
+              "type"
+            ],
+            "title": "AtamScenarioReference",
+            "type": "object"
+          },
+          "quality_attribute": {
+            "type": "string",
+            "minLength": 1
+          },
+          "environment": {
+            "type": "string",
+            "minLength": 1
+          },
+          "stimulus": {
+            "type": "string",
+            "minLength": 1
+          },
+          "response_measure": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Copied from the scenario, or 'unspecified (see gap G-x-y)'"
+          },
+          "architectural_decisions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "reasoning": {
+            "type": "string",
+            "minLength": 1
+          },
+          "findings": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "risks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^R-[0-9]+$"
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "rationale": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "basis": {
+                      "type": "string",
+                      "enum": [
+                        "observed",
+                        "inferred"
+                      ],
+                      "description": "observed means the finding is directly stated in supplied evidence; inferred means the conclusion is reasoned from evidence, including missing evidence."
+                    },
+                    "evidence_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^(AE|AP|BD)-[0-9]+$"
+                      },
+                      "minItems": 1,
+                      "description": "Evidence identifiers only. Gap identifiers (G-*) and source paths are not evidence_ids."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "description",
+                    "rationale",
+                    "basis",
+                    "evidence_ids"
+                  ]
+                }
+              },
+              "non_risks": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^NR-[0-9]+$"
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "rationale": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "basis": {
+                      "type": "string",
+                      "enum": [
+                        "observed",
+                        "inferred"
+                      ],
+                      "description": "observed means the finding is directly stated in supplied evidence; inferred means the conclusion is reasoned from evidence, including missing evidence."
+                    },
+                    "evidence_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^(AE|AP|BD)-[0-9]+$"
+                      },
+                      "minItems": 1,
+                      "description": "Evidence identifiers only. Gap identifiers (G-*) and source paths are not evidence_ids."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "description",
+                    "rationale",
+                    "basis",
+                    "evidence_ids"
+                  ]
+                }
+              },
+              "sensitivity_points": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^S-[0-9]+$"
+                    },
+                    "parameter": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "correlated_attribute": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "evidence_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^AE-[0-9]+$"
+                      },
+                      "minItems": 1
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "parameter",
+                    "correlated_attribute",
+                    "evidence_ids"
+                  ]
+                }
+              },
+              "tradeoff_points": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^T-[0-9]+$"
+                    },
+                    "parameter": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "conflicting_attributes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "minItems": 2
+                    },
+                    "evidence_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^AE-[0-9]+$"
+                      },
+                      "minItems": 1
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "parameter",
+                    "conflicting_attributes",
+                    "evidence_ids"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "risks",
+              "non_risks",
+              "sensitivity_points",
+              "tradeoff_points"
+            ]
+          }
+        },
+        "required": [
+          "record_id",
+          "scenario_id",
+          "approach_ids",
+          "evidence_ids",
+          "scenario_reference",
+          "quality_attribute",
+          "environment",
+          "stimulus",
+          "response_measure",
+          "architectural_decisions",
+          "reasoning",
+          "findings"
+        ]
+      }
+    },
+    "unanalyzed_scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "scenario_id",
+          "reason"
+        ]
+      }
+    },
+    "scenario_analysis_status": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "string",
+          "enum": [
+            "not_started",
+            "partial"
+          ],
+          "description": "The harness never sets 'reviewed'; only a recorded architect review can."
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ]
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Gap"
+      }
+    }
+  },
+  "required": [
+    "analysis_records",
+    "unanalyzed_scenarios",
+    "scenario_analysis_status",
+    "gaps"
+  ]
+}

@@ -23,7 +23,18 @@ G1:
     execution sandbox will supply only the declared evaluation inputs.
 
 G3:
-  contracts: use-supplied
+  contracts:
+    report: use-supplied-unchanged
+    scenario-analysis: sources/domain/contracts/analysis.schema.json
+
+G2:
+  workflow: >-
+    Keep context, utility-tree, approach, and scenario-analysis activities in order. Split finalization into
+    three distinct runtime stages: stage5-synthesize_report writes only 05_atam_report_draft.json;
+    stage6-check_evaluation reviews that draft and writes only 06_review_findings_initial.json;
+    stage7-revise_report reads both and writes final 05_atam_report.json and 06_review_findings.json.
+    The revision stage must execute every run and alone determines final ready_for_architect_review. Do not
+    combine these steps into one model invocation.
 
 G4:
   targets: [claude, deepagents]
@@ -36,5 +47,5 @@ G5:
     hitl: none
     subagents: false
 
-# G2 (design), Claude-specific G5 choices, and G6 (write confirmation) remain
+# Claude-specific G5 choices and G6 (write confirmation) remain
 # open for the interactive session. Do not pre-authorize file generation.

@@ -151,7 +151,9 @@ cd "/path/printed/by/the-create-command"
 
 The runner shows progress for each stage and writes `record/host-record.json`, artifacts under `workspace/artifacts/`, and the ATAM draft under `output/`. If you are not running from the activated environment, set `HW_PYTHON` to that environment's Python command as described in [Set up a Python environment](#set-up-a-python-environment). The final human-review gate is recorded by the host; it does not approve the report.
 
-Each stage validates its declared JSON artifacts as soon as it finishes. If JSON syntax or schema validation fails, the host gives that stage one repair attempt with the structural error details, then validates again. The host does not pass ATAM evaluator or reference-leakage findings to the model. The stage record shows whether a repair was attempted.
+To retry a DeepAgents execution in the same sandbox, run `./run.sh --clean`. This deletes that run's `workspace/`, `output/`, `record/`, and `check.json`, then reruns every stage from Stage 1. It is a clean rerun, not a continuation of the previous model conversation. Without `--clean`, the launcher prevents a second attempt in the same directory. Claude execution uses a fixed Claude session and should use a fresh execution sandbox for another run.
+
+DeepAgents uses Pydantic models derived from each declared JSON Schema. Single-artifact stages return one structured response; LangChain selects provider-native `ProviderStrategy` when supported and tool-based `ToolStrategy` otherwise. A stage with multiple artifacts receives a separate Pydantic-validated writer tool for each output, so it does not have to return a combined artifact envelope. The host validates all written files against the original JSON Schemas. If a stage fails structural validation, it gets one additional bounded repair attempt. If structured-response parsing fails but existing files pass the JSON Schemas, the host keeps the validated files and records a warning. The host does not pass ATAM evaluator or reference-leakage findings to the model. The stage record shows whether structured output was required and whether a repair was attempted.
 
 ### 4. Check and record execution evidence
 
@@ -164,7 +166,7 @@ hw sandbox record "/path/to/execution-sandbox"
 
 `check` reports schema, pilot-specific, and reference-leakage results and writes `check.json`. `record` copies the sandbox metadata, check result, output, intermediate artifacts, and runtime records into `docs/cain-2027/evidence/`. Use the check command even if the runner failed, to see which expected outputs are present.
 
-Each execution sandbox is single-use. If an attempt fails or you need to change inputs, create a fresh execution sandbox; reusing one can mix artifacts from different attempts. Claude's launcher runs the external schema check after producing a report. If only JSON/schema conformance fails, it resumes the same Claude session for one constrained report repair and records the pre-repair check at `record/check-before-repair.json`. It does not send pilot-specific evaluator or leakage results to Claude. Run `hw check` afterward and review the final `check.json` before recording.
+Claude's launcher runs the external schema check after producing a report. If only JSON/schema conformance fails, it resumes the same Claude session for one constrained report repair and records the pre-repair check at `record/check-before-repair.json`. It does not send pilot-specific evaluator or leakage results to Claude. DeepAgents uses Pydantic structured output at generation time and retains the original JSON Schema validation afterward. Run `hw check` afterward and review the final `check.json` before recording. If you change the bundle or case inputs, create a new execution sandbox so its copied inputs stay aligned with the run.
 
 ## Current example: ATAM generation with OAuth
 
