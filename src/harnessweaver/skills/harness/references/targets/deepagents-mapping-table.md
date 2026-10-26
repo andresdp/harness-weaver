@@ -18,7 +18,7 @@ Concept-by-concept mapping used in Steps D1–D3 of `deepagents.md`. "Default" i
 |---|---|---|
 | `_workspace/` intermediate artifacts | `/artifacts/*.json` on the composite backend (Firestore/filesystem) | Naming `{phase}_{agent}_{artifact}.{ext}` → `{NN}_{step}.json` |
 | File-based data passing between phases | JSON artifacts; the *only* inter-stage channel | Matches harness's "files when data is large or must be reviewable" |
-| `schema`-validated structured returns | JSON structure block in each SKILL.md + read-back verification + Mandatory Completion Protocol | Assertion is procedural (read-back), not schema-validated at the API layer — the main fidelity loss; see below |
+| `schema`-validated structured returns | JSON structure block and read-back verification in each SKILL.md; named JSON Schemas in `wiring.yaml` are enforced by the HarnessWeaver host after each stage | In an existing application, enforcement depends on that host's validator; use Pydantic response schemas where supported and record any loss |
 | Structured cross-references (schema fields) | ID fields inside JSON (e.g. `source_requirement_ids`) | Never prose linkage |
 
 ## Execution and control flow
@@ -35,7 +35,8 @@ Concept-by-concept mapping used in Steps D1–D3 of `deepagents.md`. "Default" i
 
 | Harness concept | Target equivalent | Notes |
 |---|---|---|
-| Adversarial verification (N verifiers, majority `confirmed`) | Intra-agent verification skill step (read-back + rules); or a dedicated verification stage | The majority-voting guarantee does not survive single-agent verification — record this in the port report |
+| Independent producer/reviewer stages | Separate ordered stage directories and host invocations | Can preserve reviewer separation without DeepAgents subagents; same-agent review is an approximation |
+| Adversarial verification (N verifiers, majority `confirmed`) | Dedicated verification stage(s); a single reviewer is allowed only if the spec permits the reduction | The majority-voting guarantee does not survive single-agent verification — record this in the port report |
 | Judge panel (N drafts, parallel judging) | Not portable. Serialize: generate candidates → one selection skill | Diversity of drafts can be preserved procedurally (distinct lenses in the Procedure) |
 | Loop-until-dry | A skill's Procedure can include a stopping rule (e.g. "stop when no new items for K rounds"), but no code-level loop | Weaker than `Workflow` iteration |
 | Completeness critic | Final skill step of the stage, or the Mandatory Completion Protocol itself | — |

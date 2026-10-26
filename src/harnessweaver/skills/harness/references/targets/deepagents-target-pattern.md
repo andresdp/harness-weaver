@@ -1,6 +1,6 @@
 # DeepAgents Target Pattern — Stage Directories, AGENTS.md, Skills, JSON Artifacts
 
-This document defines the target conventions for a ported harness, distilled from a production DeepAgents application (a software-architecture pipeline: 4 stages, 11 skills, JSON artifacts in Firestore via a custom backend). `deepagents.md` (the DeepAgents target of the `harness` skill) emits artifacts that follow this pattern exactly.
+This document defines the target conventions for a ported harness, distilled from a production DeepAgents application (a software-architecture pipeline: 4 stages, 11 skills, JSON artifacts in Firestore via a custom backend). `deepagents.md` (the DeepAgents target of the `harness` skill) emits artifacts that follow this pattern. When Claude Code is also selected, `runtime-parity.md` governs which semantic boundaries must stay separate.
 
 ## Runtime model
 
@@ -20,7 +20,7 @@ Python pipeline (deterministic)
       # completion asserted afterwards by checking expected artifact files
 ```
 
-- **One deep agent per stage.** Each stage directory is self-contained: an `AGENTS.md` orchestrator memory plus its `skills/` tree.
+- **One deep agent per stage.** Each stage directory is self-contained: an `AGENTS.md` orchestrator memory plus its `skills/` tree. Use a separate ordered stage when the spec requires a distinct reviewer, revision step, validation gate, or human handoff; distinct stages do not require subagents.
 - **Determinism lives in Python**: stage order, the hand-off prompt per stage, and the completion check (expected artifact filenames) are code, not prompts.
 - **Within a stage**, the agent executes tasks in the order `AGENTS.md` pins; the only LLM discretion is *how* to perform each task, not *what order* or *whether* to verify.
 - **The virtual filesystem is the data plane.** All artifacts are files on the composite backend: `/artifacts/*.json` for data, `/agent/**` for definitions.
@@ -109,4 +109,4 @@ The Python side of a ported application follows the official [langchain-skills](
 
 - No inter-agent messaging: everything crosses boundaries as artifacts. Iterative negotiation between specialists doesn't fit; serialize it or extend with DeepAgents subagents.
 - No per-agent model tiers in the reference application (single env-driven model). Tier rationale from the harness design survives as comments.
-- No adversarial multi-verifier fan-out: verification is intra-agent (read-back + completion protocol). Where the harness used N-verifier majority voting, either accept single-pass verification or add a dedicated verification stage.
+- No parallel verifier fan-out in the base pattern. Separate sequential reviewer stages preserve reviewer independence; N-verifier majority voting requires subagents or additional verification stages and must be reported as approximated if not implemented.

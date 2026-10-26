@@ -1,6 +1,6 @@
 # Target: Claude Code project
 
-Read this file when gate G4 selects **Claude Code**. It turns a validated HarnessSpec (or a recorded lightweight brief) into a Claude Code project: `.claude/agents/`, `.claude/skills/` (domain skills plus one orchestrator skill), and a `CLAUDE.md` pointer. "Project" below means the **target output directory** chosen at G4 (default `build/claude/` next to the spec; the user's own repository when they build a harness in place).
+Read this file when gate G4 selects **Claude Code**. When DeepAgents is also selected, read `../runtime-parity.md` first and preserve its shared behavior contract. This file turns a validated HarnessSpec (or a recorded lightweight brief) into a Claude Code project: `.claude/agents/`, `.claude/skills/` (domain skills plus one orchestrator skill), and a `CLAUDE.md` pointer. "Project" below means the **target output directory** chosen at G4 (default `build/claude/` next to the spec; the user's own repository when they build a harness in place).
 
 Inputs: the spec, `design-notes.md` (gate answers), the domain skills and contracts it references. Outputs: the project files plus `materialization-report.md` (see `../materialization-report.md`). Copy domain skills from their source paths rather than rewriting them; adapt only paths, frontmatter, and collaboration sections, and record each adaptation in the report. Copy the methodology file, output contracts (JSON Schemas) and templates the skills read into each skill's `references/`, and point the skills at those local paths, so the project is self-contained when it runs without the sources.
 
@@ -29,7 +29,7 @@ Harness v2 uses three Claude Code multi-agent capabilities. Pick one of the foll
 
 Decide in this order:
 
-1. If the item list, verification criteria, and loop conditions can be expressed in code up front, use a workflow. Don't leave a fixed flow to the model's in-the-moment judgment if you want reruns to behave the same way.
+1. If the item list, verification criteria, and loop conditions can be expressed in code up front, use a workflow. Don't leave a fixed flow to the model's in-the-moment judgment if you want reruns to behave the same way. For two-target generation, preserve the shared contract's stage boundaries and validation points even if the selected orchestration mode differs from DeepAgents.
 2. If it's hard to define in code and agents must converse or remember earlier context, use persistent agents.
 3. If neither applies and you only need the result, delegate to sub-agents.
 4. If the nature of the work differs per phase, compose a hybrid mode. Note each phase's execution mode in the orchestrator.
@@ -205,6 +205,7 @@ Put an error-handling policy in the orchestrator.
 
 - Retry once; if it fails again, proceed without that result but record the gap in the final report. Don't delete conflicting data — keep it with provenance.
 - However, don't retry failures that will end the same way, such as exhausted usage limits, expired authentication, or denied permissions — retrying just burns the remaining quota. Open the partial artifacts yourself to see how far it actually got, record the missing content in a file, and report to the user. For usage limits, also tell the user when the limit resets.
+- When both targets are generated, use the same retry budget and stop point as the DeepAgents mapping. A repair retry must re-run the same declared validation before later stages proceed.
 - When the orchestrator fills a gap left by a stalled agent, substitute only facts you verified yourself. Never guess the agent's judgment calls (e.g., which material it excluded and why). Filling gaps with guesses amounts to forging the records needed for post-hoc verification.
 - In workflows, a failed or skipped `agent()` returns `null`, and `parallel()` doesn't throw on failure. Apply `.filter(Boolean)` to result arrays and report the missing-item count via `log()`.
 - If a persistent agent doesn't respond, check its status with `SendMessage` and re-instruct it. If it still fails, spawn the same custom type under a new name and pass the necessary task context in the prompt.
@@ -299,6 +300,7 @@ Obviously unrelated requests can't validate boundaries. For example, when testin
 ### C4.6 Record test scenarios
 
 Add a `## Test scenarios` section to the orchestrator skill with at least one happy path and one error path.
+When DeepAgents is also selected, also complete the shared behavior-parity matrix in `materialization-report.md`; a successful Claude run does not establish cross-target parity.
 
 ## Step C5: Operate and maintain
 

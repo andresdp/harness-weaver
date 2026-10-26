@@ -42,6 +42,14 @@ What this generation did not check (e.g., no execution run, no trigger tests, sc
 ## Suggested smoke test
 
 One minimal run and what to check.
+
+## Cross-target behavior parity
+
+Include this section in both target reports when Claude Code and DeepAgents are generated from the same spec. Compare every row of the shared behavior contract in `runtime-parity.md`, including enforcement point and any remaining effect. Omit only when one target was selected.
+
+| Spec behavior | Claude Code implementation and enforcement | DeepAgents implementation and enforcement | Status | Difference and effect |
+|---|---|---|---|---|
+| <stage, artifact, verification, retry, readiness or human-gate requirement> | <construct and enforcement point> | <construct and enforcement point> | aligned / approximated / different / unsupported | <remaining effect, or —> |
 ```
 
 Rules:

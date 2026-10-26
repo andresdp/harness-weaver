@@ -14,7 +14,7 @@ Agents describe *who* does the work; skills describe *how* it is done. Methodolo
 1. **Ask before writing files.** Deriving a harness is a design task, not transcription. Run the question gates in `references/question-gates.md`; resolve what the evidence answers and ask the rest.
 2. **Separate the layers.** Intent, methodology and domain knowledge go into the design. Runtime constraints arrive only at gates G4/G5. Never put a runtime's paths, tools or syntax into the shared spec, and never put case data or reference outputs into anything generated.
 3. **Keep the design proportionate.** Use a saved HarnessSpec for reusable, multi-stage, multi-runtime or evaluated work. A simple one-off may proceed from a recorded brief; state that choice and its trade-off.
-4. **Materialize only what the target supports.** Every target writes a materialization report listing each spec element as mapped, approximated or unsupported. Do not claim two targets behave equivalently unless both implement the same declared behavior.
+4. **Materialize only what the target supports.** Every target writes a materialization report listing each spec element as mapped, approximated or unsupported. Do not claim two targets behave equivalently unless both implement the same declared behavior. When both targets are selected, read `references/runtime-parity.md`, derive one shared behavior contract, and compare how each target enforces it.
 5. **Make progress meaningful.** The design states the domain method, required evidence, semantic progress and completion criteria. Agent messages, retries and task flags do not prove domain progress.
 6. **Write in the user's language.** Generated agents, skills and notes follow the language of the conversation, an explicitly requested language, or that of the existing harness files.
 7. **Feed results back.** Execution results and feedback are handled by the `evolve` skill; this skill handles building, extending and regenerating.
@@ -106,7 +106,7 @@ For each selected target, read its reference and follow it:
 
 Before writing, run gate G6 with the file list and the known approximated or unsupported mappings. After writing, produce `materialization-report.md` in each output directory (`references/materialization-report.md`).
 
-When both targets are selected, materialize them from the **same** spec revision, and copy domain skills from the same source paths. Differences between the targets must come from the mapping, never from a divergent design.
+When both targets are selected, read `references/runtime-parity.md` before writing either target. Materialize them from the **same** spec revision, copy domain skills from the same source paths, preserve behaviorally meaningful stage boundaries, and include the parity matrix in both materialization reports. Differences between the targets must come from the mapping, never from a divergent design.
 
 ### Phase 5: Validate and report
 
@@ -127,6 +127,7 @@ When both targets are selected, materialize them from the **same** spec revision
 - [ ] A HarnessSpec exists for reusable or complex work and passes `hw validate`, or the handoff says validation was unavailable; a deliberate one-off has a stated reason.
 - [ ] The spec contains no runtime syntax, case facts or reference outputs; stage inputs are ports or artifact ids.
 - [ ] Every selected target was materialized from the same spec revision and has a `materialization-report.md` covering every spec element.
+- [ ] When both targets were selected, both materialization reports include a complete cross-target behavior-parity matrix; every non-aligned requirement names the runtime effect and the weaker mapping.
 - [ ] Domain skills were copied from their source paths; adaptations are listed in the report.
 - [ ] Each target's own checklist passes (`references/targets/<target>.md`).
 - [ ] Semantic progress is produced only from evidence, never from runtime completion.
@@ -138,4 +139,5 @@ When both targets are selected, materialize them from the **same** spec revision
 - **Materialization report template:** `references/materialization-report.md`
 - **Claude Code target:** `references/targets/claude-code.md` (with `execution-modes.md`, `orchestrator-template.md`, `workflow-recipes.md`, `model-selection-guide.md`, `qa-agent-guide.md`)
 - **DeepAgents target:** `references/targets/deepagents.md` (with `targets/deepagents-target-pattern.md`, `targets/deepagents-mapping-table.md`)
+- **Cross-target parity:** `references/runtime-parity.md` (required when both Claude Code and DeepAgents are selected)
 - **Shared design guidance:** `references/team-patterns.md`, `references/team-examples.md`, `references/skill-writing-guide.md`, `references/skill-testing-guide.md`

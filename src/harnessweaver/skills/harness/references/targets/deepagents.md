@@ -1,6 +1,6 @@
 # Target: DeepAgents stage pipeline
 
-Read this file when gate G4 selects **DeepAgents**. It turns a validated HarnessSpec (or a recorded lightweight brief) into **stage directories plus wiring data**, not application code: one deep agent per stage, an `AGENTS.md` per stage, `skills/*/SKILL.md` per task, JSON artifacts on a virtual filesystem, and a `wiring.yaml` that a host executes deterministically. The conventions are defined in `deepagents-target-pattern.md`; keep `deepagents-mapping-table.md` open while mapping.
+Read this file when gate G4 selects **DeepAgents**. When Claude Code is also selected, read `../runtime-parity.md` first and preserve its shared behavior contract. It turns a validated HarnessSpec (or a recorded lightweight brief) into **stage directories plus wiring data**, not application code: one deep agent per stage, an `AGENTS.md` per stage, `skills/*/SKILL.md` per task, JSON artifacts on a virtual filesystem, and a `wiring.yaml` that a host executes deterministically. The conventions are defined in `deepagents-target-pattern.md`; keep `deepagents-mapping-table.md` open while mapping.
 
 **This is generation, not line-by-line translation.** Claude Code constructs (`SendMessage`, `Workflow` scripts, `subagent_type`, model tiers) have no DeepAgents equivalents. Extract the design (stages, ordered tasks, artifact contracts, verification intent, scope boundaries) and re-emit it in the target conventions. Never fake a mapping the target cannot express; record it in the materialization report.
 
@@ -49,7 +49,7 @@ A worked example (the four-stage architecture decision pipeline) is in the repos
 
 The target pattern is **one deep agent per stage; each stage runs N ordered task skills**.
 
-- Map each spec stage (or each group of stages that produces one stable artifact set) to `stage{N}-{snake_case_name}/`.
+- Map each spec stage (or each group of stages that produces one stable artifact set) to `stage{N}-{snake_case_name}/`. A single spec stage may map to multiple target stages when needed to preserve a separate reviewer, revision point, validation gate, or human gate. Do not merge a producer and an independent reviewer into one agent invocation just because subagents are disabled; use sequential stage directories.
 - A spec *role* is not necessarily a target *stage*. Roles that perform one task inside a stage become that stage's task skill; "who" survives as the `AGENTS.md` responsibility sentence.
 - Parallel work inside a stage: serialize it (the pattern's "one task at a time" rule) or flag it as a subagent decision in D2.
 - Record the stage plan: number, name, responsibility sentence, ordered tasks, artifact filenames, upstream artifacts consumed, and the spec ids each element comes from.
@@ -63,11 +63,12 @@ Decide each item once and apply it everywhere. Record the decisions in the mater
 | Decision | Default | Alternative |
 |---|---|---|
 | Agent-to-agent messaging (`SendMessage`) | Convert exchanges into artifact read/write steps | Enable DeepAgents subagents if the exchange is genuinely iterative |
-| User confirmation points in the harness | Drop (the Claude-side gates don't apply at port time); if the *application* needs approval flows, add `HumanInTheLoopMiddleware` + checkpointer per langchain-skills `langgraph-human-in-the-loop` guidance | `interrupt_on` tool-level approval for artifact writes |
-| Adversarial verification / judge panels | Intra-agent verification skill step (matches target pattern) | Dedicated verification stage between producer stages |
+| Generation-time target-selection questions | Do not reproduce at run time; these are not domain workflow gates | — |
+| Spec human gates and review handoffs | Preserve as `human_gates` in wiring; for an interactive application, use `HumanInTheLoopMiddleware` + checkpointer per langchain-skills `langgraph-human-in-the-loop` guidance. The HarnessWeaver stage host pauses at declared gates and never approves them | `interrupt_on` tool-level approval for artifact writes when that is the specified gate |
+| Independent review, adversarial verification / judge panels | Use a separate ordered reviewer stage when reviewer independence is part of the spec; parallel panels may be approximated by a sequential reviewer only when the spec permits that loss | Intra-agent check only when independence is not required; otherwise a dedicated verification stage |
 | `Workflow` scripts | Discard; sequencing moves to the Python pipeline + AGENTS.md ordered tasks | — |
 | Model tiers (fable/opus/sonnet) | Single env-driven model; keep tier rationale as comments in AGENTS.md/skills | Map tiers to provider models (e.g. pro/flash) if the target supports per-agent models |
-| Structured schemas (`schema`/`agentType`) | JSON structure block in each skill + Mandatory Completion Protocol in AGENTS.md | — |
+| Structured schemas (`schema`/`agentType`) | JSON structure block in each skill + Mandatory Completion Protocol; named JSON Schemas in `wiring.yaml` are validated by the HarnessWeaver host after each stage | Use Pydantic response schemas when supported by the selected host; do not rely on prose-only structure blocks when deterministic validation is required |
 | `CLAUDE.md` registry | Discard; the Python `stages.py` registry replaces it | Keep a domain README with the change-history table for evolve compatibility |
 | Semantic methodology state | Final stage writes a semantic-state artifact (or report section) with evidence references; runtime completion never sets it | — |
 | Spec input ports | Host writes each case input to `/artifacts/00_<port>.json` before stage 1 | — |
@@ -122,7 +123,7 @@ Checklist (`hw check-bundle --target deepagents` automates the structural items)
 - [ ] Each stage has a scope-boundary section.
 - [ ] Every schema named in `wiring.yaml` exists under the bundle, and every file a skill reads is inside its stage directory.
 
-Then write `materialization-report.md` (template: `../materialization-report.md`) with a suggested smoke test: run stage 1 on a minimal input and check that all stage-1 artifacts parse. The report is the fidelity record. Do not modify the HarnessSpec to hide target limitations.
+Then write `materialization-report.md` (template: `../materialization-report.md`) with a suggested smoke test: run stage 1 on a minimal input and check that all stage-1 artifacts parse. When Claude Code is also selected, complete the shared behavior-parity matrix in `materialization-report.md`. The report is the fidelity record. Do not modify the HarnessSpec to hide target limitations.
 
 ## Principles
 
