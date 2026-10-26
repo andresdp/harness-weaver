@@ -11,7 +11,7 @@ This pilot carries one ATAM methodology through the HarnessWeaver flow ([docs/ca
 - **Reference realizations** (hand-written, kept for comparison, not on the generated path):
   - `claude-plugin/` — a Claude Code plugin with evaluator skills and specialist subagents;
   - `deepagents/` — a DeepAgents backend with supervisor, sequential and fan-out profiles over Pydantic contracts;
-  - `harnessspec.yaml` (v0.1) and `harnessspec-v0.2.yaml` — the hand-written HarnessSpecs these realizations use.
+  - `harnessspec-v0.2.yaml` — the hand-written current HarnessSpec used by the DeepAgents runner and runtime examples.
 
 `evaluation_results.semantic_state` records evidence-backed methodology status and explicit gaps. Agent calls and completed runtime tasks do not establish method progress; generated reports remain drafts until an architect reviews them.
 

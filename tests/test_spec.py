@@ -7,8 +7,8 @@ from harnessweaver.spec import SpecLoadError, load_spec, validate_spec
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXAMPLE = ROOT / "pilots" / "atam" / "harnessspec.yaml"
-EXAMPLE_V02 = ROOT / "pilots" / "atam" / "harnessspec-v0.2.yaml"
+EXAMPLE = ROOT / "pilots" / "atam" / "harnessspec-v0.2.yaml"
+EXAMPLE_V02 = EXAMPLE
 
 
 class SpecValidationTests(unittest.TestCase):
@@ -36,7 +36,7 @@ assert validate_spec(load_spec(spec), spec) == []
         )
         self.assertEqual(result.returncode, 0, result.stderr)
 
-    def test_atam_example_is_valid_and_references_exist(self):
+    def test_atam_v02_example_is_valid_and_references_exist(self):
         document = load_spec(EXAMPLE)
         self.assertEqual(validate_spec(document, EXAMPLE), [])
 
