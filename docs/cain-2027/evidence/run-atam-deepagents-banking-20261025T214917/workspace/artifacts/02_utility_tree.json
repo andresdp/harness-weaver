@@ -1,0 +1,370 @@
+{
+  "root": "Utility",
+  "quality_attribute_nodes": [
+    {
+      "attribute_name": "Security",
+      "driver_ids": [],
+      "children": [
+        {
+          "scenario_id": "RS-1",
+          "refinement": "Unauthorized access prevention",
+          "scenario_description": "When an unauthorized access attempt occurs in the system, the framework prevents access.",
+          "stimulus": "an unauthorized access attempt",
+          "environment": "in the system",
+          "response": "the framework prevents access",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-1",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[0]"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Performance",
+      "driver_ids": [],
+      "children": [
+        {
+          "scenario_id": "RS-2",
+          "refinement": "Fastest possible processing speed",
+          "scenario_description": "When operations are executed in the system, the framework processes them in the fastest possible speed.",
+          "stimulus": "operations are executed",
+          "environment": "in the system",
+          "response": "the framework processes them in the fastest possible speed",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-2",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[1]"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Reliability",
+      "driver_ids": ["BD-7"],
+      "children": [
+        {
+          "scenario_id": "RS-3",
+          "refinement": "Immediate recovery after failure",
+          "scenario_description": "When a failure occurs in the system, the framework recovers immediately.",
+          "stimulus": "a failure occurs",
+          "environment": "in the system",
+          "response": "the framework recovers immediately",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-3",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[2]"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Usability",
+      "driver_ids": [],
+      "children": [
+        {
+          "scenario_id": "RS-4",
+          "refinement": "Handling user errors during system use",
+          "scenario_description": "When a user makes an error while using the system, the framework handles the error.",
+          "stimulus": "a user makes an error",
+          "environment": "while using the system",
+          "response": "the framework handles the error",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-4",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[3]"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Functionality",
+      "driver_ids": ["BD-9"],
+      "children": [
+        {
+          "scenario_id": "RS-5",
+          "refinement": "Accommodating new functional demands",
+          "scenario_description": "When new demands on system functionality arise, the framework accommodates them.",
+          "stimulus": "new demands on system functionality arise",
+          "environment": "in the system",
+          "response": "the framework accommodates them",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-5",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[4]"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Variability",
+      "driver_ids": ["BD-6"],
+      "children": [
+        {
+          "scenario_id": "RS-6",
+          "refinement": "Reuse of major framework parts",
+          "scenario_description": "When future projects need it, major parts of the framework are reused.",
+          "stimulus": "future projects need it",
+          "environment": "the framework is being considered for reuse",
+          "response": "major parts of the framework are reused",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-6",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[5]"]
+        },
+        {
+          "scenario_id": "RS-9",
+          "refinement": "Framework expansion for more sophisticated options",
+          "scenario_description": "When the framework needs to expand for more sophisticated options, expansion is possible.",
+          "stimulus": "the framework needs to expand for more sophisticated options",
+          "environment": "in future use",
+          "response": "expansion is possible",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-9",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[8]"]
+        },
+        {
+          "scenario_id": "RS-10",
+          "refinement": "Execution in different environments",
+          "scenario_description": "When the implementation is deployed in different environments, it executes there.",
+          "stimulus": "the implementation is deployed",
+          "environment": "in different environments",
+          "response": "it executes there",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-10",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[9]"]
+        },
+        {
+          "scenario_id": "RS-12",
+          "refinement": "Implementation using other programming languages",
+          "scenario_description": "When a different programming language is chosen, the framework can still be implemented using it.",
+          "stimulus": "a different programming language is chosen",
+          "environment": "for implementation",
+          "response": "the framework can still be implemented using it",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-12",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[11]"]
+        },
+        {
+          "scenario_id": "RS-15",
+          "refinement": "Multiple applications connected to the framework at the same time",
+          "scenario_description": "When multiple applications are connected at the same time, the framework supports them.",
+          "stimulus": "multiple applications are connected at the same time",
+          "environment": "to the framework",
+          "response": "the framework supports them",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-15",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[14]"]
+        },
+        {
+          "scenario_id": "RS-16",
+          "refinement": "Changing the interface from command-driven to window-based",
+          "scenario_description": "When the interface changes from command-driven to window-based, the framework accommodates the change.",
+          "stimulus": "the interface changes from command-driven to window-based",
+          "environment": "in the system",
+          "response": "the framework accommodates the change",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-16",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[15]"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Conceptual Integrity",
+      "driver_ids": ["BD-8"],
+      "children": [
+        {
+          "scenario_id": "RS-8",
+          "refinement": "Coordinated interaction among framework components",
+          "scenario_description": "When components in the framework interact, they do so in a coordinated manner.",
+          "stimulus": "components in the framework interact",
+          "environment": "in the framework",
+          "response": "they do so in a coordinated manner",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-8",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[7]"]
+        },
+        {
+          "scenario_id": "RS-13",
+          "refinement": "Consistent behavior of the architecture",
+          "scenario_description": "When the architecture is used, it behaves consistently.",
+          "stimulus": "the architecture is used",
+          "environment": "in operation",
+          "response": "it behaves consistently",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-13",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[12]"]
+        },
+        {
+          "scenario_id": "RS-14",
+          "refinement": "Completeness and clarity of framework behavior",
+          "scenario_description": "When the framework is used, it is complete, clear, and performs exactly as required.",
+          "stimulus": "the framework is used",
+          "environment": "during operation",
+          "response": "it is complete, clear, and performs exactly as required",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-14",
+          "source_refs": ["evaluation_inputs.raw_candidate_scenarios[13]"]
+        }
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "RS-1",
+      "scenario_text": "When an unauthorized access attempt occurs in the system, the framework prevents access.",
+      "primary_quality_attribute": ["Security"]
+    },
+    {
+      "scenario_id": "RS-2",
+      "scenario_text": "When operations are executed in the system, the framework processes them in the fastest possible speed.",
+      "primary_quality_attribute": ["Performance"]
+    },
+    {
+      "scenario_id": "RS-3",
+      "scenario_text": "When a failure occurs in the system, the framework recovers immediately.",
+      "primary_quality_attribute": ["Reliability"]
+    },
+    {
+      "scenario_id": "RS-4",
+      "scenario_text": "When a user makes an error while using the system, the framework handles the error.",
+      "primary_quality_attribute": ["Usability"]
+    },
+    {
+      "scenario_id": "RS-5",
+      "scenario_text": "When new demands on system functionality arise, the framework accommodates them.",
+      "primary_quality_attribute": ["Functionality"]
+    },
+    {
+      "scenario_id": "RS-6",
+      "scenario_text": "When future projects need it, major parts of the framework are reused.",
+      "primary_quality_attribute": ["Variability"]
+    },
+    {
+      "scenario_id": "RS-8",
+      "scenario_text": "When components in the framework interact, they do so in a coordinated manner.",
+      "primary_quality_attribute": ["Conceptual Integrity"]
+    },
+    {
+      "scenario_id": "RS-9",
+      "scenario_text": "When the framework needs to expand for more sophisticated options, expansion is possible.",
+      "primary_quality_attribute": ["Variability"]
+    },
+    {
+      "scenario_id": "RS-10",
+      "scenario_text": "When the implementation is deployed in different environments, it executes there.",
+      "primary_quality_attribute": ["Variability"]
+    },
+    {
+      "scenario_id": "RS-12",
+      "scenario_text": "When a different programming language is chosen, the framework can still be implemented using it.",
+      "primary_quality_attribute": ["Variability"]
+    },
+    {
+      "scenario_id": "RS-13",
+      "scenario_text": "When the architecture is used, it behaves consistently.",
+      "primary_quality_attribute": ["Conceptual Integrity"]
+    },
+    {
+      "scenario_id": "RS-14",
+      "scenario_text": "When the framework is used, it is complete, clear, and performs exactly as required.",
+      "primary_quality_attribute": ["Conceptual Integrity"]
+    },
+    {
+      "scenario_id": "RS-15",
+      "scenario_text": "When multiple applications are connected at the same time, the framework supports them.",
+      "primary_quality_attribute": ["Variability"]
+    },
+    {
+      "scenario_id": "RS-16",
+      "scenario_text": "When the interface changes from command-driven to window-based, the framework accommodates the change.",
+      "primary_quality_attribute": ["Variability"]
+    }
+  ],
+  "analysis_order": [
+    "RS-1",
+    "RS-2",
+    "RS-3",
+    "RS-4",
+    "RS-5",
+    "RS-6",
+    "RS-8",
+    "RS-9",
+    "RS-10",
+    "RS-12",
+    "RS-13",
+    "RS-14",
+    "RS-15",
+    "RS-16"
+  ],
+  "driver_status": {
+    "value": "partial",
+    "evidence": [
+      "evaluation_inputs.business_context.architectural_drivers has 5 entries, but only BD-6, BD-7, BD-8 and BD-9 are represented by scenarios; BD-10 has no scenario",
+      "no scenario has a non-null response_measure because the input provides no measurable thresholds for any raw candidate scenario"
+    ]
+  },
+  "gaps": [
+    {
+      "id": "G-2-1",
+      "gap_type": "assumption",
+      "description": "Stakeholder prioritization is unavailable for the listed scenarios, so no priority tuples are assigned.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "The input does not provide ranked business goals or explicit importance/difficulty evidence for the raw candidate scenarios.",
+      "resolution_question": "Which scenarios should be ranked High, Medium, or Low for importance and difficulty?"
+    },
+    {
+      "id": "G-2-2",
+      "gap_type": "incomplete",
+      "description": "No response measures are stated for any raw candidate scenario.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "evaluation_inputs.raw_candidate_scenarios and supporting inputs do not provide measurable thresholds or runtime targets for RS-1 through RS-16.",
+      "resolution_question": "What measurable response thresholds should be used for each scenario?"
+    }
+  ]
+}

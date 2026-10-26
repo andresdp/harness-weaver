@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamApproachesArtifact",
+  "description": "Stage 3 (identify-approaches) output: 03_approaches.json",
+  "$defs": {
+    "SourceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(evaluation_inputs|metadata|title)(\\.|\\[|$)"
+      },
+      "description": "JSON paths into 00_evaluation_inputs.json, e.g. evaluation_inputs.business_context.business_goals[0]. Required (non-empty) when basis is observed."
+    },
+    "Basis": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "inferred",
+        "assumption"
+      ],
+      "description": "observed = stated in the inputs; inferred = reasoned from cited inputs (state the reasoning); assumption = not supported by the inputs and must also appear as a gap"
+    },
+    "Gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^G-[0-9]+-[0-9]+$",
+          "description": "G-<stage>-<n>"
+        },
+        "gap_type": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "conflict",
+            "incomplete",
+            "assumption"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What is unknown, conflicting, incomplete or assumed"
+        },
+        "affected_activity": {
+          "type": "string",
+          "enum": [
+            "establish-context",
+            "build-utility-tree",
+            "identify-approaches",
+            "analyze-scenarios",
+            "synthesize-and-review"
+          ]
+        },
+        "missing_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Evidence needed to resolve or reduce the gap"
+        },
+        "resolution_question": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Question for the architect or a stakeholder"
+        }
+      },
+      "required": [
+        "id",
+        "gap_type",
+        "description",
+        "affected_activity",
+        "missing_evidence",
+        "resolution_question"
+      ]
+    },
+    "AvailabilityAssessment": {
+      "additionalProperties": false,
+      "description": "Status for context, drivers, or architecture evidence availability.",
+      "properties": {
+        "evidence": {
+          "description": "At least one observed input or artifact fact supporting this status, including evidence of absence",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "value": {
+          "description": "Availability status",
+          "enum": [
+            "missing",
+            "partial",
+            "sufficient"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ],
+      "title": "AtamAvailabilityAssessment",
+      "type": "object"
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "approaches": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^AP-[0-9]+$"
+          },
+          "approach_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "inferred"
+            ]
+          },
+          "inference_note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Required when basis is inferred: which evidence implies the approach"
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^AE-[0-9]+$"
+            },
+            "minItems": 1
+          },
+          "addressed_attributes": {
+            "type": "array",
+            "items": {
+              "additionalProperties": false,
+              "description": "Quality attribute addressed by an architectural approach and why.",
+              "properties": {
+                "quality_attribute": {
+                  "description": "Quality attribute addressed",
+                  "title": "Quality Attribute",
+                  "type": "string"
+                },
+                "rationale": {
+                  "description": "Evidence-based explanation of how it is addressed",
+                  "title": "Rationale",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "quality_attribute",
+                "rationale"
+              ],
+              "title": "AtamAddressedAttribute",
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "approach_name",
+          "description",
+          "basis",
+          "inference_note",
+          "evidence_ids",
+          "addressed_attributes"
+        ]
+      }
+    },
+    "architecture_evidence_status": {
+      "$ref": "#/$defs/AvailabilityAssessment"
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Gap"
+      }
+    }
+  },
+  "required": [
+    "approaches",
+    "architecture_evidence_status",
+    "gaps"
+  ]
+}

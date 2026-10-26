@@ -1,0 +1,41 @@
+{
+  "sandbox": "run-atam-claude-banking-20261026T021159",
+  "checked_at": "2026-10-26T12:28:06+00:00",
+  "report": "output/report.json",
+  "report_sha256": "b68836a0b9ddec79da66b07cfbfb3c4f8e43fa39da2440759be4865351b34652",
+  "passed": false,
+  "checks": {
+    "no-reference-leakage": {
+      "passed": true,
+      "problems": []
+    },
+    "schema": {
+      "passed": true,
+      "problems": []
+    },
+    "atam-pilot": {
+      "passed": false,
+      "problems": [
+        "analysis_records[0].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[1].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[2].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[3].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[4].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[5].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[6].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[7].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[8].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[9].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[10].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[11].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[12].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[13].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[14].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[15].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[16].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[17].scenario_reference must match a raw source scenario by id or text",
+        "analysis_records[18].scenario_reference must match a raw source scenario by id or text"
+      ]
+    }
+  }
+}

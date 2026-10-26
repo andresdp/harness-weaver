@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamReviewFindings",
+  "description": "Stage 6 output 06_review_findings_initial.json (review_stage: initial) and stage 7 output 06_review_findings.json (review_stage: final). Only the final artifact may carry revision and ready_for_architect_review, and only atam.py finalize (run inside stage7-revise_report) computes them.",
+  "$defs": {
+    "Check": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "check_id": {"type": "string", "pattern": "^(STRUCT|SEM|EVID|UNC|COV|REF)-[A-Z0-9-]+$"},
+        "category": {"type": "string", "enum": ["structure", "semantic_state", "evidence_traceability", "uncertainty", "method_coverage", "reference_boundary"]},
+        "source": {"type": "string", "enum": ["automated", "reviewer"]},
+        "result": {"type": "string", "enum": ["pass", "warn", "fail"]},
+        "location": {"type": "string", "description": "JSON pointer into the reviewed report (e.g. /ATAM_Evaluation/evaluation_results/analysis_records/0/findings/risks/1/rationale), or empty string for report-wide checks."},
+        "finding": {"type": "string", "minLength": 1},
+        "correction": {"type": ["string", "null"], "description": "Required for warn and fail: an evidence-preserving correction (remove, relabel, relink, rephrase, qualify) that adds no new facts."},
+        "resolution": {"type": ["string", "null"], "description": "Final stage only: what the revision did about this check, or why it remains."}
+      },
+      "required": ["check_id", "category", "source", "result", "location", "finding", "correction"],
+      "allOf": [
+        {"if": {"properties": {"result": {"enum": ["warn", "fail"]}}}, "then": {"properties": {"correction": {"type": "string", "minLength": 1}}}}
+      ]
+    },
+    "Summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pass": {"type": "integer", "minimum": 0},
+        "warn": {"type": "integer", "minimum": 0},
+        "fail": {"type": "integer", "minimum": 0}
+      },
+      "required": ["pass", "warn", "fail"]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "review_stage": {"type": "string", "enum": ["initial", "final"]},
+    "run_id": {"type": "string", "minLength": 1},
+    "reviewed_report": {"type": "string", "enum": ["05_atam_report_draft.json", "05_atam_report.json"]},
+    "checks": {"type": "array", "items": {"$ref": "#/$defs/Check"}, "minItems": 1},
+    "summary": {"$ref": "#/$defs/Summary"},
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "applied": {"type": "boolean"},
+        "changed_locations": {"type": "array", "items": {"type": "string"}},
+        "remaining_failures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "check_id": {"type": "string"},
+              "category": {"type": "string"},
+              "result": {"type": "string", "enum": ["warn", "fail"]},
+              "location": {"type": "string"}
+            },
+            "required": ["check_id", "category", "result", "location"]
+          }
+        }
+      },
+      "required": ["applied", "changed_locations", "remaining_failures"]
+    },
+    "ready_for_architect_review": {"type": "boolean"},
+    "readiness_basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "computed_by": {"const": "atam_harness/atam.py finalize (stage7-revise_report)"},
+        "blocking_categories": {"type": "array", "items": {"type": "string"}},
+        "blocking_findings_remaining": {"type": "integer", "minimum": 0},
+        "stage_order_verified": {"type": "boolean"},
+        "stage_order_detail": {"type": "string"},
+        "report_status": {"const": "draft"},
+        "note": {"type": "string"}
+      },
+      "required": ["computed_by", "blocking_categories", "blocking_findings_remaining", "stage_order_verified", "stage_order_detail", "report_status", "note"]
+    }
+  },
+  "required": ["review_stage", "run_id", "reviewed_report", "checks", "summary"],
+  "allOf": [
+    {
+      "if": {"properties": {"review_stage": {"const": "initial"}}},
+      "then": {
+        "properties": {"reviewed_report": {"const": "05_atam_report_draft.json"}},
+        "not": {"anyOf": [{"required": ["revision"]}, {"required": ["ready_for_architect_review"]}, {"required": ["readiness_basis"]}]}
+      },
+      "else": {
+        "properties": {"reviewed_report": {"const": "05_atam_report.json"}},
+        "required": ["revision", "ready_for_architect_review", "readiness_basis"]
+      }
+    }
+  ]
+}

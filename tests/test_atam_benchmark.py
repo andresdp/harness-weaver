@@ -28,10 +28,32 @@ class AtamBenchmarkTests(unittest.TestCase):
                 "evaluation_results": {
                     "semantic_state": valid_semantic_state(),
                     "architectural_approaches": [{"approach_name": "A", "description": "Evidence", "addressed_attributes": ["modifiability"]}],
-                    "utility_tree": {"quality_attribute_nodes": [{"attribute_name": "modifiability"}]},
-                    "scenarios": [{"scenario_text": "A user updates a module."}],
+                    "utility_tree": {"quality_attribute_nodes": [{
+                        "attribute_name": "modifiability",
+                        "children": [{
+                            "scenario_id": "MOD-1",
+                            "scenario_description": "A user updates a module.",
+                            "origin": {
+                                "kind": "raw_candidate_scenario",
+                                "source_scenario_id": "RS-1",
+                                "basis": "observed",
+                                "source_refs": ["evaluation_inputs.raw_candidate_scenarios[0]"],
+                            },
+                        }],
+                    }]},
+                    "scenarios": [{
+                        "id": "MOD-1",
+                        "scenario_text": "A user updates a module.",
+                        "primary_quality_attribute": ["modifiability"],
+                        "origin": {
+                            "kind": "raw_candidate_scenario",
+                            "source_scenario_id": "RS-1",
+                            "basis": "observed",
+                            "source_refs": ["evaluation_inputs.raw_candidate_scenarios[0]"],
+                        },
+                    }],
                     "analysis_records": [{
-                        "scenario_reference": {"id": "RS-1", "text": "A file is updated."},
+                        "scenario_reference": {"id": "MOD-1", "text": "A user updates a module."},
                         "findings": {"risks": [], "non_risks": [], "sensitivity_points": [], "tradeoff_points": []},
                     }],
                 }
@@ -57,19 +79,21 @@ class AtamBenchmarkTests(unittest.TestCase):
             with patch.object(pilot, "CONFIG_PATH", config):
                 self.assertEqual(pilot.check(path), [])
 
-                # Text-only references use whitespace-normalized source descriptions.
+                # Analysis references must resolve by stable report ID, not by matching source prose.
                 prediction["ATAM_Evaluation"]["evaluation_results"]["analysis_records"][0]["scenario_reference"] = {
-                    "text": "  A file is   updated.  ",
+                    "text": "  A user   updates a module.  ",
                 }
                 path.write_text(json.dumps(prediction))
-                self.assertEqual(pilot.check(path), [])
+                problems = pilot.check(path)
+                self.assertTrue(any("scenario_reference.id must resolve" in problem for problem in problems))
 
                 prediction["ATAM_Evaluation"]["evaluation_results"]["analysis_records"][0]["scenario_reference"] = {
+                    "id": "MISSING",
                     "text": "A different scenario.",
                 }
                 path.write_text(json.dumps(prediction))
                 problems = pilot.check(path)
-                self.assertTrue(any("scenario_reference must match" in problem for problem in problems))
+                self.assertTrue(any("scenario_reference.id must resolve" in problem for problem in problems))
 
     def test_report_checker_does_not_trust_prediction_embedded_inputs(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -81,10 +105,32 @@ class AtamBenchmarkTests(unittest.TestCase):
                     "evaluation_results": {
                         "semantic_state": valid_semantic_state(),
                         "architectural_approaches": [{"approach_name": "A", "description": "Evidence", "addressed_attributes": ["modifiability"]}],
-                        "utility_tree": {"quality_attribute_nodes": [{"attribute_name": "modifiability"}]},
-                        "scenarios": [{"scenario_text": "A generated scenario."}],
+                        "utility_tree": {"quality_attribute_nodes": [{
+                            "attribute_name": "modifiability",
+                            "children": [{
+                                "scenario_id": "GEN-1",
+                                "scenario_description": "A generated scenario.",
+                                "origin": {
+                                    "kind": "raw_candidate_scenario",
+                                    "source_scenario_id": "FAKE",
+                                    "basis": "observed",
+                                    "source_refs": ["evaluation_inputs.raw_candidate_scenarios[0]"],
+                                },
+                            }],
+                        }]},
+                        "scenarios": [{
+                            "id": "GEN-1",
+                            "scenario_text": "A generated scenario.",
+                            "primary_quality_attribute": ["modifiability"],
+                            "origin": {
+                                "kind": "raw_candidate_scenario",
+                                "source_scenario_id": "FAKE",
+                                "basis": "observed",
+                                "source_refs": ["evaluation_inputs.raw_candidate_scenarios[0]"],
+                            },
+                        }],
                         "analysis_records": [{
-                            "scenario_reference": {"id": "FAKE", "text": "Forged source."},
+                            "scenario_reference": {"id": "GEN-1", "text": "A generated scenario."},
                             "findings": {"risks": [], "non_risks": [], "sensitivity_points": [], "tradeoff_points": []},
                         }],
                     },
@@ -102,7 +148,7 @@ class AtamBenchmarkTests(unittest.TestCase):
             }))
             with patch.object(pilot, "CONFIG_PATH", config):
                 problems = pilot.check(path)
-            self.assertTrue(any("raw source scenario" in problem for problem in problems))
+            self.assertTrue(any("source_scenario_id is not a raw source scenario ID" in problem for problem in problems))
 
     def test_report_checker_requires_semantic_state_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:

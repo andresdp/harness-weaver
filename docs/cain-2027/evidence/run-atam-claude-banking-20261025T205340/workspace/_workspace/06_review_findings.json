@@ -1,0 +1,139 @@
+{
+  "reviewed_artifact": "05_atam_report.json",
+  "deterministic_validation": {
+    "ran": true,
+    "tool": "python3 .claude/skills/check-evaluation/scripts/validate_artifacts.py check _workspace --stage 5",
+    "exit_code": 0,
+    "summary": "Second pass (after revision): summary: 0 failure(s), 0 warning(s) (checked up to stage 5). Reviewer re-validated 05_atam_report.json against atam-report.schema.json with jsonschema (Draft 2020-12): 0 errors."
+  },
+  "checks": [
+    {
+      "id": "C-1",
+      "category": "structure",
+      "result": "pass",
+      "location": "report",
+      "finding": "Root is ATAM_Evaluation with title, metadata, evaluation_inputs and evaluation_results; evaluation_results has utility_tree, architectural_approaches (9), analysis_records (13), scenarios (16) and semantic_state. The report validates against atam-report.schema.json with 0 errors. evaluation_inputs is identical to 00_evaluation_inputs.json.evaluation_inputs (programmatic equality check). Metadata fields are null/empty, matching 01_context.json and gap G-1-1; nothing is invented. Second pass: still schema-valid (0 errors), and evaluation_inputs still equals the supplied inputs.",
+      "correction": null
+    },
+    {
+      "id": "C-2",
+      "category": "structure",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results",
+      "finding": "Report content matches stage artifacts: the 9 approach names, descriptions and addressed_attributes match 03_approaches.json; the 8 utility-tree nodes and 16 child scenarios match 02_utility_tree.json field by field; the 16 scenarios match scenario_text and primary_quality_attribute; the 13 analysis records match 04_analysis.json (scenario_reference, environment, stimulus, response_measure, decisions, reasoning prefix, finding ids and texts). Evidence ids and basis labels that the schema cannot hold as fields are carried as text suffixes ('(evidence: ...; basis: ...)'), and none is dropped.",
+      "correction": null
+    },
+    {
+      "id": "C-3",
+      "category": "semantic_state",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.semantic_state",
+      "finding": "All values are allowed by methodology.yaml, and each has evidence that supports it. context_status=sufficient (system_description names components and one relation; 3 business goals; 2 technical constraints). driver_status=partial (5 named drivers, but no ranking, 0/16 response measures, 0/16 priority tuples). architecture_evidence_status=partial (description-level only; the class diagrams claimed in initial_documentation_status were not supplied, G-1-3). scenario_analysis_status=partial (13 of 16 analyzed; RS-1, RS-10 and RS-12 unanalyzed), not reviewed. report_status=draft with evidence that no architect review is recorded.",
+      "correction": null
+    },
+    {
+      "id": "C-4",
+      "category": "semantic_state",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.semantic_state.gaps",
+      "finding": "Second pass: all 47 report gaps carry description (with gap type and source gap id), affected_activity, missing_evidence and resolution_question. The 46 stage gaps match 01-04 exactly; G-4-5 is verbatim from stage 4. The new gap G-5-1 (affected_activity synthesize-and-review, a methodology activity) records that R-4 and S-12 also depend on inferred AP-6.",
+      "correction": null
+    },
+    {
+      "id": "C-5",
+      "category": "evidence_traceability",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.analysis_records",
+      "finding": "Every analysis record references its scenario by id and by verbatim utility-tree text (scenario_reference.text equals 02_utility_tree.json scenario_text for all 13). Every risk, non-risk, sensitivity point and tradeoff point lists evidence ids (AE-/BD-/AP- or evaluation_inputs paths) that resolve to 01_context.json/03_approaches.json items with source_refs. The only observed risk, R-1, cites evaluation_inputs.quantitative_model_parameters.transaction_speed and performance_proxy directly. R-2..R-11 and NR-1..NR-5 are labeled inferred.",
+      "correction": null
+    },
+    {
+      "id": "C-6",
+      "category": "evidence_traceability",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.architectural_approaches[2].addressed_attributes[1].rationale",
+      "finding": "Resolved in revision. The AP-3 Modifiability rationale now reads 'New handler subtypes can be added to extend event-handling behaviour (AE-5, BD-10); whether the Event Manager must also change depends on the undisclosed handler binding mechanism, so this is inferred and conditional, not a settled fact (G-3-6, G-4-7).' This is consistent with AE-5 and with NR-1/G-4-7. No fact was added.",
+      "correction": null
+    },
+    {
+      "id": "C-7",
+      "category": "evidence_traceability",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.architectural_approaches[0].description; architectural_approaches[3].description; architectural_approaches[6].description; analysis_records[0].environment",
+      "finding": "Resolved in revision. The evidence suffixes now list the ids the text relies on: AP-1 (AE-4, AE-10, BD-11), AP-4 (AE-1, BD-13), AP-7 (AE-6, BD-5, BD-12). AR-1's evidence list now includes AE-6, matching its environment. All added ids exist in 01_context.json.",
+      "correction": null
+    },
+    {
+      "id": "C-8",
+      "category": "evidence_traceability",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.analysis_records[10].findings.non_risks[0]",
+      "finding": "Resolved in revision. The NR-4 rationale now states that AP-1's FIFO dispatch derives from constraint BD-11 rather than from a described queue implementation, so NR-4 holds only if BD-11 is implemented as stated (G-1-3, G-3-10). The basis is still inferred.",
+      "correction": null
+    },
+    {
+      "id": "C-9",
+      "category": "uncertainty",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.utility_tree; ATAM_Evaluation.evaluation_results.analysis_records[*].response_measure",
+      "finding": "All 16 priority_tuple values are null (G-2-17), and all 13 analysis response_measures read 'unspecified (see gap G-2-n)' with no invented thresholds. Inferred approaches AP-5, AP-6, AP-8 and AP-9 are labeled '[inferred: ...]' in their descriptions. Out-of-driver attributes (Security, Performance, Portability) are flagged in their refinements and in G-2-18. All 46 stage gaps (G-1-1..G-1-5, G-2-1..G-2-19, G-3-1..G-3-10, G-4-1..G-4-12) are present in the report. Second pass: unchanged. All 46 stage gaps are still present, plus the report-stage gap G-5-1.",
+      "correction": null
+    },
+    {
+      "id": "C-10",
+      "category": "uncertainty",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.semantic_state.gaps[38]; ATAM_Evaluation.evaluation_results.semantic_state.scenario_analysis_status.evidence[3]",
+      "finding": "Resolved in revision. scenario_analysis_status.evidence[3] now lists R-2, R-4, R-10, R-11, NR-1, NR-2, NR-3, NR-5, S-6, S-12, S-14 and T-4 as depending on inferred approaches. G-4-5 was kept verbatim to keep the stage-4 carry rule (V7). The added R-4/S-12 dependency on AP-6 is recorded as the new gap G-5-1, which has all four fields and the same resolution evidence. The dependency is visible without changing a stage gap.",
+      "correction": null
+    },
+    {
+      "id": "C-11",
+      "category": "method_coverage",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.analysis_records",
+      "finding": "All 16 scenarios in 02_utility_tree.json analysis_order are accounted for. 13 are analyzed (AR-1..AR-13), and RS-1, RS-10 and RS-12 are explicitly unanalyzed with reasons and gaps G-4-1, G-4-2 and G-4-3, which are visible in the report gaps and the scenario_analysis_status evidence. Partial analysis of RS-11 is disclosed (G-4-8). Tradeoff points T-1..T-4 each name a parameter with at least one (+) and one (-) attribute.",
+      "correction": null
+    },
+    {
+      "id": "C-12",
+      "category": "method_coverage",
+      "result": "pass",
+      "location": "ATAM_Evaluation.evaluation_results.analysis_records[1].findings.sensitivity_points[0]",
+      "finding": "Resolved in revision. S-3's parameter now reads 'Number of Event Managers and Event Queues (cited: 1 each, AE-10)', with no risk-style consequence; the single-point-of-failure consequence stays in R-3. The parameter still recurs across S-2/S-3/S-11/S-13, which is consistent with T-2 and stays in the architect focus.",
+      "correction": null
+    },
+    {
+      "id": "C-13",
+      "category": "reference_boundary",
+      "result": "pass",
+      "location": "report",
+      "finding": "No 'ground_truth' string appears in 00_evaluation_inputs.json or 05_atam_report.json (grep count 0). The validator's V1 check passed. 00_evaluation_inputs.json holds only evaluation_inputs, and the report puts its findings under evaluation_results.",
+      "correction": null
+    }
+  ],
+  "unsupported_claims": [],
+  "revision": {
+    "applied": true,
+    "changed_locations": [
+      "architectural_approaches[0].description (AP-1): added BD-11 to evidence (C-7)",
+      "architectural_approaches[2].addressed_attributes[1].rationale (AP-3 Modifiability): relabeled as inferred and conditional on handler binding, citing G-3-6, G-4-7 (C-6)",
+      "architectural_approaches[3].description (AP-4): added BD-13 (C-7)",
+      "architectural_approaches[6].description (AP-7): added BD-5, BD-12 (C-7)",
+      "analysis_records[0].reasoning (AR-1): added AE-6 (C-7)",
+      "analysis_records[10].findings.non_risks[0].rationale (NR-4): states FIFO derives from constraint BD-11 (C-8)",
+      "analysis_records[1].findings.sensitivity_points[0] (S-3): removed the single-point-of-failure consequence (C-12)",
+      "scenario_analysis_status.evidence[3]: added R-4, R-10, S-6, S-12, S-14 to the inferred-approach dependency list (C-10)",
+      "semantic_state.gaps: G-4-5 kept verbatim from stage 4; new gap G-5-1 records the R-4/S-12 dependency on AP-6 (C-10)"
+    ],
+    "remaining_failures": []
+  },
+  "ready_for_architect_review": true,
+  "architect_review_focus": [
+    "method_coverage: RS-1, RS-10 and RS-12 are unanalyzed (G-4-1, G-4-2, G-4-3). Confirm whether Security, Performance and Portability are in-scope drivers at all (G-1-4, G-2-18), and check the inferred attribute placements and the meaning of Variability and Conceptual Integrity (G-2-19).",
+    "evidence_grounding: the class diagrams and interaction descriptions claimed in initial_documentation_status were not supplied (G-1-3, G-3-10). Four approaches are inferred (AP-5 inversion of control, AP-6 sequential processing, AP-8 STOP handler, AP-9 event-driven style), and findings R-2, R-4, R-10, R-11, NR-1..NR-3, NR-5, S-6, S-12, S-14 and T-4 depend on them (G-4-5, G-5-1, G-4-6, G-4-7).",
+    "risks: the reliability risks R-3 (no recovery for the single Event Manager/Queue) and R-4 (no fault isolation between handlers and the framework), and the cluster R-6..R-10 that rests on application logic embedded in framework components (AP-4), which has no stated rationale (G-3-5, G-4-11).",
+    "tradeoffs: T-1 (handler decomposition: Variability/Modifiability vs Performance; the attribution is inferred, G-4-10), T-2 (single manager/queue: Conceptual Integrity vs Performance/Reliability), T-3 (FIFO-only dispatch) and T-4 (sequential concurrency model, which depends on inferred AP-6).",
+    "unknowns: no scenario has a response measure or priority tuple (G-1-2, G-2-1..G-2-17, G-4-4), so no finding can be judged as met or not met. Metadata (system name, date, attendees) is absent (G-1-1). Handler binding, error handling, persistence and security mechanisms are undescribed (G-3-6..G-3-9). AP-3's modifiability claim is conditional on that binding mechanism (G-3-6)."
+  ]
+}

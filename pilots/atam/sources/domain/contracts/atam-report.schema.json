@@ -527,8 +527,14 @@
     },
     "AtamScenario": {
       "additionalProperties": false,
-      "description": "Evaluation scenario and the quality attributes it primarily exercises.",
+      "description": "Evaluation scenario with stable identity, provenance, and primary quality attributes.",
       "properties": {
+        "id": {
+          "description": "Stable ID used by analysis_records.scenario_reference",
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
         "scenario_text": {
           "description": "Scenario expressed with stimulus, context, and response",
           "title": "Scenario Text",
@@ -541,13 +547,124 @@
           },
           "title": "Primary Quality Attribute",
           "type": "array"
+        },
+        "origin": {
+          "$ref": "#/$defs/AtamScenarioOrigin",
+          "description": "Source provenance preserved from the utility tree"
         }
       },
       "required": [
+        "id",
         "scenario_text",
-        "primary_quality_attribute"
+        "primary_quality_attribute",
+        "origin"
       ],
       "title": "AtamScenario",
+      "type": "object"
+    },
+    "AtamScenarioOrigin": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "raw_candidate_scenario"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_scenario_id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "basis": {
+                "const": "observed"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "derived_from_evidence",
+                  "derived_from_driver"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_scenario_id": {
+                "type": "null"
+              },
+              "basis": {
+                "const": "inferred"
+              }
+            }
+          }
+        }
+      ],
+      "description": "Traceable source for a supplied or derived evaluation scenario.",
+      "properties": {
+        "kind": {
+          "description": "Whether the scenario is supplied verbatim in the case or derived from case inputs",
+          "enum": [
+            "raw_candidate_scenario",
+            "derived_from_evidence",
+            "derived_from_driver"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "source_scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original raw candidate scenario ID, or null for a derived scenario",
+          "title": "Source Scenario Id"
+        },
+        "basis": {
+          "description": "Evidence basis for the scenario's origin",
+          "enum": [
+            "observed",
+            "inferred"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "source_refs": {
+          "description": "Non-empty paths into evaluation_inputs that support this scenario's origin",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "source_scenario_id",
+        "basis",
+        "source_refs"
+      ],
+      "title": "AtamScenarioOrigin",
       "type": "object"
     },
     "AtamScenarioReference": {
@@ -555,12 +672,12 @@
       "description": "Reference to a scenario used in an analysis record.",
       "properties": {
         "id": {
-          "description": "Scenario identifier",
+          "description": "Stable ID of a scenario in evaluation_results.scenarios",
           "title": "Id",
           "type": "string"
         },
         "text": {
-          "description": "Scenario text",
+          "description": "Exact scenario_text of the referenced report scenario",
           "title": "Text",
           "type": "string"
         },
@@ -710,13 +827,18 @@
             }
           ],
           "description": "ATAM priority tuple, or null when not supported"
+        },
+        "origin": {
+          "$ref": "#/$defs/AtamScenarioOrigin",
+          "description": "Source provenance for the utility-tree scenario"
         }
       },
       "required": [
         "refinement",
         "scenario_id",
         "scenario_description",
-        "priority_tuple"
+        "priority_tuple",
+        "origin"
       ],
       "title": "AtamUtilityScenario",
       "type": "object"

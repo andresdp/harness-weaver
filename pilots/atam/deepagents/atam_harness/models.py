@@ -1,9 +1,9 @@
 """Pydantic contracts for ATAM model output and runner configuration."""
 
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class StrictModel(BaseModel):
@@ -31,6 +31,65 @@ class AtamPriorityTuple(StrictModel):
     difficulty: str = Field(description="Relative difficulty of achieving this scenario")
 
 
+class AtamScenarioOrigin(StrictModel):
+    """Traceable source for a supplied or derived evaluation scenario."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+        revalidate_instances="always",
+        json_schema_extra={
+            "allOf": [
+                {
+                    "if": {"properties": {"kind": {"const": "raw_candidate_scenario"}}, "required": ["kind"]},
+                    "then": {
+                        "properties": {
+                            "source_scenario_id": {"type": "string", "minLength": 1},
+                            "basis": {"const": "observed"},
+                        }
+                    },
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "kind": {"enum": ["derived_from_evidence", "derived_from_driver"]}
+                        },
+                        "required": ["kind"],
+                    },
+                    "then": {
+                        "properties": {
+                            "source_scenario_id": {"type": "null"},
+                            "basis": {"const": "inferred"},
+                        }
+                    },
+                },
+            ]
+        },
+    )
+
+    kind: Literal["raw_candidate_scenario", "derived_from_evidence", "derived_from_driver"] = Field(
+        description="Whether the scenario is supplied verbatim in the case or derived from case inputs"
+    )
+    source_scenario_id: str | None = Field(
+        description="Original raw candidate scenario ID, or null for a derived scenario"
+    )
+    basis: Literal["observed", "inferred"] = Field(description="Evidence basis for the scenario's origin")
+    source_refs: list[Annotated[str, Field(min_length=1)]] = Field(
+        min_length=1,
+        description="Non-empty paths into evaluation_inputs that support this scenario's origin",
+    )
+
+    @model_validator(mode="after")
+    def validate_origin_kind(self) -> "AtamScenarioOrigin":
+        if self.kind == "raw_candidate_scenario":
+            if not self.source_scenario_id or self.basis != "observed":
+                raise ValueError("raw candidate scenarios require a source ID and observed basis")
+        elif self.source_scenario_id is not None or self.basis != "inferred":
+            raise ValueError("derived scenarios require a null source ID and inferred basis")
+        if any(not item.strip() for item in self.source_refs):
+            raise ValueError("scenario source_refs must contain non-empty paths")
+        return self
+
+
 class AtamUtilityScenario(StrictModel):
     """A measurable quality-attribute scenario in the utility tree."""
 
@@ -38,6 +97,7 @@ class AtamUtilityScenario(StrictModel):
     scenario_id: str = Field(description="Stable identifier for this scenario")
     scenario_description: str = Field(description="Stimulus, response, and context expressed as a scenario")
     priority_tuple: AtamPriorityTuple | None = Field(description="ATAM priority tuple, or null when not supported")
+    origin: AtamScenarioOrigin = Field(description="Source provenance for the utility-tree scenario")
 
 
 class AtamQualityAttributeNode(StrictModel):
@@ -72,8 +132,8 @@ class AtamArchitecturalApproach(StrictModel):
 class AtamScenarioReference(StrictModel):
     """Reference to a scenario used in an analysis record."""
 
-    id: str = Field(description="Scenario identifier")
-    text: str = Field(description="Scenario text")
+    id: str = Field(description="Stable ID of a scenario in evaluation_results.scenarios")
+    text: str = Field(description="Exact scenario_text of the referenced report scenario")
     type: str = Field(description="Scenario category, such as utility-tree or evaluation scenario")
 
 
@@ -196,10 +256,12 @@ class AtamSemanticState(StrictModel):
 
 
 class AtamScenario(StrictModel):
-    """Evaluation scenario and the quality attributes it primarily exercises."""
+    """Evaluation scenario with stable identity, provenance, and primary quality attributes."""
 
+    id: str = Field(min_length=1, description="Stable ID used by analysis_records.scenario_reference")
     scenario_text: str = Field(description="Scenario expressed with stimulus, context, and response")
     primary_quality_attribute: list[str] = Field(description="Primary quality attributes exercised")
+    origin: AtamScenarioOrigin = Field(description="Source provenance preserved from the utility tree")
 
 
 class AtamEvaluationResults(StrictModel):
@@ -212,6 +274,39 @@ class AtamEvaluationResults(StrictModel):
     semantic_state: AtamSemanticState = Field(
         description="Evidence-based ATAM progress, independent of agent calls and runtime task completion"
     )
+
+    @model_validator(mode="after")
+    def validate_scenario_references(self) -> "AtamEvaluationResults":
+        utility_scenarios = {
+            scenario.scenario_id: scenario
+            for node in self.utility_tree.quality_attribute_nodes
+            for scenario in node.children
+        }
+        if len(utility_scenarios) != sum(len(node.children) for node in self.utility_tree.quality_attribute_nodes):
+            raise ValueError("utility-tree scenario IDs must be unique")
+        by_id: dict[str, AtamScenario] = {}
+        for scenario in self.scenarios:
+            if scenario.id in by_id:
+                raise ValueError(f"duplicate scenario id: {scenario.id}")
+            by_id[scenario.id] = scenario
+            utility_scenario = utility_scenarios.get(scenario.id)
+            if utility_scenario is None:
+                raise ValueError(f"reported scenario {scenario.id!r} is missing from the utility tree")
+            if " ".join(scenario.scenario_text.split()) != " ".join(utility_scenario.scenario_description.split()):
+                raise ValueError(f"reported scenario {scenario.id!r} text differs from the utility tree")
+            if scenario.origin != utility_scenario.origin:
+                raise ValueError(f"reported scenario {scenario.id!r} origin differs from the utility tree")
+        if set(by_id) != set(utility_scenarios):
+            raise ValueError("reported scenarios must preserve every utility-tree scenario")
+        for index, record in enumerate(self.analysis_records):
+            scenario = by_id.get(record.scenario_reference.id)
+            if scenario is None:
+                raise ValueError(
+                    f"analysis_records[{index}].scenario_reference.id does not resolve to a reported scenario"
+                )
+            if " ".join(record.scenario_reference.text.split()) != " ".join(scenario.scenario_text.split()):
+                raise ValueError(f"analysis_records[{index}].scenario_reference.text does not match its reported scenario")
+        return self
 
 
 class AtamReportPayload(StrictModel):

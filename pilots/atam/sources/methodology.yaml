@@ -17,6 +17,7 @@ activities:
   readiness: business_drivers are identified; unknown details remain explicit
   outputs:
   - quality_attribute_scenarios
+  - scenario_origin_and_source_refs
   - priority_tuples
   - response_measures
 - id: identify-approaches
@@ -88,6 +89,28 @@ evidence_rules:
     gaps: G-stage-n identifiers belong only to gap records and must never appear in evidence_ids or evidence citations.
   measurement: If a scenario lacks a response measure, benchmark, workload, or target, do not claim that a
     performance threshold is met or violated; state the uncertainty and record the missing measure as a gap.
+scenario_provenance:
+  report_identity: Every utility-tree child and evaluation_results.scenarios entry has a stable ID and the same
+    origin record. Analysis records reference that report scenario ID; scenario wording is descriptive and is not an identifier.
+  origins:
+  - kind: raw_candidate_scenario
+    source_scenario_id: Required id copied from evaluation_inputs.raw_candidate_scenarios.
+    basis: observed
+    source_refs: Non-empty paths into evaluation_inputs; at least one path must identify the matching raw candidate scenario.
+  - kind: derived_from_evidence
+    source_scenario_id: null
+    basis: inferred
+    source_refs: Non-empty paths to the supplied evaluation_inputs that support the derivation.
+  - kind: derived_from_driver
+    source_scenario_id: null
+    basis: inferred
+    source_refs: Non-empty paths to the supplied evaluation_inputs that support the derivation.
+  validation: Every source_ref must resolve against the trusted case evaluation_inputs. References must never point to
+    ground_truth_outputs. The utility tree and evaluation_results.scenarios inventories must have matching IDs, text,
+    and origins. Every analysis scenario_reference.id must resolve to exactly one reported scenario, and its text must
+    match that scenario's scenario_text.
+  readiness: Missing, duplicate, dangling, or unresolvable scenario lineage is an evidence_traceability failure and
+    blocks ready_for_architect_review.
 completion:
   required:
   - context_status

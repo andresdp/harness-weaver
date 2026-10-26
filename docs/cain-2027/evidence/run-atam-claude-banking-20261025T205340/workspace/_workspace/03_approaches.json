@@ -1,0 +1,129 @@
+{
+  "approaches": [
+    {
+      "id": "AP-1",
+      "approach_name": "Single central Event Queue with FIFO dispatch",
+      "description": "The framework holds one Event Queue (AE-4; architecture_limits.event_queues = 1, AE-10). The runtime constraints require events to be dispatched first-come-first-served (BD-11), so the queue is the single ordering point for every event in the system.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-4", "AE-10"],
+      "addressed_attributes": [
+        {"quality_attribute": "Functionality", "rationale": "A FIFO queue meets the required dispatch order (BD-11) and supports the goal of handling and processing events (BD-2); BD-9 names Functionality as a driver."},
+        {"quality_attribute": "Conceptual Integrity", "rationale": "A single queue with one ordering rule gives every event the same path and order, which supports uniform behaviour (BD-8)."}
+      ]
+    },
+    {
+      "id": "AP-2",
+      "approach_name": "Single Event Manager dispatching directly to application handlers",
+      "description": "One Event Manager (architecture_limits.event_managers = 1, AE-10) interacts directly with application handlers (AE-3). No intermediary such as a broker or registry is described between the manager and the handlers.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-3", "AE-10"],
+      "addressed_attributes": [
+        {"quality_attribute": "Conceptual Integrity", "rationale": "All dispatch decisions are made in one component, so the coordination logic exists only once (BD-8)."},
+        {"quality_attribute": "Functionality", "rationale": "Direct manager-to-handler interaction is how the framework delivers events to the application (BD-2, BD-3, BD-9)."}
+      ]
+    },
+    {
+      "id": "AP-3",
+      "approach_name": "Handler extension hierarchy (base Handler specialized by standard and application-specific handlers)",
+      "description": "A base Handler component is extended by standard (framework-supplied) handlers and by application-specific handlers (AE-5). Applications add behaviour by supplying new handler subtypes of the common base.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-5"],
+      "addressed_attributes": [
+        {"quality_attribute": "Variability", "rationale": "Applications vary framework behaviour by adding their own handler specializations of the base Handler (BD-6)."},
+        {"quality_attribute": "Modifiability", "rationale": "New event-handling functionality is added as a new handler subtype rather than by changing the Event Manager or Queue (BD-10)."},
+        {"quality_attribute": "Conceptual Integrity", "rationale": "Every handler, standard or application-specific, conforms to one base abstraction (BD-8)."}
+      ]
+    },
+    {
+      "id": "AP-4",
+      "approach_name": "Application logic embedded in framework components (tight framework-application coupling)",
+      "description": "Application logic and the framework are highly inter-dependent (AE-1), and the runtime constraints state that application logic is embedded within framework components (BD-13). The evidence presents this as a property of the design. It does not say what quality goal it serves.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-1"],
+      "addressed_attributes": []
+    },
+    {
+      "id": "AP-5",
+      "approach_name": "Framework-owned Main module driving control flow (inversion of control)",
+      "description": "The Main module belongs to the framework, not to the application (AE-2), and the framework's Event Manager calls into application handlers (AE-3, AE-5). Taken together, the framework seems to own the top-level control loop and call application code back through handlers.",
+      "basis": "inferred",
+      "inference_note": "Inferred from AE-2 (Main is part of the framework), AE-3 (the Event Manager interacts directly with application handlers) and AE-5 (application-specific handlers extend a framework base Handler). The inputs never say inversion of control or describe the main loop. Confirmation needs the Main module's responsibilities and a sequence or interaction description showing who invokes whom.",
+      "evidence_ids": ["AE-2", "AE-3", "AE-5"],
+      "addressed_attributes": [
+        {"quality_attribute": "Conceptual Integrity", "rationale": "If the framework owns the control loop, every application follows the same execution model (BD-8)."},
+        {"quality_attribute": "Functionality", "rationale": "Applications use framework services without implementing their own event loop, which supports BD-1 and BD-3."}
+      ]
+    },
+    {
+      "id": "AP-6",
+      "approach_name": "Sequential event processing on a single processor",
+      "description": "Events are processed one at a time on one processor (AE-7). This matches the single Event Manager and single Event Queue (AE-10). The input itself says single-processor execution is 'implied', not specified.",
+      "basis": "inferred",
+      "inference_note": "The source states 'Single processor execution implied (sequential event processing)' (AE-7), so the input itself hedges. AE-10 (one manager, one queue) is consistent with this. A statement of the threading/concurrency model and the deployment target would confirm it.",
+      "evidence_ids": ["AE-7", "AE-10"],
+      "addressed_attributes": [
+        {"quality_attribute": "Reliability", "rationale": "Processing events one at a time removes concurrent access to the queue and handlers, which supports predictable, correct handling (BD-7)."},
+        {"quality_attribute": "Conceptual Integrity", "rationale": "A single sequential execution model, together with FIFO order (BD-11), makes behaviour deterministic and consistent (BD-8)."}
+      ]
+    },
+    {
+      "id": "AP-7",
+      "approach_name": "Command-line input with idle wait until input arrives",
+      "description": "The system takes input through a Command Line Interface (AE-6) and must stay in an idle-wait state until input is received (BD-5, BD-12). User input is therefore the source of events, and the framework blocks between inputs.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-6"],
+      "addressed_attributes": [
+        {"quality_attribute": "Functionality", "rationale": "The idle-wait-on-CLI-input behaviour is required by the technical and runtime constraints (BD-5, BD-12) and is how events enter the framework (BD-2)."}
+      ]
+    },
+    {
+      "id": "AP-8",
+      "approach_name": "STOP handler for controlled termination",
+      "description": "System termination must go through a STOP handler (BD-4). Given the handler hierarchy (AE-5), STOP is presumably one of the standard framework handlers, so termination is processed like any other event.",
+      "basis": "inferred",
+      "inference_note": "BD-4 requires termination via a STOP handler, but no AE item describes it. Treating it as a standard handler in the AE-5 hierarchy, dispatched through the Event Queue and Manager, is an inference. Confirmation needs the list of standard handlers and how STOP is triggered and dispatched.",
+      "evidence_ids": ["AE-5"],
+      "addressed_attributes": [
+        {"quality_attribute": "Reliability", "rationale": "A dedicated termination handler gives the system one defined shutdown path (BD-7)."},
+        {"quality_attribute": "Conceptual Integrity", "rationale": "Termination handled as an event through the same handler mechanism keeps one interaction model (BD-8)."}
+      ]
+    },
+    {
+      "id": "AP-9",
+      "approach_name": "Event-driven architectural style (in-process event framework)",
+      "description": "The overall style combines an Event Queue (AE-4), an Event Manager that dispatches to handlers (AE-3) and a Handler hierarchy (AE-5) inside one framework, and the evaluators probe it as Event-Driven Architecture (AE-11). Whether it is event-driven in the publish-subscribe/broker sense or a local event-dispatch loop is not stated.",
+      "basis": "inferred",
+      "inference_note": "AE-11 is a style probe and cannot make the style observed by itself. Together with AE-3, AE-4 and AE-5 it supports an event-driven style. The inputs never name the style for this system, and no subscription, broker or asynchronous messaging mechanism is described. The architect would need to confirm the style and its variant (in-process dispatch loop or publish-subscribe).",
+      "evidence_ids": ["AE-3", "AE-4", "AE-5", "AE-11"],
+      "addressed_attributes": [
+        {"quality_attribute": "Variability", "rationale": "Event dispatch to pluggable handlers lets applications vary behaviour by supplying handlers (BD-6)."},
+        {"quality_attribute": "Modifiability", "rationale": "Event producers and handlers meet only through the queue and manager, which in principle localizes changes to handlers (BD-10)."}
+      ]
+    }
+  ],
+  "architecture_evidence_status": {
+    "value": "partial",
+    "evidence": [
+      "03_approaches.json names 9 approaches: 5 observed (AP-1, AP-2, AP-3, AP-4, AP-7) and 4 inferred (AP-5, AP-6, AP-8, AP-9)",
+      "01_context.json architecture_evidence has 12 AE items; none describes connector types, handler registration/binding, error handling, persistence or security mechanisms",
+      "evaluation_inputs.phase_1_discovery.initial_documentation_status claims class diagrams and defined component interactions, but none is included in 00_evaluation_inputs.json (G-1-3)"
+    ]
+  },
+  "gaps": [
+    {"id": "G-3-1", "gap_type": "unknown", "description": "AP-5 (framework-owned Main driving control flow / inversion of control) is inferred from AE-2, AE-3 and AE-5. The inputs do not describe the Main module's responsibilities or the control loop.", "affected_activity": "identify-approaches", "missing_evidence": "Main module responsibilities and a sequence/interaction description showing which component invokes which", "resolution_question": "Does the framework's Main module own the event loop and call application handlers back (inversion of control), and what does Main do exactly?"},
+    {"id": "G-3-2", "gap_type": "unknown", "description": "AP-6 (sequential single-processor event processing) rests on AE-7, which the input itself describes as 'implied'. No threading or concurrency model is given.", "affected_activity": "identify-approaches", "missing_evidence": "Threading/concurrency model and deployment target specification", "resolution_question": "Is event processing strictly single-threaded and sequential on one processor, or can handlers run concurrently?"},
+    {"id": "G-3-3", "gap_type": "unknown", "description": "AP-8 (STOP handler for controlled termination) is required by BD-4, but no architecture evidence describes the STOP handler, where it sits in the handler hierarchy or how it is triggered.", "affected_activity": "identify-approaches", "missing_evidence": "List of standard handlers and the STOP handler's trigger and dispatch path", "resolution_question": "Is the STOP handler one of the standard handlers extending the base Handler, dispatched through the Event Queue and Event Manager like other events, and what triggers it?"},
+    {"id": "G-3-4", "gap_type": "unknown", "description": "AP-9 (event-driven style) is supported by the style probe AE-11 plus AE-3, AE-4 and AE-5. The inputs never name the style for this system or say which variant applies.", "affected_activity": "identify-approaches", "missing_evidence": "Architect's statement of the architectural style and its variant (in-process event-dispatch loop, publish-subscribe, broker-based)", "resolution_question": "Is Event-Driven Architecture the intended style, and is it an in-process dispatch loop or a publish-subscribe mechanism with handler subscription?"},
+    {"id": "G-3-5", "gap_type": "unknown", "description": "AP-4 (application logic embedded in framework components) is stated as a property of the design (AE-1, BD-13), but no rationale or intended quality benefit is given, so addressed_attributes is left empty.", "affected_activity": "identify-approaches", "missing_evidence": "Design rationale for embedding application logic in framework components", "resolution_question": "Was embedding application logic in framework components a deliberate decision, and if so, which quality goal (e.g. simplicity, performance) was it meant to serve?"},
+    {"id": "G-3-6", "gap_type": "incomplete", "description": "The way application-specific handlers are bound to the Event Manager (static inheritance only, registration at start-up, or a lookup table mapping event types to handlers) is not described, and neither are the event types or the connector between the Queue and the Manager.", "affected_activity": "identify-approaches", "missing_evidence": "Handler registration/binding mechanism, event type catalogue, connector types between Event Queue, Event Manager and handlers", "resolution_question": "How does the Event Manager choose the handler for an event, and how is a new application-specific handler registered with the framework?"},
+    {"id": "G-3-7", "gap_type": "incomplete", "description": "No architecture evidence describes error handling, invalid-input handling or failure recovery, although Reliability (BD-7) is a named driver and Q-6, RS-3 and RS-4 raise these concerns.", "affected_activity": "identify-approaches", "missing_evidence": "Description of input validation, exception/error handling and recovery mechanisms", "resolution_question": "What mechanisms does the framework use to detect and handle invalid user input and handler failures, and how does it recover?"},
+    {"id": "G-3-8", "gap_type": "incomplete", "description": "No architecture evidence describes security mechanisms (access control, data encapsulation, confidentiality), although Q-1, Q-2, RS-1 and RS-11 raise them.", "affected_activity": "identify-approaches", "missing_evidence": "Description of any authentication, authorization or data-protection mechanisms", "resolution_question": "Does the framework include any access-control or data-protection mechanisms, or is security out of scope for this CLI framework?"},
+    {"id": "G-3-9", "gap_type": "incomplete", "description": "Persistence and data management are not described: no evidence on whether the framework stores state, and which data structures the queue and handlers share.", "affected_activity": "identify-approaches", "missing_evidence": "Description of data storage, shared state and data structures", "resolution_question": "Does the framework persist any state or share data structures between handlers, and how is that data encapsulated?"},
+    {"id": "G-3-10", "gap_type": "incomplete", "description": "The class diagrams and component interaction descriptions referred to in evaluation_inputs.phase_1_discovery.initial_documentation_status (AE-12, G-1-3) were not supplied. Without them the approaches above cannot be checked against the documented structure.", "affected_activity": "identify-approaches", "missing_evidence": "Class diagrams and component interaction specifications", "resolution_question": "Can the class diagrams and component interaction descriptions be supplied so that the identified approaches can be confirmed or corrected?"}
+  ]
+}

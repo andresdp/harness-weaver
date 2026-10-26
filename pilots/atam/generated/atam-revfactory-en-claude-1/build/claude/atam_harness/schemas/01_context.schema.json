@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamContextArtifact",
+  "description": "Stage 1 (establish-context) output: 01_context.json. Registers business drivers (BD-n) and architecture evidence (AE-n). Every registered item is an observed statement traceable to 00_evaluation_inputs.json by source_refs; inferences and absences belong in gaps, not here.",
+  "$defs": {
+    "SourceRefs": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^(evaluation_inputs|metadata|title)(\\.|\\[|$)"},
+      "description": "JSON paths into 00_evaluation_inputs.json, e.g. evaluation_inputs.business_context.business_goals[0]. Keys containing '.', '[' or ']' use bracket form: evaluation_inputs.x[\"key.with.dots\"]."
+    },
+    "Gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^G-1-[0-9]+$"},
+        "gap_type": {"type": "string", "enum": ["unknown", "conflict", "incomplete", "assumption"]},
+        "description": {"type": "string", "minLength": 1},
+        "affected_activity": {"type": "string", "enum": ["establish-context", "build-utility-tree", "identify-approaches", "analyze-scenarios", "synthesize-and-review"]},
+        "missing_evidence": {"type": "string", "minLength": 1},
+        "resolution_question": {"type": "string", "minLength": 1}
+      },
+      "required": ["id", "gap_type", "description", "affected_activity", "missing_evidence", "resolution_question"]
+    },
+    "AvailabilityAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "value": {"type": "string", "enum": ["missing", "partial", "sufficient"]},
+        "evidence": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1}
+      },
+      "required": ["value", "evidence"]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "system_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": {"type": "string", "minLength": 1},
+        "basis": {"type": "string", "enum": ["observed", "inferred"]},
+        "source_refs": {"$ref": "#/$defs/SourceRefs"}
+      },
+      "required": ["summary", "basis", "source_refs"]
+    },
+    "business_drivers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^BD-[0-9]+$"},
+          "statement": {"type": "string", "minLength": 1},
+          "kind": {"type": "string", "enum": ["business_goal", "business_constraint", "technical_constraint", "architectural_driver", "other"]},
+          "basis": {"const": "observed"},
+          "source_refs": {"allOf": [{"$ref": "#/$defs/SourceRefs"}, {"minItems": 1}]}
+        },
+        "required": ["id", "statement", "kind", "basis", "source_refs"]
+      }
+    },
+    "architecture_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "string", "pattern": "^AE-[0-9]+$"},
+          "statement": {"type": "string", "minLength": 1},
+          "kind": {"type": "string", "enum": ["decision", "component", "connector", "deployment", "runtime_constraint", "quantitative_parameter", "style_probe", "documentation_status", "other"]},
+          "basis": {"const": "observed"},
+          "source_refs": {"allOf": [{"$ref": "#/$defs/SourceRefs"}, {"minItems": 1}]}
+        },
+        "required": ["id", "statement", "kind", "basis", "source_refs"]
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "question": {"type": "string", "minLength": 1},
+          "source_refs": {"$ref": "#/$defs/SourceRefs"}
+        },
+        "required": ["question", "source_refs"]
+      }
+    },
+    "context_status": {"$ref": "#/$defs/AvailabilityAssessment"},
+    "driver_status": {"$ref": "#/$defs/AvailabilityAssessment"},
+    "architecture_evidence_status": {"$ref": "#/$defs/AvailabilityAssessment"},
+    "gaps": {"type": "array", "items": {"$ref": "#/$defs/Gap"}}
+  },
+  "required": ["system_scope", "business_drivers", "architecture_evidence", "open_questions", "context_status", "driver_status", "architecture_evidence_status", "gaps"]
+}

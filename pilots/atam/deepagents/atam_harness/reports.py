@@ -3,6 +3,7 @@
 import json
 import hashlib
 import os
+import re
 import secrets
 import stat
 from pathlib import Path
@@ -20,6 +21,56 @@ from .models import (
     AtamRunRecord,
 )
 
+_INPUT_REF = re.compile(r"evaluation_inputs(?:\.[A-Za-z_][A-Za-z0-9_-]*(?:\[\d+\])?)+")
+_INPUT_REF_PART = re.compile(r"([A-Za-z_][A-Za-z0-9_-]*)(?:\[(\d+)\])?")
+
+
+def _resolve_input_ref(evaluation_inputs: dict, source_ref: str):
+    """Resolve the dotted source-ref notation against trusted evaluation inputs."""
+    if not isinstance(source_ref, str) or not _INPUT_REF.fullmatch(source_ref):
+        raise ValueError(f"scenario source_ref must point into evaluation_inputs: {source_ref!r}")
+    current = evaluation_inputs
+    for part in source_ref.removeprefix("evaluation_inputs.").split("."):
+        match = _INPUT_REF_PART.fullmatch(part)
+        if match is None:
+            raise ValueError(f"invalid scenario source_ref: {source_ref!r}")
+        key, index = match.groups()
+        if not isinstance(current, dict) or key not in current:
+            raise ValueError(f"scenario source_ref does not resolve: {source_ref!r}")
+        current = current[key]
+        if index is not None:
+            if not isinstance(current, list) or int(index) >= len(current):
+                raise ValueError(f"scenario source_ref does not resolve: {source_ref!r}")
+            current = current[int(index)]
+    return current
+
+
+def _validate_scenario_origins(payload: AtamReportPayload, evaluation_inputs: dict) -> None:
+    raw_scenarios = evaluation_inputs.get("raw_candidate_scenarios", [])
+    if not isinstance(raw_scenarios, list):
+        raise ValueError("evaluation_inputs.raw_candidate_scenarios must be an array when present")
+    raw_by_id = {
+        scenario.get("id"): index
+        for index, scenario in enumerate(raw_scenarios)
+        if isinstance(scenario, dict) and isinstance(scenario.get("id"), str)
+    }
+    for index, scenario in enumerate(payload.evaluation_results.scenarios):
+        origin = scenario.origin
+        for source_ref in origin.source_refs:
+            _resolve_input_ref(evaluation_inputs, source_ref)
+        if origin.kind == "raw_candidate_scenario":
+            source_index = raw_by_id.get(origin.source_scenario_id)
+            if source_index is None:
+                raise ValueError(
+                    f"evaluation_results.scenarios[{index}] cites unknown raw scenario ID "
+                    f"{origin.source_scenario_id!r}"
+                )
+            expected_ref = f"evaluation_inputs.raw_candidate_scenarios[{source_index}]"
+            if expected_ref not in origin.source_refs:
+                raise ValueError(
+                    f"evaluation_results.scenarios[{index}] must cite {expected_ref!r} in origin.source_refs"
+                )
+
 
 def load_case(path: Path) -> AtamCaseInputs:
     """Load the allowed evaluation inputs into a model, ignoring reference outputs."""
@@ -36,6 +87,7 @@ def compose_report(
     # Revalidate both public inputs to guard against dynamically constructed values.
     validated_case = AtamCaseInputs.model_validate(case)
     validated_payload = AtamReportPayload.model_validate(payload)
+    _validate_scenario_origins(validated_payload, validated_case.evaluation_inputs)
     return AtamReportDocument(
         atam_evaluation=AtamReportContent(
             # This runner-owned title keeps the generated report linked to its run.

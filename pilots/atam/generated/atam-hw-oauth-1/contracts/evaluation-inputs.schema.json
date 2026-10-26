@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamEvaluationInputsArtifact",
+  "description": "Input port evaluation_inputs, normalized. Holds only ATAM_Evaluation.evaluation_inputs plus optional metadata and title. Must never contain ground_truth_outputs or evaluation_results.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "evaluation_inputs": {
+      "type": "object",
+      "additionalProperties": true,
+      "minProperties": 1
+    }
+  },
+  "required": [
+    "evaluation_inputs"
+  ]
+}

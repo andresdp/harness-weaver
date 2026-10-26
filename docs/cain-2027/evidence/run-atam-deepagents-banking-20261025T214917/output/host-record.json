@@ -1,0 +1,73 @@
+{
+  "host": "harnessweaver.hosts.deepagents",
+  "started_at": "2026-10-25T21:50:40.562894+00:00",
+  "finished_at": "2026-10-25T21:53:26.398395+00:00",
+  "status": "failed",
+  "bundle": "bundle",
+  "wiring_sha256": "4e79dfab8f7d6551904eceb793cf82214e3f9aa97488da46450dd811e7e954ae",
+  "spec": {
+    "path": "../../harnessspec.yaml",
+    "id": "archeval-atam-harness",
+    "version": "0.2"
+  },
+  "stages": [
+    {
+      "number": 1,
+      "dir": "stage1-establish_context",
+      "status": "completed",
+      "elapsed_seconds": 30.742,
+      "artifacts": [
+        "01_context.json"
+      ],
+      "problems": []
+    },
+    {
+      "number": 2,
+      "dir": "stage2-build_utility_tree",
+      "status": "completed",
+      "elapsed_seconds": 25.907,
+      "artifacts": [
+        "02_utility_tree.json"
+      ],
+      "problems": []
+    },
+    {
+      "number": 3,
+      "dir": "stage3-identify_approaches",
+      "status": "completed",
+      "elapsed_seconds": 12.846,
+      "artifacts": [
+        "03_approaches.json"
+      ],
+      "problems": []
+    },
+    {
+      "number": 4,
+      "dir": "stage4-analyze_scenarios",
+      "status": "completed",
+      "elapsed_seconds": 46.468,
+      "artifacts": [
+        "04_analysis.json"
+      ],
+      "problems": []
+    },
+    {
+      "number": 5,
+      "dir": "stage5-synthesize_and_review",
+      "status": "failed",
+      "elapsed_seconds": 49.866,
+      "artifacts": [
+        "05_atam_report.json",
+        "06_review_findings.json"
+      ],
+      "problems": [
+        "/artifacts/05_atam_report.json is not valid JSON: Expecting ',' delimiter: line 1 column 40216 (char 40215)",
+        "/artifacts/06_review_findings.json violates contracts/review-findings.schema.json at <root>: Additional properties are not allowed ('findings_summary', 'readiness', 'review_status', 'revision_record' were unexpected) (8 error(s))"
+      ]
+    }
+  ],
+  "human_gates": [],
+  "output": null,
+  "output_sha256": null,
+  "problems": []
+}

@@ -17,6 +17,7 @@ Read the synthesized draft, the initial review findings, all source and intermed
 2. Apply each correction that can be made by removing, relabeling, relinking, or rephrasing existing content without inventing facts. Keep `report_status: draft` and `scenario_analysis_status` at most `partial`.
 3. If a correction needs missing facts, leave the affected conclusion qualified or unresolved and preserve a gap; do not fabricate a replacement.
 4. Recheck each changed location against the source and intermediate artifacts. Update the final review finding to `pass` only when the correction resolves the concern; otherwise retain `fail` or `warn` and explain what remains.
+   Revalidate scenario lineage: report scenario IDs must remain unique, each analysis reference must resolve to the report scenario and match its text, and every scenario origin must remain traceable to trusted `evaluation_inputs`.
 5. Write the final report and final review findings. Set `revision.applied` according to whether any content changed, list changed JSON locations, and list any remaining failed checks.
 6. Compute `ready_for_architect_review` only now. It is false if any `fail` or `warn` remains for structure, semantic state, evidence traceability, uncertainty, method coverage, or reference boundary. It can be true only after this revision stage completes and none of those blocking findings remains.
 

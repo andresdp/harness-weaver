@@ -1,0 +1,885 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "AtamAddressedAttribute": {
+      "additionalProperties": false,
+      "description": "Quality attribute addressed by an architectural approach and why.",
+      "properties": {
+        "quality_attribute": {
+          "description": "Quality attribute addressed",
+          "title": "Quality Attribute",
+          "type": "string"
+        },
+        "rationale": {
+          "description": "Evidence-based explanation of how it is addressed",
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "quality_attribute",
+        "rationale"
+      ],
+      "title": "AtamAddressedAttribute",
+      "type": "object"
+    },
+    "AtamAnalysisFindings": {
+      "additionalProperties": false,
+      "description": "ATAM findings identified while analyzing an architectural approach.",
+      "properties": {
+        "risks": {
+          "description": "Risks supported by the supplied evidence",
+          "items": {
+            "$ref": "#/$defs/AtamRisk"
+          },
+          "title": "Risks",
+          "type": "array"
+        },
+        "non_risks": {
+          "description": "Examined concerns that are not risks, with rationale",
+          "items": {
+            "$ref": "#/$defs/AtamRisk"
+          },
+          "title": "Non Risks",
+          "type": "array"
+        },
+        "sensitivity_points": {
+          "description": "Parameters that influence a quality attribute",
+          "items": {
+            "$ref": "#/$defs/AtamSensitivityPoint"
+          },
+          "title": "Sensitivity Points",
+          "type": "array"
+        },
+        "tradeoff_points": {
+          "description": "Parameters that create quality-attribute conflicts",
+          "items": {
+            "$ref": "#/$defs/AtamTradeoffPoint"
+          },
+          "title": "Tradeoff Points",
+          "type": "array"
+        }
+      },
+      "required": [
+        "risks",
+        "non_risks",
+        "sensitivity_points",
+        "tradeoff_points"
+      ],
+      "title": "AtamAnalysisFindings",
+      "type": "object"
+    },
+    "AtamAnalysisRecord": {
+      "additionalProperties": false,
+      "description": "Structured analysis of an approach in response to a specific scenario.",
+      "properties": {
+        "scenario_reference": {
+          "$ref": "#/$defs/AtamScenarioReference",
+          "description": "Scenario being analyzed"
+        },
+        "quality_attribute": {
+          "description": "Primary quality attribute under analysis",
+          "title": "Quality Attribute",
+          "type": "string"
+        },
+        "environment": {
+          "description": "Conditions under which the stimulus occurs",
+          "title": "Environment",
+          "type": "string"
+        },
+        "stimulus": {
+          "description": "Event or condition that exercises the architecture",
+          "title": "Stimulus",
+          "type": "string"
+        },
+        "response_measure": {
+          "description": "Observable response and its measure",
+          "title": "Response Measure",
+          "type": "string"
+        },
+        "architectural_decisions": {
+          "description": "Relevant decisions identified in the supplied evidence",
+          "items": {
+            "type": "string"
+          },
+          "title": "Architectural Decisions",
+          "type": "array"
+        },
+        "reasoning": {
+          "description": "Reasoning that connects decisions to the scenario response",
+          "title": "Reasoning",
+          "type": "string"
+        },
+        "findings": {
+          "$ref": "#/$defs/AtamAnalysisFindings",
+          "description": "Risks, non-risks, sensitivity points, and tradeoffs"
+        }
+      },
+      "required": [
+        "scenario_reference",
+        "quality_attribute",
+        "environment",
+        "stimulus",
+        "response_measure",
+        "architectural_decisions",
+        "reasoning",
+        "findings"
+      ],
+      "title": "AtamAnalysisRecord",
+      "type": "object"
+    },
+    "AtamArchitecturalApproach": {
+      "additionalProperties": false,
+      "description": "Architectural decision or approach considered during the evaluation.",
+      "properties": {
+        "approach_name": {
+          "description": "Name of the architectural approach",
+          "title": "Approach Name",
+          "type": "string"
+        },
+        "description": {
+          "description": "Description grounded in the supplied architecture evidence",
+          "title": "Description",
+          "type": "string"
+        },
+        "addressed_attributes": {
+          "description": "Quality attributes this approach addresses",
+          "items": {
+            "$ref": "#/$defs/AtamAddressedAttribute"
+          },
+          "title": "Addressed Attributes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "approach_name",
+        "description",
+        "addressed_attributes"
+      ],
+      "title": "AtamArchitecturalApproach",
+      "type": "object"
+    },
+    "AtamAvailabilityAssessment": {
+      "additionalProperties": false,
+      "description": "Status for context, drivers, or architecture evidence availability.",
+      "properties": {
+        "evidence": {
+          "description": "At least one observed input or artifact fact supporting this status, including evidence of absence",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "value": {
+          "description": "Availability status",
+          "enum": [
+            "missing",
+            "partial",
+            "sufficient"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ],
+      "title": "AtamAvailabilityAssessment",
+      "type": "object"
+    },
+    "AtamEvaluationResults": {
+      "additionalProperties": false,
+      "description": "Generated analysis sections required by the ATAM report contract.",
+      "properties": {
+        "utility_tree": {
+          "$ref": "#/$defs/AtamUtilityTree",
+          "description": "Utility tree of prioritized quality-attribute scenarios"
+        },
+        "architectural_approaches": {
+          "description": "Approaches considered in the evaluation",
+          "items": {
+            "$ref": "#/$defs/AtamArchitecturalApproach"
+          },
+          "title": "Architectural Approaches",
+          "type": "array"
+        },
+        "analysis_records": {
+          "description": "Scenario-based analyses and their findings",
+          "items": {
+            "$ref": "#/$defs/AtamAnalysisRecord"
+          },
+          "title": "Analysis Records",
+          "type": "array"
+        },
+        "scenarios": {
+          "description": "Scenarios used to evaluate the architecture",
+          "items": {
+            "$ref": "#/$defs/AtamScenario"
+          },
+          "title": "Scenarios",
+          "type": "array"
+        },
+        "semantic_state": {
+          "$ref": "#/$defs/AtamSemanticState",
+          "description": "Evidence-based ATAM progress, independent of agent calls and runtime task completion"
+        }
+      },
+      "required": [
+        "utility_tree",
+        "architectural_approaches",
+        "analysis_records",
+        "scenarios",
+        "semantic_state"
+      ],
+      "title": "AtamEvaluationResults",
+      "type": "object"
+    },
+    "AtamEvidenceGap": {
+      "additionalProperties": false,
+      "description": "A missing item that limits an ATAM activity or finding.",
+      "properties": {
+        "description": {
+          "description": "What is unknown, conflicting, or incomplete",
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "affected_activity": {
+          "description": "ATAM methodology activity affected by this gap",
+          "minLength": 1,
+          "title": "Affected Activity",
+          "type": "string"
+        },
+        "missing_evidence": {
+          "description": "Evidence needed to resolve or reduce the gap",
+          "minLength": 1,
+          "title": "Missing Evidence",
+          "type": "string"
+        },
+        "resolution_question": {
+          "description": "Question for the architect or stakeholder who can resolve the gap",
+          "minLength": 1,
+          "title": "Resolution Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "description",
+        "affected_activity",
+        "missing_evidence",
+        "resolution_question"
+      ],
+      "title": "AtamEvidenceGap",
+      "type": "object"
+    },
+    "AtamMetadata": {
+      "additionalProperties": false,
+      "description": "Known evaluation context; nullable values mark metadata absent from the case.",
+      "properties": {
+        "system_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evidence-based system name, or null if unavailable",
+          "title": "System Name"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evaluation date, or null if unavailable",
+          "title": "Date"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference, or null if unavailable",
+          "title": "Ref"
+        },
+        "evaluator_organization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evaluator organization, or null if unavailable",
+          "title": "Evaluator Organization"
+        },
+        "phase_1_attendees": {
+          "description": "Known phase 1 attendee roles; use an empty list if unavailable",
+          "items": {
+            "type": "string"
+          },
+          "title": "Phase 1 Attendees",
+          "type": "array"
+        },
+        "phase_2_attendees": {
+          "description": "Known phase 2 attendee roles; use an empty list if unavailable",
+          "items": {
+            "type": "string"
+          },
+          "title": "Phase 2 Attendees",
+          "type": "array"
+        }
+      },
+      "required": [
+        "system_name",
+        "date",
+        "ref",
+        "evaluator_organization",
+        "phase_1_attendees",
+        "phase_2_attendees"
+      ],
+      "title": "AtamMetadata",
+      "type": "object"
+    },
+    "AtamPriorityTuple": {
+      "additionalProperties": false,
+      "description": "Relative importance and difficulty assigned to a utility-tree scenario.",
+      "properties": {
+        "importance": {
+          "description": "Relative importance of achieving this scenario",
+          "title": "Importance",
+          "type": "string"
+        },
+        "difficulty": {
+          "description": "Relative difficulty of achieving this scenario",
+          "title": "Difficulty",
+          "type": "string"
+        }
+      },
+      "required": [
+        "importance",
+        "difficulty"
+      ],
+      "title": "AtamPriorityTuple",
+      "type": "object"
+    },
+    "AtamQualityAttributeNode": {
+      "additionalProperties": false,
+      "description": "A quality attribute and its refined utility-tree scenarios.",
+      "properties": {
+        "attribute_name": {
+          "description": "Name of the quality attribute",
+          "title": "Attribute Name",
+          "type": "string"
+        },
+        "children": {
+          "description": "Scenarios refining this attribute",
+          "items": {
+            "$ref": "#/$defs/AtamUtilityScenario"
+          },
+          "title": "Children",
+          "type": "array"
+        }
+      },
+      "required": [
+        "attribute_name",
+        "children"
+      ],
+      "title": "AtamQualityAttributeNode",
+      "type": "object"
+    },
+    "AtamReportAssessment": {
+      "additionalProperties": false,
+      "description": "Status for report drafting and review progress.",
+      "properties": {
+        "evidence": {
+          "description": "At least one observed input or artifact fact supporting this status, including evidence of absence",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "value": {
+          "description": "Report progress status",
+          "enum": [
+            "not_started",
+            "draft",
+            "reviewed"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ],
+      "title": "AtamReportAssessment",
+      "type": "object"
+    },
+    "AtamReportContent": {
+      "additionalProperties": false,
+      "description": "Complete report section persisted under the ATAM_Evaluation JSON key.",
+      "properties": {
+        "title": {
+          "description": "Report title containing the unique session ID",
+          "title": "Title",
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/AtamMetadata",
+          "description": "Evaluation metadata supported by the case"
+        },
+        "evaluation_inputs": {
+          "additionalProperties": true,
+          "description": "Original evaluation inputs",
+          "title": "Evaluation Inputs",
+          "type": "object"
+        },
+        "evaluation_results": {
+          "$ref": "#/$defs/AtamEvaluationResults",
+          "description": "Generated ATAM evaluation results"
+        }
+      },
+      "required": [
+        "title",
+        "metadata",
+        "evaluation_inputs",
+        "evaluation_results"
+      ],
+      "title": "AtamReportContent",
+      "type": "object"
+    },
+    "AtamReviewAssessment": {
+      "additionalProperties": false,
+      "description": "Status for analysis or report review progress.",
+      "properties": {
+        "evidence": {
+          "description": "At least one observed input or artifact fact supporting this status, including evidence of absence",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "value": {
+          "description": "Review progress status",
+          "enum": [
+            "not_started",
+            "partial",
+            "reviewed"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ],
+      "title": "AtamReviewAssessment",
+      "type": "object"
+    },
+    "AtamRisk": {
+      "additionalProperties": false,
+      "description": "Risk or non-risk finding with its supporting rationale.",
+      "properties": {
+        "id": {
+          "description": "Finding identifier",
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "description": "Risk or non-risk statement",
+          "title": "Description",
+          "type": "string"
+        },
+        "rationale": {
+          "description": "Reasoning and evidence supporting the finding",
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "rationale"
+      ],
+      "title": "AtamRisk",
+      "type": "object"
+    },
+    "AtamScenario": {
+      "additionalProperties": false,
+      "description": "Evaluation scenario with stable identity, provenance, and primary quality attributes.",
+      "properties": {
+        "id": {
+          "description": "Stable ID used by analysis_records.scenario_reference",
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "scenario_text": {
+          "description": "Scenario expressed with stimulus, context, and response",
+          "title": "Scenario Text",
+          "type": "string"
+        },
+        "primary_quality_attribute": {
+          "description": "Primary quality attributes exercised",
+          "items": {
+            "type": "string"
+          },
+          "title": "Primary Quality Attribute",
+          "type": "array"
+        },
+        "origin": {
+          "$ref": "#/$defs/AtamScenarioOrigin",
+          "description": "Source provenance preserved from the utility tree"
+        }
+      },
+      "required": [
+        "id",
+        "scenario_text",
+        "primary_quality_attribute",
+        "origin"
+      ],
+      "title": "AtamScenario",
+      "type": "object"
+    },
+    "AtamScenarioOrigin": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "raw_candidate_scenario"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_scenario_id": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "basis": {
+                "const": "observed"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "derived_from_evidence",
+                  "derived_from_driver"
+                ]
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "source_scenario_id": {
+                "type": "null"
+              },
+              "basis": {
+                "const": "inferred"
+              }
+            }
+          }
+        }
+      ],
+      "description": "Traceable source for a supplied or derived evaluation scenario.",
+      "properties": {
+        "kind": {
+          "description": "Whether the scenario is supplied verbatim in the case or derived from case inputs",
+          "enum": [
+            "raw_candidate_scenario",
+            "derived_from_evidence",
+            "derived_from_driver"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "source_scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Original raw candidate scenario ID, or null for a derived scenario",
+          "title": "Source Scenario Id"
+        },
+        "basis": {
+          "description": "Evidence basis for the scenario's origin",
+          "enum": [
+            "observed",
+            "inferred"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "source_refs": {
+          "description": "Non-empty paths into evaluation_inputs that support this scenario's origin",
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "source_scenario_id",
+        "basis",
+        "source_refs"
+      ],
+      "title": "AtamScenarioOrigin",
+      "type": "object"
+    },
+    "AtamScenarioReference": {
+      "additionalProperties": false,
+      "description": "Reference to a scenario used in an analysis record.",
+      "properties": {
+        "id": {
+          "description": "Stable ID of a scenario in evaluation_results.scenarios",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "description": "Exact scenario_text of the referenced report scenario",
+          "title": "Text",
+          "type": "string"
+        },
+        "type": {
+          "description": "Scenario category, such as utility-tree or evaluation scenario",
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "type"
+      ],
+      "title": "AtamScenarioReference",
+      "type": "object"
+    },
+    "AtamSemanticState": {
+      "additionalProperties": false,
+      "description": "ATAM progress semantics kept distinct from runtime execution status.",
+      "properties": {
+        "context_status": {
+          "$ref": "#/$defs/AtamAvailabilityAssessment",
+          "description": "Evidence-backed status for evaluation context"
+        },
+        "driver_status": {
+          "$ref": "#/$defs/AtamAvailabilityAssessment",
+          "description": "Evidence-backed status for quality attribute drivers"
+        },
+        "architecture_evidence_status": {
+          "$ref": "#/$defs/AtamAvailabilityAssessment",
+          "description": "Evidence-backed status for architecture evidence"
+        },
+        "scenario_analysis_status": {
+          "$ref": "#/$defs/AtamReviewAssessment",
+          "description": "Evidence-backed status for scenario analysis; reviewed requires review evidence"
+        },
+        "report_status": {
+          "$ref": "#/$defs/AtamReportAssessment",
+          "description": "Evidence-backed status for report drafting and review"
+        },
+        "gaps": {
+          "description": "Material evidence gaps and questions that remain unresolved",
+          "items": {
+            "$ref": "#/$defs/AtamEvidenceGap"
+          },
+          "title": "Gaps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "context_status",
+        "driver_status",
+        "architecture_evidence_status",
+        "scenario_analysis_status",
+        "report_status",
+        "gaps"
+      ],
+      "title": "AtamSemanticState",
+      "type": "object"
+    },
+    "AtamSensitivityPoint": {
+      "additionalProperties": false,
+      "description": "A parameter whose small change can affect a quality attribute.",
+      "properties": {
+        "id": {
+          "description": "Sensitivity-point identifier",
+          "title": "Id",
+          "type": "string"
+        },
+        "parameter": {
+          "description": "Architectural parameter that may change",
+          "title": "Parameter",
+          "type": "string"
+        },
+        "correlated_attribute": {
+          "description": "Quality attribute affected by the parameter",
+          "title": "Correlated Attribute",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "parameter",
+        "correlated_attribute"
+      ],
+      "title": "AtamSensitivityPoint",
+      "type": "object"
+    },
+    "AtamTradeoffPoint": {
+      "additionalProperties": false,
+      "description": "A parameter that creates competing effects across quality attributes.",
+      "properties": {
+        "id": {
+          "description": "Tradeoff-point identifier",
+          "title": "Id",
+          "type": "string"
+        },
+        "parameter": {
+          "description": "Architectural parameter creating the tradeoff",
+          "title": "Parameter",
+          "type": "string"
+        },
+        "conflicting_attributes": {
+          "description": "Quality attributes affected in conflicting ways",
+          "items": {
+            "type": "string"
+          },
+          "title": "Conflicting Attributes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "parameter",
+        "conflicting_attributes"
+      ],
+      "title": "AtamTradeoffPoint",
+      "type": "object"
+    },
+    "AtamUtilityScenario": {
+      "additionalProperties": false,
+      "description": "A measurable quality-attribute scenario in the utility tree.",
+      "properties": {
+        "refinement": {
+          "description": "Refinement level or grouping for the scenario",
+          "title": "Refinement",
+          "type": "string"
+        },
+        "scenario_id": {
+          "description": "Stable identifier for this scenario",
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "scenario_description": {
+          "description": "Stimulus, response, and context expressed as a scenario",
+          "title": "Scenario Description",
+          "type": "string"
+        },
+        "priority_tuple": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AtamPriorityTuple"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "ATAM priority tuple, or null when not supported"
+        },
+        "origin": {
+          "$ref": "#/$defs/AtamScenarioOrigin",
+          "description": "Source provenance for the utility-tree scenario"
+        }
+      },
+      "required": [
+        "refinement",
+        "scenario_id",
+        "scenario_description",
+        "priority_tuple",
+        "origin"
+      ],
+      "title": "AtamUtilityScenario",
+      "type": "object"
+    },
+    "AtamUtilityTree": {
+      "additionalProperties": false,
+      "description": "Prioritized quality-attribute scenarios organized under a common root.",
+      "properties": {
+        "root": {
+          "description": "Label for the utility-tree root",
+          "title": "Root",
+          "type": "string"
+        },
+        "quality_attribute_nodes": {
+          "description": "Top-level quality attributes and their scenarios",
+          "items": {
+            "$ref": "#/$defs/AtamQualityAttributeNode"
+          },
+          "title": "Quality Attribute Nodes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "root",
+        "quality_attribute_nodes"
+      ],
+      "title": "AtamUtilityTree",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Typed top-level JSON report with the legacy uppercase key as its serialized alias.",
+  "properties": {
+    "ATAM_Evaluation": {
+      "$ref": "#/$defs/AtamReportContent",
+      "description": "Generated ATAM evaluation"
+    }
+  },
+  "required": [
+    "ATAM_Evaluation"
+  ],
+  "title": "AtamReportDocument",
+  "type": "object"
+}

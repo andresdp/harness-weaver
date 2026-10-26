@@ -103,7 +103,8 @@ stages:
 - id: build-utility-tree
   role: quality-attribute-analyst
   purpose: Refine quality attribute drivers into prioritized, measurable scenarios; retain unresolved
-    items as gaps.
+    items as gaps. Assign each scenario a stable ID and preserve its observed or inferred origin with
+    source references into evaluation inputs.
   inputs:
   - architecture-context
   outputs:
@@ -118,13 +119,16 @@ stages:
 - id: analyze-scenarios
   role: quality-attribute-analyst
   purpose: Analyze prioritized scenarios against documented architecture decisions and response measures.
+    Reference each scenario by its stable utility-tree ID and the exact scenario text.
   inputs:
   - architecture-context
   outputs:
   - analysis-records
 - id: synthesize-and-review
   role: evidence-reviewer
-  purpose: Assemble the ATAM report and check evidence, coverage, uncertainty, and output structure.
+  purpose: Assemble the ATAM report and check evidence, coverage, uncertainty, scenario lineage, and output
+    structure. Preserve scenario IDs and origins in both the utility tree and flat report scenario inventory;
+    require matching inventories and every analysis reference to resolve.
   inputs:
   - architecture-context
   outputs:
@@ -141,8 +145,8 @@ artifacts:
   direction: output
   ref: ATAM_Evaluation
   description: ATAM findings, including utility tree, analysis records, risks, non-risks, sensitivity
-    points, tradeoff points, and prioritized scenarios.
-  schema_ref: sources/domain/references/atam-report-template.json
+    points, tradeoff points, and prioritized scenarios with stable IDs and traceable origins.
+  schema_ref: sources/domain/contracts/atam-report.schema.json
 - id: evaluation-context
   kind: methodology-state
   direction: intermediate
@@ -175,6 +179,10 @@ verification:
 - id: evidence-grounding
   criterion: Findings are supported by the supplied architecture context.
   method: Domain expert review; record separately from structural checks.
+  artifact: atam-report
+- id: scenario-lineage
+  criterion: Each analysis references a report scenario whose origin traces to trusted evaluation inputs.
+  method: Deterministic check of unique report scenario IDs, analysis references, origin fields, and resolvable source paths.
   artifact: atam-report
 - id: no-reference-leakage
   criterion: Ground-truth outputs are used only during evaluation and never passed to the generated harness.

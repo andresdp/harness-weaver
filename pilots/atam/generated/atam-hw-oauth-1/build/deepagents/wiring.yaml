@@ -1,0 +1,56 @@
+wiring_version: "0.1"
+spec:
+  path: ../../harnessspec.yaml
+  id: archeval-atam-harness
+  version: "0.2"
+inputs:
+  - port: evaluation_inputs
+    path: /artifacts/00_evaluation_inputs.json
+stages:
+  - number: 1
+    dir: stage1-establish_context
+    handoff_prompt: >-
+      Establish the ATAM evaluation context from /artifacts/00_evaluation_inputs.json and write
+      /artifacts/01_context.json; reject the input if it contains reference outputs.
+    artifacts: [01_context.json]
+    schemas:
+      01_context.json: contracts/context.schema.json
+  - number: 2
+    dir: stage2-build_utility_tree
+    handoff_prompt: >-
+      Build the ATAM utility tree from 00_evaluation_inputs.json and 01_context.json and write
+      /artifacts/02_utility_tree.json.
+    artifacts: [02_utility_tree.json]
+    schemas:
+      02_utility_tree.json: contracts/utility-tree.schema.json
+  - number: 3
+    dir: stage3-identify_approaches
+    handoff_prompt: >-
+      Identify the architectural approaches shown by 00_evaluation_inputs.json and 01_context.json and
+      write /artifacts/03_approaches.json.
+    artifacts: [03_approaches.json]
+    schemas:
+      03_approaches.json: contracts/approaches.schema.json
+  - number: 4
+    dir: stage4-analyze_scenarios
+    handoff_prompt: >-
+      Analyze the utility-tree scenarios against the approaches using 00–03 artifacts and write
+      /artifacts/04_analysis.json.
+    artifacts: [04_analysis.json]
+    schemas:
+      04_analysis.json: contracts/analysis.schema.json
+  - number: 5
+    dir: stage5-synthesize_and_review
+    handoff_prompt: >-
+      Synthesize the ATAM report draft from 00–04 artifacts, review it, apply one revision, and write
+      /artifacts/05_atam_report.json and /artifacts/06_review_findings.json.
+    artifacts: [05_atam_report.json, 06_review_findings.json]
+    schemas:
+      05_atam_report.json: contracts/atam-report.schema.json
+      06_review_findings.json: contracts/review-findings.schema.json
+output:
+  artifact: 05_atam_report.json
+  schema: contracts/atam-report.schema.json
+human_gates:
+  - id: H1-architect-review
+    after_stage: 5

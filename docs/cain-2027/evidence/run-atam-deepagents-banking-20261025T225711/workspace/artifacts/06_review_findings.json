@@ -1,0 +1,75 @@
+{
+  "reviewed_artifact": "05_atam_report.json",
+  "deterministic_validation": {
+    "ran": false,
+    "tool": "none in stage (the host validates the named schemas after the stage)",
+    "exit_code": null,
+    "summary": "Reviewed /artifacts/05_atam_report.json against the stage artifacts and contract without executing an external validator."
+  },
+  "checks": [
+    {
+      "id": "C-1",
+      "category": "structure",
+      "result": "pass",
+      "location": "report",
+      "finding": "The report is rooted at ATAM_Evaluation and includes the required metadata, evaluation_inputs, and evaluation_results sections with no extra top-level keys observed in the written file.",
+      "correction": null
+    },
+    {
+      "id": "C-2",
+      "category": "semantic_state",
+      "result": "pass",
+      "location": "report",
+      "finding": "semantic_state uses allowed values and keeps report_status at draft; scenario_analysis_status is partial, and each gap entry includes description, affected_activity, missing_evidence, and resolution_question.",
+      "correction": null
+    },
+    {
+      "id": "C-3",
+      "category": "evidence_traceability",
+      "result": "pass",
+      "location": "report.evaluation_results.analysis_records[1].findings.risks[0].description",
+      "finding": "R-2 is qualified as an inferred potential risk; the absence of workload and performance targets is explicit.",
+      "correction": null
+    },
+    {
+      "id": "C-4",
+      "category": "uncertainty",
+      "result": "pass",
+      "location": "report.evaluation_results.analysis_records[0].findings.risks[0].rationale",
+      "finding": "R-1 cites only architecture evidence identifiers and frames the missing security controls as an unresolved inference.",
+      "correction": null
+    },
+    {
+      "id": "C-5",
+      "category": "method_coverage",
+      "result": "pass",
+      "location": "report",
+      "finding": "Every scenario in the utility tree is present in the analysis records, and the findings types are used in a scenario-appropriate way.",
+      "correction": null
+    },
+    {
+      "id": "C-6",
+      "category": "reference_boundary",
+      "result": "pass",
+      "location": "report",
+      "finding": "No ground_truth_outputs or other reference answers appear in the report.",
+      "correction": null
+    }
+  ],
+  "unsupported_claims": [],
+  "revision": {
+    "applied": true,
+    "changed_locations": [
+      "04_analysis.json.analysis_records[0].findings.risks[0].evidence_ids",
+      "04_analysis.json.analysis_records[1].findings.risks[0]",
+      "05_atam_report.json.evaluation_results.analysis_records[0].findings.risks[0].rationale",
+      "05_atam_report.json.evaluation_results.analysis_records[1].findings.risks[0]"
+    ],
+    "remaining_failures": []
+  },
+  "ready_for_architect_review": true,
+  "architect_review_focus": [
+    "method coverage, evidence grounding, risks, tradeoffs, unknowns",
+    "Review the performance risk wording for RS-2 to ensure it stays within the supplied evidence"
+  ]
+}

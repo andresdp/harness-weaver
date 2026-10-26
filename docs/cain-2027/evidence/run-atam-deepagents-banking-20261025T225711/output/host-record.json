@@ -1,0 +1,91 @@
+{
+  "host": "harnessweaver.hosts.deepagents",
+  "started_at": "2026-10-25T23:29:35.166661+00:00",
+  "finished_at": "2026-10-25T23:33:53.558017+00:00",
+  "status": "awaiting_review",
+  "bundle": "bundle",
+  "wiring_sha256": "4e79dfab8f7d6551904eceb793cf82214e3f9aa97488da46450dd811e7e954ae",
+  "spec": {
+    "path": "../../harnessspec.yaml",
+    "id": "archeval-atam-harness",
+    "version": "0.2"
+  },
+  "stages": [
+    {
+      "number": 1,
+      "dir": "stage1-establish_context",
+      "status": "completed",
+      "elapsed_seconds": 52.845,
+      "artifacts": [
+        "01_context.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    },
+    {
+      "number": 2,
+      "dir": "stage2-build_utility_tree",
+      "status": "completed",
+      "elapsed_seconds": 38.917,
+      "artifacts": [
+        "02_utility_tree.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    },
+    {
+      "number": 3,
+      "dir": "stage3-identify_approaches",
+      "status": "completed",
+      "elapsed_seconds": 19.629,
+      "artifacts": [
+        "03_approaches.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    },
+    {
+      "number": 4,
+      "dir": "stage4-analyze_scenarios",
+      "status": "completed",
+      "elapsed_seconds": 62.412,
+      "artifacts": [
+        "04_analysis.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    },
+    {
+      "number": 5,
+      "dir": "stage5-synthesize_and_review",
+      "status": "completed",
+      "elapsed_seconds": 81.162,
+      "artifacts": [
+        "05_atam_report.json",
+        "06_review_findings.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    }
+  ],
+  "human_gates": [
+    {
+      "id": "H1-architect-review",
+      "after_stage": 5,
+      "status": "pending"
+    }
+  ],
+  "output": "output/05_atam_report.json",
+  "output_sha256": "0a7d0a54a25eeb80f31fa80934425be82ff4e1d91d63ab475650913bae2da539",
+  "problems": []
+}

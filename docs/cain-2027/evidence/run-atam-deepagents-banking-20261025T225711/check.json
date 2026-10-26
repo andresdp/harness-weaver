@@ -1,0 +1,21 @@
+{
+  "sandbox": "run-atam-deepagents-banking-20261025T225711",
+  "checked_at": "2026-10-26T00:24:12+00:00",
+  "report": "output/05_atam_report.json",
+  "report_sha256": "f2e10cbb22cd543cda2b5924d845e22ef6d487ec4fa736b25b79d6043ff70128",
+  "passed": true,
+  "checks": {
+    "no-reference-leakage": {
+      "passed": true,
+      "problems": []
+    },
+    "schema": {
+      "passed": true,
+      "problems": []
+    },
+    "atam-pilot": {
+      "passed": true,
+      "problems": []
+    }
+  }
+}

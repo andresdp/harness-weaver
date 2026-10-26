@@ -27,6 +27,8 @@ INFERENCE_MARKERS = (
 BLOCKING_REVIEW_CATEGORIES = {
     "structure", "semantic_state", "evidence_traceability", "uncertainty", "method_coverage", "reference_boundary",
 }
+INPUT_REF = re.compile(r"evaluation_inputs(?:\.[A-Za-z_][A-Za-z0-9_-]*(?:\[\d+\])?)+")
+INPUT_REF_PART = re.compile(r"([A-Za-z_][A-Za-z0-9_-]*)(?:\[(\d+)\])?")
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -118,6 +120,26 @@ def _check_review_readiness(report_path: Path, problems: list[str]) -> None:
         problems.append("06_review_findings.json still lists unresolved failed checks")
     if blocking_findings and (revision.get("applied") is not True or not revision.get("changed_locations")):
         problems.append("review corrections were not recorded as applied before readiness")
+
+
+def _resolve_input_ref(evaluation_inputs: dict[str, Any], source_ref: str) -> Any:
+    """Resolve the ATAM dotted-path notation against trusted case inputs."""
+    if not isinstance(source_ref, str) or not INPUT_REF.fullmatch(source_ref):
+        raise ValueError("source reference must point inside evaluation_inputs")
+    current: Any = evaluation_inputs
+    for part in source_ref.removeprefix("evaluation_inputs.").split("."):
+        match = INPUT_REF_PART.fullmatch(part)
+        if match is None:
+            raise ValueError("invalid source reference path")
+        key, index = match.groups()
+        if not isinstance(current, dict) or key not in current:
+            raise ValueError("source reference path does not resolve")
+        current = current[key]
+        if index is not None:
+            if not isinstance(current, list) or int(index) >= len(current):
+                raise ValueError("source reference path does not resolve")
+            current = current[int(index)]
+    return current
 
 
 def prepare(run_id: str) -> Path:
@@ -239,16 +261,91 @@ def check(prediction: Path) -> list[str]:
     source_atam = source_case.get("ATAM_Evaluation", {})
     evaluation_inputs = source_atam.get("evaluation_inputs", {}) if isinstance(source_atam, dict) else {}
     raw_scenarios = evaluation_inputs.get("raw_candidate_scenarios", []) if isinstance(evaluation_inputs, dict) else []
-    source_scenario_ids = {item.get("id") for item in raw_scenarios if isinstance(item, dict) and item.get("id")}
-    source_scenario_texts = {
-        " ".join(item["description"].split())
-        for item in raw_scenarios
-        if isinstance(item, dict) and isinstance(item.get("description"), str) and item["description"].strip()
-    }
-    reference_ids = source_scenario_ids
-    reference_texts = source_scenario_texts
-    if not reference_ids and not reference_texts:
-        problems.append("configured ATAM source case has no raw candidate scenarios to validate against")
+    raw_scenario_indices = {
+        item.get("id"): index
+        for index, item in enumerate(raw_scenarios)
+        if isinstance(item, dict) and isinstance(item.get("id"), str) and item.get("id")
+    } if isinstance(raw_scenarios, list) else {}
+    scenarios_by_id: dict[str, dict[str, Any]] = {}
+    for index, scenario in enumerate(scenarios if isinstance(scenarios, list) else []):
+        if not isinstance(scenario, dict):
+            problems.append(f"scenarios[{index}] must be an object")
+            continue
+        scenario_id = scenario.get("id")
+        if not isinstance(scenario_id, str) or not scenario_id.strip():
+            problems.append(f"scenarios[{index}].id is required")
+            continue
+        if scenario_id in scenarios_by_id:
+            problems.append(f"scenarios[{index}].id duplicates scenario ID {scenario_id!r}")
+            continue
+        scenarios_by_id[scenario_id] = scenario
+        origin = scenario.get("origin")
+        if not isinstance(origin, dict):
+            problems.append(f"scenarios[{index}].origin must identify the scenario source")
+            continue
+        kind = origin.get("kind")
+        source_scenario_id = origin.get("source_scenario_id")
+        basis = origin.get("basis")
+        source_refs = origin.get("source_refs")
+        if not isinstance(source_refs, list) or not source_refs or not all(isinstance(ref, str) and ref.strip() for ref in source_refs):
+            problems.append(f"scenarios[{index}].origin.source_refs must contain non-empty input paths")
+            source_refs = []
+        unresolved_refs = []
+        for source_ref in source_refs:
+            try:
+                _resolve_input_ref(evaluation_inputs, source_ref)
+            except ValueError:
+                unresolved_refs.append(source_ref)
+        if unresolved_refs:
+            problems.append(f"scenarios[{index}].origin.source_refs do not resolve in trusted evaluation_inputs: {unresolved_refs}")
+        if kind == "raw_candidate_scenario":
+            source_index = raw_scenario_indices.get(source_scenario_id)
+            if source_index is None:
+                problems.append(f"scenarios[{index}].origin.source_scenario_id is not a raw source scenario ID")
+            else:
+                expected_ref = f"evaluation_inputs.raw_candidate_scenarios[{source_index}]"
+                if expected_ref not in source_refs:
+                    problems.append(f"scenarios[{index}].origin.source_refs must include {expected_ref}")
+            if basis != "observed":
+                problems.append(f"scenarios[{index}] raw candidate origin must use basis 'observed'")
+        elif kind in {"derived_from_evidence", "derived_from_driver"}:
+            if source_scenario_id is not None:
+                problems.append(f"scenarios[{index}] derived origin must set source_scenario_id to null")
+            if basis != "inferred":
+                problems.append(f"scenarios[{index}] derived origin must use basis 'inferred'")
+        else:
+            problems.append(f"scenarios[{index}].origin.kind is unsupported: {kind!r}")
+    utility_scenario_ids: set[str] = set()
+    for node_index, node in enumerate(nodes if isinstance(nodes, list) else []):
+        children = node.get("children", []) if isinstance(node, dict) else []
+        if not isinstance(children, list):
+            problems.append(f"utility_tree.quality_attribute_nodes[{node_index}].children must be an array")
+            continue
+        for child_index, child in enumerate(children):
+            location = f"utility_tree.quality_attribute_nodes[{node_index}].children[{child_index}]"
+            if not isinstance(child, dict):
+                problems.append(f"{location} must be an object")
+                continue
+            scenario_id = child.get("scenario_id")
+            if not isinstance(scenario_id, str) or not scenario_id.strip():
+                problems.append(f"{location}.scenario_id is required")
+                continue
+            if scenario_id in utility_scenario_ids:
+                problems.append(f"{location}.scenario_id duplicates scenario ID {scenario_id!r}")
+                continue
+            utility_scenario_ids.add(scenario_id)
+            report_scenario = scenarios_by_id.get(scenario_id)
+            if report_scenario is None:
+                problems.append(f"{location}.scenario_id does not resolve to a reported scenario")
+                continue
+            if " ".join(str(child.get("scenario_description", "")).split()) != " ".join(
+                str(report_scenario.get("scenario_text", "")).split()
+            ):
+                problems.append(f"{location}.scenario_description differs from its reported scenario")
+            if child.get("origin") != report_scenario.get("origin"):
+                problems.append(f"{location}.origin differs from its reported scenario")
+    if utility_scenario_ids != set(scenarios_by_id):
+        problems.append("utility-tree and report scenario inventories must contain the same IDs")
     records = generated.get("analysis_records", [])
     if not isinstance(records, list) or not records:
         problems.append("analysis_records must be a non-empty array")
@@ -260,8 +357,14 @@ def check(prediction: Path) -> list[str]:
         scenario_id = reference.get("id") if isinstance(reference, dict) else None
         raw_text = reference.get("text", "") if isinstance(reference, dict) else ""
         scenario_text = " ".join(raw_text.split()) if isinstance(raw_text, str) else ""
-        if not ((scenario_id and scenario_id in reference_ids) or (scenario_text and scenario_text in reference_texts)):
-            problems.append(f"analysis_records[{index}].scenario_reference must match a raw source scenario by id or text")
+        reported_scenario = scenarios_by_id.get(scenario_id) if isinstance(scenario_id, str) else None
+        if reported_scenario is None:
+            problems.append(f"analysis_records[{index}].scenario_reference.id must resolve to a reported scenario")
+        else:
+            reported_text = reported_scenario.get("scenario_text", "")
+            normalized_reported_text = " ".join(reported_text.split()) if isinstance(reported_text, str) else ""
+            if not scenario_text or scenario_text != normalized_reported_text:
+                problems.append(f"analysis_records[{index}].scenario_reference.text must match its reported scenario")
         findings = record.get("findings", {})
         if not isinstance(findings, dict):
             problems.append(f"analysis_records[{index}].findings must be an object")

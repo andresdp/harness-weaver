@@ -1,0 +1,103 @@
+{
+  "label": "atam-revfactory-en-claude-1",
+  "collected_at": "2026-10-26T02:11:31+00:00",
+  "sandbox": {
+    "kind": "generation",
+    "name": "gen-atam-revfactory-en-20261026T014305",
+    "pilot": "atam",
+    "pilot_dir": "/Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam",
+    "arm": "revfactory-en",
+    "created_at": "2026-10-26T01:43:05+00:00",
+    "repository_commit": "da0b2555a86a9e69664a73c25269d10e77153da6",
+    "sources_dirty": false,
+    "session_id": "af5c1d8c-74f8-4880-a041-7c65185370a3",
+    "model_requested": null,
+    "skills": {
+      "arm": "revfactory-en",
+      "langchain_skills": [],
+      "source": "baselines/revfactory-harness-v2.1.0-en"
+    },
+    "answers_file": false
+  },
+  "record_files": {
+    "claude-version.txt": "2.1.283 (Claude Code)",
+    "exit-code.txt": "0",
+    "finished-at.txt": "2026-10-26T02:10:53Z",
+    "isolation.txt": "settings",
+    "model-requested.txt": "<claude default>",
+    "started-at.txt": "2026-10-26T01:44:35Z",
+    "status.txt": "completed"
+  },
+  "transcript": "record/transcript.jsonl",
+  "inputs": {
+    "sources/domain/contracts/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+    "sources/domain/contracts/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+    "sources/domain/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+    "sources/domain/skills/check-evaluation/SKILL.md": "83bd7ccb257d8b313f4a30ba8d723bfbdfa4c0db555dc956c68fb94311ba683d",
+    "sources/domain/skills/evaluate-architecture/SKILL.md": "50a4b28e2e6af53094c9989b76b5c304b9f1392e1d6a3df30e65cfde3244b220",
+    "sources/domain/skills/revise-report/SKILL.md": "96b5d05f17e1a83a4296e2795087f7fda12a2c30e119873475d421dcfb1068ce",
+    "sources/domain/sources.yaml": "dfc226b971523f1af02d66cfeb4439a41c3be647e2e3250b48a2f172c31651fb",
+    "sources/intent.yaml": "1724735470c8e87876afc48c1d9d63536f7f6f05518cc92b1d443eac62a901fd",
+    "sources/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+    "skills-plugin/.claude-plugin/plugin.json": "95b9c7d0584f0a3076a2992989d9f527510ae03221c18948344a1028d1ce21af",
+    "skills-plugin/skills/evolve/SKILL.md": "f4b4512899c181cbde60ac80cf3600562dc2115446558a004321f58928537b09",
+    "skills-plugin/skills/harness/SKILL.md": "4fa7f273dee6487715d0871e1a5550fbddc9512ffe576eca21cbbc80197f8bcd",
+    "skills-plugin/skills/harness/references/execution-modes.md": "26943f830dcac44200d643f1a9d9419515ab49a88c0f76f0a0019c7755728406",
+    "skills-plugin/skills/harness/references/model-selection-guide.md": "97f5e0798ca9174fed2a62567744166cbc3b7aaf0483172041c37e070cec9821",
+    "skills-plugin/skills/harness/references/orchestrator-template.md": "2bff264f544d76e3813b29b7d9ed3b5c80e91b1fe0ee5e8ca527fb4234038a87",
+    "skills-plugin/skills/harness/references/qa-agent-guide.md": "1111980410d5f9ba4796cafab1d4a20d7ee1d79f6fe2c072aba2d5ed5fc748aa",
+    "skills-plugin/skills/harness/references/skill-testing-guide.md": "e5eb734340dc26198f443e1339e7f8fa41c4a85026b6af7f08ad6ace60942a63",
+    "skills-plugin/skills/harness/references/skill-writing-guide.md": "3f2a12f9296d774d6d42e5387841e64574ee5804ff2177a21c7f9c02bb174888",
+    "skills-plugin/skills/harness/references/team-examples.md": "fe3dcd858f5563acbe5f70b3103f17cc6332f820f4968e59c330acc9955d7dba",
+    "skills-plugin/skills/harness/references/team-patterns.md": "64e4c8e407738f0a3328ed7baa0eea8e237bb2a1aedd6965a50dccff4432cefd",
+    "skills-plugin/skills/harness/references/workflow-recipes.md": "92455ae0d4049fb8d031ae9efe43b41e10d03da5e2d5df0727864fa11e791708",
+    "prompt.md": "525d4a21a8a6cf26881e863852ebc3f28ff454754c40b8ca66c46082e4c304c1",
+    "claude-settings.json": "edbed894fb5e0b72b140c5174ee900432d5e05888a5ed6ffe33ea6cfe8986a4e"
+  },
+  "outputs": {
+    "generated/build/claude/.claude/agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+    "generated/build/claude/.claude/agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+    "generated/build/claude/.claude/agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+    "generated/build/claude/.claude/agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+    "generated/build/claude/.claude/agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+    "generated/build/claude/.claude/agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+    "generated/build/claude/.claude/agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+    "generated/build/claude/.claude/settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+    "generated/build/claude/.claude/skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+    "generated/build/claude/.claude/skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+    "generated/build/claude/.claude/skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+    "generated/build/claude/.claude/skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+    "generated/build/claude/.claude/skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+    "generated/build/claude/.claude/skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+    "generated/build/claude/.claude/skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+    "generated/build/claude/.claude/skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+    "generated/build/claude/.claude/skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b",
+    "generated/build/claude/CLAUDE.md": "0aa6e2fdb6e82d9237c25e2fbf7d295f3c673b56b349bb84b44cee047dd0367a",
+    "generated/build/claude/README.md": "b42a83c92e68370725b73b3f137a5bb9f3ae3d48552af9395dd73b2c28a48e07",
+    "generated/build/claude/atam_harness/atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+    "generated/build/claude/atam_harness/run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+    "generated/build/claude/atam_harness/schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+    "generated/build/claude/atam_harness/schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+    "generated/build/claude/atam_harness/schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+    "generated/build/claude/atam_harness/schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+    "generated/build/claude/atam_harness/tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+    "generated/build/claude/atam_harness/tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+    "generated/build/claude/atam_harness/tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+    "generated/build/claude/materialization-report.md": "1c46392ba18b98dc58ec4ff50ed6576c70244126238234f51e68ebb51a4949eb"
+  },
+  "specs": [],
+  "bundle_checks": {
+    "build/claude": {
+      "target": "claude",
+      "spec": null,
+      "passed": true,
+      "issues": []
+    }
+  },
+  "packaged_bundles": {
+    "build/claude": {
+      "guide": "build/claude/BUNDLE-GUIDE.md",
+      "archive": "build/claude.zip"
+    }
+  }
+}

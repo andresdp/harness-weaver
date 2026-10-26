@@ -1,0 +1,40 @@
+{
+  "status": "complete",
+  "verdict": "Ready to merge",
+  "scope": {
+    "base": "HEAD",
+    "branch": "feat/cain-sources-sandbox-host",
+    "head_sha": "b64fe0a24d755b354e4b10ef3f844da07697976f",
+    "pr_url": null,
+    "files_changed": 1
+  },
+  "intent": "Prepare the P1 ATAM generation session from source-supported decisions. Preserve live design and write-confirmation gates, and keep case/evaluator data outside the generation sandbox.",
+  "intent_confidence": "explicit",
+  "reviewers": ["correctness", "project-standards", "agent-native"],
+  "findings": [],
+  "actionable_findings": [],
+  "triage_groups": [],
+  "pre_existing_findings": [],
+  "requirements_completeness": null,
+  "learnings": [],
+  "agent_native_gaps": [],
+  "deployment_notes": [],
+  "residual_risks": [],
+  "testing_gaps": [],
+  "coverage": {
+    "scope": "Staged diff against HEAD: pilots/atam/harness-answers.yaml. The pre-existing .claude/settings.local.json was excluded and left untouched.",
+    "scope_signals": "uncounted_files=1; lite review was ineligible. Full core and applicable standards review ran, with agent-native selected for the skill input artifact.",
+    "reviewer_results": {
+      "correctness": "No findings. The reviewer completed after its workspace lacked the checkout; the scoped diff and source facts were supplied directly.",
+      "project-standards": "No exact violation of root AGENTS.md. The reviewer confirmed the result against the supplied rule text.",
+      "agent-native": "No findings. The reviewer completed after its workspace lacked the checkout; the scoped diff and source facts were supplied directly."
+    },
+    "adversarial": "Not selected: the diff is declarative configuration, not executable behavior or a verification mechanism.",
+    "plan_discovery": "No matching formal implementation plan was discovered for this scoped file; requirements completeness was not evaluated.",
+    "mechanics": "findings-mechanics completed with zero malformed returns, zero malformed findings, and no findings; no Stage 5b finding validators were needed.",
+    "testing": "No tests run because this is declarative session configuration and changes no runtime behavior. The generation sandbox was created with the project's harness Conda environment.",
+    "implementation_boundary": "The sandbox is prepared but generation and execution remain pending. G2, Claude-specific G5, and G6 remain interactive; G6 still requires live write confirmation."
+  },
+  "artifact_path": "docs/reviews/r-cain-answers-20261025",
+  "run_id": "r-cain-answers-20261025"
+}

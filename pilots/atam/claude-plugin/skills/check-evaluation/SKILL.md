@@ -12,4 +12,5 @@ Read `references/atam-methodology.yaml` and `references/atam-report-template.jso
 3. Trace each material finding to supplied evidence. Flag unsupported claims and missing references.
 4. Check that quality attribute scenarios, priority judgments, and response measures distinguish evidence from assumptions.
 5. Confirm gaps and unresolved questions are visible; do not treat missing reference data as a known answer.
-6. Return findings and corrections. Mark the report ready for architect review only after structural and evidence checks pass.
+6. Validate scenario lineage: report scenario IDs are unique; origins use the prescribed kind, basis, source ID and non-empty source paths; all paths resolve against trusted `evaluation_inputs` and exclude `ground_truth_outputs`; and each analysis reference ID and text resolve to a report scenario. Missing, duplicate, dangling or unresolvable lineage is an evidence-traceability failure.
+7. Return findings and corrections. Mark the report ready for architect review only after structural, evidence, and scenario-lineage checks pass.

@@ -1,0 +1,218 @@
+{
+  "approaches": [
+    {
+      "id": "AP-1",
+      "approach_name": "Event-Driven Architecture (event framework with Event Queue and Event Manager)",
+      "description": "The inputs name Event-Driven Architecture as the target style of the evaluation and describe the system as an Event framework in which events are placed in an Event Queue and an Event Manager interacts with handlers that process them.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-4", "AE-5", "AE-16"],
+      "addressed_attributes": [
+        {
+          "quality_attribute": "Functionality",
+          "rationale": "Routing events through an Event Queue to an Event Manager that invokes handlers gives a single defined path for event processing, which supports the goal of handling and processing events through component interaction; whether processing is complete and correct cannot be determined because no response measure is supplied.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-4", "AE-5"]
+        },
+        {
+          "quality_attribute": "Variability",
+          "rationale": "In an event-driven style new behaviour can in principle be added as new event handlers without changing the event producers; however, the Event Manager interacts directly with application handlers, so the decoupling usually expected from this style is reduced in this architecture.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-4", "AE-16"]
+        },
+        {
+          "quality_attribute": "Performance",
+          "rationale": "Each event passes through several components (queue, manager, handler), and the inputs characterize transaction speed as slow because of the number of components involved; no workload or response-time target is supplied, so whether any target is met cannot be determined.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-5", "AE-12", "AE-13"]
+        }
+      ]
+    },
+    {
+      "id": "AP-2",
+      "approach_name": "Single FIFO event queue with sequential dispatch by a single Event Manager",
+      "description": "Events are dispatched First-Come-First-Served from exactly one Event Queue by exactly one Event Manager, with single-processor, sequential event processing implied.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-5", "AE-8", "AE-9", "AE-14", "AE-15"],
+      "addressed_attributes": [
+        {
+          "quality_attribute": "Conceptual Integrity",
+          "rationale": "A single queue served in FIFO order by a single manager gives one deterministic ordering of event handling, which supports consistent behaviour for events of the same kind submitted at different times.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-8", "AE-9", "AE-14", "AE-15"]
+        },
+        {
+          "quality_attribute": "Functionality",
+          "rationale": "The FIFO dispatch constraint is realized directly by the single queue and single manager, so the required First-Come-First-Served ordering follows from the structure.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-9", "AE-14", "AE-15"]
+        },
+        {
+          "quality_attribute": "Performance",
+          "rationale": "Sequential processing through one queue and one manager means one slow handler delays every later event; no workload or latency target is supplied, so this is a potential latency concern whose impact cannot be determined.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-8", "AE-9", "AE-13", "AE-14", "AE-15"]
+        },
+        {
+          "quality_attribute": "Reliability",
+          "rationale": "With a limit of one Event Manager and one Event Queue on a single processor, the supplied material does not describe any redundant element that could take over if either fails, so recovery after a failure in these components is unresolved.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-8", "AE-14", "AE-15"]
+        },
+        {
+          "quality_attribute": "Variability",
+          "rationale": "The limit of one Event Manager and one Event Queue constrains how far the framework can be expanded or shared, for example serving several applications at the same time; whether a single queue can serve several applications is not described.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-14", "AE-15"]
+        }
+      ]
+    },
+    {
+      "id": "AP-3",
+      "approach_name": "Inheritance-based handler extension (base Handler specialized by standard and application-specific handlers)",
+      "description": "A base Handler component is extended by standard handlers and by application-specific handlers, so handler behaviour is varied by specialization of a common base.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-6"],
+      "addressed_attributes": [
+        {
+          "quality_attribute": "Modifiability",
+          "rationale": "A common base Handler gives an extension point: new application-specific functionality can be added as a new handler subclass, localizing that kind of change; the effort of such a change cannot be determined because no effort or time bound is supplied.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-6"]
+        },
+        {
+          "quality_attribute": "Variability",
+          "rationale": "Separating standard handlers from application-specific handlers under one base suggests that the standard handlers and the base are candidates for reuse across applications, while application handlers vary.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-6"]
+        },
+        {
+          "quality_attribute": "Conceptual Integrity",
+          "rationale": "All handlers share one base component, which gives a uniform handler contract for the Event Manager to invoke and supports coordinated interaction among components.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-4", "AE-6"]
+        },
+        {
+          "quality_attribute": "Portability",
+          "rationale": "Inheritance-based extension assumes an implementation language with class inheritance; the class-diagram documentation implies an object-oriented design, so implementation in a language without that mechanism may require restructuring the handler hierarchy.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-1", "AE-6"]
+        }
+      ]
+    },
+    {
+      "id": "AP-4",
+      "approach_name": "Tight framework-application coupling (application logic embedded in framework, direct manager-to-handler interaction)",
+      "description": "Application logic and the framework are highly inter-dependent: application logic is embedded within framework components and the Event Manager interacts directly with application handlers.",
+      "basis": "observed",
+      "inference_note": null,
+      "evidence_ids": ["AE-2", "AE-4", "AE-11"],
+      "addressed_attributes": [
+        {
+          "quality_attribute": "Modifiability",
+          "rationale": "Because application logic is embedded in framework components and the manager depends directly on application handlers, a change to either application or framework is likely to propagate to the other, which hinders fast, cost-effective modification; the size of that effect cannot be determined without representative change requests.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-2", "AE-4", "AE-11"]
+        },
+        {
+          "quality_attribute": "Variability",
+          "rationale": "Framework components that contain application logic cannot be reused for a different application without separating that logic first, and direct dependence on application handlers makes hooking up several applications harder; this hinders reuse and multi-application use.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-2", "AE-4", "AE-11"]
+        },
+        {
+          "quality_attribute": "Performance",
+          "rationale": "Direct interaction between the Event Manager and application handlers avoids an intermediate dispatch layer, which may reduce the number of components per transaction; the inputs still characterize transaction speed as slow, and no measure is supplied, so the net effect cannot be determined.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-4", "AE-12", "AE-13"]
+        },
+        {
+          "quality_attribute": "Security",
+          "rationale": "Embedding application logic inside framework components gives application code access to framework internals, which weakens encapsulation between application and framework data; the supplied material does not describe data-protection measures, so confidentiality of framework data structures is unresolved.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-2", "AE-11"]
+        }
+      ]
+    },
+    {
+      "id": "AP-5",
+      "approach_name": "Framework-owned control loop (inversion of control with idle wait for CLI input)",
+      "description": "The Main module belongs to the framework, the system waits in an idle state until input arrives via the CLI, and the framework's Event Manager calls application handlers; control flow is therefore owned by the framework rather than by the application.",
+      "basis": "inferred",
+      "inference_note": "The inputs do not name inversion of control. It is inferred because the Main module is part of the framework (AE-3), the framework maintains an idle wait until CLI input arrives (AE-7, AE-10), and the framework's Event Manager invokes application handlers (AE-4); together these mean the framework drives execution and calls application code, which is the defining property of inversion of control.",
+      "evidence_ids": ["AE-3", "AE-4", "AE-7", "AE-10"],
+      "addressed_attributes": [
+        {
+          "quality_attribute": "Functionality",
+          "rationale": "A framework-owned loop with an idle wait state directly realizes the constraint that the system remains idle until input is received and then resumes event processing.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-3", "AE-10"]
+        },
+        {
+          "quality_attribute": "Conceptual Integrity",
+          "rationale": "A single framework-owned control loop gives every application the same execution model, which supports coordinated interaction between Main, the queue, the manager and handlers.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-3", "AE-4"]
+        },
+        {
+          "quality_attribute": "Modifiability",
+          "rationale": "The control loop waits on CLI input inside the framework's Main module; the supplied material does not describe a separation between the input source and event processing, so whether a change to a window-based interface is localized is unresolved.",
+          "basis": "inferred",
+          "evidence_ids": ["AE-3", "AE-7", "AE-10"]
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "id": "G-3-1",
+      "gap_type": "unknown",
+      "description": "No security approach or tactic (authentication, authorization, access control, encryption, or data encapsulation mechanism) is described, so no approach can be identified for the Security scenarios SEC-1 and SEC-2.",
+      "affected_activity": "identify-approaches",
+      "missing_evidence": "A description of any access-control, authentication, authorization, encryption or data-encapsulation mechanism in the framework.",
+      "resolution_question": "Does the architecture include any mechanism that restricts access to the system or protects framework data structures, and if so, which?"
+    },
+    {
+      "id": "G-3-2",
+      "gap_type": "unknown",
+      "description": "No fault-tolerance or recovery approach (fault detection, restart, checkpointing, redundancy, persistence of the Event Queue) is described, so no approach can be identified for Reliability scenario REL-1.",
+      "affected_activity": "identify-approaches",
+      "missing_evidence": "A description of failure detection and recovery behaviour for the Event Manager, Event Queue, handlers or the process as a whole.",
+      "resolution_question": "What happens to queued and in-progress events when a handler, the Event Manager or the process fails, and how does the system recover?"
+    },
+    {
+      "id": "G-3-3",
+      "gap_type": "unknown",
+      "description": "No input-validation or error-handling approach is described for user input arriving through the CLI, so no approach can be identified for Reliability scenario REL-2.",
+      "affected_activity": "identify-approaches",
+      "missing_evidence": "A description of where and how invalid CLI input is detected and handled (for example a dedicated handler or validation step).",
+      "resolution_question": "Which component validates CLI input, and how are invalid inputs reported and handled?"
+    },
+    {
+      "id": "G-3-4",
+      "gap_type": "incomplete",
+      "description": "The inputs state only CLI input and an implied single-processor execution; no platform abstraction, deployment variant or language-independence approach is described, so no approach can be identified for Portability scenarios PORT-1 and PORT-2.",
+      "affected_activity": "identify-approaches",
+      "missing_evidence": "The implementation language, platform dependencies and any abstraction layer isolating the framework from the execution environment.",
+      "resolution_question": "Which platform and language dependencies does the framework have, and are they isolated behind any abstraction?"
+    },
+    {
+      "id": "G-3-5",
+      "gap_type": "unknown",
+      "description": "The mechanism by which the Event Manager selects the handler for an event (registration, subscription table, type mapping, or hard-coded calls) is not described, so it cannot be established whether the event style uses publish-subscribe or direct dispatch, nor how the STOP handler required for termination relates to the standard handlers.",
+      "affected_activity": "identify-approaches",
+      "missing_evidence": "A description of handler registration and dispatch in the Event Manager, and of where the STOP handler sits in the handler hierarchy.",
+      "resolution_question": "How does the Event Manager determine which handler processes an event, and is the STOP handler one of the standard handlers?"
+    },
+    {
+      "id": "G-3-6",
+      "gap_type": "incomplete",
+      "description": "No performance tactic (concurrency, prioritization, caching, reduction of components per transaction) is described, and the component-count performance proxy is given without a count per transaction, so the performance effect of the identified approaches can only be stated qualitatively for PERF-1.",
+      "affected_activity": "identify-approaches",
+      "missing_evidence": "The number of components involved in a typical transaction and any tactic intended to reduce event-processing latency.",
+      "resolution_question": "How many components take part in a typical event transaction, and is any tactic used to reduce processing time?"
+    }
+  ]
+}

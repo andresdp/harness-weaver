@@ -1,0 +1,212 @@
+{
+  "review_stage": "initial",
+  "run_id": "atam-20261026T021243Z-ce7765fc",
+  "reviewed_report": "05_atam_report_draft.json",
+  "checks": [
+    {"check_id": "STRUCT-SCHEMA", "category": "structure", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "STRUCT-SECTIONS", "category": "structure", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "SEM-REPORT-STATUS", "category": "semantic_state", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "SEM-ANALYSIS-STATUS", "category": "semantic_state", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "SEM-STATUS-TRACE", "category": "semantic_state", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "SEM-GAP-ACTIVITY", "category": "semantic_state", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "SEM-GAPS-PRESERVED", "category": "semantic_state", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "EVID-RATIONALE-SUFFIX", "category": "evidence_traceability", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "EVID-NO-GAP-IDS", "category": "evidence_traceability", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "EVID-IDS-EXIST", "category": "evidence_traceability", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "EVID-FINDING-TRACE", "category": "evidence_traceability", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "EVID-SCENARIO-REF", "category": "evidence_traceability", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "EVID-DECISION-CITES", "category": "evidence_traceability", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "EVID-POINT-CITES", "category": "evidence_traceability", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "EVID-APPROACH-CITES", "category": "evidence_traceability", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "UNC-ABSENCE-BASIS", "category": "uncertainty", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "UNC-PERF-ATTAINMENT", "category": "uncertainty", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "UNC-RESPONSE-MEASURE", "category": "uncertainty", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "UNC-PRIORITY", "category": "uncertainty", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "COV-ACTIVITIES", "category": "method_coverage", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "COV-SCENARIOS", "category": "method_coverage", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "REF-NO-REFERENCE-OUTPUTS", "category": "reference_boundary", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "REF-INPUTS-PRESERVED", "category": "reference_boundary", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {"check_id": "REF-METADATA", "category": "reference_boundary", "source": "automated", "result": "pass", "location": "", "finding": "No violations found.", "correction": null},
+    {
+      "check_id": "STRUCT-R1",
+      "category": "structure",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "",
+      "finding": "Examined the report root and sections: ATAM_Evaluation holds title, metadata, evaluation_inputs (identical to 00_evaluation_inputs.json) and evaluation_results with utility_tree, architectural_approaches, analysis_records (19, one per utility-tree scenario, in scenario order), scenarios and semantic_state. No structural concern.",
+      "correction": null
+    },
+    {
+      "check_id": "SEM-R1",
+      "category": "semantic_state",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/semantic_state",
+      "finding": "Examined each status against its evidence. context_status, driver_status and architecture_evidence_status are 'partial' and each lists what is absent (stakeholders and deployment, driver priorities, benchmarks and security/recovery mechanisms), so none overstates sufficiency. scenario_analysis_status 'partial' matches 19 records that have no measures or priorities. report_status 'draft' cites the absence of an architect review. The values match their evidence.",
+      "correction": null
+    },
+    {
+      "check_id": "SEM-R2",
+      "category": "semantic_state",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/semantic_state/gaps",
+      "finding": "Examined the merged gaps G-1-1..G-1-5, G-2-1..G-2-7, G-3-1..G-3-6 and G-4-1..G-4-7. Each has an affected activity, missing evidence and a resolution question. Material unknowns stay visible: missing measures and priorities, security, recovery, input handling, handler dispatch, the unsupplied class diagrams, and the out-of-driver scope of PERF/SEC/PORT. G-2-7 correctly records the evaluator-derived scenarios FUN-2..FUN-4 as an assumption.",
+      "correction": null
+    },
+    {
+      "check_id": "EVID-R1",
+      "category": "evidence_traceability",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records",
+      "finding": "Read risks R-1..R-17 and R-19..R-20, non-risk NR-4 and sensitivity points S-1..S-18 against the AE/BD/AP statements they cite. Each claim is either a restatement of the cited AE text or an inferred consequence that is framed as unresolved or potential (for example R-4 cites AE-14/AE-15 for the single manager/queue, and R-15 cites AE-12/AE-13 for the component-count proxy and the qualitative 'slow' characterization). No finding was found that lacks evidence. Exceptions are recorded in separate checks (NR-1, NR-2, NR-3, R-18, T-3).",
+      "correction": null
+    },
+    {
+      "check_id": "EVID-R2",
+      "category": "evidence_traceability",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/6/findings/non_risks/0/rationale",
+      "finding": "NR-2 cites AE-1 ('the documented component interactions') as support for a single interaction pattern. AE-1 only reports a documentation status. The interaction definitions themselves are not supplied (recorded in gap G-4-3), and risk R-7 in the same record says coordination cannot be verified for exactly that reason. The rationale therefore relies on content that the evaluation could not inspect.",
+      "correction": "Rephrase the rationale so that it rests only on AE-3, AE-4 and AE-6, for example: 'The base Handler extended by standard and application-specific handlers and the framework-owned Main module suggest a single interaction pattern for the Event Manager to invoke; the documented component interactions referred to by the documentation status are not supplied, so this cannot be checked against them.' Keep AE-1 only as the source of that caveat, and keep gap G-4-3 visible. No new facts are needed."
+    },
+    {
+      "check_id": "UNC-R1",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/6/findings/non_risks/0/description",
+      "finding": "NR-2 states as a settled non-risk that interaction 'follows one uniform contract'. Two points in the inputs work against that certainty. AE-4 says the Event Manager interacts directly with application handlers. The handler-selection and dispatch mechanism is not described (gap G-3-5, risk R-1). So whether the manager invokes handlers only through the base Handler interface is not established. The uniformity is an inference from the inheritance structure.",
+      "correction": "Qualify the description, for example: 'The shared base Handler provides a candidate uniform contract between the Event Manager and handlers; whether the Event Manager invokes application handlers only through that base interface is not described.' Keep basis 'inferred'. If stage 7 cannot express it as a non-risk with this qualification, remove NR-2 and leave the concern covered by R-7 and gap G-3-5."
+    },
+    {
+      "check_id": "UNC-R2",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/7/findings/non_risks/0/description",
+      "finding": "NR-3 says that the 'execution path' for events of the same kind is deterministic. The cited structure (one queue, one manager, FIFO, sequential processing) supports deterministic ordering only. How the Event Manager selects a handler is not described (gap G-3-5), and handler state and override rules are unknown (gap G-4-7, risk R-8 in the same record). So a deterministic execution path is not established.",
+      "correction": "Limit the description to processing order, for example: 'Processing order for events of the same kind is deterministic, because there is one queue, one Event Manager and FIFO processing with sequential execution implied.' Remove 'and execution path', and leave the path question to R-8 and gaps G-3-5/G-4-7."
+    },
+    {
+      "check_id": "UNC-R3",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/1/findings/non_risks/0/rationale",
+      "finding": "NR-1's rationale says that 'sequential single-processor execution [is] stated in the inputs'. The input says 'Single processor execution implied (sequential event processing)' (AE-8: 'Single processor execution is implied'). The source's own hedge is lost, and NR-1's description ('no second consumer that could reorder events') partly rests on that implied premise.",
+      "correction": "Rephrase as 'the FIFO constraint and the limit of one Event Queue and one Event Manager are stated in the inputs, and single-processor, sequential execution is stated as implied'. Keep basis 'inferred'. Optionally qualify the description with 'given the implied sequential execution'."
+    },
+    {
+      "check_id": "UNC-R4",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/1/architectural_decisions/2",
+      "finding": "In AR-2 (FUN-2), the architectural decision 'Execution is on a single processor with sequential event processing (evidence: AE-8)' states as definite something that the cited AE-8 and the input (hardware_view_description[1]) give only as 'implied'. That turns an implied characterization into an observed design decision.",
+      "correction": "Rephrase to keep the source qualifier, for example: 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'. The evidence citation stays the same, and no new facts are needed."
+    },
+    {
+      "check_id": "UNC-R5",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/4/architectural_decisions/1",
+      "finding": "In AR-5 (REL-1), the architectural decision 'Execution is on a single processor with sequential event processing (evidence: AE-8)' states as definite something that the cited AE-8 and the input (hardware_view_description[1]) give only as 'implied'. That turns an implied characterization into an observed design decision.",
+      "correction": "Rephrase to keep the source qualifier, for example: 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'. The evidence citation stays the same, and no new facts are needed."
+    },
+    {
+      "check_id": "UNC-R6",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/7/architectural_decisions/1",
+      "finding": "In AR-8 (CI-2), the architectural decision 'Execution is on a single processor with sequential event processing (evidence: AE-8)' states as definite something that the cited AE-8 and the input (hardware_view_description[1]) give only as 'implied'. That turns an implied characterization into an observed design decision.",
+      "correction": "Rephrase to keep the source qualifier, for example: 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'. The evidence citation stays the same, and no new facts are needed."
+    },
+    {
+      "check_id": "UNC-R7",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/13/architectural_decisions/1",
+      "finding": "In AR-14 (VAR-3), the architectural decision 'Execution is on a single processor with sequential event processing (evidence: AE-8)' states as definite something that the cited AE-8 and the input (hardware_view_description[1]) give only as 'implied'. That turns an implied characterization into an observed design decision.",
+      "correction": "Rephrase to keep the source qualifier, for example: 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'. The evidence citation stays the same, and no new facts are needed."
+    },
+    {
+      "check_id": "UNC-R8",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/14/architectural_decisions/1",
+      "finding": "In AR-15 (PERF-1), the architectural decision 'Execution is on a single processor with sequential event processing (evidence: AE-8)' states as definite something that the cited AE-8 and the input (hardware_view_description[1]) give only as 'implied'. That turns an implied characterization into an observed design decision.",
+      "correction": "Rephrase to keep the source qualifier, for example: 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'. The evidence citation stays the same, and no new facts are needed."
+    },
+    {
+      "check_id": "UNC-R9",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/17/architectural_decisions/1",
+      "finding": "In AR-18 (PORT-1), the architectural decision 'Execution is on a single processor with sequential event processing (evidence: AE-8)' states as definite something that the cited AE-8 and the input (hardware_view_description[1]) give only as 'implied'. That turns an implied characterization into an observed design decision.",
+      "correction": "Rephrase to keep the source qualifier, for example: 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'. The evidence citation stays the same, and no new facts are needed."
+    },
+    {
+      "check_id": "UNC-R10",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/16/findings/risks/0/description",
+      "finding": "R-18 says that the 'confidentiality of framework data structures [is] at risk' because application logic is embedded in framework components (AE-11, AE-2). The cited evidence supports an inferred weakening of encapsulation between application and framework code. It does not support a confidentiality risk: no threat actor, sensitive data or disclosure path is described, and AE-18 is only a probe question. The rationale itself ends 'confidentiality is unresolved', so the description says more than the rationale. Security is also not a named driver (gap G-2-6).",
+      "correction": "Separate the two claims, for example: 'Encapsulation of framework data structures may be weakened because application logic is embedded inside framework components; whether data confidentiality is preserved is unresolved.' Keep basis 'inferred' and keep gaps G-1-3, G-3-1 and G-2-6 visible."
+    },
+    {
+      "check_id": "UNC-R11",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/13/reasoning",
+      "finding": "AR-14's reasoning ends with 'the structure suggests it was not designed for that'. This is a claim about design intent. No AE supports it, and it is drawn partly from the absence of a described multi-application mechanism. Absence can show that feasibility is unresolved, which the preceding sentence already says, but it cannot show the designers' intent.",
+      "correction": "Remove the clause 'the structure suggests it was not designed for that', or rephrase it as 'the stated limits of one Event Manager and one Event Queue and the direct coupling to application handlers constrain multi-application use'. Keep gap G-4-6 visible."
+    },
+    {
+      "check_id": "UNC-R12",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "",
+      "finding": "Checked for paraphrased performance-attainment claims that the automated lexicon might miss. AE-13's 'slow' is reported only as the inputs' qualitative characterization (AP-1, AP-4, AR-15, R-15), and no text claims that a target is met or violated. 'Fastest possible speed' and 'immediate' are explicitly marked as unquantified. No priority tuples or thresholds are invented: all priorities are null, and all response measures are 'unspecified: ...'. Apart from the items flagged in other checks, conclusions drawn from absence are framed as unresolved.",
+      "correction": null
+    },
+    {
+      "check_id": "COV-R1",
+      "category": "method_coverage",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records",
+      "finding": "All 19 utility-tree scenarios have an analysis record, and unanalyzed_scenarios is empty. Because the inputs give no priorities, no prioritized subset could be checked separately, and the draft does not invent one. Approaches AP-1..AP-4 are observed and cite matching AE statements. AP-5 (inversion of control) is inferred and has an inference_note grounded in AE-3, AE-4, AE-7 and AE-10. No security, fault-tolerance or portability approach is claimed without evidence (gaps G-3-1..G-3-4). Tradeoff points T-1 and T-2 each name at least two attributes and are supported by AE-8, AE-9, AE-14 and AE-15.",
+      "correction": null
+    },
+    {
+      "check_id": "COV-R2",
+      "category": "method_coverage",
+      "source": "reviewer",
+      "result": "warn",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/8/findings/tradeoff_points/0/conflicting_attributes/0",
+      "finding": "T-3's Performance pole, 'fewer components per transaction, the stated performance proxy', presents a performance benefit as established. Its source approach rationale (AP-4 Performance) says only that direct interaction 'may reduce the number of components per transaction' and that 'the net effect cannot be determined', and AE-13 characterizes transaction speed as slow because many components are involved. No component count per transaction is supplied (gap G-3-6). So the tradeoff's performance side is a hypothesis, not a supported effect.",
+      "correction": "Qualify the attribute entry, for example: 'Performance (potentially fewer components per transaction, the stated performance proxy; net effect undetermined because the inputs characterize transaction speed as slow and give no component count)'. If stage 7 judges that the qualified pole no longer forms a tradeoff, convert T-3 into a sensitivity point for Modifiability/Variability on the same parameter, citing AE-4. Keep gap G-3-6 visible."
+    },
+    {
+      "check_id": "REF-R1",
+      "category": "reference_boundary",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "",
+      "finding": "No ground_truth_outputs or reference-answer content appears in 00–05, and none was read. Metadata in the draft comes only from supplied input, and evaluation_inputs are carried verbatim.",
+      "correction": null
+    }
+  ],
+  "summary": {"pass": 31, "warn": 13, "fail": 0}
+}

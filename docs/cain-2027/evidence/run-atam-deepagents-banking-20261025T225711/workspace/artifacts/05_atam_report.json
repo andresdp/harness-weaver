@@ -1,0 +1,1097 @@
+{
+  "ATAM_Evaluation": {
+    "title": "ATAM Evaluation — draft",
+    "metadata": {
+      "system_name": null,
+      "date": null,
+      "ref": null,
+      "evaluator_organization": null,
+      "phase_1_attendees": [],
+      "phase_2_attendees": []
+    },
+    "evaluation_inputs": {
+      "system_description": "An Event framework where the application logic and framework are highly inter-dependent. The Main module is part of the framework, and the Event Manager interacts directly with application handlers. It features an Event Queue and a base Handler component extended by standard and application-specific handlers.",
+      "phase_1_discovery": {
+        "initial_documentation_status": "Fully developed architecture with class diagrams, component descriptions, and defined component interactions.",
+        "evaluator_inquiry_questions": [
+          "Can the components of the architecture be reused for future projects?",
+          "Can the framework be expanded in the future to accommodate a new application or new components?",
+          "Will the system handle any input given by the user and handle invalid input?",
+          "Is the architecture consistent in behavior?",
+          "Can any new application-specific functionality be added to the architecture?",
+          "Can the system be modified in short time and cost-effective manner?",
+          "Do the components interact properly?",
+          "Does the architecture perform its event-processing task properly?"
+        ]
+      },
+      "phase_2_architectural_context": {
+        "hardware_view_description": [
+          "System accepts input via Command Line Interface (CLI)",
+          "Single processor execution implied (sequential event processing)"
+        ],
+        "runtime_constraints": [
+          "Events must be dispatched in a First-Come-First-Served (FIFO) pattern",
+          "System must maintain an 'idle wait' state until input is received",
+          "Application logic is embedded within framework components"
+        ]
+      },
+      "quantitative_model_parameters": {
+        "performance_proxy": "Number of components involved in a transaction",
+        "transaction_speed": "Qualitative (Slow due to high number of components involved)",
+        "architecture_limits": {
+          "event_managers": "1",
+          "event_queues": "1"
+        }
+      },
+      "investigative_prompts": {
+        "style_probes": {
+          "target_style": "Event-Driven Architecture",
+          "questions": [
+            "Does the system allow unauthorized access?",
+            "Does the architecture portray data confidentiality?",
+            "Does the architecture process any task in the fastest possible speed?"
+          ]
+        }
+      },
+      "raw_candidate_scenarios": [
+        {
+          "id": "RS-1",
+          "description": "No unauthorized access to the system"
+        },
+        {
+          "id": "RS-2",
+          "description": "All operations are processed in fastest possible speed"
+        },
+        {
+          "id": "RS-3",
+          "description": "Any failure should be followed by immediate recovery"
+        },
+        {
+          "id": "RS-4",
+          "description": "User errors in using system should be handled"
+        },
+        {
+          "id": "RS-5",
+          "description": "New demands on system functionality should be accommodated"
+        },
+        {
+          "id": "RS-6",
+          "description": "Major parts of the framework should be re-usable for future architectures"
+        },
+        {
+          "id": "RS-7",
+          "description": "Framework modification is cost-effective, fast and in minimal time"
+        },
+        {
+          "id": "RS-8",
+          "description": "Components in framework interact in a coordinated manner"
+        },
+        {
+          "id": "RS-9",
+          "description": "Framework expansion is possible to allow for more sophisticated options"
+        },
+        {
+          "id": "RS-10",
+          "description": "Implementation allows for execution in different environments"
+        },
+        {
+          "id": "RS-11",
+          "description": "Proper data encapsulation and secure data structures"
+        },
+        {
+          "id": "RS-12",
+          "description": "Flexible implementation using other programming languages"
+        },
+        {
+          "id": "RS-13",
+          "description": "Overall consistent behavior expected from the architecture"
+        },
+        {
+          "id": "RS-14",
+          "description": "Framework should be complete, clear and perform exactly as required"
+        },
+        {
+          "id": "RS-15",
+          "description": "Hook up multiple applications to the framework at same time"
+        },
+        {
+          "id": "RS-16",
+          "description": "Change interface from command-driven to window-based"
+        }
+      ],
+      "business_context": {
+        "business_goals": [
+          "Provide an Event framework to be used by an application",
+          "Handle and process events through component interaction",
+          "Allow application components to utilize the framework services"
+        ],
+        "technical_constraints": [
+          "Must handle system termination via STOP handler",
+          "Must maintain system in idle state until input is received"
+        ],
+        "architectural_drivers": [
+          "Variability",
+          "Reliability",
+          "Conceptual Integrity",
+          "Functionality",
+          "Modifiability"
+        ]
+      }
+    },
+    "evaluation_results": {
+      "utility_tree": {
+        "root": "Utility",
+        "quality_attribute_nodes": [
+          {
+            "attribute_name": "Security",
+            "children": [
+              {
+                "refinement": "Prevention of unauthorized access",
+                "scenario_id": "RS-1",
+                "scenario_description": "When a user attempts unauthorized access, the system prevents access to the system.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Performance",
+            "children": [
+              {
+                "refinement": "Speed of operation processing",
+                "scenario_id": "RS-2",
+                "scenario_description": "When the system processes operations, it processes them in the fastest possible speed.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Reliability",
+            "children": [
+              {
+                "refinement": "Immediate recovery after failure",
+                "scenario_id": "RS-3",
+                "scenario_description": "When a failure occurs, the system recovers immediately.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Consistent behavior of the architecture",
+                "scenario_id": "RS-13",
+                "scenario_description": "When the architecture is exercised, it exhibits consistent behavior.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Correct and complete behavior",
+                "scenario_id": "RS-14",
+                "scenario_description": "When the framework is used, it is complete, clear and performs exactly as required.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Modifiability",
+            "children": [
+              {
+                "refinement": "Accommodation of new functionality demands",
+                "scenario_id": "RS-5",
+                "scenario_description": "When new demands arise, the system accommodates them.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Reusability of major framework parts",
+                "scenario_id": "RS-6",
+                "scenario_description": "When future projects are developed, major parts of the framework are reusable.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Fast and cost-effective framework modification",
+                "scenario_id": "RS-7",
+                "scenario_description": "When the framework is modified, the modification is cost-effective, fast and in minimal time.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Expansion to support more sophisticated options",
+                "scenario_id": "RS-9",
+                "scenario_description": "When the framework is expanded, it allows more sophisticated options.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Execution in different environments",
+                "scenario_id": "RS-10",
+                "scenario_description": "When the implementation is deployed, it can execute in different environments.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Implementation flexibility across programming languages",
+                "scenario_id": "RS-12",
+                "scenario_description": "When the implementation is developed, it allows flexible implementation using other programming languages.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Concurrent support for multiple applications",
+                "scenario_id": "RS-15",
+                "scenario_description": "When multiple applications are hooked up to the framework at the same time, the framework supports them.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Change of interface style from command-driven to window-based",
+                "scenario_id": "RS-16",
+                "scenario_description": "When the interface is changed from command-driven to window-based, the framework supports the change.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Functionality",
+            "children": [
+              {
+                "refinement": "Handling of user errors",
+                "scenario_id": "RS-4",
+                "scenario_description": "When a user makes an error in using the system, the system handles the error.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Coordinated interaction among framework components",
+                "scenario_id": "RS-8",
+                "scenario_description": "When framework components interact, they do so in a coordinated manner.",
+                "priority_tuple": null
+              }
+            ]
+          }
+        ]
+      },
+      "architectural_approaches": [
+        {
+          "approach_name": "Event-driven framework with centralized event management",
+          "description": "The system is organized around a single Event Manager and a single Event Queue that dispatch events in FIFO order while the framework remains responsible for coordinating event processing. (evidence: AE-3, AE-4, AE-8, AE-9, AE-14)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "The framework is explicitly described as handling and processing events through component interaction, with a dedicated Event Manager and Event Queue supporting that core behavior."
+            },
+            {
+              "quality_attribute": "Reliability",
+              "rationale": "Centralizing dispatch through one Event Manager and one Event Queue provides a controlled processing path that supports consistent handling of events."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "A single event-management path and one queue create a uniform mechanism for event processing across the framework."
+            }
+          ]
+        },
+        {
+          "approach_name": "Sequential FIFO event dispatch on a single processor",
+          "description": "Events are processed sequentially on one processor, with dispatch constrained to first-come-first-served ordering and an idle-wait state until input arrives. (evidence: AE-8, AE-9, AE-10)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "FIFO event dispatch and idle waiting describe the required operational behavior for accepting and processing events in order."
+            },
+            {
+              "quality_attribute": "Reliability",
+              "rationale": "Processing events one at a time on a single processor reduces concurrency complexity and helps preserve predictable behavior."
+            }
+          ]
+        },
+        {
+          "approach_name": "Tight coupling between framework and application logic",
+          "description": "Application logic is embedded within framework components, and the Event Manager interacts directly with application handlers, making the framework and application highly inter-dependent. (evidence: AE-1, AE-3, AE-11)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "Direct interaction between the framework and application handlers enables the framework to execute application behavior as part of event processing."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "The architecture uses a single integrated framework/application structure rather than separate subsystems."
+            }
+          ]
+        },
+        {
+          "approach_name": "Base handler with specialized handler extension",
+          "description": "A base Handler component is extended by standard handlers and application-specific handlers so new event behavior can be added through specialization. (evidence: AE-5)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Variability",
+              "rationale": "Extending a base Handler with standard and application-specific handlers allows the framework to accommodate different event behaviors."
+            },
+            {
+              "quality_attribute": "Modifiability",
+              "rationale": "New handler behavior can be introduced by adding or specializing handlers instead of changing the base component structure."
+            }
+          ]
+        },
+        {
+          "approach_name": "Framework as reusable application platform",
+          "description": "The framework is intended to be used by an application and to let application components utilize framework services, implying the framework is the reusable platform around which applications are built. (evidence: AE-2, AE-6, AE-7)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Variability",
+              "rationale": "A framework meant to be used by an application and extended through its components supports different application usages."
+            },
+            {
+              "quality_attribute": "Modifiability",
+              "rationale": "The framework structure is presented as a reusable base that can be adapted for application-specific use."
+            }
+          ]
+        }
+      ],
+      "analysis_records": [
+        {
+          "scenario_reference": {
+            "id": "RS-1",
+            "text": "When a user attempts unauthorized access, the system prevents access to the system.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Security",
+          "environment": "During normal system use",
+          "stimulus": "A user attempts unauthorized access",
+          "response_measure": "unspecified (see gap G-4-1)",
+          "architectural_decisions": [
+            "The framework keeps application logic embedded within framework components.",
+            "The Event Manager interacts directly with application handlers.",
+            "The framework is intended to be used by an application and to let application components utilize framework services."
+          ],
+          "reasoning": "The evidence supports an integrated framework/application structure, but it does not describe any authorization mechanism, access-control boundary, or confidentiality control. Therefore, the architecture decisions explain how the system is organized, but they do not show how unauthorized access is prevented. Because the response measure is missing, the scenario cannot be judged against a measurable security threshold; this is inferred from the absence of a security requirement in the inputs. (approaches: AP-3; evidence: AE-1, AE-2, AE-3, AE-6, AE-7, AE-11)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-1",
+                "description": "No security control or authorization mechanism is described for preventing unauthorized access through the framework/application interaction path.",
+                "rationale": "The supplied architecture evidence describes event management, handler interaction, and framework reuse, but does not describe authentication, authorization, or confidentiality controls. This leaves whether unauthorized access is prevented unresolved and is treated as an inferred risk, not a verified security failure. (evidence: AE-1, AE-3, AE-11; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-2",
+            "text": "When the system processes operations, it processes them in the fastest possible speed.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Performance",
+          "environment": "During normal operation",
+          "stimulus": "The system processes operations",
+          "response_measure": "unspecified (see gap G-4-2)",
+          "architectural_decisions": [
+            "The system uses a single Event Manager and a single Event Queue.",
+            "Events are dispatched in FIFO order on a single processor.",
+            "The system maintains an idle-wait state until input arrives."
+          ],
+          "reasoning": "The performance proxy is the number of components involved in a transaction, and the documented architecture centralizes event handling through one manager, one queue, and sequential processing. That reduces coordination complexity, but the evidence also says transaction speed is qualitatively slow due to the high number of components involved. Therefore, the architecture supports predictable processing, yet it does not support a claim of fastest-possible speed; instead, the evidence suggests the opposite direction. This is an inferred judgment from the component-count proxy and the sequential dispatch model. (approaches: AP-1, AP-2; evidence: AE-4, AE-8, AE-9, AE-10, AE-12, AE-13, AE-14)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-2",
+                "description": "Single-processor FIFO processing may pose a performance risk, but the available evidence does not establish whether the architecture meets a fastest-possible-speed expectation.",
+                "rationale": "The inputs describe single-processor sequential event processing, FIFO dispatch, and qualitative transaction speed as slow when many components are involved. This suggests a potential performance risk; no workload, benchmark, or response-time target is supplied, so whether the scenario is met cannot be determined. (evidence: AE-8, AE-9, AE-12, AE-13, AE-14; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "S-1",
+                "parameter": "Number of components involved in a transaction (evidence: AE-12, AE-13)",
+                "correlated_attribute": "Performance"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "T-1",
+                "parameter": "Single-processor FIFO event dispatch (evidence: AE-8, AE-9, AE-13)",
+                "conflicting_attributes": [
+                  "Reliability (+)",
+                  "Performance (-)"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-3",
+            "text": "When a failure occurs, the system recovers immediately.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "During system operation",
+          "stimulus": "A failure occurs",
+          "response_measure": "unspecified (see gap G-4-3)",
+          "architectural_decisions": [
+            "The system uses a single Event Manager and a single Event Queue.",
+            "Events are processed sequentially on one processor in FIFO order.",
+            "The system waits idle until input is received."
+          ],
+          "reasoning": "The centralized event path and sequential dispatch provide a controlled processing model, which supports predictable behavior after normal events. However, the inputs do not describe any failover, retry, checkpointing, or recovery mechanism. Since the scenario requires immediate recovery after failure, the absence of explicit recovery support is decisive and must be treated as a gap-driven risk rather than an observed capability. The result is an inferred risk from the missing recovery mechanism. (approaches: AP-1, AP-2; evidence: AE-4, AE-8, AE-9, AE-10, AE-14)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-3",
+                "description": "No failover, retry, or recovery mechanism is described to support immediate recovery after a failure.",
+                "rationale": "The architecture evidence explains event dispatch and idle waiting, but not how the system detects failure or restores service immediately. For a recovery scenario, the missing mechanism is a risk because immediate recovery cannot be shown from the available evidence. (evidence: AE-4, AE-8, AE-9, AE-10, AE-14; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-4",
+            "text": "When a user makes an error in using the system, the system handles the error.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Functionality",
+          "environment": "During normal use",
+          "stimulus": "A user makes an error in using the system",
+          "response_measure": "unspecified (see gap G-4-4)",
+          "architectural_decisions": [
+            "The Event Manager interacts directly with application handlers.",
+            "The framework uses a single event-management path with FIFO dispatch.",
+            "Application logic is embedded within framework components."
+          ],
+          "reasoning": "The architecture can route input through handlers and a centralized event path, so user-error handling is at least structurally possible. But the inputs do not describe validation, exception handling, or a specific error-recovery policy for invalid user actions. Therefore, the scenario is only partially supported: the framework path exists, yet the actual error-handling behavior is not evidenced. This is inferred because the inputs show the interaction path but not the error policy. (approaches: AP-1, AP-2, AP-3; evidence: AE-1, AE-3, AE-4, AE-8, AE-9, AE-10, AE-11, AE-14)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-4",
+                "description": "The architecture does not explicitly describe validation or error-recovery behavior for user mistakes.",
+                "rationale": "Although event handlers and direct framework/application interaction exist, the evidence does not state how invalid input or user mistakes are detected and corrected. That missing behavior is a risk for the user-error scenario. (evidence: AE-3, AE-4, AE-9, AE-11; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-5",
+            "text": "When new demands arise, the system accommodates them.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "After deployment",
+          "stimulus": "New demands arise on the system",
+          "response_measure": "unspecified (see gap G-4-5)",
+          "architectural_decisions": [
+            "A base Handler is extended by standard and application-specific handlers.",
+            "The framework is intended to be reused by applications and their components.",
+            "The architecture is documented with class diagrams, component descriptions, and defined interactions."
+          ],
+          "reasoning": "Specialized handlers provide an explicit extension point for new event behavior, and the framework is positioned as a reusable base for applications. That combination supports accommodating new demands by adding or specializing handlers rather than reshaping the core. The evidence is sufficient to infer modifiability support, although no quantitative change-effort measure is provided. (approaches: AP-4, AP-5; evidence: AE-2, AE-5, AE-6, AE-7)",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-1",
+                "description": "New event behavior can be accommodated by extending the base Handler with standard or application-specific handlers.",
+                "rationale": "The architecture explicitly defines a base Handler and specialized handlers, which is an adequate mechanism for adding new behavior without changing the core event-management structure. (evidence: AE-5; basis: observed)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-2",
+                "parameter": "Degree of handler specialization (evidence: AE-5)",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-6",
+            "text": "When future projects are developed, major parts of the framework are reusable.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "For future use",
+          "stimulus": "Future projects are developed",
+          "response_measure": "unspecified (see gap G-4-6)",
+          "architectural_decisions": [
+            "The framework is intended to be used by an application and to let application components utilize framework services.",
+            "The framework uses a base Handler extended by standard and application-specific handlers.",
+            "The architecture is documented and defined as a reusable framework base."
+          ],
+          "reasoning": "The framework-oriented structure and handler extensibility indicate that major parts can be reused in future projects. The architecture is intentionally organized as a framework platform rather than a one-off application, so reuse is directly supported by the available evidence. The claim remains inferred because no explicit reuse metric is given. (approaches: AP-4, AP-5; evidence: AE-2, AE-5, AE-6, AE-7)",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-2",
+                "description": "Major framework parts are reusable because the system is explicitly structured as a framework platform with extensible handlers.",
+                "rationale": "The evidence states that the framework is intended to be used by applications and extended by application-specific handlers, which supports reuse in future projects. (evidence: AE-2, AE-5, AE-6, AE-7; basis: observed)"
+              }
+            ],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-7",
+            "text": "When the framework is modified, the modification is cost-effective, fast and in minimal time.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "During maintenance",
+          "stimulus": "The framework is modified",
+          "response_measure": "unspecified (see gap G-4-7)",
+          "architectural_decisions": [
+            "Specialized handlers provide a variation point for change.",
+            "The framework is documented and structured as a reusable platform.",
+            "Application logic is embedded within framework components."
+          ],
+          "reasoning": "The extension mechanism should reduce the need to alter the core framework for many changes, which helps cost and time. However, embedding application logic inside framework components also raises the coupling cost of change, so the architecture supports modifiability but not uniformly. The result is an inferred tradeoff: easier change through handler extension, but harder change where the framework and application logic are tightly interdependent. (approaches: AP-4, AP-5; evidence: AE-1, AE-5, AE-6, AE-7, AE-11)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-5",
+                "description": "Tight coupling between framework and application logic may increase the cost and time of some modifications.",
+                "rationale": "The architecture evidence explicitly says the application logic is embedded within framework components. That tight interdependence can make modifications more expensive or slower when changes cross framework/application boundaries. (evidence: AE-1, AE-11; basis: observed)"
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR-3",
+                "description": "Changes that fit the handler-extension model can be made without restructuring the core framework.",
+                "rationale": "The base Handler and specialized handler design gives a clear extension point, so some modifications are supported without invasive core changes. (evidence: AE-5; basis: observed)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-3",
+                "parameter": "Extent of framework/application coupling (evidence: AE-1, AE-11)",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-8",
+            "text": "When framework components interact, they do so in a coordinated manner.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Functionality",
+          "environment": "During normal operation",
+          "stimulus": "Framework components interact",
+          "response_measure": "unspecified (see gap G-4-8)",
+          "architectural_decisions": [
+            "The framework coordinates component interaction through a single Event Manager and Event Queue.",
+            "Events are dispatched sequentially in FIFO order on a single processor.",
+            "Application logic is embedded within framework components."
+          ],
+          "reasoning": "The evidence directly supports coordinated interaction: a single event-management path mediates communication among components, and the sequential FIFO model provides a defined ordering discipline. Because the framework/application relationship is tightly integrated, the coordination is not incidental; it is a core property of the architecture. This is an inferred positive conclusion about coordinated interaction. (approaches: AP-1, AP-2, AP-3; evidence: AE-1, AE-3, AE-4, AE-8, AE-9, AE-10, AE-11, AE-14)",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-4",
+                "description": "Component interaction is coordinated through a single Event Manager and FIFO Event Queue.",
+                "rationale": "The architecture explicitly states the event manager, event queue, and FIFO dispatch order, which is sufficient to support coordinated interaction among framework components. (evidence: AE-3, AE-4, AE-9, AE-14; basis: observed)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-4",
+                "parameter": "FIFO dispatch ordering (evidence: AE-9)",
+                "correlated_attribute": "Functionality"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-9",
+            "text": "When the framework is expanded, it allows more sophisticated options.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "In the future",
+          "stimulus": "The framework is expanded",
+          "response_measure": "unspecified (see gap G-4-9)",
+          "architectural_decisions": [
+            "The framework platform is reusable and intended for application use.",
+            "The base Handler can be extended by standard and application-specific handlers.",
+            "The architecture is documented with defined interactions."
+          ],
+          "reasoning": "The extension model and reusable framework structure allow expansion by adding specialized handlers and application-specific behavior. That supports more sophisticated options without changing the core architecture. The evidence does not quantify the effort or capacity for expansion, so the conclusion is inferred from the extensibility mechanism. (approaches: AP-4, AP-5; evidence: AE-2, AE-5, AE-6, AE-7)",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-5",
+                "description": "Expansion to support more sophisticated options is supported by extensible handlers and a reusable framework base.",
+                "rationale": "The architecture explicitly uses a base Handler extended by standard and application-specific handlers, which is a direct mechanism for supporting expansion. (evidence: AE-5, AE-6, AE-7; basis: observed)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-5",
+                "parameter": "Handler extension depth (evidence: AE-5)",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-10",
+            "text": "When the implementation is deployed, it can execute in different environments.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "In different environments",
+          "stimulus": "The implementation is deployed",
+          "response_measure": "unspecified (see gap G-4-10)",
+          "architectural_decisions": [
+            "The framework is intended to be used as a reusable platform by applications.",
+            "The architecture is fully documented with defined component interactions.",
+            "The visible deployment context is CLI-based with a single processor."
+          ],
+          "reasoning": "The inputs show a reusable framework platform and documented interactions, but they do not provide evidence of portability across different execution environments. The CLI and single-processor context describe the current environment, not the ability to move to others. Therefore, the scenario cannot be confirmed from the evidence and must be treated as unsupported rather than satisfied. (approaches: AP-5; evidence: AE-2, AE-6, AE-7)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-6",
+                "description": "No evidence shows that the implementation can execute in environments different from the current CLI/single-processor context.",
+                "rationale": "The architecture evidence describes the current deployment context, but not any portability mechanism or environment abstraction. Without that support, the scenario remains unconfirmed. (evidence: AE-6, AE-7, AE-8; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-12",
+            "text": "When the implementation is developed, it allows flexible implementation using other programming languages.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "For future implementation choices",
+          "stimulus": "The implementation is developed",
+          "response_measure": "unspecified (see gap G-4-11)",
+          "architectural_decisions": [
+            "The framework is a reusable platform with extensible handlers.",
+            "The architecture is documented with class diagrams and defined interactions.",
+            "The implementation basis is still the existing framework structure, not a language-agnostic contract."
+          ],
+          "reasoning": "The evidence supports extensibility inside the framework design, but it does not indicate any language-neutral interfaces, interoperability layer, or abstraction that would permit implementation in other programming languages. As a result, the scenario is not supported by the available evidence and remains a gap-driven risk. (approaches: AP-4, AP-5; evidence: AE-2, AE-5, AE-6, AE-7)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-7",
+                "description": "The architecture does not describe any language-agnostic interface or portability mechanism to support implementation in other programming languages.",
+                "rationale": "The evidence describes the current framework structure and handler extensibility, but not cross-language implementation support. That missing mechanism is a risk for the scenario. (evidence: AE-5, AE-6, AE-7; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-13",
+            "text": "When the architecture is exercised, it exhibits consistent behavior.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "During normal use",
+          "stimulus": "The architecture is exercised",
+          "response_measure": "unspecified (see gap G-4-12)",
+          "architectural_decisions": [
+            "The framework uses a single Event Manager and a single Event Queue.",
+            "Events are processed sequentially in FIFO order on a single processor.",
+            "The system maintains an idle wait until input is received."
+          ],
+          "reasoning": "A single event path, FIFO ordering, and sequential execution all reinforce predictability, which is the architectural basis for consistent behavior. The inputs do not prove correctness in every state, but they do show a uniform execution model that supports consistency. This is an inferred positive conclusion, though the missing response measure prevents a quantified judgment. (approaches: AP-1, AP-2; evidence: AE-4, AE-8, AE-9, AE-10, AE-13, AE-14)",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-6",
+                "description": "Consistent behavior is supported by a single Event Manager, FIFO dispatch, and sequential processing.",
+                "rationale": "The architecture’s single processing path and ordered dispatch provide a consistent operational model. (evidence: AE-4, AE-8, AE-9, AE-10, AE-14; basis: observed)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-6",
+                "parameter": "Event-order discipline (evidence: AE-9)",
+                "correlated_attribute": "Reliability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-14",
+            "text": "When the framework is used, it is complete, clear and performs exactly as required.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "During normal operation",
+          "stimulus": "The framework is used",
+          "response_measure": "unspecified (see gap G-4-13)",
+          "architectural_decisions": [
+            "The framework organizes event processing through a single manager and queue.",
+            "The framework/application relationship is highly inter-dependent.",
+            "Application logic is embedded within framework components."
+          ],
+          "reasoning": "The architecture shows a defined and integrated structure, which supports clarity in the mechanism of event processing. However, completeness and exact correctness are not explicitly demonstrated by the evidence, and the inputs do not provide acceptance criteria for 'exactly as required.' So the architecture supports a coherent implementation, but it cannot prove the full scenario statement. (approaches: AP-1, AP-2, AP-3, AP-5; evidence: AE-1, AE-2, AE-3, AE-4, AE-8, AE-9, AE-10, AE-11, AE-14)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-8",
+                "description": "The inputs do not provide evidence that the framework is complete or exactly correct relative to all required behavior.",
+                "rationale": "The architecture is described structurally, but the evidence does not include completeness criteria or verification results for all required behavior. (evidence: AE-1, AE-2, AE-3, AE-4, AE-11; basis: inferred)"
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR-7",
+                "description": "The framework is clear in its event-processing structure because the event manager, queue, and handler roles are explicitly defined.",
+                "rationale": "The architecture evidence names the major components and their interactions, which supports a clear structural design. (evidence: AE-2, AE-3, AE-4, AE-5; basis: observed)"
+              }
+            ],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-15",
+            "text": "When multiple applications are hooked up to the framework at the same time, the framework supports them.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "During future extension",
+          "stimulus": "Multiple applications are hooked up to the framework at the same time",
+          "response_measure": "unspecified (see gap G-4-14)",
+          "architectural_decisions": [
+            "The framework is a reusable platform intended to be used by applications.",
+            "The Event Manager directly interacts with application handlers.",
+            "A base Handler is extended by standard and application-specific handlers."
+          ],
+          "reasoning": "The framework is designed as a reusable platform with extension points, so adding application-specific behavior is supported. But the evidence does not describe isolation, multi-tenant coordination, or contention handling for multiple applications at once. That means the scenario is only partially supported; the architecture supports attachment of multiple applications conceptually, but not concurrent support with demonstrated controls. (approaches: AP-1, AP-3, AP-4, AP-5; evidence: AE-1, AE-2, AE-3, AE-5, AE-6, AE-7, AE-11)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-9",
+                "description": "No evidence describes isolation or coordination mechanisms for multiple applications attached at the same time.",
+                "rationale": "The architecture supports framework reuse and handler extension, but it does not show how simultaneous multi-application use is coordinated or isolated. That missing mechanism is a risk for the scenario. (evidence: AE-1, AE-3, AE-5, AE-6, AE-7, AE-11; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-16",
+            "text": "When the interface is changed from command-driven to window-based, the framework supports the change.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "During interface redesign",
+          "stimulus": "The interface changes from command-driven to window-based",
+          "response_measure": "unspecified (see gap G-4-15)",
+          "architectural_decisions": [
+            "The framework is a reusable platform intended for application use.",
+            "The current deployment context is CLI-based.",
+            "The architecture is documented and defined, but no UI abstraction is described."
+          ],
+          "reasoning": "The current evidence describes a CLI context and a reusable framework, but it does not describe any UI abstraction, presentation layer separation, or mechanism that would support replacing a command-driven interface with a window-based one. Therefore the scenario cannot be confirmed from the evidence and is treated as a gap-driven risk. (approaches: AP-5; evidence: AE-2, AE-6, AE-7)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-10",
+                "description": "No presentation-layer abstraction is described to support changing from a command-driven interface to a window-based interface.",
+                "rationale": "The evidence only shows a CLI deployment context and framework reuse; it does not show a user-interface separation layer. That missing architecture is a risk for the UI-change scenario. (evidence: AE-6, AE-7; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        }
+      ],
+      "scenarios": [
+        {
+          "scenario_text": "When a user attempts unauthorized access, the system prevents access to the system.",
+          "primary_quality_attribute": [
+            "Security"
+          ]
+        },
+        {
+          "scenario_text": "When the system processes operations, it processes them in the fastest possible speed.",
+          "primary_quality_attribute": [
+            "Performance"
+          ]
+        },
+        {
+          "scenario_text": "When a failure occurs, the system recovers immediately.",
+          "primary_quality_attribute": [
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "When a user makes an error in using the system, the system handles the error.",
+          "primary_quality_attribute": [
+            "Functionality"
+          ]
+        },
+        {
+          "scenario_text": "When new demands arise, the system accommodates them.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When future projects are developed, major parts of the framework are reusable.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When the framework is modified, the modification is cost-effective, fast and in minimal time.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When framework components interact, they do so in a coordinated manner.",
+          "primary_quality_attribute": [
+            "Functionality"
+          ]
+        },
+        {
+          "scenario_text": "When the framework is expanded, it allows more sophisticated options.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When the implementation is deployed, it can execute in different environments.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When the implementation is developed, it allows flexible implementation using other programming languages.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When the architecture is exercised, it exhibits consistent behavior.",
+          "primary_quality_attribute": [
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "When the framework is used, it is complete, clear and performs exactly as required.",
+          "primary_quality_attribute": [
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "When multiple applications are hooked up to the framework at the same time, the framework supports them.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When the interface is changed from command-driven to window-based, the framework supports the change.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        }
+      ],
+      "semantic_state": {
+        "context_status": {
+          "evidence": [
+            "evaluation_inputs.system_description is present and describes the system as an event framework with components and interactions",
+            "evaluation_inputs.business_context.business_goals has 3 entries and technical_constraints has 2 entries"
+          ],
+          "value": "sufficient"
+        },
+        "driver_status": {
+          "evidence": [
+            "evaluation_inputs.business_context.architectural_drivers has 5 named drivers",
+            "evaluation_inputs.business_context.business_goals has 3 entries that state framework use, event processing, and framework services, giving driver context"
+          ],
+          "value": "sufficient"
+        },
+        "architecture_evidence_status": {
+          "evidence": [
+            "evaluation_inputs.system_description states framework components, Event Manager, Event Queue, and handlers",
+            "evaluation_inputs.phase_1_discovery.initial_documentation_status says fully developed architecture with class diagrams, component descriptions, and defined component interactions",
+            "evaluation_inputs.phase_2_architectural_context contains hardware_view_description, runtime_constraints, and quantitative_model_parameters"
+          ],
+          "value": "sufficient"
+        },
+        "scenario_analysis_status": {
+          "evidence": [
+            "AR-1..AR-15 analyze all 15 scenarios listed in 02_utility_tree.json.analysis_order",
+            "Each scenario_id in analysis_order appears in exactly one analysis record"
+          ],
+          "value": "partial"
+        },
+        "report_status": {
+          "evidence": [
+            "05_atam_report.json assembled from 01–04; no architect review is recorded"
+          ],
+          "value": "draft"
+        },
+        "gaps": [
+          {
+            "description": "[incomplete] No explicit phase 1 or phase 2 attendee roles are provided in the input metadata. (G-1-1)",
+            "affected_activity": "establish-context",
+            "missing_evidence": "evaluation_inputs.metadata.phase_1_attendees and evaluation_inputs.metadata.phase_2_attendees, or equivalent attendee-role fields",
+            "resolution_question": "Which attendee roles participated in phase 1 and phase 2?"
+          },
+          {
+            "description": "[incomplete] The evaluator inquiry questions identify evaluation concerns, but they are not grounded as resolved architectural facts. (G-1-2)",
+            "affected_activity": "establish-context",
+            "missing_evidence": "Architecture evidence or stakeholder answers resolving the listed inquiries",
+            "resolution_question": "What architectural evidence answers the evaluator inquiry questions about reuse, expansion, input handling, consistency, modifiability, interaction, and event processing?"
+          },
+          {
+            "description": "[incomplete] The style probe questions mention security and performance concerns, but the input does not provide explicit architectural measures for authorization, confidentiality, or fastest-possible speed. (G-1-3)",
+            "affected_activity": "establish-context",
+            "missing_evidence": "Security controls and quantitative performance requirements tied to the architecture",
+            "resolution_question": "What specific security mechanisms and measurable performance targets apply to this system?"
+          },
+          {
+            "description": "[incomplete] Quantitative parameters are qualitative or structural rather than concrete measurements, so response measures cannot be checked yet. (G-1-4)",
+            "affected_activity": "establish-context",
+            "missing_evidence": "Quantified latency, throughput, capacity, or similar measurable targets",
+            "resolution_question": "What measurable response criteria should be used to evaluate event processing performance?"
+          },
+          {
+            "description": "[unknown] The evidence does not explicitly confirm whether the system is intended to be treated as a classic event-driven architecture style or only as an event-processing framework with event-driven characteristics. (G-3-1)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "A direct architectural statement naming the style or a design description that explicitly maps the components to event-driven architectural roles",
+            "resolution_question": "Is this system intentionally using the event-driven architecture style, and if so, which components play the event source, dispatcher, and handler roles?"
+          },
+          {
+            "description": "[unknown] The evidence does not describe the persistence, storage, or external communication mechanisms beyond the event queue and handler interactions. (G-3-2)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Architecture evidence for persistence, storage, and any communication mechanisms outside the in-process event manager and handlers",
+            "resolution_question": "What persistence or external communication mechanisms, if any, are part of the framework?"
+          },
+          {
+            "description": "[unknown] The style probe asks about security and speed, but the supplied evidence does not confirm any security architecture or explicit performance tactic beyond sequential FIFO processing. (G-3-3)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Security controls or performance-oriented design decisions stated in the architecture evidence",
+            "resolution_question": "What explicit security or performance approaches are used in this framework?"
+          },
+          {
+            "description": "[assumption] The security scenario lacks a measurable response criterion, so the analysis assumes the qualitative scenario text is sufficient to judge the presence or absence of a security mechanism. (G-4-1)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable authorization or confidentiality target for RS-1",
+            "resolution_question": "What measurable security response should be used for RS-1?"
+          },
+          {
+            "description": "[assumption] The performance scenario lacks a measurable response criterion, so the analysis assumes the qualitative description can still be assessed against the available transaction-speed evidence. (G-4-2)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable performance target for RS-2",
+            "resolution_question": "What measurable speed requirement should be used for RS-2?"
+          },
+          {
+            "description": "[assumption] The recovery scenario lacks a measurable response criterion, so the analysis assumes that absence of failover evidence is sufficient to record a risk. (G-4-3)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable recovery target for RS-3",
+            "resolution_question": "What measurable recovery requirement should be used for RS-3?"
+          },
+          {
+            "description": "[assumption] The user-error scenario lacks a measurable response criterion, so the analysis assumes missing validation/error-policy evidence is enough to record a risk. (G-4-4)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable error-handling target for RS-4",
+            "resolution_question": "What measurable user-error handling requirement should be used for RS-4?"
+          },
+          {
+            "description": "[assumption] The modifiability scenario lacks a measurable response criterion, so the analysis assumes handler extension evidence is enough to support a non-risk finding. (G-4-5)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable accommodation target for RS-5",
+            "resolution_question": "What measurable change requirement should be used for RS-5?"
+          },
+          {
+            "description": "[assumption] The reuse scenario lacks a measurable response criterion, so the analysis assumes the framework-platform evidence is sufficient to support reuse. (G-4-6)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable reuse target for RS-6",
+            "resolution_question": "What measurable reuse requirement should be used for RS-6?"
+          },
+          {
+            "description": "[assumption] The modification-cost scenario lacks a measurable response criterion, so the analysis assumes the coupling evidence is sufficient to identify both a risk and a non-risk. (G-4-7)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable change-cost target for RS-7",
+            "resolution_question": "What measurable modification-effort requirement should be used for RS-7?"
+          },
+          {
+            "description": "[assumption] The coordinated-interaction scenario lacks a measurable response criterion, so the analysis assumes the event-management evidence is sufficient to support a non-risk finding. (G-4-8)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable coordination target for RS-8",
+            "resolution_question": "What measurable interaction requirement should be used for RS-8?"
+          },
+          {
+            "description": "[assumption] The expansion scenario lacks a measurable response criterion, so the analysis assumes handler extension evidence is sufficient to support a non-risk finding. (G-4-9)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable expansion target for RS-9",
+            "resolution_question": "What measurable expansion requirement should be used for RS-9?"
+          },
+          {
+            "description": "[assumption] The multi-environment deployment scenario lacks a measurable response criterion, so the analysis assumes the current deployment context is enough to identify a portability risk. (G-4-10)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable portability target for RS-10",
+            "resolution_question": "What measurable environment portability requirement should be used for RS-10?"
+          },
+          {
+            "description": "[assumption] The language-flexibility scenario lacks a measurable response criterion, so the analysis assumes the absence of language-agnostic evidence is enough to identify a risk. (G-4-11)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable cross-language implementation target for RS-12",
+            "resolution_question": "What measurable implementation-language flexibility requirement should be used for RS-12?"
+          },
+          {
+            "description": "[assumption] The consistency scenario lacks a measurable response criterion, so the analysis assumes the ordered event model is sufficient to support a non-risk finding. (G-4-12)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable consistency target for RS-13",
+            "resolution_question": "What measurable consistency requirement should be used for RS-13?"
+          },
+          {
+            "description": "[assumption] The correctness/completeness scenario lacks a measurable response criterion, so the analysis assumes the architecture description is enough to identify a structural clarity non-risk and a completeness risk. (G-4-13)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable correctness/completeness target for RS-14",
+            "resolution_question": "What measurable correctness or completeness requirement should be used for RS-14?"
+          },
+          {
+            "description": "[assumption] The multi-application scenario lacks a measurable response criterion, so the analysis assumes missing isolation evidence is enough to identify a risk. (G-4-14)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable multi-application support target for RS-15",
+            "resolution_question": "What measurable multi-application requirement should be used for RS-15?"
+          },
+          {
+            "description": "[assumption] The UI-change scenario lacks a measurable response criterion, so the analysis assumes the current CLI context is enough to identify a risk. (G-4-15)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "A measurable UI-change target for RS-16",
+            "resolution_question": "What measurable interface-change requirement should be used for RS-16?"
+          }
+        ]
+      }
+    }
+  }
+}

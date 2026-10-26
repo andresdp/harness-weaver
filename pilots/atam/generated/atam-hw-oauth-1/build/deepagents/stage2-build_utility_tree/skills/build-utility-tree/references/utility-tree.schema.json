@@ -1,0 +1,341 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamUtilityTreeArtifact",
+  "description": "Stage 2 (build-utility-tree) output: 02_utility_tree.json",
+  "$defs": {
+    "SourceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(evaluation_inputs|metadata|title)(\\.|\\[|$)"
+      },
+      "description": "JSON paths into 00_evaluation_inputs.json, e.g. evaluation_inputs.business_context.business_goals[0]. Required (non-empty) when basis is observed."
+    },
+    "Basis": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "inferred",
+        "assumption"
+      ],
+      "description": "observed = stated in the inputs; inferred = reasoned from cited inputs (state the reasoning); assumption = not supported by the inputs and must also appear as a gap"
+    },
+    "Gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^G-[0-9]+-[0-9]+$",
+          "description": "G-<stage>-<n>"
+        },
+        "gap_type": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "conflict",
+            "incomplete",
+            "assumption"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What is unknown, conflicting, incomplete or assumed"
+        },
+        "affected_activity": {
+          "type": "string",
+          "enum": [
+            "establish-context",
+            "build-utility-tree",
+            "identify-approaches",
+            "analyze-scenarios",
+            "synthesize-and-review"
+          ]
+        },
+        "missing_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Evidence needed to resolve or reduce the gap"
+        },
+        "resolution_question": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Question for the architect or a stakeholder"
+        }
+      },
+      "required": [
+        "id",
+        "gap_type",
+        "description",
+        "affected_activity",
+        "missing_evidence",
+        "resolution_question"
+      ]
+    },
+    "AvailabilityAssessment": {
+      "additionalProperties": false,
+      "description": "Status for context, drivers, or architecture evidence availability.",
+      "properties": {
+        "evidence": {
+          "description": "At least one observed input or artifact fact supporting this status, including evidence of absence",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "value": {
+          "description": "Availability status",
+          "enum": [
+            "missing",
+            "partial",
+            "sufficient"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ],
+      "title": "AtamAvailabilityAssessment",
+      "type": "object"
+    },
+    "PriorityTuple": {
+      "additionalProperties": false,
+      "description": "Relative importance and difficulty assigned to a utility-tree scenario.",
+      "properties": {
+        "importance": {
+          "description": "Relative importance of achieving this scenario",
+          "title": "Importance",
+          "type": "string",
+          "enum": [
+            "High",
+            "Medium",
+            "Low"
+          ]
+        },
+        "difficulty": {
+          "description": "Relative difficulty of achieving this scenario",
+          "title": "Difficulty",
+          "type": "string",
+          "enum": [
+            "High",
+            "Medium",
+            "Low"
+          ]
+        }
+      },
+      "required": [
+        "importance",
+        "difficulty"
+      ],
+      "title": "AtamPriorityTuple",
+      "type": "object"
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "root": {
+      "type": "string",
+      "const": "Utility"
+    },
+    "quality_attribute_nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "attribute_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "driver_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^BD-[0-9]+$"
+            },
+            "description": "BD ids from 01_context.json"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "scenario_id": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*$"
+                },
+                "refinement": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scenario_description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Stimulus, environment and response in one sentence"
+                },
+                "stimulus": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "environment": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "response": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "response_measure": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Measure stated or derivable from cited inputs; null when unsupported (record a gap)"
+                },
+                "response_measure_basis": {
+                  "type": "string",
+                  "enum": [
+                    "observed",
+                    "inferred",
+                    "missing"
+                  ]
+                },
+                "priority_tuple": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/$defs/PriorityTuple"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "priority_basis": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Cited evidence for the priority tuple; null when priority_tuple is null"
+                },
+                "origin": {
+                  "type": "string",
+                  "enum": [
+                    "raw_candidate_scenario",
+                    "derived_from_driver"
+                  ]
+                },
+                "raw_scenario_id": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "Id of the raw candidate scenario this refines, if any"
+                },
+                "source_refs": {
+                  "$ref": "#/$defs/SourceRefs"
+                }
+              },
+              "required": [
+                "scenario_id",
+                "refinement",
+                "scenario_description",
+                "stimulus",
+                "environment",
+                "response",
+                "response_measure",
+                "response_measure_basis",
+                "priority_tuple",
+                "priority_basis",
+                "origin",
+                "raw_scenario_id",
+                "source_refs"
+              ]
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "attribute_name",
+          "driver_ids",
+          "children"
+        ]
+      }
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "scenario_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "primary_quality_attribute": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "scenario_id",
+          "scenario_text",
+          "primary_quality_attribute"
+        ]
+      }
+    },
+    "analysis_order": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "scenario_ids in the order stage 4 must analyze them"
+    },
+    "driver_status": {
+      "$ref": "#/$defs/AvailabilityAssessment"
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Gap"
+      }
+    }
+  },
+  "required": [
+    "root",
+    "quality_attribute_nodes",
+    "scenarios",
+    "analysis_order",
+    "driver_status",
+    "gaps"
+  ]
+}

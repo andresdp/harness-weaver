@@ -1,5 +1,6 @@
 {
   "ATAM_Evaluation": {
+    "title": "<ATAM Evaluation — Session ID>",
     "metadata": {
       "system_name": "<System Name>",
       "date": "<YYYY-MM-DD>",
@@ -91,12 +92,24 @@
                 "priority_tuple": {
                   "importance": "<High/Medium/Low>",
                   "difficulty": "<High/Medium/Low>"
+                },
+                "origin": {
+                  "kind": "<raw_candidate_scenario | derived_from_evidence | derived_from_driver>",
+                  "source_scenario_id": "<Original raw scenario ID, or null for derived scenarios>",
+                  "basis": "<observed | inferred>",
+                  "source_refs": ["<Path into evaluation_inputs supporting this origin>"]
                 }
               },
               {
                 "refinement": "<Specific Attribute Refinement>",
                 "scenario_id": "<ID>",
-                "scenario_description": "<Description>"
+                "scenario_description": "<Description>",
+                "origin": {
+                  "kind": "<raw_candidate_scenario | derived_from_evidence | derived_from_driver>",
+                  "source_scenario_id": "<Original raw scenario ID, or null for derived scenarios>",
+                  "basis": "<observed | inferred>",
+                  "source_refs": ["<Path into evaluation_inputs supporting this origin>"]
+                }
               }
             ]
           }
@@ -117,8 +130,8 @@
       "analysis_records": [
         {
           "scenario_reference": {
-            "id": "<Scenario ID matching Utility Tree or Brainstorming>",
-            "text": "<Full text of the scenario being analyzed>",
+            "id": "<Stable ID of a scenario in evaluation_results.scenarios>",
+            "text": "<Exact scenario_text of the referenced report scenario>",
             "type": "<Use Case | Growth | Exploratory>"
           },
           "quality_attribute": "<Primary Attribute being analyzed>",
@@ -167,11 +180,18 @@
       ],
       "scenarios": [
         {
+          "id": "<Stable scenario ID used by analysis_records>",
           "scenario_text": "<Full text of the prioritized scenario>",
           "primary_quality_attribute": [
             "<Attribute 1>",
             "<Attribute 2>"
-          ]
+          ],
+          "origin": {
+            "kind": "<raw_candidate_scenario | derived_from_evidence | derived_from_driver>",
+            "source_scenario_id": "<Original raw scenario ID, or null for derived scenarios>",
+            "basis": "<observed | inferred>",
+            "source_refs": ["<Path into evaluation_inputs supporting this origin>"]
+          }
         }
       ],
       "semantic_state": {

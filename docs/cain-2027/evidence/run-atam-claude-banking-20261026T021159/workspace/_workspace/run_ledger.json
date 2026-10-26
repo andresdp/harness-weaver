@@ -1,0 +1,593 @@
+{
+  "run_id": "atam-20261026T021243Z-ce7765fc",
+  "input_path": "/Users/adiazpace/Documents/GitHub/harness-weaver-sandboxes/run-atam-claude-banking-20261026T021159/input/architecture-context.json",
+  "input_sha256": "ce7765fc52ac69bf39d9c6386ad8c8200a47a01510497b4124dda55a663941d3",
+  "created_at": "2026-10-26T02:12:43+00:00",
+  "seq": 31,
+  "events": [
+    {
+      "seq": 1,
+      "stage": "stage0-intake",
+      "event": "begin",
+      "at": "2026-10-26T02:12:43+00:00",
+      "invocation": "deterministic"
+    },
+    {
+      "seq": 2,
+      "stage": "stage0-intake",
+      "event": "complete",
+      "at": "2026-10-26T02:12:43+00:00"
+    },
+    {
+      "seq": 3,
+      "stage": "stage1-establish_context",
+      "event": "begin",
+      "at": "2026-10-26T02:12:43+00:00",
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 4,
+      "stage": "stage1-establish_context",
+      "event": "gate-failed",
+      "at": "2026-10-26T02:17:03+00:00",
+      "errors": 1
+    },
+    {
+      "seq": 5,
+      "stage": "stage1-establish_context",
+      "event": "retry",
+      "at": "2026-10-26T02:17:03+00:00",
+      "attempt": 2,
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 6,
+      "stage": "stage1-establish_context",
+      "event": "gate-failed",
+      "at": "2026-10-26T02:20:52+00:00",
+      "errors": 1
+    },
+    {
+      "seq": 7,
+      "stage": "stage1-establish_context",
+      "event": "retry",
+      "at": "2026-10-26T02:22:30+00:00",
+      "attempt": 3,
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 8,
+      "stage": "stage1-establish_context",
+      "event": "gate-failed",
+      "at": "2026-10-26T02:27:04+00:00",
+      "errors": 1
+    },
+    {
+      "seq": 9,
+      "stage": "stage1-establish_context",
+      "event": "retry",
+      "at": "2026-10-26T02:27:04+00:00",
+      "attempt": 4,
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 10,
+      "stage": "stage1-establish_context",
+      "event": "retry",
+      "at": "2026-10-26T02:31:35+00:00",
+      "attempt": 5,
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 11,
+      "stage": "stage1-establish_context",
+      "event": "gate-failed",
+      "at": "2026-10-26T02:36:00+00:00",
+      "errors": 1
+    },
+    {
+      "seq": 12,
+      "stage": "stage1-establish_context",
+      "event": "retry",
+      "at": "2026-10-26T02:36:00+00:00",
+      "attempt": 6,
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 13,
+      "stage": "stage1-establish_context",
+      "event": "gate-failed",
+      "at": "2026-10-26T02:38:07+00:00",
+      "errors": 1
+    },
+    {
+      "seq": 14,
+      "stage": "stage1-establish_context",
+      "event": "retry",
+      "at": "2026-10-26T02:45:38+00:00",
+      "attempt": 7,
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 15,
+      "stage": "stage1-establish_context",
+      "event": "complete",
+      "at": "2026-10-26T02:47:56+00:00"
+    },
+    {
+      "seq": 16,
+      "stage": "stage2-build_utility_tree",
+      "event": "begin",
+      "at": "2026-10-26T02:47:56+00:00",
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 17,
+      "stage": "stage2-build_utility_tree",
+      "event": "complete",
+      "at": "2026-10-26T02:50:19+00:00"
+    },
+    {
+      "seq": 18,
+      "stage": "stage3-identify_approaches",
+      "event": "begin",
+      "at": "2026-10-26T02:50:19+00:00",
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 19,
+      "stage": "stage3-identify_approaches",
+      "event": "complete",
+      "at": "2026-10-26T02:51:46+00:00"
+    },
+    {
+      "seq": 20,
+      "stage": "stage4-analyze_scenarios",
+      "event": "begin",
+      "at": "2026-10-26T02:51:46+00:00",
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 21,
+      "stage": "stage4-analyze_scenarios",
+      "event": "gate-failed",
+      "at": "2026-10-26T02:52:16+00:00",
+      "errors": 1
+    },
+    {
+      "seq": 22,
+      "stage": "stage4-analyze_scenarios",
+      "event": "retry",
+      "at": "2026-10-26T02:52:16+00:00",
+      "attempt": 2,
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 23,
+      "stage": "stage4-analyze_scenarios",
+      "event": "gate-failed",
+      "at": "2026-10-26T02:52:29+00:00",
+      "errors": 1
+    },
+    {
+      "seq": 24,
+      "stage": "stage4-analyze_scenarios",
+      "event": "retry",
+      "at": "2026-10-26T12:10:12+00:00",
+      "attempt": 3,
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 25,
+      "stage": "stage4-analyze_scenarios",
+      "event": "complete",
+      "at": "2026-10-26T12:15:37+00:00"
+    },
+    {
+      "seq": 26,
+      "stage": "stage5-synthesize_report",
+      "event": "begin",
+      "at": "2026-10-26T12:15:37+00:00",
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 27,
+      "stage": "stage5-synthesize_report",
+      "event": "complete",
+      "at": "2026-10-26T12:16:16+00:00"
+    },
+    {
+      "seq": 28,
+      "stage": "stage6-check_evaluation",
+      "event": "begin",
+      "at": "2026-10-26T12:16:16+00:00",
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 29,
+      "stage": "stage6-check_evaluation",
+      "event": "complete",
+      "at": "2026-10-26T12:19:57+00:00"
+    },
+    {
+      "seq": 30,
+      "stage": "stage7-revise_report",
+      "event": "begin",
+      "at": "2026-10-26T12:19:57+00:00",
+      "invocation": "claude-p"
+    },
+    {
+      "seq": 31,
+      "stage": "stage7-revise_report",
+      "event": "complete",
+      "at": "2026-10-26T12:21:48+00:00"
+    }
+  ],
+  "stages": {
+    "stage0-intake": {
+      "status": "completed",
+      "attempts": 1,
+      "invocation": "deterministic",
+      "agent": null,
+      "started_at": "2026-10-26T02:12:43+00:00",
+      "pre_snapshot": {
+        "harness:atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+        "harness:run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+        "harness:schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+        "harness:schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+        "harness:schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+        "harness:schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+        "harness:tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+        "harness:tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+        "harness:tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+        "claude:agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+        "claude:agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+        "claude:agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+        "claude:agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+        "claude:agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+        "claude:agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+        "claude:agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+        "claude:settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+        "claude:skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+        "claude:skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+        "claude:skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+        "claude:skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+        "claude:skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+        "claude:skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+        "claude:skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+        "claude:skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+        "claude:skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b"
+      },
+      "outputs": {
+        "00_evaluation_inputs.json": "2de13fc201afe9082d0b7b6d4a9b941283b3e5153a68bb6e62b6f08ee40bcfd9"
+      },
+      "errors": [],
+      "begin_seq": 1,
+      "completed_at": "2026-10-26T02:12:43+00:00",
+      "complete_seq": 2
+    },
+    "stage1-establish_context": {
+      "status": "completed",
+      "attempts": 7,
+      "invocation": "claude-p",
+      "agent": "atam-context-analyst",
+      "started_at": "2026-10-26T02:12:43+00:00",
+      "pre_snapshot": {
+        "ws:00_evaluation_inputs.json": "2de13fc201afe9082d0b7b6d4a9b941283b3e5153a68bb6e62b6f08ee40bcfd9",
+        "harness:atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+        "harness:run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+        "harness:schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+        "harness:schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+        "harness:schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+        "harness:schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+        "harness:tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+        "harness:tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+        "harness:tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+        "claude:agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+        "claude:agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+        "claude:agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+        "claude:agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+        "claude:agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+        "claude:agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+        "claude:agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+        "claude:settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+        "claude:skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+        "claude:skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+        "claude:skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+        "claude:skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+        "claude:skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+        "claude:skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+        "claude:skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+        "claude:skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+        "claude:skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b"
+      },
+      "outputs": {
+        "01_context.json": "5a1309b29047d8d0c2a2e1b169e66b358d1d95509e922d75fcef7ab83444ca51"
+      },
+      "errors": [],
+      "begin_seq": 14,
+      "completed_at": "2026-10-26T02:47:56+00:00",
+      "complete_seq": 15
+    },
+    "stage2-build_utility_tree": {
+      "status": "completed",
+      "attempts": 1,
+      "invocation": "claude-p",
+      "agent": "atam-utility-tree-builder",
+      "started_at": "2026-10-26T02:47:56+00:00",
+      "pre_snapshot": {
+        "ws:00_evaluation_inputs.json": "2de13fc201afe9082d0b7b6d4a9b941283b3e5153a68bb6e62b6f08ee40bcfd9",
+        "ws:01_context.json": "5a1309b29047d8d0c2a2e1b169e66b358d1d95509e922d75fcef7ab83444ca51",
+        "harness:atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+        "harness:run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+        "harness:schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+        "harness:schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+        "harness:schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+        "harness:schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+        "harness:tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+        "harness:tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+        "harness:tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+        "claude:agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+        "claude:agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+        "claude:agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+        "claude:agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+        "claude:agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+        "claude:agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+        "claude:agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+        "claude:settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+        "claude:skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+        "claude:skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+        "claude:skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+        "claude:skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+        "claude:skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+        "claude:skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+        "claude:skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+        "claude:skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+        "claude:skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b"
+      },
+      "outputs": {
+        "02_utility_tree.json": "c8dc2a7340f145472fd6c9e88640992f61bb1da97bdfe7753dc1f1f3a3171f71"
+      },
+      "errors": [],
+      "begin_seq": 16,
+      "completed_at": "2026-10-26T02:50:19+00:00",
+      "complete_seq": 17
+    },
+    "stage3-identify_approaches": {
+      "status": "completed",
+      "attempts": 1,
+      "invocation": "claude-p",
+      "agent": "atam-approach-analyst",
+      "started_at": "2026-10-26T02:50:19+00:00",
+      "pre_snapshot": {
+        "ws:00_evaluation_inputs.json": "2de13fc201afe9082d0b7b6d4a9b941283b3e5153a68bb6e62b6f08ee40bcfd9",
+        "ws:01_context.json": "5a1309b29047d8d0c2a2e1b169e66b358d1d95509e922d75fcef7ab83444ca51",
+        "ws:02_utility_tree.json": "c8dc2a7340f145472fd6c9e88640992f61bb1da97bdfe7753dc1f1f3a3171f71",
+        "harness:atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+        "harness:run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+        "harness:schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+        "harness:schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+        "harness:schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+        "harness:schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+        "harness:tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+        "harness:tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+        "harness:tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+        "claude:agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+        "claude:agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+        "claude:agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+        "claude:agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+        "claude:agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+        "claude:agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+        "claude:agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+        "claude:settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+        "claude:skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+        "claude:skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+        "claude:skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+        "claude:skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+        "claude:skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+        "claude:skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+        "claude:skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+        "claude:skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+        "claude:skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b"
+      },
+      "outputs": {
+        "03_approaches.json": "0e8a224653e95a15103b1dccf8c55fb67e3f3f42839724bab96184aa23015e31"
+      },
+      "errors": [],
+      "begin_seq": 18,
+      "completed_at": "2026-10-26T02:51:46+00:00",
+      "complete_seq": 19
+    },
+    "stage4-analyze_scenarios": {
+      "status": "completed",
+      "attempts": 3,
+      "invocation": "claude-p",
+      "agent": "atam-scenario-analyst",
+      "started_at": "2026-10-26T02:51:46+00:00",
+      "pre_snapshot": {
+        "ws:00_evaluation_inputs.json": "2de13fc201afe9082d0b7b6d4a9b941283b3e5153a68bb6e62b6f08ee40bcfd9",
+        "ws:01_context.json": "5a1309b29047d8d0c2a2e1b169e66b358d1d95509e922d75fcef7ab83444ca51",
+        "ws:02_utility_tree.json": "c8dc2a7340f145472fd6c9e88640992f61bb1da97bdfe7753dc1f1f3a3171f71",
+        "ws:03_approaches.json": "0e8a224653e95a15103b1dccf8c55fb67e3f3f42839724bab96184aa23015e31",
+        "harness:atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+        "harness:run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+        "harness:schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+        "harness:schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+        "harness:schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+        "harness:schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+        "harness:tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+        "harness:tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+        "harness:tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+        "claude:agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+        "claude:agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+        "claude:agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+        "claude:agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+        "claude:agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+        "claude:agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+        "claude:agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+        "claude:settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+        "claude:skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+        "claude:skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+        "claude:skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+        "claude:skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+        "claude:skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+        "claude:skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+        "claude:skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+        "claude:skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+        "claude:skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b"
+      },
+      "outputs": {
+        "04_analysis.json": "a642ecd55ed81aee818457c1ed63a1d8d838ad92da8ca38b303f20bd5c5cacda"
+      },
+      "errors": [],
+      "begin_seq": 24,
+      "completed_at": "2026-10-26T12:15:37+00:00",
+      "complete_seq": 25
+    },
+    "stage5-synthesize_report": {
+      "status": "completed",
+      "attempts": 1,
+      "invocation": "claude-p",
+      "agent": "atam-report-synthesizer",
+      "started_at": "2026-10-26T12:15:37+00:00",
+      "pre_snapshot": {
+        "ws:00_evaluation_inputs.json": "2de13fc201afe9082d0b7b6d4a9b941283b3e5153a68bb6e62b6f08ee40bcfd9",
+        "ws:01_context.json": "5a1309b29047d8d0c2a2e1b169e66b358d1d95509e922d75fcef7ab83444ca51",
+        "ws:02_utility_tree.json": "c8dc2a7340f145472fd6c9e88640992f61bb1da97bdfe7753dc1f1f3a3171f71",
+        "ws:03_approaches.json": "0e8a224653e95a15103b1dccf8c55fb67e3f3f42839724bab96184aa23015e31",
+        "ws:04_analysis.json": "a642ecd55ed81aee818457c1ed63a1d8d838ad92da8ca38b303f20bd5c5cacda",
+        "harness:atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+        "harness:run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+        "harness:schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+        "harness:schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+        "harness:schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+        "harness:schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+        "harness:tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+        "harness:tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+        "harness:tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+        "claude:agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+        "claude:agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+        "claude:agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+        "claude:agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+        "claude:agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+        "claude:agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+        "claude:agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+        "claude:settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+        "claude:skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+        "claude:skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+        "claude:skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+        "claude:skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+        "claude:skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+        "claude:skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+        "claude:skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+        "claude:skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+        "claude:skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b"
+      },
+      "outputs": {
+        "05_atam_report_draft.json": "5aaef340e22bab9a5dfdddc0b15ae54aacec11ea414600a759f4a2ad80d25756"
+      },
+      "errors": [],
+      "begin_seq": 26,
+      "completed_at": "2026-10-26T12:16:16+00:00",
+      "complete_seq": 27
+    },
+    "stage6-check_evaluation": {
+      "status": "completed",
+      "attempts": 1,
+      "invocation": "claude-p",
+      "agent": "atam-evaluation-checker",
+      "started_at": "2026-10-26T12:16:16+00:00",
+      "pre_snapshot": {
+        "ws:00_evaluation_inputs.json": "2de13fc201afe9082d0b7b6d4a9b941283b3e5153a68bb6e62b6f08ee40bcfd9",
+        "ws:01_context.json": "5a1309b29047d8d0c2a2e1b169e66b358d1d95509e922d75fcef7ab83444ca51",
+        "ws:02_utility_tree.json": "c8dc2a7340f145472fd6c9e88640992f61bb1da97bdfe7753dc1f1f3a3171f71",
+        "ws:03_approaches.json": "0e8a224653e95a15103b1dccf8c55fb67e3f3f42839724bab96184aa23015e31",
+        "ws:04_analysis.json": "a642ecd55ed81aee818457c1ed63a1d8d838ad92da8ca38b303f20bd5c5cacda",
+        "ws:05_atam_report_draft.json": "5aaef340e22bab9a5dfdddc0b15ae54aacec11ea414600a759f4a2ad80d25756",
+        "harness:atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+        "harness:run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+        "harness:schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+        "harness:schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+        "harness:schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+        "harness:schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+        "harness:tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+        "harness:tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+        "harness:tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+        "claude:agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+        "claude:agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+        "claude:agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+        "claude:agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+        "claude:agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+        "claude:agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+        "claude:agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+        "claude:settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+        "claude:skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+        "claude:skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+        "claude:skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+        "claude:skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+        "claude:skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+        "claude:skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+        "claude:skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+        "claude:skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+        "claude:skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b"
+      },
+      "outputs": {
+        "06_review_findings_initial.json": "f0edcd1afdb2e5b0df8a9f540a6942d52e8456e4b5780c184f25eb0df6a05bb2"
+      },
+      "errors": [],
+      "begin_seq": 28,
+      "completed_at": "2026-10-26T12:19:57+00:00",
+      "complete_seq": 29
+    },
+    "stage7-revise_report": {
+      "status": "completed",
+      "attempts": 1,
+      "invocation": "claude-p",
+      "agent": "atam-report-reviser",
+      "started_at": "2026-10-26T12:19:57+00:00",
+      "pre_snapshot": {
+        "ws:00_evaluation_inputs.json": "2de13fc201afe9082d0b7b6d4a9b941283b3e5153a68bb6e62b6f08ee40bcfd9",
+        "ws:01_context.json": "5a1309b29047d8d0c2a2e1b169e66b358d1d95509e922d75fcef7ab83444ca51",
+        "ws:02_utility_tree.json": "c8dc2a7340f145472fd6c9e88640992f61bb1da97bdfe7753dc1f1f3a3171f71",
+        "ws:03_approaches.json": "0e8a224653e95a15103b1dccf8c55fb67e3f3f42839724bab96184aa23015e31",
+        "ws:04_analysis.json": "a642ecd55ed81aee818457c1ed63a1d8d838ad92da8ca38b303f20bd5c5cacda",
+        "ws:05_atam_report_draft.json": "5aaef340e22bab9a5dfdddc0b15ae54aacec11ea414600a759f4a2ad80d25756",
+        "ws:06_review_findings_initial.json": "f0edcd1afdb2e5b0df8a9f540a6942d52e8456e4b5780c184f25eb0df6a05bb2",
+        "harness:atam.py": "3901b8d12d851f66148a624df35585f5f422bbe2dad1b9321285280ca69c0a10",
+        "harness:run.py": "ea062c4b0b7a2b0f1150b2294ecf9a0ab52de283ee671bbbae1cb2ce46c5b032",
+        "harness:schemas/01_context.schema.json": "ebc6de80784d14c5462786754f061d6508f6d8f2fa2c0158f8e79a641fe3ee64",
+        "harness:schemas/02_utility_tree.schema.json": "f10eb5c9db7ec7f637d1413655abcae9cc67d7511896000b1f37a529ee09603e",
+        "harness:schemas/03_approaches.schema.json": "4364db12767022b696290494aaf440447d3f1bb9c97342b5b5c381a6775c3a8c",
+        "harness:schemas/06_review_findings.schema.json": "59d052de5a3af5b8ed52782b9ec902212cd61d54b851b163ca76bd354a490d9d",
+        "harness:tests/fake_claude.py": "67c9aa7d383bfc4cebc6e823627a0ae3f9d8a5957e5da3e0679b9270e7a9bbb4",
+        "harness:tests/fixture.py": "059bea5afd4c5d0c03665acb4f90c95c7d6152dcfd071e2f6e5b71a13447d44f",
+        "harness:tests/test_harness.py": "21c6f2df5070389b4bb8251f5599047ac593eebf10eff6bdbdd8c321fafd0515",
+        "claude:agents/atam-approach-analyst.md": "861562e1eaab5cc08133b1df917449c536bf5de3bb2e9f782bd8e38492c7c54b",
+        "claude:agents/atam-context-analyst.md": "64a835ca1c3c8e1c92568f3395efaab93fa1c5c7242ea1bf6e70661853eff7a8",
+        "claude:agents/atam-evaluation-checker.md": "e01a532301a65fa07c693b94e0d2c6de1db4d57c6101f995068c1223b148ce9d",
+        "claude:agents/atam-report-reviser.md": "532bd9841d54af34bdbbfa05e18f74b2f8721011decd9a489e9e88abf51ce516",
+        "claude:agents/atam-report-synthesizer.md": "dc522cca721b7ad41f9892138fe360bb036eac7f9541aa549536214b6c7968bb",
+        "claude:agents/atam-scenario-analyst.md": "a203b069dcdc2603507e013717822b2eb04ff110d482695787d9b709f5ebc715",
+        "claude:agents/atam-utility-tree-builder.md": "5943ae870037eb3dfdbf323116410acc127ed2947fe3f5f0ba5f1293371925d5",
+        "claude:settings.json": "6437682d424be355800ef18e458dccb7e9845af9d954d931b4cfc376b9e927b6",
+        "claude:skills/atam-orchestrator/SKILL.md": "b0ed914c80a0b03740a700efeca49456f8d394492bff6ebe26162ffe2f16e270",
+        "claude:skills/check-evaluation/SKILL.md": "dc44fc309f6f0146a0c60efb76f6549f3317e3656927ea8998391529fce372cc",
+        "claude:skills/evaluate-architecture/SKILL.md": "0ff9c9ba3769e0d51732c3af3a82f61ae243a23ba7a79f66aa2459d9575efbb4",
+        "claude:skills/evaluate-architecture/references/analysis.schema.json": "3f494206ddc2951416141a81ffd84becd9312cb2476a456170276be0def3de9c",
+        "claude:skills/evaluate-architecture/references/artifacts.md": "276d80eb474956f7548e12f9e0d835862b259e1e9141468b15c008a7584234e5",
+        "claude:skills/evaluate-architecture/references/atam-report-template.json": "9686464ca9b9bc2a71cdd872a657b3bdcf54ffd052a3f3a5310fa4cc152ed8b9",
+        "claude:skills/evaluate-architecture/references/atam-report.schema.json": "72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45",
+        "claude:skills/evaluate-architecture/references/methodology.yaml": "2ac3fe99fd71c24b5ff910159062b23a92526ee7cd835483b6db3e206e58e61d",
+        "claude:skills/revise-report/SKILL.md": "5b8537c0fb009ae9d40c1384a9d5cd6a04e5a5ccdd57c19af88643d13290e97b"
+      },
+      "outputs": {
+        "05_atam_report.json": "b68836a0b9ddec79da66b07cfbfb3c4f8e43fa39da2440759be4865351b34652",
+        "06_review_findings.json": "c62155ef552fc27f190999cd6216223d4e30b5b1e6bac26e53bb3bf2f0a814aa"
+      },
+      "errors": [],
+      "begin_seq": 30,
+      "completed_at": "2026-10-26T12:21:48+00:00",
+      "complete_seq": 31
+    }
+  }
+}

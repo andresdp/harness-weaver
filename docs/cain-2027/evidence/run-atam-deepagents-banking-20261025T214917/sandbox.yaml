@@ -1,0 +1,12 @@
+kind: execution
+name: run-atam-deepagents-banking-20261025T214917
+pilot: atam
+pilot_dir: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam
+target: deepagents
+case: banking
+case_binding: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam/cases/banking.yaml
+bundle_source: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam/generated/atam-hw-oauth-1/build/deepagents
+created_at: '2026-10-25T21:49:17+00:00'
+repository_commit: 2cc2ae9430d3321e062956dff3645134a4c8827f
+session_id: null
+model_requested: openai:gpt-5.4-mini
