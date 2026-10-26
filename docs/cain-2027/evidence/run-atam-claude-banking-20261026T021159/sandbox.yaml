@@ -1,12 +1,12 @@
 kind: execution
 name: run-atam-claude-banking-20261026T021159
 pilot: atam
-pilot_dir: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam
+pilot_dir: ${REPO_ROOT}/pilots/atam
 target: claude
 case: banking
-case_binding: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam/cases/banking.yaml
-bundle_source: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam/generated/atam-revfactory-en-claude-1/build/claude
+case_binding: ${REPO_ROOT}/pilots/atam/cases/banking.yaml
+bundle_source: ${REPO_ROOT}/pilots/atam/generated/atam-revfactory-en-claude-1/build/claude
 created_at: '2026-10-26T02:11:59+00:00'
 repository_commit: da0b2555a86a9e69664a73c25269d10e77153da6
-session_id: cf972adc-d902-40e5-8f17-4d9306956bc3
+session_id: "<redacted>"
 model_requested: null

@@ -1,6 +1,6 @@
 {
   "run_id": "atam-20261026T021243Z-ce7765fc",
-  "input_path": "/Users/adiazpace/Documents/GitHub/harness-weaver-sandboxes/run-atam-claude-banking-20261026T021159/input/architecture-context.json",
+  "input_path": "${SANDBOX_DIR}/input/architecture-context.json",
   "input_sha256": "ce7765fc52ac69bf39d9c6386ad8c8200a47a01510497b4124dda55a663941d3",
   "created_at": "2026-10-26T02:12:43+00:00",
   "seq": 31,

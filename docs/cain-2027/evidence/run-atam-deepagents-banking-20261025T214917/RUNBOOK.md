@@ -1,13 +1,15 @@
 # Execution sandbox: run-atam-deepagents-banking-20261025T214917
 
-Target: **deepagents**. Pilot: **atam**. Case: **banking**. Bundle: `/Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam/generated/atam-hw-oauth-1/build/deepagents`.
+Target: **deepagents**. Pilot: **atam**. Case: **banking**. Bundle: `${REPO_ROOT}/pilots/atam/generated/atam-hw-oauth-1/build/deepagents`.
+
+The archived commands use `${REPO_ROOT}` and `${SANDBOX_DIR}` as portable placeholders; substitute the local paths before rerunning them.
 
 `input/` holds only the case's generation inputs (evaluation_inputs). Evaluator-only data was not copied.
 
 ## Run
 
 ```shell
-cd /Users/adiazpace/Documents/GitHub/harness-weaver-sandboxes/run-atam-deepagents-banking-20261025T214917
+cd ${SANDBOX_DIR}
 ./run.sh    # provider keys come from the environment or a .env file placed in this directory
 ```
 
@@ -18,8 +20,8 @@ The launcher prints live progress and always records its exit status and finish 
 From the repository root with your HarnessWeaver Python environment active (or prefix `hw` with `conda run -n <environment> --no-capture-output`):
 
 ```shell
-hw check /Users/adiazpace/Documents/GitHub/harness-weaver-sandboxes/run-atam-deepagents-banking-20261025T214917
-hw sandbox record /Users/adiazpace/Documents/GitHub/harness-weaver-sandboxes/run-atam-deepagents-banking-20261025T214917
+hw check ${SANDBOX_DIR}
+hw sandbox record ${SANDBOX_DIR}
 ```
 
 `check` writes `check.json` next to this file; `record` copies the sandbox record, outputs and check result into `docs/cain-2027/evidence/run-atam-deepagents-banking-20261025T214917/`.

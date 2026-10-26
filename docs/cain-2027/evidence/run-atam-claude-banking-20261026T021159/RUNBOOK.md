@@ -1,13 +1,15 @@
 # Execution sandbox: run-atam-claude-banking-20261026T021159
 
-Target: **claude**. Pilot: **atam**. Case: **banking**. Bundle: `/Users/adiazpace/Documents/GitHub/harness-weaver/pilots/atam/generated/atam-revfactory-en-claude-1/build/claude`.
+Target: **claude**. Pilot: **atam**. Case: **banking**. Bundle: `${REPO_ROOT}/pilots/atam/generated/atam-revfactory-en-claude-1/build/claude`.
+
+The archived commands use `${REPO_ROOT}` and `${SANDBOX_DIR}` as portable placeholders; substitute the local paths before rerunning them.
 
 `input/` holds only the case's generation inputs (architecture-context). Evaluator-only data was not copied.
 
 ## Run
 
 ```shell
-cd /Users/adiazpace/Documents/GitHub/harness-weaver-sandboxes/run-atam-claude-banking-20261026T021159
+cd ${SANDBOX_DIR}
 ISOLATION=settings ./run.sh    # Claude subscription OAuth; raw transcript is saved in output/
 ```
 
@@ -18,8 +20,8 @@ The launcher prints live progress and records its exit status and finish time un
 From the repository root with your HarnessWeaver Python environment active (or prefix `hw` with `conda run -n <environment> --no-capture-output`):
 
 ```shell
-hw check /Users/adiazpace/Documents/GitHub/harness-weaver-sandboxes/run-atam-claude-banking-20261026T021159
-hw sandbox record /Users/adiazpace/Documents/GitHub/harness-weaver-sandboxes/run-atam-claude-banking-20261026T021159
+hw check ${SANDBOX_DIR}
+hw sandbox record ${SANDBOX_DIR}
 ```
 
 `check` writes `check.json` next to this file; `record` copies the sandbox record, outputs and check result into `docs/cain-2027/evidence/run-atam-claude-banking-20261026T021159/`. A report schema failure may trigger one automatic Claude repair in the launcher; review `record/check-before-repair.json` and final `check.json`. DeepAgents applies the same one-retry limit to each stage artifact it validates.
