@@ -1,4 +1,8 @@
-# HarnessWeaver
+<p align="center">
+  <img src="docs/assets/harnessweaver-agentic-logo.png" alt="Interwoven workflow paths surrounding a connected agent network" width="220">
+</p>
+
+<h1 align="center">HarnessWeaver</h1>
 
 HarnessWeaver is a research prototype for describing domain-specific agentic workflows and materializing them as LLM-based assistants for different agent runtimes. It makes the workflow model explicit—its intent, domain knowledge, methodology, artifacts, state, checks, human review, and runtime requirements—so the method can be inspected separately from a particular runtime implementation.
 
@@ -28,7 +32,7 @@ This checks the specification and its declared local references. It does not run
 
 Authors describe the problem and its domain and methodology in source specifications. The HarnessWeaver generation skill uses those sources to produce a HarnessSpec intermediate representation. Runtime-specific materializers then create assistant workflows—for example, Claude Code skills and agents or a DeepAgents workflow. Checks validate bundles and execution artifacts; the `evolve` skill is intended to use run feedback to revise a workflow.
 
-The layers are designed to keep domain and methodology content separate from runtime-specific orchestration. The pilots test this idea qualitatively; they are not yet a systematic runtime comparison.
+The layers are designed to keep domain and methodology content separate from runtime-specific orchestration. The pilots test this idea qualitatively; they are not yet a systematic runtime comparison. See the [high-level architecture overview](architecture.md) for a diagram of the inputs, outputs and workflow.
 
 ## Repository map
 

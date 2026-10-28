@@ -2,6 +2,7 @@
 
 ## Start here
 
+- [Architecture overview](../architecture.md) — diagram and explanation of the main components, inputs, outputs and workflow.
 - [Quickstart](quickstart.md) — install the Python package and validate a HarnessSpec.
 - [Current design and status](harnessweaver-current-design-and-status.md) — overview of the model and prototype status.
 - [Implementation roadmap](harnessweaver-implementation-roadmap.md) — planned technical direction.

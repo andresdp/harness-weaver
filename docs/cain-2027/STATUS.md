@@ -17,7 +17,7 @@ The plan names five concepts. The repository realizes them inside HarnessSpec v0
 | Methodology | `methodology` section + `methodology.yaml` (ATAM) + `stages` readiness/completion criteria | Methodology file holds detailed activities and evidence rules. |
 | Methodology/semantic state | `semantic_state` in spec; `evaluation_results.semantic_state` in report contract | Kept separate from the runtime sidecar (`*.runtime.json`). |
 | HarnessSpec / IR | `specs/harnessspec/v0.2.schema.json`, `src/harnessweaver/spec.py` | Spec is a design record, not an executable workflow. |
-| Runtime adapter/materializer | Target references inside the `harness` skill (`src/harnessweaver/skills/harness/references/targets/`), applied by a coding agent; no target has been generated yet | See [APPROACH.md](APPROACH.md) §3–4 and work items W3–W6. |
+| Runtime adapter/materializer | Target references inside the `harness` skill (`src/harnessweaver/skills/harness/references/targets/`), applied by a coding agent; ATAM bundles exist, and the SARA target is pending generation | See [APPROACH.md](APPROACH.md) §3–4 and work items W3–W7. |
 | Orchestration primitives | Generated path: Claude target uses what the skill selects at gate G2; DeepAgents target is a sequential stage pipeline. Hand-written reference: three `workflow_strategy × agent_interaction` pairs (supervisor, sequential pipeline, fan-out/fan-in) | Plan's *Loop* primitive is not implemented; report it as future work. |
 | Checker / verifier / evaluator | Checker: `benchmarks/atam/pilot.py check` (deterministic). Evaluator: legacy ArchEval LLM judge (supplementary). Human review: protocol only. | No verifier with evidence trail beyond the checker. |
 
@@ -39,7 +39,7 @@ Stretch items:
 | Plan item | Status | Evidence / location |
 |---|---|---|
 | Named orchestration patterns | **Done** for three patterns | `src/harnessweaver/runtime/`, `tests/test_runtime.py`, `tests/test_deepagents_runtime.py` |
-| Second domain (design) | **Missing** | ADD profile in `pilots/design-exploration/` has no case and no run; SARA mapping is read-only (`docs/software-architecture-agent-mapping.md`) |
+| Second domain (design) | **Partial** | SARA's 4-stage/11-skill source packet and CampusBike case are prepared in `pilots/sara/`; generation, bundle check and run remain pending. |
 | Evolution workflow | **Partial** | Evidence-linked prompt revision (sequential scenario-ID fix) and semantic-state contract refresh, both recorded in `pilot-status.md`. No "edit sources or spec → regenerate" demo yet (W11). |
 
 Other existing work not in the plan:
@@ -53,7 +53,7 @@ Other existing work not in the plan:
 | Pilot | Role in paper | Domain / method | Runtimes | Decision |
 |---|---|---|---|---|
 | **P1 · ArchEval-ATAM (banking)** | Minimum matrix, RQ1–RQ2; generation-baseline comparison (Claude) | Architecture evaluation / ATAM | Claude Code project + DeepAgents stage pipeline, both generated | **Committed.** Method, case, checker and reference realizations exist; sources layout and both generated targets are missing. |
-| **P2 · SARA (design)** | RQ3 (domain flexibility); also the concrete example of the *bespoke application* strategy in Figure 1 | Architecture design: requirements → drivers → patterns/alternatives → evaluation → ADR | DeepAgents backend only, generated or approximated by HarnessWeaver; SARA's frontend/API adapted to connect to it | **Committed** (decided 2026-10-24). |
+| **P2 · SARA (design)** | RQ3 (domain flexibility); also the concrete example of the *bespoke application* strategy in Figure 1 | Architecture design: requirements → drivers → patterns/alternatives → evaluation → ADR | DeepAgents backend generated for the standalone HarnessWeaver stage host; SARA application integration is stretch | **Prepared for generation.** CampusBike selected; host and JSON-output adaptations are documented in `pilots/sara/`. |
 | SAAM WRCS | One sentence as ongoing work | Architecture evaluation / SAAM | DeepAgents only | Parked. |
 | ADD design exploration | Future work | Architecture design / ADD | None | Parked; superseded by SARA for this submission. |
 | ATAM portable-skill case (`G1-anonymized-blind-eng.pdf` input) | Not used | ATAM | — | Parked. |
@@ -65,10 +65,11 @@ The resulting matrix is therefore asymmetric: P1 shows **runtime flexibility** (
 ### 3.1 P2 scope and conditions
 
 1. **Generated part:** the DeepAgents backend only (stage agents, skills, artifact contracts, sequential orchestration), materialized from a SARA HarnessSpec v0.2. SARA's existing stage `AGENTS.md`/`SKILL.md` files are the domain/methodology source.
-2. **Adapted part:** SARA's frontend and API (`PipelineService`, Firestore backend, auth) are connected to the generated backend. Record each required change, whether it is in SARA or in HarnessWeaver output, and its effort. Changes to SARA code belong to its repository (`NicolasMP51/software-architecture-agent`, revision `528ae7c`, nested and not tracked here).
-3. **Known blocker:** SARA's Stage 1 call-contract mismatch (`get_stage_message` vs `build_stage1_message`) must be resolved on SARA's side or bypassed by the generated backend's entry point; record which.
-4. **Input case:** one project description + functional requirements, ideally a case SARA has already processed so outputs can be compared by inspection.
-5. **Time box:** if the generated backend is not running inside SARA by 28 Oct, report "spec + generated backend, standalone run" and list the integration as future work.
+2. **Selected host:** the first run uses the generic HarnessWeaver stage host, filesystem hand-offs and its JSON artifact validation. It is a standalone workflow-transfer exercise; it does not establish compatibility with SARA's frontend, API, Firestore, auth, or `PipelineService`.
+3. **Output adaptation:** SARA's source workflow emits `adr.md` and `architecture_diagram.mmd`; the HarnessWeaver host accepts JSON artifacts. Package their text as `adr_markdown` and `architecture_diagram_mermaid` in a schema-validated `architecture_decision.json`. Report this format change explicitly.
+4. **Known source defects:** SARA's Stage 1 call-contract mismatch does not block the standalone run but remains a blocker for SARA-host integration. The Stage 4 diagram skill refers to `/adr.json` while the ADR skill emits `/adr.md`; preserve and report the source mismatch, then use a consistent HarnessWeaver-side hand-off.
+5. **Input case:** CampusBike, the ReArch paper case. The binding uses only the system description and 13 functional requirements; prior outputs, workflow state and vector databases are excluded.
+6. **SARA integration:** adapting SARA's frontend/API is stretch work, only after ownership and the Stage 1 contract are resolved in the case-study repository (`NicolasMP51/software-architecture-agent`, revision `528ae7c`, nested and not tracked here).
 
 ## 4. Remaining work (ordered)
 
