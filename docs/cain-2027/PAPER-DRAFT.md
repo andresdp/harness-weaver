@@ -67,54 +67,53 @@ HarnessWeaver treats agentic-workflow construction as a model-to-realization pro
 
 ```mermaid
 flowchart TB
-  subgraph generation["LEVEL 1 · GENERATE AGENTIC WORKFLOWS"]
+  subgraph generation["LEVEL 1 · DESIGN AND GENERATE"]
     direction LR
-    source["INPUTS<br/>intent.yaml · methodology.yaml · domain/<br/>domain skills, contracts, references"]
-    choices["OPTIONAL INPUTS<br/>generation prompt · harness-answers.yaml"]
-    gen["ACTIVITY<br/>HarnessWeaver generation skill<br/>clarify, design, map"]
-    spec["OUTPUT · MODEL<br/>HarnessSpec v0.2<br/>runtime-neutral design / IR"]
-    claude_bundle["OUTPUT · TARGET BUNDLE<br/>Claude Code project<br/>instructions, skills, agents"]
-    deep_bundle["OUTPUT · TARGET BUNDLE<br/>DeepAgents stage instructions,<br/>skills, wiring.yaml"]
-    source --> gen
-    choices --> gen
-    gen --> spec
-    spec --> claude_bundle
-    spec --> deep_bundle
+    source["INTENT + DOMAIN + METHODOLOGY<br/>YAML specifications and domain assets"]
+    gen["DESIGN ACTIVITY<br/>HarnessWeaver generation skill"]
+    spec["SHARED DESIGN<br/>HarnessSpec"]
+    materialize["MATERIALIZE<br/>map to selected runtimes"]
+    claude_bundle["CLAUDE CODE BUNDLE<br/>instructions, skills, agents"]
+    deep_bundle["DEEPAGENTS BUNDLE<br/>stage instructions, skills, wiring"]
+    source --> gen --> spec --> materialize
+    materialize --> claude_bundle
+    materialize --> deep_bundle
   end
 
-  subgraph execution["LEVEL 2 · RUN THE GENERATED ASSISTANTS"]
+  subgraph execution["LEVEL 2 · RUN, CHECK, AND LEARN"]
     direction LR
-    case["EXECUTION INPUT<br/>case generation_inputs only<br/>evaluator-only references withheld"]
-    claude_run["CLAUDE CODE ACTIVITY<br/>run generated assistant"]
-    deep_host["DEEPAGENTS ACTIVITIES<br/>HarnessWeaver host runs wiring.yaml<br/>and generated stage agents"]
-    claude_out["OUTPUTS<br/>report + run record"]
-    deep_out["OUTPUTS<br/>artifacts + host record"]
-    checks["VALIDATION ACTIVITY<br/>schema + domain checker<br/>+ leakage check"]
-    findings["RESULTS<br/>pass/fail findings<br/>then architect review"]
+    case["CASE INPUTS<br/>generation-visible data"]
+    claude_run["CLAUDE CODE<br/>run the assistant"]
+    deep_run["DEEPAGENTS<br/>host runs generated stages"]
+    claude_out["REPORT +<br/>RUN RECORD"]
+    deep_out["ARTIFACTS +<br/>HOST RECORD"]
+    checks["CHECKS AND EVALUATION<br/>structure, domain criteria"]
+    review["HUMAN REVIEW"]
+    evolve["EVIDENCE-LED<br/>EVOLUTION"]
     case --> claude_run
-    case --> deep_host
+    case --> deep_run
     claude_run --> claude_out --> checks
-    deep_host --> deep_out --> checks
-    checks --> findings
+    deep_run --> deep_out --> checks
+    checks --> review --> evolve
   end
 
   claude_bundle --> claude_run
-  deep_bundle --> deep_host
-  pilot["CONFIGURATION INPUT<br/>pilot.yaml: sandbox paths,<br/>report schema, named checkers"] -.-> checks
-  reference["EVALUATOR-ONLY REFERENCE<br/>remains outside both runtimes"] -.-> checks
-  findings -. "review feedback may evolve sources/spec" .-> gen
+  deep_bundle --> deep_run
+  pilot["CHECK CONFIGURATION<br/>pilot.yaml"] -.-> checks
+  reference["EVALUATOR-ONLY REFERENCES<br/>outside both runtimes"] -.-> checks
+  evolve -. "feedback informs the next design" .-> gen
 
-  classDef input fill:#e8f1fb,stroke:#356ca5,color:#14283d
-  classDef activity fill:#fff0d9,stroke:#bd7510,color:#38260b
-  classDef output fill:#e7f4e8,stroke:#4d8c55,color:#18351b
-  classDef config fill:#f0edf8,stroke:#79639b,color:#251d35
-  class source,choices,case input
-  class gen,claude_run,deep_host,checks activity
-  class spec,claude_bundle,deep_bundle,claude_out,deep_out,findings output
-  class pilot,reference config
+  classDef input fill:#E7F1FF,stroke:#3973B9,color:#17365D,stroke-width:1.5px
+  classDef design fill:#E7F5EC,stroke:#398254,color:#17472A,stroke-width:1.5px
+  classDef runtime fill:#F0EAFE,stroke:#7957B5,color:#39245F,stroke-width:1.5px
+  classDef result fill:#FFF1DF,stroke:#C37A22,color:#603A0B,stroke-width:1.5px
+  class source,case,pilot,reference input
+  class gen,spec,materialize,claude_bundle,deep_bundle design
+  class claude_run,deep_run runtime
+  class claude_out,deep_out,checks,review,evolve result
 ```
 
-**Figure 1. Two-level HarnessWeaver workflow.** Inputs, activities, outputs, and experiment configuration use distinct visual styles. The upper level produces a shared HarnessSpec and two target-specific workflow bundles from authored intent, methodology, and domain assets. The lower level runs each LLM-based assistant on the same case inputs and sends its outputs to validation. `pilot.yaml` configures the checks, while evaluator-only references remain outside both runtimes. Review feedback may inform later revision; the process does not automatically search for an optimal workflow.
+**Figure 1. Two-level HarnessWeaver workflow.** The vertical layout separates generation (Level 1, above) from assistant execution and review (Level 2, below). Blue denotes inputs, green design and generation, purple runtime workflows, and orange results and feedback. Level 1 turns intent, domain, and methodology sources into a shared HarnessSpec and target bundles. Level 2 runs the assistants on case inputs, checks their outputs, and records human review. The checker alone receives evaluator-only references. Evidence from review may inform a later design; the process does not automatically search for an optimal workflow.
 
 ### A. Sources and HarnessSpec
 
