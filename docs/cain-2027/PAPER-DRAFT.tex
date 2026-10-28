@@ -88,59 +88,61 @@ HarnessWeaver (proposed) & Runtime-independent HarnessSpec & Multiple target ada
 
 HarnessWeaver treats agentic-workflow construction as a model-to-realization process. Authors provide runtime-independent source material; a generation skill guides an interactive design process; the resulting HarnessSpec describes the intended workflow; target-specific materializers turn it into runtime-native assistant instructions and configuration; and bundle and execution checks provide feedback for revision.
 
-\begin{figure*}[t]
+\begin{figure}[t]
 \centering
-\resizebox{\textwidth}{!}{%
+\resizebox{\columnwidth}{!}{%
 \begin{tikzpicture}[
   x=1cm,y=1cm,
-  input/.style={draw,rounded corners,align=center,text width=2.55cm,minimum height=1.1cm,font=\scriptsize,fill=blue!7},
-  design/.style={draw,rounded corners,align=center,text width=2.45cm,minimum height=1.0cm,font=\scriptsize,fill=green!9},
-  runtime/.style={draw,rounded corners,align=center,text width=2.45cm,minimum height=1.0cm,font=\scriptsize,fill=violet!9},
-  result/.style={draw,rounded corners,align=center,text width=2.45cm,minimum height=1.0cm,font=\scriptsize,fill=orange!14},
+  input/.style={draw,rounded corners,align=center,text width=6.35cm,minimum height=0.54cm,font=\scriptsize,fill=blue!7,draw=blue!55!black},
+  design/.style={draw,rounded corners,align=center,text width=5.85cm,minimum height=0.52cm,font=\scriptsize,fill=green!8,draw=green!45!black},
+  runtime/.style={draw,rounded corners,align=center,text width=5.2cm,minimum height=0.52cm,font=\scriptsize,fill=violet!8,draw=violet!55!black},
+  result/.style={draw,rounded corners,align=center,text width=5.85cm,minimum height=0.5cm,font=\scriptsize,fill=orange!12,draw=orange!65!black},
   arrow/.style={-{Latex[length=1.7mm]},thick},
   feedback/.style={-{Latex[length=1.7mm]},thick,dashed}
 ]
-\fill[green!2,rounded corners] (-1.5,-0.05) rectangle (17.2,3.75);
-\draw[green!45,rounded corners] (-1.5,-0.05) rectangle (17.2,3.75);
-\fill[violet!2,rounded corners] (-1.5,-4.05) rectangle (20.1,-0.12);
-\draw[violet!45,rounded corners] (-1.5,-4.05) rectangle (20.1,-0.12);
-\node[anchor=west,font=\small\bfseries,text=green!45!black] at (-1.3,3.48) {LEVEL 1: DESIGN AND GENERATE};
-\node[anchor=west,font=\small\bfseries,text=violet!60!black] at (-1.3,-0.38) {LEVEL 2: RUN, CHECK, AND LEARN};
-\node[input,text width=2.65cm,minimum height=1.65cm] (sources) at (0.0,1.85) {GENERATION INPUTS\\[2pt]\texttt{intent.yaml}\\\texttt{methodology.yaml}\\\texttt{domain/}: skills, contracts, references\\Prompt + optional harness-answers.yaml};
-\node[design] (generation) at (3.15,1.85) {DESIGN ACTIVITY\\HarnessWeaver generation skill\\clarify, design, map};
-\node[design] (spec) at (6.15,1.85) {SHARED DESIGN\\\texttt{HarnessSpec v0.2}\\runtime-neutral model};
-\node[design] (materialize) at (9.6,1.85) {MATERIALIZE\\map model to selected runtimes};
-\node[design] (claude_bundle) at (13.35,2.55) {CLAUDE CODE BUNDLE\\instructions, skills, agents};
-\node[design] (deep_bundle) at (13.35,1.0) {DEEPAGENTS BUNDLE\\stage instructions, skills, wiring};
-\node[input,text width=2.65cm,minimum height=1.35cm] (case) at (5.75,-1.75) {SHARED CASE INPUT\\Only evaluation inputs enter runtime\\Reference outputs remain outside};
-\node[runtime] (claude_run) at (9.6,-0.95) {CLAUDE CODE WORKFLOW\\run generated assistant};
-\node[runtime] (deep_run) at (9.6,-2.55) {DEEPAGENTS WORKFLOW\\host runs generated stages};
-\node[result] (claude_output) at (12.65,-0.95) {REPORT +\\RUN RECORD};
-\node[result] (deep_output) at (12.65,-2.55) {ARTIFACTS +\\HOST RECORD};
-\node[result] (checks) at (15.65,-1.75) {CHECKS AND EVALUATION\\structure + domain criteria};
-\node[result,text width=2.9cm] (findings) at (18.65,-1.75) {HUMAN REVIEW\\evidence may inform evolution};
-\node[input,text width=2.9cm,minimum height=0.75cm,dashed] (pilot) at (15.65,-3.25) {CHECK INPUTS\\\texttt{pilot.yaml} + evaluator-only references};
-\draw[arrow] (sources.east) -- (generation.west);
-\draw[arrow] (generation.east) -- (spec.west);
-\draw[arrow] (spec.east) -- (materialize.west);
-\draw[arrow] (materialize.east) -- (claude_bundle.west);
-\draw[arrow] (materialize.east) -- (deep_bundle.west);
-\draw[arrow] (claude_bundle.south) -- (claude_run.north);
-\draw[arrow] (deep_bundle.south) -- (deep_run.north);
-\draw[arrow] (case.east) -- (claude_run.west);
-\draw[arrow] (case.east) -- (deep_run.west);
-\draw[arrow] (claude_run.east) -- (claude_output.west);
-\draw[arrow] (deep_run.east) -- (deep_output.west);
-\draw[arrow] (claude_output.east) -- (checks.west);
-\draw[arrow] (deep_output.east) -- (checks.west);
-\draw[arrow] (checks.east) -- (findings.west);
-\draw[feedback] (pilot.north) -- (checks.south);
-\draw[feedback] (findings.north east) -- ++(0,4.4) -| (generation.north);
+% Single-column, top-to-bottom rendering of the architecture.md flow.
+\fill[blue!2,rounded corners] (0,9.15) rectangle (7.7,11.25);
+\draw[blue!35,rounded corners] (0,9.15) rectangle (7.7,11.25);
+\fill[green!2,rounded corners] (0,6.0) rectangle (7.7,8.95);
+\draw[green!40,rounded corners] (0,6.0) rectangle (7.7,8.95);
+\fill[violet!2,rounded corners] (0,3.45) rectangle (7.7,5.8);
+\draw[violet!40,rounded corners] (0,3.45) rectangle (7.7,5.8);
+\fill[orange!2,rounded corners] (0,-0.35) rectangle (7.7,3.25);
+\draw[orange!45,rounded corners] (0,-0.35) rectangle (7.7,3.25);
+\node[anchor=west,font=\scriptsize\bfseries,text=blue!60!black] at (0.2,11.0) {INPUTS};
+\node[anchor=west,font=\scriptsize\bfseries,text=green!45!black] at (0.2,8.7) {DESIGN AND GENERATION};
+\node[anchor=west,font=\scriptsize\bfseries,text=violet!60!black] at (0.2,5.55) {RUN WORKFLOWS};
+\node[anchor=west,font=\scriptsize\bfseries,text=orange!70!black] at (0.2,3.0) {RESULTS AND FEEDBACK};
+\node[input] (sources) at (3.85,10.38) {IntentSpec · DomainSpec · Methodology\\goals and constraints · domain knowledge · activities, artifacts, and checks};
+\node[input] (case) at (3.85,9.48) {Case inputs\\information supplied for a workflow run};
+\node[design] (generation) at (3.85,8.0) {HarnessWeaver\\design the workflow};
+\node[design] (spec) at (3.85,7.15) {HarnessSpec\\shared workflow design};
+\node[design] (materialize) at (3.85,6.3) {Materialize\\adapt to selected runtimes};
+\node[runtime,text width=3.0cm] (claude_run) at (2.2,4.85) {Claude Code workflow};
+\node[runtime,text width=3.0cm] (deep_run) at (5.45,4.0) {DeepAgents workflow};
+\node[result] (artifacts) at (3.85,2.45) {Reports and artifacts};
+\node[result] (checks) at (3.85,1.65) {Automated checks and evaluation};
+\node[result] (review) at (3.85,0.85) {Human review};
+\node[result] (evolve) at (3.85,0.05) {Evidence-led evolution};
+\draw[arrow] (sources.west) -- (0.15,10.38) -- (0.15,8.0) -- (generation.west);
+\draw[arrow] (generation.south) -- (spec.north);
+\draw[arrow] (spec.south) -- (materialize.north);
+\draw[arrow] (materialize.south west) -- (claude_run.north);
+\draw[arrow] (materialize.south east) -- (deep_run.north);
+\draw (case.east) -- (7.25,9.48) -- (7.25,4.0);
+\draw[arrow] (7.25,4.85) -- (claude_run.east);
+\draw[arrow] (7.25,4.0) -- (deep_run.east);
+\draw[arrow] (claude_run.south) -- (artifacts.north west);
+\draw[arrow] (deep_run.south) -- (artifacts.north east);
+\draw[arrow] (artifacts.south) -- (checks.north);
+\draw[arrow] (checks.south) -- (review.north);
+\draw[arrow] (review.south) -- (evolve.north);
+\draw[feedback] (evolve.west) -- (-0.28,0.05) -- (-0.28,8.0) -- (generation.west);
 \end{tikzpicture}%
 }
-\caption{Two-level HarnessWeaver workflow. The vertical layout separates design and generation (Level 1) from execution, checking, and feedback (Level 2). Blue denotes inputs, green design and generation, violet runtime workflows, and orange results and feedback. Both assistants receive the same case inputs; evaluator-only references are reserved for checking. Evidence from human review may inform a later design.}
+\caption{Single-column HarnessWeaver architecture adapted from \texttt{architecture.md}. The vertical flow separates inputs, design and generation, runtime workflows, and results and feedback. Blue denotes inputs, green design and generation, violet runtime workflows, and orange results and feedback. Both workflows receive the same case inputs; evaluator-only references are reserved for checking.}
 \label{fig:harnessweaver}
-\end{figure*}
+\end{figure}
 
 \subsection{Sources and HarnessSpec}
 
