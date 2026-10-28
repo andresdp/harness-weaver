@@ -27,6 +27,8 @@ benchmarks/saam/runs/.review-keys/
 
 # Standalone repositories; keep their histories separate from this repository
 case-studies/software-architecture-agent/
+/pilots/sara/sources/harvest-input/
+/pilots/sara/cases/
 /.agents
 skills-lock.json
 /benchmarks/saam/runs

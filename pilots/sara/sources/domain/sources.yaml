@@ -1,0 +1,23 @@
+# Inputs the generator must preserve and attribute in the harvested draft sources.
+sources:
+  - id: sara-stage-workflow
+    ref: ../harvest-input/backend/app/agents/
+    kind: stage-orchestration-and-domain-skills
+    authority: SARA case-study source copied from NicolasMP51/software-architecture-agent@528ae7ce0b054ee1631bd091fe6b759208bbbb6c
+    notes: >-
+      Four AGENTS.md files define the ordered workflow and eleven SKILL.md files define its task procedures.
+      See ../PROVENANCE.md for the exact files and hashes. This is a verbatim, read-only source packet kept locally.
+  - id: standalone-host-adaptation
+    ref: ../host-adaptation.md
+    kind: runtime-adaptation-decision
+    authority: User-approved HarnessWeaver SARA pilot decision
+    notes: >-
+      Selects the generic HarnessWeaver DeepAgents stage host for the first run and specifies the JSON artifact
+      envelope required by that host. It is a pilot adaptation, not a claim about original SARA behavior.
+  - id: architecture-decision-package
+    ref: contracts/architecture-decision.schema.json
+    kind: output-contract
+    authority: HarnessWeaver SARA pilot adapter contract
+    notes: >-
+      Packages ADR Markdown and Mermaid source as strings in the final JSON artifact. This is not an original
+      SARA schema or output format.

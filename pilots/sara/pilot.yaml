@@ -1,0 +1,7 @@
+# Sandbox configuration for the SARA workflow-transfer pilot.
+pilot: sara
+sources: sources
+cases: cases
+prompts:
+  generation: prompts/generation.md
+report_schema: sources/domain/contracts/architecture-decision.schema.json

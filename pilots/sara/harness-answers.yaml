@@ -1,0 +1,18 @@
+answers_version: "0.1"
+G0:
+  sources: sources/
+  start_from: harvest:sources/harvest-input
+  saved_spec: false
+  output_root: generated/
+G1: {}
+G2:
+  coordination: sequential_pipeline
+G3:
+  contracts: use-supplied
+G4:
+  targets: [deepagents]
+G5:
+  deepagents:
+    host: harnessweaver
+    hitl: none
+    subagents: false
