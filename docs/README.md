@@ -1,38 +1,30 @@
 # Documentation index
 
-Files stay in place so existing links keep working; this index says which ones are current.
+## Start here
 
-## CAIN 2027 submission
+- [Quickstart](quickstart.md) — install the Python package and validate a HarnessSpec.
+- [Current design and status](harnessweaver-current-design-and-status.md) — overview of the model and prototype status.
+- [Implementation roadmap](harnessweaver-implementation-roadmap.md) — planned technical direction.
+- [Concepts](../CONCEPTS.md) and [strategy](../STRATEGY.md) — terminology and project direction.
+- [Pilot index](../pilots/README.md) — available examples and their state.
 
-- [cain-2027/STATUS.md](cain-2027/STATUS.md): implemented vs missing, pilots, ordered work items (W1–W12). **Start here.**
-- [cain-2027/APPROACH.md](cain-2027/APPROACH.md): agreed approach: authored sources → `harness` skill (spec, then Claude Code and/or DeepAgents targets) → sandboxed runs → `evolve`; generation baseline; deviations from the co-author plan.
-- [cain-2027/HarnessWeaver_CAIN_2027_Coauthor_Plan.md](cain-2027/HarnessWeaver_CAIN_2027_Coauthor_Plan.md): co-author paper plan.
-- [harnessweaver_construction_strategies.svg](harnessweaver_construction_strategies.svg) / [.pdf](harnessweaver_construction_strategies.pdf): draft of Figure 1.
-- [harnessweaver_strategy_comparison.pdf](harnessweaver_strategy_comparison.pdf) / [.docx](harnessweaver_strategy_comparison.docx): construction-strategy comparison.
+## Specification and design
 
-## Current design and direction
+- [Consolidation plan](consolidation-plan.md) — layer boundaries, ownership, and provenance notes.
+- [Research foundations](research-foundations.md) — related concepts and literature.
+- [External materials](external-materials.md) — citations and attribution for external tools, papers, and case studies.
+- [Software architecture agent mapping](software-architecture-agent-mapping.md) — SARA workflow mapping.
+- [Portability and evolution scenario](portability-evolution-scenario.md) — target portability and evolution example.
 
-- [harnessweaver-current-design-and-status.md](harnessweaver-current-design-and-status.md): design, examples, and evidence as of 2026-10-20 (pre-CAIN; superseded for the prototype by `cain-2027/APPROACH.md`).
-- [harnessweaver-implementation-roadmap.md](harnessweaver-implementation-roadmap.md): product-level roadmap.
-- [plans/2026-10-18-0000-feat-harnessweaver-u4-u7-plan.md](plans/2026-10-18-0000-feat-harnessweaver-u4-u7-plan.md): U4–U7 technical plan.
-- [harnessweaver_vision_and_position.md](harnessweaver_vision_and_position.md), [research-foundations.md](research-foundations.md): positioning and literature evidence.
-- [quickstart.md](quickstart.md): Python quickstart.
+## Pilots and evaluation
 
-## Pilot-specific notes
+- [ATAM pilot](../pilots/atam/README.md) — methodology, source assets, and runtime examples.
+- [Design exploration pilot](../pilots/design-exploration/README.md) — Attribute-Driven Design example.
+- [SARA pilot](../pilots/sara/README.md) — software-architecture-agent case study.
+- [ATAM benchmark protocol](../benchmarks/atam/README.md) — validation and evaluation conventions.
 
-- [software-architecture-agent-mapping.md](software-architecture-agent-mapping.md): SARA read-only mapping (P2).
-- [portability-evolution-scenario.md](portability-evolution-scenario.md): U7 portable-skill and evolution procedures (P1).
-- [software_design_exploration_agent_harness_spec.md](software_design_exploration_agent_harness_spec.md): ADD design-exploration spec (parked pilot).
+## Research planning and historical material
 
-## Reference (harness skills and consolidation)
+The `cain-2027/` folder contains active paper planning, manuscript drafts, run evidence, and generated artifacts. These materials are research records, not a curated public release. Review their identifying information, redistribution rights, execution traces, and reproducibility before publishing or copying them into a reviewer package. See the [public-release checklist](PUBLIC-RELEASE-CHECKLIST.md).
 
-- [consolidation-plan.md](consolidation-plan.md): layer boundaries and ownership inventory.
-- [harness-skill-trigger-scenarios.md](harness-skill-trigger-scenarios.md), [harness-skill-scenario-review.md](harness-skill-scenario-review.md): skill trigger fixtures and review.
-## Historical
-
-- [harnessweaver-conversation-context.md](harnessweaver-conversation-context.md): early design conversation.
-
-## Legacy (upstream `revfactory/harness`)
-
-- [../legacy/revfactory-harness/](../legacy/revfactory-harness/README.md): upstream README, quickstart, manual setup, harness-100 prompt cookbook and v1→v2 migration notes, in Korean and in English translation.
-- [../baselines/revfactory-harness-v2.1.0-en/](../baselines/revfactory-harness-v2.1.0-en/TRANSLATION.md): English translation of the upstream skills, the Claude-runtime generation baseline used in runs; [../baselines/revfactory-harness-v2.1.0/](../baselines/revfactory-harness-v2.1.0/BASELINE.md): the verbatim Korean original and the comparison protocol.
+The repository also preserves historical planning and source material. Read its provenance and licensing notes before reusing or redistributing it.

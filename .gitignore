@@ -5,6 +5,15 @@
 .env.*
 !.env.example
 
+# Local Claude Code permissions and machine-specific settings
+.claude/settings.local.json
+.claude/settings.local.*.json
+
+# Local reference library and external case-study snapshots (cite/link in docs)
+/papers/
+/case-studies/architecture-eval/
+/case-studies/atam-evaluator/
+
 # Python-generated files
 __pycache__/
 *.py[cod]
@@ -17,7 +26,6 @@ benchmarks/atam/runs/
 benchmarks/saam/runs/.review-keys/
 
 # Standalone repositories; keep their histories separate from this repository
-case-studies/atam-evaluator/archevaluation-llms/
 case-studies/software-architecture-agent/
 /.agents
 skills-lock.json

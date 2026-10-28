@@ -1,8 +1,0 @@
-# Defaults for the ATAM DeepAgents backend; command-line options override these values.
-case: data/banking.json
-output: ../../../pilots/atam/deepagents/runs/banking-report.json
-model: openai:gpt-5.4-mini
-request_timeout_seconds: 180
-harness_spec: ../../../pilots/atam/harnessspec-v0.2.yaml
-streaming: true
-verbose: true
