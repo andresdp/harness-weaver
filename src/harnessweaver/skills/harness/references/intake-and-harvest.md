@@ -2,6 +2,8 @@
 
 Read this file at gate G0.
 
+When the user supplies a collected, hash-checked spec package to add or regenerate a runtime target, read [`spec-package-materialization.md`](spec-package-materialization.md) and follow its immutability and target-only rules. Do not harvest or redesign the workflow in that path.
+
 ## Intake: the four design inputs
 
 | Input | Typical source | Record |

@@ -9,16 +9,19 @@ the repository (which holds reference outputs).
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
 import stat
 import subprocess
+import tempfile
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
+from urllib.parse import urlparse
 from uuid import uuid4
 
 import yaml
@@ -37,6 +40,9 @@ ARMS = ("harnessweaver", "revfactory-en")
 SANDBOX_FILE = "sandbox.yaml"
 MANIFEST_FILE = "manifest.json"
 CLAUDE_REPORT_FILENAME = "report.json"   # where Claude execution runs are asked to write the report
+SPEC_PACKAGE_FILENAME = "spec-package.zip"
+SPEC_PACKAGE_VERSION = "0.1"
+MAX_SPEC_PACKAGE_BYTES = 128 * 1024 * 1024
 
 
 class SandboxError(ValueError):
@@ -131,6 +137,229 @@ def _bundle_zip(bundle: Path, archive: Path) -> None:
             output.writestr(info, path.read_bytes())
 
 
+def _write_spec_package(sources: Path, generated: Path, archive: Path, *, pilot: str,
+                        answers: Path | None = None) -> dict[str, Any]:
+    """Create a portable, hash-indexed package for later target materialization."""
+    from harnessweaver.spec import load_spec, validate_spec
+
+    specs = sorted(generated.glob("**/harnessspec*.yaml")) + sorted(generated.glob("**/harnessspec*.yml"))
+    specs += sorted(generated.glob("**/harnessspec*.json"))
+    specs = [p for p in specs if "build" not in p.relative_to(generated).parts and "record" not in p.relative_to(generated).parts]
+    if len(specs) != 1:
+        raise SandboxError(f"a reusable spec package needs exactly one HarnessSpec; found {len(specs)}")
+    spec_path = specs[0]
+
+    payload: dict[str, bytes] = {}
+    for path in sorted(p for p in sources.rglob("*") if p.is_file()):
+        if path.is_symlink():
+            raise SandboxError(f"cannot package a symlinked source input: {path}")
+        relative = path.relative_to(sources)
+        if any(part in {"__pycache__", ".DS_Store"} for part in relative.parts):
+            continue
+        payload[f"inputs/sources/{relative.as_posix()}"] = path.read_bytes()
+    for path in sorted(p for p in generated.rglob("*") if p.is_file()):
+        if path.is_symlink():
+            raise SandboxError(f"cannot package a symlinked generated source: {path}")
+        relative = path.relative_to(generated)
+        if relative.parts[0] in {"build", "record"} or path.name == "generation-record.json" or path.suffix == ".zip":
+            continue
+        if any(part in {"__pycache__", ".DS_Store"} for part in relative.parts):
+            continue
+        payload[f"generated/{relative.as_posix()}"] = path.read_bytes()
+    if answers is not None and answers.is_file():
+        payload["inputs/harness-answers.yaml"] = answers.read_bytes()
+
+    spec_member = f"generated/{spec_path.relative_to(generated).as_posix()}"
+    # Validate in the same layout used when the package is reopened: `generated/` and
+    # `sources/` are siblings, so refs such as `../sources/host-adaptation.md` resolve.
+    with tempfile.TemporaryDirectory(prefix="hw-spec-package-") as temporary:
+        staging = Path(temporary)
+        for name, data in payload.items():
+            relative = PurePosixPath(name)
+            if name.startswith("inputs/sources/"):
+                staged_path = staging / "sources" / Path(*relative.parts[2:])
+            elif name.startswith("generated/"):
+                staged_path = staging / "generated" / Path(*relative.parts[1:])
+            else:
+                continue
+            staged_path.parent.mkdir(parents=True, exist_ok=True)
+            staged_path.write_bytes(data)
+        staged_spec = staging / spec_member
+        try:
+            issues = validate_spec(load_spec(staged_spec), staged_spec)
+        except ValueError as exc:
+            raise SandboxError(f"cannot package an unreadable HarnessSpec: {exc}") from exc
+        if issues:
+            raise SandboxError("cannot package an invalid HarnessSpec: " + "; ".join(map(str, issues)))
+    manifest = {
+        "package_version": SPEC_PACKAGE_VERSION,
+        "pilot": pilot,
+        "spec_path": spec_member,
+        "spec_sha256": hashlib.sha256(payload[spec_member]).hexdigest(),
+        "files": {name: hashlib.sha256(data).hexdigest() for name, data in sorted(payload.items())},
+    }
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as output:
+        for name, data in sorted(payload.items()):
+            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            output.writestr(info, data)
+        info = zipfile.ZipInfo("manifest.json", date_time=(1980, 1, 1, 0, 0, 0))
+        info.compress_type = zipfile.ZIP_DEFLATED
+        output.writestr(info, json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    return manifest
+
+
+def _read_spec_package(archive: Path) -> tuple[dict[str, Any], zipfile.ZipFile]:
+    """Open and verify a spec package before extracting any of its paths."""
+    try:
+        package = zipfile.ZipFile(archive)
+    except (OSError, zipfile.BadZipFile) as exc:
+        raise SandboxError(f"cannot read spec package {archive}: {exc}") from exc
+    names = package.namelist()
+    if len(names) != len(set(names)):
+        package.close()
+        raise SandboxError("spec package contains duplicate paths")
+    if "manifest.json" not in names:
+        package.close()
+        raise SandboxError("spec package is missing manifest.json")
+    try:
+        manifest = json.loads(package.read("manifest.json"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        package.close()
+        raise SandboxError(f"invalid spec package manifest: {exc}") from exc
+    if not isinstance(manifest, dict) or manifest.get("package_version") != SPEC_PACKAGE_VERSION:
+        package.close()
+        version = manifest.get("package_version") if isinstance(manifest, dict) else None
+        raise SandboxError(f"unsupported spec package version: {version!r}")
+    files = manifest.get("files")
+    if not isinstance(files, dict) or set(names) != set(files) | {"manifest.json"}:
+        package.close()
+        raise SandboxError("spec package file list does not match its manifest")
+    if len(files) > 20000 or sum(package.getinfo(name).file_size for name in files) > MAX_SPEC_PACKAGE_BYTES:
+        package.close()
+        raise SandboxError("spec package exceeds the 20,000-file or 128 MiB expanded-size limit")
+    for name, digest in files.items():
+        if not isinstance(name, str) or not isinstance(digest, str):
+            package.close()
+            raise SandboxError("spec package manifest file entries must map string paths to SHA-256 strings")
+        member = PurePosixPath(name)
+        if member.is_absolute() or ".." in member.parts or "\\" in name or name.endswith("/"):
+            package.close()
+            raise SandboxError(f"unsafe path in spec package: {name!r}")
+        if not (name.startswith("inputs/sources/") or name == "inputs/harness-answers.yaml" or name.startswith("generated/")):
+            package.close()
+            raise SandboxError(f"unsupported path in spec package: {name!r}")
+        if (name.startswith("inputs/sources/") and len(member.parts) < 3) or (name.startswith("generated/") and len(member.parts) < 2):
+            package.close()
+            raise SandboxError(f"empty path in spec package: {name!r}")
+        data = package.read(name)
+        if hashlib.sha256(data).hexdigest() != digest:
+            package.close()
+            raise SandboxError(f"spec package integrity check failed for {name}")
+    spec_name = manifest.get("spec_path")
+    if not isinstance(spec_name, str) or not spec_name.startswith("generated/") or spec_name not in files:
+        package.close()
+        raise SandboxError("spec package manifest has an invalid spec_path")
+    if hashlib.sha256(package.read(spec_name)).hexdigest() != manifest.get("spec_sha256"):
+        package.close()
+        raise SandboxError("spec package HarnessSpec digest does not match its manifest")
+    return manifest, package
+
+
+def _stage_spec_package(archive: Path, sandbox: Path, targets: list[str]) -> dict[str, Any]:
+    from harnessweaver.spec import load_spec, validate_spec
+
+    manifest, package = _read_spec_package(archive)
+    try:
+        for name in manifest["files"]:
+            relative = PurePosixPath(name)
+            if name.startswith("inputs/sources/"):
+                destination = sandbox / "sources" / Path(*relative.parts[2:])
+            elif name == "inputs/harness-answers.yaml":
+                destination = sandbox / "harness-answers.yaml"
+            elif name.startswith("generated/"):
+                destination = sandbox / "generated" / Path(*relative.parts[1:])
+            else:
+                raise SandboxError(f"unsupported spec package member: {name}")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(package.read(name))
+    finally:
+        package.close()
+
+    spec_path = sandbox / manifest["spec_path"]
+    spec = load_spec(spec_path)
+    issues = validate_spec(spec, spec_path)
+    if issues:
+        raise SandboxError("packaged HarnessSpec is invalid: " + "; ".join(map(str, issues)))
+    references: list[str] = []
+    for source in spec.get("sources", []):
+        if isinstance(source, dict) and isinstance(source.get("ref"), str):
+            references.append(source["ref"])
+    methodology = spec.get("methodology")
+    if isinstance(methodology, dict):
+        references.extend(ref for ref in methodology.get("source_refs", []) if isinstance(ref, str))
+    for role in spec.get("roles", []):
+        if isinstance(role, dict):
+            references.extend(ref for ref in role.get("skill_refs", []) if isinstance(ref, str))
+    for artifact in spec.get("artifacts", []):
+        if isinstance(artifact, dict) and isinstance(artifact.get("schema_ref"), str):
+            references.append(artifact["schema_ref"])
+    missing = []
+    for reference in references:
+        parsed = urlparse(reference)
+        if parsed.scheme or reference.startswith("port:"):
+            continue
+        reference_path = Path(reference)
+        resolved = (spec_path.parent / reference_path).resolve()
+        if reference_path.is_absolute() or not resolved.is_relative_to(sandbox.resolve()) or not resolved.is_file():
+            missing.append(reference)
+    if missing:
+        raise SandboxError("spec package is missing referenced source/contract files: " + ", ".join(sorted(set(missing))))
+    answers_path = sandbox / "harness-answers.yaml"
+    answers = yaml.safe_load(answers_path.read_text(encoding="utf-8")) if answers_path.is_file() else {"answers_version": "0.1"}
+    if not isinstance(answers, dict):
+        raise SandboxError("packaged harness-answers.yaml must contain a YAML mapping")
+    g0 = answers.setdefault("G0", {})
+    if not isinstance(g0, dict):
+        raise SandboxError("packaged harness-answers.yaml G0 must be a mapping")
+    g0.update({"sources": "sources/", "start_from": f"spec:{manifest['spec_path']}",
+               "saved_spec": True, "output_root": "generated/"})
+    prior_g4 = answers.get("G4") if isinstance(answers.get("G4"), dict) else {}
+    answers["G4"] = {**prior_g4, "targets": targets}
+    _write_yaml(answers_path, answers)
+    return manifest
+
+
+def _verify_staged_spec_package(sandbox: Path) -> None:
+    package_copy = sandbox / "record/source-spec-package.zip"
+    manifest, package = _read_spec_package(package_copy)
+    try:
+        expected_generated = {PurePosixPath(name).relative_to("generated").as_posix()
+                              for name in manifest["files"] if name.startswith("generated/")}
+        for name, expected in manifest["files"].items():
+            if name == "inputs/harness-answers.yaml":
+                continue  # G0 and G4 are deliberately specialized for this materialization.
+            relative = PurePosixPath(name)
+            if name.startswith("inputs/sources/"):
+                actual_path = sandbox / "sources" / Path(*relative.parts[2:])
+            elif name.startswith("generated/"):
+                actual_path = sandbox / "generated" / Path(*relative.parts[1:])
+            else:
+                raise SandboxError(f"unsupported spec package member: {name}")
+            if not actual_path.is_file() or sha256_file(actual_path) != expected:
+                raise SandboxError(f"shared spec package file was changed during materialization: {actual_path}")
+        generated_root = sandbox / "generated"
+        actual_generated = {path.relative_to(generated_root).as_posix() for path in generated_root.rglob("*")
+                            if path.is_file() and path.relative_to(generated_root).parts[0] not in {"build", "record"}
+                            and path.name != "generation-record.json" and path.suffix != ".zip"
+                            and not any(part in {"__pycache__", ".DS_Store"} for part in path.relative_to(generated_root).parts)}
+        if actual_generated != expected_generated:
+            raise SandboxError("materialization added or removed files outside generated/build/; review the shared spec package files")
+    finally:
+        package.close()
+
+
 def _bundle_guide(target: str, bundle: Path, *, pilot: str, arm: str | None = None) -> str:
     if target == "generation-skills":
         contents = "HarnessWeaver's `harness` and `evolve` skills, their reference guides and templates, and any selected supporting LangChain skills."
@@ -195,10 +424,50 @@ class Pilot:
         return (self.root / self.config[key]).resolve()
 
     def prompt(self, *keys: str) -> str:
-        node: Any = self.config["prompts"]
+        node: Any = self.config.get("prompts", {})
+        traversed: list[str] = []
         for key in keys:
+            traversed.append(key)
+            if not isinstance(node, dict) or key not in node:
+                prompt_key = ".".join(traversed)
+                raise SandboxError(
+                    f"pilot {self.name!r} does not configure prompts.{prompt_key} in "
+                    f"{self.root / 'pilot.yaml'}; add a prompt file and reference it under "
+                    f"prompts.{prompt_key}"
+                )
             node = node[key]
-        return (self.root / node).read_text(encoding="utf-8")
+        if not isinstance(node, str) or not node.strip():
+            prompt_key = ".".join(keys)
+            raise SandboxError(
+                f"pilot {self.name!r} has an invalid prompts.{prompt_key} entry in "
+                f"{self.root / 'pilot.yaml'}; expected a path to a prompt file"
+            )
+        prompt_path = (self.root / node).resolve()
+        if not prompt_path.is_file():
+            prompt_key = ".".join(keys)
+            raise SandboxError(
+                f"pilot {self.name!r} configures prompts.{prompt_key} as {node!r}, "
+                f"but the prompt file does not exist: {prompt_path}"
+            )
+        return prompt_path.read_text(encoding="utf-8")
+
+    def claude_allowed_bash(self) -> list[str]:
+        """Return the Claude Bash allowlist explicitly configured for this pilot."""
+        execution = self.config.get("execution", {})
+        claude = execution.get("claude", {}) if isinstance(execution, dict) else None
+        if not isinstance(claude, dict):
+            raise SandboxError(
+                f"pilot {self.name!r} has invalid execution.claude settings in "
+                f"{self.root / 'pilot.yaml'}; expected a mapping"
+            )
+        commands = claude.get("allow_bash", [])
+        if (not isinstance(commands, list)
+                or any(not isinstance(command, str) or not command.strip() for command in commands)):
+            raise SandboxError(
+                f"pilot {self.name!r} has invalid execution.claude.allow_bash in "
+                f"{self.root / 'pilot.yaml'}; expected a list of non-empty command patterns"
+            )
+        return commands
 
     def case(self, name: str) -> tuple[Path, dict[str, Any]]:
         path = self.path("cases") / f"{name}.yaml"
@@ -364,6 +633,7 @@ exit "$status"
 GENERATION_RUNBOOK = """# Generation sandbox: {name}
 
 Arm: **{arm}**. Pilot: **{pilot}**. Created {created} from repository commit `{commit}`.
+Runtime target(s): **{targets_label}**.
 
 You run this session; Claude Code with the arm's skills generates the harness. Everything runs in English.
 
@@ -380,7 +650,7 @@ You run this session; Claude Code with the arm's skills generates the harness. E
 ISOLATION=settings ./run.sh    # subscription OAuth; use bare only with ANTHROPIC_API_KEY
 ```
 
-The session starts with the request in `prompt.md`{answers_note}. Answer the skill's questions as you normally would; for a comparison with another arm, give equivalent answers to equivalent questions. Writes are allowed only under `generated/`. Reads of the repository are denied.
+The session starts with the request in `prompt.md`{answers_note}. {spec_mode_note} Answer any remaining target-specific questions. Writes are allowed only under `generated/`. Reads of the repository are denied.
 
 When the skill has finished, ask it to confirm where it wrote each file, then exit the session.
 
@@ -394,23 +664,52 @@ From the repository root (with your HarnessWeaver Python environment active):
 hw sandbox collect {root} --label <label>
 ```
 
-`collect` copies `generated/` into `pilots/{pilot}/generated/<label>/`, copies the session transcript (`~/.claude/projects/*/{session_id}.jsonl`) into the sandbox `record/`, writes `generation-record.json`, and runs `hw check-bundle` on any `build/claude/` and `build/deepagents/` it finds. Send back the label and anything you noticed: questions you were asked, files you had to fix by hand, and whether the session hit errors.
+`collect` copies `generated/` into `pilots/{pilot}/generated/<label>/`, copies the session transcript (`~/.claude/projects/*/{session_id}.jsonl`) into the sandbox `record/`, writes `generation-record.json`, checks any runtime bundles, and creates `spec-package.zip` when one valid HarnessSpec is present. That package can be used to materialize another runtime later without harvesting the workflow again.
 """
 
 
+def _write_target_answers(path: Path, targets: list[str], *, spec_path: str | None = None) -> None:
+    if path.is_file():
+        answers = yaml.safe_load(path.read_text(encoding="utf-8"))
+        if not isinstance(answers, dict):
+            raise SandboxError("harness-answers.yaml must contain a YAML mapping")
+    else:
+        answers = {"answers_version": "0.1"}
+    answers["G4"] = {**(answers.get("G4") if isinstance(answers.get("G4"), dict) else {}), "targets": targets}
+    if spec_path:
+        g0 = answers.setdefault("G0", {})
+        if not isinstance(g0, dict):
+            raise SandboxError("harness-answers.yaml G0 must be a mapping")
+        g0.update({"sources": "sources/", "start_from": f"spec:{spec_path}",
+                   "saved_spec": True, "output_root": "generated/"})
+    _write_yaml(path, answers)
+
+
 def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | None = None, model: str = "",
-                              answers: Path | None = None, include_langchain_skills: bool = True) -> Path:
+                              answers: Path | None = None, include_langchain_skills: bool = True,
+                              targets: list[str] | None = None, from_package: Path | None = None) -> Path:
     """Create a sandbox in which the user runs a Claude Code generation session for one arm."""
     if arm not in ARMS:
         raise SandboxError(f"unknown arm {arm!r}; expected one of {', '.join(ARMS)}")
     if answers is not None and arm != "harnessweaver":
         raise SandboxError("harness-answers.yaml is a HarnessWeaver-skill feature; the baseline arm must be answered live")
+    if targets is not None:
+        if arm != "harnessweaver":
+            raise SandboxError("runtime target selection applies only to the HarnessWeaver generation arm")
+        if not targets or len(targets) != len(set(targets)) or set(targets) - set(TARGETS):
+            raise SandboxError(f"select one or more unique targets from: {', '.join(TARGETS)}")
+    if from_package is not None and (arm != "harnessweaver" or not targets):
+        raise SandboxError("spec-package materialization requires the HarnessWeaver arm and at least one --target")
     pilot = Pilot.load(pilot_name)
     created = _now()
     name = f"gen-{pilot.name}-{arm}-{_stamp(created)}"
     sandbox = _new_sandbox_dir(root, name)
 
-    shutil.copytree(pilot.path("sources"), sandbox / "sources")
+    package_manifest = None
+    if from_package is None:
+        shutil.copytree(pilot.path("sources"), sandbox / "sources")
+    else:
+        package_manifest = _stage_spec_package(Path(from_package), sandbox, targets or [])
     plugin_notes = _build_skills_plugin(arm, sandbox / "skills-plugin", include_langchain_skills)
     guide_target = "generation-skills" if arm == "harnessweaver" else "revfactory-skills"
     _write(sandbox / "skills-plugin/BUNDLE-GUIDE.md",
@@ -418,9 +717,21 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
     _bundle_zip(sandbox / "skills-plugin", sandbox / "skills-plugin.zip")
     plugin_notes["guide"] = "BUNDLE-GUIDE.md"
     plugin_notes["archive"] = "skills-plugin.zip"
-    (sandbox / "generated").mkdir()
+    (sandbox / "generated").mkdir(exist_ok=True)
     (sandbox / "record").mkdir()
-    generation_prompt = pilot.prompt("generation")
+    if from_package is not None:
+        shutil.copyfile(from_package, sandbox / "record/source-spec-package.zip")
+    if from_package is None:
+        generation_prompt = pilot.prompt("generation")
+    else:
+        generation_prompt = (SKILLS_DIR / "harness/references/spec-package-materialization.md").read_text(encoding="utf-8")
+        generation_prompt += f"\n\nProject: {pilot.name}. Spec package: {from_package}. Selected target(s): {', '.join(targets or [])}.\n"
+    if targets:
+        generation_prompt += (
+            "\n\nAuthoritative runtime selection for this sandbox: " + ", ".join(targets) + ".\n"
+            "Materialize exactly these selected target(s). If the pilot prompt or an imported answer file names a different target list, "
+            "the selection printed here is authoritative; preserve the pilot's domain and methodology requirements.\n"
+        )
     if arm == "revfactory-en":
         generation_prompt += (
             "\n\nBaseline comparison scope and implementation boundary:\n"
@@ -440,6 +751,9 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
     _write(sandbox / "prompt.md", generation_prompt)
     if answers is not None:
         shutil.copyfile(answers, sandbox / "harness-answers.yaml")
+    if targets:
+        _write_target_answers(sandbox / "harness-answers.yaml", targets,
+                              spec_path=package_manifest["spec_path"] if package_manifest else None)
     _make_read_only(sandbox / "sources")
     _make_read_only(sandbox / "skills-plugin")
 
@@ -457,7 +771,11 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
         name=name, arm=arm, pilot=pilot.name, created=created.isoformat(timespec="seconds"),
         commit=commit or "unknown", root=sandbox, model_label=model or "the Claude Code default",
         session_id=session_id,
-        answers_note=" and `harness-answers.yaml` (pre-recorded gate answers; the skill asks only what it leaves open)" if answers else "",
+        targets_label=", ".join(targets) if targets else "selected interactively at G4",
+        spec_mode_note=("This is a target-only regeneration from the saved, hash-checked spec package; the shared design files are verified unchanged at collection."
+                        if package_manifest else "The source-generation request and any answered design gates define the shared HarnessSpec."),
+        answers_note=" and `harness-answers.yaml` (pre-recorded gate answers; the skill asks only what it leaves open)"
+        if answers is not None or targets else "",
     ))
     _write_yaml(sandbox / SANDBOX_FILE, {
         "kind": "generation",
@@ -471,10 +789,14 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
         "session_id": session_id,
         "model_requested": model or None,
         "skills": plugin_notes,
-        "answers_file": answers is not None,
+        "answers_file": (sandbox / "harness-answers.yaml").is_file(),
+        "targets": targets,
+        "spec_package": {"path": str(from_package.resolve()), "spec_path": package_manifest["spec_path"],
+                         "spec_sha256": package_manifest["spec_sha256"],
+                         "package_sha256": sha256_file(from_package)} if package_manifest else None,
     })
     _write(sandbox / MANIFEST_FILE, json.dumps(
-        {"inputs": _digests(sandbox, ["sources", "skills-plugin", "prompt.md", "harness-answers.yaml", "claude-settings.json"])},
+        {"inputs": _digests(sandbox, ["sources", "generated", "skills-plugin", "prompt.md", "harness-answers.yaml", "claude-settings.json"])},
         indent=2) + "\n")
     return sandbox
 
@@ -670,6 +992,16 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
     else:
         named_inputs = [(str(item["id"]), document) for item, document in generation_inputs]
 
+    # Resolve required Claude configuration before creating any sandbox files. A missing
+    # prompt should be an actionable pilot-configuration error, not a partial sandbox.
+    claude_prompt_template = pilot.prompt("execution", "claude") if target == "claude" else None
+    claude_allow_bash = pilot.claude_allowed_bash() if target == "claude" else []
+    input_paths = [f"../input/{input_name}.json" for input_name, _ in named_inputs]
+    input_listing = "\n".join(
+        f"- `{input_name}` ({item.get('port', 'input')}): `../input/{input_name}.json`"
+        for (input_name, _), (item, _) in zip(named_inputs, generation_inputs)
+    ) or "- No input files were configured."
+
     created = _now()
     name = f"run-{pilot.name}-{target}-{case}-{_stamp(created)}"
     sandbox = _new_sandbox_dir(root, name)
@@ -688,16 +1020,19 @@ def create_execution_sandbox(pilot_name: str | Path, target: str, bundle: Path, 
     if target == "claude":
         # The generated project is the working directory; it may write its own _workspace/.
         shutil.copytree(bundle, sandbox / "workspace")
-        first_input = f"../input/{input_ids[0]}.json" if input_ids else "../input/"
-        _write(sandbox / "prompt.md", pilot.prompt("execution", "claude").format(
-            input=first_input, output=f"../output/{CLAUDE_REPORT_FILENAME}"))
+        first_input = input_paths[0] if input_paths else "../input/"
+        prompt = (claude_prompt_template
+                  .replace("{input}", first_input)
+                  .replace("{inputs}", input_listing)
+                  .replace("{output}", f"../output/{CLAUDE_REPORT_FILENAME}"))
+        _write(sandbox / "prompt.md", prompt)
         # The generated ATAM Claude harness runs this local deterministic validator between stages.
-        # Keep Bash narrowly scoped to that script; the session otherwise has no shell allowance.
+        # Keep Bash narrowly scoped to commands explicitly configured by the pilot.
         _write(sandbox / "claude-settings.json", _claude_settings(
             writable=[sandbox / "workspace", sandbox / "output"],
             readable=[sandbox / "workspace", sandbox / "input"],
             denied_reads=[REPOSITORY_ROOT],
-            allow_bash=["python3 .claude/skills/check-evaluation/scripts/validate_artifacts.py:*"],
+            allow_bash=claude_allow_bash,
         ))
         shutil.copyfile(Path(__file__).with_name("stream.py"), sandbox / "stream_claude.py")
     else:
@@ -752,6 +1087,8 @@ def collect_generation(sandbox: str | Path, label: str, *, projects_dir: Path | 
     path, meta = load_sandbox(sandbox)
     if meta.get("kind") != "generation":
         raise SandboxError(f"{path} is not a generation sandbox")
+    if meta.get("spec_package"):
+        _verify_staged_spec_package(path)
     generated = path / "generated"
     if not generated.is_dir() or not any(generated.iterdir()):
         raise SandboxError(f"nothing was generated in {generated}")
@@ -787,6 +1124,26 @@ def collect_generation(sandbox: str | Path, label: str, *, projects_dir: Path | 
             bundle_checks[str(bundle.relative_to(destination))] = {
                 "target": target, "spec": str(spec.relative_to(destination)) if spec else None,
                 "passed": not issues, "issues": [str(issue) for issue in issues]}
+    spec_package = None
+    spec_package_error = None
+    if spec_candidates:
+        source_root = path / "sources"
+        if not source_root.is_dir():
+            spec_package_error = f"generation sandbox is missing source inputs: {source_root}"
+        else:
+            answer_file = path / "harness-answers.yaml"
+            try:
+                package_manifest = _write_spec_package(source_root, destination,
+                                                      destination / SPEC_PACKAGE_FILENAME,
+                                                      pilot=str(meta["pilot"]),
+                                                      answers=answer_file if answer_file.is_file() else None)
+            except SandboxError as exc:
+                spec_package_error = str(exc)
+            else:
+                spec_package = {"path": SPEC_PACKAGE_FILENAME,
+                                "spec_path": package_manifest["spec_path"],
+                                "spec_sha256": package_manifest["spec_sha256"],
+                                "file_count": len(package_manifest["files"])}
     record_dir = path / "record"
     record = {
         "label": label,
@@ -799,9 +1156,64 @@ def collect_generation(sandbox: str | Path, label: str, *, projects_dir: Path | 
         "specs": [str(spec.relative_to(destination)) for spec in spec_candidates],
         "bundle_checks": bundle_checks,
         "packaged_bundles": packaged_bundles,
+        "spec_package": spec_package,
+        "spec_package_error": spec_package_error,
     }
     _write(destination / "generation-record.json", json.dumps(record, indent=2, ensure_ascii=False) + "\n")
     return destination
+
+
+def package_spec(generation: str | Path) -> Path:
+    """Backfill a portable spec package for an older collected generation."""
+    directory = Path(generation).resolve()
+    record_path = directory / "generation-record.json"
+    if not record_path.is_file():
+        raise SandboxError(f"not a collected generation (missing generation-record.json): {directory}")
+    record = json.loads(record_path.read_text(encoding="utf-8"))
+    sandbox_meta = record.get("sandbox") or {}
+    pilot = Pilot.load(sandbox_meta.get("pilot", ""))
+    source_root = pilot.path("sources")
+    expected = {name: digest for name, digest in (record.get("inputs") or {}).items()
+                if name.startswith("sources/") and not any(part in {"__pycache__", ".DS_Store"} for part in Path(name).parts)}
+    if not expected:
+        raise SandboxError("generation record has no source digests; cannot prove the source package matches the original run")
+    actual = {f"sources/{path.relative_to(source_root).as_posix()}": sha256_file(path)
+              for path in source_root.rglob("*") if path.is_file()
+              and not any(part in {"__pycache__", ".DS_Store"} for part in path.relative_to(source_root).parts)}
+    if actual != expected:
+        missing = sorted(set(expected) - set(actual))
+        changed = sorted(key for key in set(expected) & set(actual) if expected[key] != actual[key])
+        extra = sorted(set(actual) - set(expected))
+        detail = "; ".join(part for part, values in (("missing", missing), ("changed", changed), ("extra", extra)) if values)
+        raise SandboxError(f"current pilot sources do not match the recorded generation inputs ({detail}); refusing to package")
+    expected_outputs = {name: digest for name, digest in (record.get("outputs") or {}).items()
+                        if name.startswith("generated/") and not name.startswith(("generated/build/", "generated/record/"))
+                        and Path(name).suffix != ".zip"
+                        and Path(name).name != "generation-record.json"
+                        and not any(part in {"__pycache__", ".DS_Store"} for part in Path(name).parts)}
+    actual_outputs = {f"generated/{path.relative_to(directory).as_posix()}": sha256_file(path)
+                      for path in directory.rglob("*") if path.is_file()
+                      and not any(part in {"build", "record"} for part in path.relative_to(directory).parts)
+                      and path.name != "generation-record.json" and path.suffix != ".zip"
+                      and not any(part in {"__pycache__", ".DS_Store"} for part in path.relative_to(directory).parts)}
+    if actual_outputs != expected_outputs:
+        missing = sorted(set(expected_outputs) - set(actual_outputs))
+        changed = sorted(key for key in set(expected_outputs) & set(actual_outputs)
+                         if expected_outputs[key] != actual_outputs[key])
+        extra = sorted(set(actual_outputs) - set(expected_outputs))
+        detail = "; ".join(part for part, values in (("missing", missing), ("changed", changed), ("extra", extra)) if values)
+        raise SandboxError(f"collected HarnessSpec package files differ from the original generation record ({detail}); refusing to package")
+    input_digests = record.get("inputs") or {}
+    answer_path = pilot.root / "harness-answers.yaml"
+    answers = answer_path if answer_path.is_file() and input_digests.get("harness-answers.yaml") == sha256_file(answer_path) else None
+    archive = directory / SPEC_PACKAGE_FILENAME
+    if archive.exists():
+        raise SandboxError(f"spec package already exists: {archive}")
+    manifest = _write_spec_package(source_root, directory, archive, pilot=pilot.name, answers=answers)
+    record["spec_package"] = {"path": SPEC_PACKAGE_FILENAME, "spec_path": manifest["spec_path"],
+                              "spec_sha256": manifest["spec_sha256"], "file_count": len(manifest["files"])}
+    _write(record_path, json.dumps(record, indent=2, ensure_ascii=False) + "\n")
+    return archive
 
 
 def record_execution(sandbox: str | Path, *, evidence_root: Path | None = None) -> Path:

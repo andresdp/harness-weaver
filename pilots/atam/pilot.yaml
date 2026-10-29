@@ -6,6 +6,10 @@ prompts:
   generation: prompts/generation.md          # identical for every generation arm
   execution:
     claude: prompts/execution-claude.md      # {input} and {output} are filled in by `hw sandbox create-execution`
+execution:
+  claude:
+    allow_bash:
+      - python3 .claude/skills/check-evaluation/scripts/validate_artifacts.py:*
 report_schema: sources/domain/contracts/atam-report.schema.json
 checkers:
   atam-pilot:

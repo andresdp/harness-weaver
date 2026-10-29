@@ -28,6 +28,8 @@ benchmarks/saam/runs/.review-keys/
 # Standalone repositories; keep their histories separate from this repository
 case-studies/software-architecture-agent/
 /pilots/sara/sources/harvest-input/
+# Local SARA bundles repeat third-party workflow source text; keep them out of public history.
+/pilots/sara/generated/
 /pilots/sara/cases/
 /.agents
 skills-lock.json

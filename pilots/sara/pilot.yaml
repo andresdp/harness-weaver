@@ -4,4 +4,10 @@ sources: sources
 cases: cases
 prompts:
   generation: prompts/generation.md
+  execution:
+    claude: prompts/execution-claude.md
+execution:
+  claude:
+    allow_bash:
+      - python3 .claude/skills/sara-architecture-orchestrator/scripts/validate_stage.py:*
 report_schema: sources/domain/contracts/architecture-decision.schema.json

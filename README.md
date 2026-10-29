@@ -28,6 +28,8 @@ hw validate pilots/atam/harnessspec-v0.2.yaml
 
 This checks the specification and its declared local references. It does not run an assistant. See the [quickstart](docs/quickstart.md) for validation details and the [pilot guide](pilots/README.md) for the current examples. Runtime pilots have additional dependencies and provider-authentication requirements; their runbooks describe those separately.
 
+For the two-level workflow—from shared HarnessSpec generation through Claude Code or DeepAgents materialization and execution—see the [sandbox runbook](docs/cain-2027/SANDBOX-RUNBOOK.md).
+
 ## How the project fits together
 
 Authors describe the problem and its domain and methodology in source specifications. The HarnessWeaver generation skill uses those sources to produce a HarnessSpec intermediate representation. Runtime-specific materializers then create assistant workflows—for example, Claude Code skills and agents or a DeepAgents workflow. Checks validate bundles and execution artifacts; the `evolve` skill is intended to use run feedback to revise a workflow.

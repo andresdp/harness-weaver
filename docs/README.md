@@ -4,6 +4,7 @@
 
 - [Architecture overview](../architecture.md) — diagram and explanation of the main components, inputs, outputs and workflow.
 - [Quickstart](quickstart.md) — install the Python package and validate a HarnessSpec.
+- [Sandbox runbook](cain-2027/SANDBOX-RUNBOOK.md) — generate a shared workflow specification, materialize Claude Code and/or DeepAgents bundles, and run each in an isolated sandbox.
 - [Current design and status](harnessweaver-current-design-and-status.md) — overview of the model and prototype status.
 - [Implementation roadmap](harnessweaver-implementation-roadmap.md) — planned technical direction.
 - [Concepts](../CONCEPTS.md) and [strategy](../STRATEGY.md) — terminology and project direction.

@@ -11,7 +11,7 @@ Agents describe *who* does the work; skills describe *how* it is done. Methodolo
 
 ## Core principles
 
-1. **Ask before writing files.** Deriving a harness is a design task, not transcription. Run the question gates in `references/question-gates.md`; resolve what the evidence answers and ask the rest.
+1. **Ask before writing files.** Deriving a harness is a design task, not transcription. Run the question gates in `references/question-gates.md`; resolve what the evidence answers and ask the rest. Keep the gates that need the user's judgment, but explain each in everyday language: what choice is needed, why it matters, and what changes under each option. Expand technical terms the first time they appear; do not present raw schema fields, validator errors, or implementation details as if the user must decode them.
 2. **Separate the layers.** Intent, methodology and domain knowledge go into the design. Runtime constraints arrive only at gates G4/G5. Never put a runtime's paths, tools or syntax into the shared spec, and never put case data or reference outputs into anything generated.
 3. **Keep the design proportionate.** Use a saved HarnessSpec for reusable, multi-stage, multi-runtime or evaluated work. A simple one-off may proceed from a recorded brief; state that choice and its trade-off.
 4. **Materialize only what the target supports.** Every target writes a materialization report listing each spec element as mapped, approximated or unsupported. Do not claim two targets behave equivalently unless both implement the same declared behavior. When both targets are selected, read `references/runtime-parity.md`, derive one shared behavior contract, and compare how each target enforces it.
@@ -46,6 +46,7 @@ Validation checks the design and contracts. Verification checks whether a produc
    - **Operate/maintain:** inspect, fix or sync an existing harness → Phase 6.
 4. If existing Claude orchestrators contain `TeamCreate`, `TeamDelete` or `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS`, they are v1 artifacts. Propose migrating them (`references/execution-modes.md`, "Migrating from v1 to v2").
 5. Run gate G0 (authoritative sources, starting point, saved spec or brief, output location). Report the findings and the plan, then get confirmation.
+
 
 ### Phase 1: Analyze the domain and the work (gate G1)
 

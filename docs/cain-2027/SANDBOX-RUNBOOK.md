@@ -54,25 +54,31 @@ The generated `run.sh` defaults to `ISOLATION=bare`, which excludes OAuth login 
 
 ```mermaid
 flowchart TD
-    A[Pilot sources e.g. ATAM] --> C[Create generation sandbox]
-    B[Supplied harness skills] --> C
-    C --> D[Run Claude Code generation session]
-    D --> E[Generated HarnessSpec and runtime bundles]
-    E --> F[Collect generation into repository]
-    F --> G[Check each generated bundle]
-    G --> H{Bundle passes?}
-    H -- no --> I[Review issues and revise generation]
-    I --> C
-    H -- yes --> J[Create execution sandbox per target and case]
-    J --> K[Run isolated runtime on generation inputs]
-    K --> L[Check outputs from repository environment]
-    L --> M[Record execution evidence]
-    M --> N{More targets or cases?}
-    N -- yes --> J
-    N -- no --> O([Process complete])
+    A[Pilot domain and methodology sources] --> C
+    B[Supplied HarnessWeaver skills] --> C
+    subgraph L1[Level 1 · define the shared workflow]
+      C[Create generation sandbox] --> D[Claude authors Intent, Domain, Methodology and HarnessSpec]
+      D --> E[Collect shared spec and supporting assets]
+    end
+    E --> F{Materialize target now or later?}
+    F -- now --> G
+    F -- later --> P[Reuse spec-package.zip with --from-package] --> G
+    subgraph L2[Level 2 · materialize runtime bundles]
+      G[Generate selected target bundle(s)] --> H[Check each bundle]
+    end
+    H --> I{Bundle passes?}
+    I -- no --> J[Review issues and regenerate/fix]
+    J --> C
+    I -- yes --> K[Create execution sandbox per target and case]
+    K --> M[Run isolated runtime on generation inputs]
+    M --> N[Check outputs from repository environment]
+    N --> O[Record execution evidence]
+    O --> Q{More targets or cases?}
+    Q -- yes --> K
+    Q -- no --> R([Process complete])
 ```
 
-The first sandbox is for **generation**. Each later sandbox independently runs one target on one case. Execution sandboxes receive the collected bundle and generation inputs; checking and evaluation happen outside them.
+The process has two generation levels. **Level 1** authors the shared workflow definition: intent, domain knowledge, methodology, and a HarnessSpec. **Level 2** materializes that shared definition as one or more runtime bundles, such as Claude Code skills or a DeepAgents bundle. You can select both targets in the first generation sandbox or materialize another target later from `spec-package.zip`. Execution is a separate step: each execution sandbox runs one target on one case, and checking and evidence collection happen outside the runtime.
 
 ## General procedure
 
@@ -84,6 +90,18 @@ From the repository root, create a sandbox. Omit `--answers` to let the design s
 hw sandbox create-generation <pilot> --arm harnessweaver \
   --answers pilots/<pilot>/harness-answers.yaml
 ```
+
+Select target(s) directly with repeatable `--target` flags. This writes the selection into the sandbox's copied G4 answers; it does not edit the pilot answer file. For example, add `--target claude` for Claude Code only or use `--target claude --target deepagents` to materialize both from the same HarnessSpec. A command-line selection overrides only G4 in `--answers`.
+
+The target selection controls Level 2 materialization. It does not create execution sandboxes or run the generated assistants. To materialize both runtime bundles from the same shared spec in one session, use:
+
+```bash
+hw sandbox create-generation <pilot> --arm harnessweaver \
+  --answers pilots/<pilot>/harness-answers.yaml \
+  --target claude --target deepagents
+```
+
+To generate one target first, pass only that `--target`. Collection creates a reusable `spec-package.zip`; use `--from-package ... --target <other-target>` later to materialize another runtime without re-harvesting or revising the shared workflow definition.
 
 For a baseline comparison, use `--arm revfactory-en`; answer its questions live. The command prints a Rich summary with the next run command and sandbox `RUNBOOK.md` path. The sandbox path is also printed alone on standard output for scripts.
 
@@ -105,6 +123,26 @@ hw sandbox collect "/path/to/generation-sandbox" --label <run-label>
 ```
 
 Collection copies generated files to `pilots/<pilot>/generated/<run-label>/`, finds the Claude transcript, and structurally checks any `build/claude/` and `build/deepagents/` bundles. It prints a check table and copyable `create-execution` commands for passing bundles. Review failures or a missing transcript before proceeding.
+
+When a collected generation contains a valid HarnessSpec, collection also writes `spec-package.zip`. The package contains the saved spec, its generated supporting files, the original read-only source inputs, and available gate answers. Its manifest records SHA-256 digests; reuse verifies those digests before starting a new generation session.
+
+To materialize another runtime later, create a new sandbox from the package. This does not harvest or redesign the workflow:
+
+```bash
+hw sandbox create-generation <pilot> \
+  --from-package pilots/<pilot>/generated/<run-label>/spec-package.zip \
+  --target claude
+```
+
+Use `--target deepagents` or repeat `--target` to add one or both targets. The generated target goes under the new sandbox's `generated/build/<target>/`; the shared spec and source files are checked for changes when you collect the result.
+
+For a generation collected before spec packages were available, backfill one with:
+
+```bash
+hw sandbox package-spec pilots/<pilot>/generated/<run-label>
+```
+
+This checks the source digests recorded by the original run against the current pilot sources and refuses to package them if they differ.
 
 ### 3. Create and run an execution sandbox
 
@@ -128,9 +166,13 @@ ISOLATION=settings ./run.sh
 
 Claude execution displays readable progress in the terminal and preserves the complete JSONL event stream in `output/transcript.jsonl`. Its report is written under `output/` when generated. This flow uses Claude Code's OAuth sign-in and does not require an Anthropic API key.
 
+Each pilot configures its Claude execution instructions at `prompts.execution.claude` in `pilot.yaml`. Prompt files may use `{input}` for the first generation-input file, `{inputs}` for a list of all input IDs, ports, and file paths, and `{output}` for the required final report path (`../output/report.json`). HarnessWeaver checks this configuration before creating the sandbox and reports the exact missing or invalid prompt path.
+
+Claude execution has no general shell permission. If the workflow needs a deterministic local check, configure its narrow command pattern under `execution.claude.allow_bash` in the pilot's `pilot.yaml`. HarnessWeaver copies only those listed commands into the sandbox's Claude settings.
+
 #### DeepAgents target (model-provider credentials)
 
-The DeepAgents host uses the Python environment where HarnessWeaver and its `deepagents` extra are installed. Activate that environment before creating and running the sandbox. It also needs credentials for the selected model provider. The ATAM bundle currently documents `openai:gpt-5.4-mini`, which requires `OPENAI_API_KEY`; Claude subscription OAuth does not authenticate this provider call.
+The DeepAgents host uses the Python environment where HarnessWeaver and its `deepagents` extra are installed. Activate that environment before creating and running the sandbox. It also needs credentials for the provider selected by `--model`; Claude subscription OAuth does not authenticate model-provider calls.
 
 ```bash
 conda activate harnessweaver   # or activate the environment where `.[deepagents]` is installed
@@ -149,11 +191,11 @@ cd "/path/printed/by/the-create-command"
 ./run.sh
 ```
 
-The runner shows progress for each stage and writes `record/host-record.json`, artifacts under `workspace/artifacts/`, and the ATAM draft under `output/`. If you are not running from the activated environment, set `HW_PYTHON` to that environment's Python command as described in [Set up a Python environment](#set-up-a-python-environment). The final human-review gate is recorded by the host; it does not approve the report.
+The runner shows progress for each stage and writes a host record and intermediate artifacts under `workspace/`; `check.json` records the final report path. If you are not running from the activated environment, set `HW_PYTHON` to that environment's Python command as described in [Set up a Python environment](#set-up-a-python-environment). Any human-review status remains a review request; the runtime does not approve the report on the architect's behalf.
 
 To retry a DeepAgents execution in the same sandbox, run `./run.sh --clean`. This deletes that run's `workspace/`, `output/`, `record/`, and `check.json`, then reruns every stage from Stage 1. It is a clean rerun, not a continuation of the previous model conversation. Without `--clean`, the launcher prevents a second attempt in the same directory. Claude execution uses a fixed Claude session and should use a fresh execution sandbox for another run.
 
-DeepAgents uses Pydantic models derived from each declared JSON Schema. Single-artifact stages return one structured response; LangChain selects provider-native `ProviderStrategy` when supported and tool-based `ToolStrategy` otherwise. A stage with multiple artifacts receives a separate Pydantic-validated writer tool for each output, so it does not have to return a combined artifact envelope. The host validates all written files against the original JSON Schemas. If a stage fails structural validation, it gets one additional bounded repair attempt. If structured-response parsing fails but existing files pass the JSON Schemas, the host keeps the validated files and records a warning. The host does not pass ATAM evaluator or reference-leakage findings to the model. The stage record shows whether structured output was required and whether a repair was attempted.
+DeepAgents uses Pydantic models derived from each declared JSON Schema. Single-artifact stages return one structured response; LangChain selects provider-native `ProviderStrategy` when supported and tool-based `ToolStrategy` otherwise. A stage with multiple artifacts receives a separate Pydantic-validated writer tool for each output, so it does not have to return a combined artifact envelope. The host validates all written files against the original JSON Schemas. If a stage fails structural validation, it gets one additional bounded repair attempt. If structured-response parsing fails but existing files pass the JSON Schemas, the host keeps the validated files and records a warning. The host does not pass pilot-specific evaluator or reference-leakage findings to the model. The stage record shows whether structured output was required and whether a repair was attempted.
 
 ### 4. Check and record execution evidence
 

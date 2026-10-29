@@ -8,6 +8,7 @@ import shlex
 import sys
 from pathlib import Path
 
+import yaml
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
@@ -133,10 +134,13 @@ def _sandbox(args: argparse.Namespace) -> int:
 
     if args.sandbox_command == "create-generation":
         path = sandbox.create_generation_sandbox(args.pilot, args.arm, root=args.root, model=args.model,
-                                                 answers=args.answers, include_langchain_skills=not args.no_langchain_skills)
+                                                 answers=args.answers, include_langchain_skills=not args.no_langchain_skills,
+                                                 targets=args.target, from_package=args.from_package)
+        selected = f" · targets: {', '.join(args.target)}" if args.target else ""
         _panel("Generation sandbox ready", [
-            f"Pilot: {args.pilot} · arm: {args.arm}",
-            "Read-only inputs: pilot sources and the selected harness skill.",
+            f"Pilot: {args.pilot} · arm: {args.arm}{selected}",
+            (f"Read-only inputs: verified spec package {args.from_package}." if args.from_package
+             else "Read-only inputs: pilot sources and the selected harness skill."),
             "Writable output: generated/ inside the sandbox.",
             f"Skills bundle guide: {path / 'skills-plugin/BUNDLE-GUIDE.md'}",
             f"Skills bundle ZIP: {path / 'skills-plugin.zip'}",
@@ -169,6 +173,14 @@ def _sandbox(args: argparse.Namespace) -> int:
                 package_lines.extend([f"{bundle}", f"Guide: {path / package['guide']}",
                                       f"ZIP: {path / package['archive']}"])
             _panel("Portable bundles", package_lines, style="green")
+        if record.get("spec_package"):
+            _panel("Reusable spec package", [
+                f"Package: {path / record['spec_package']['path']}",
+                f"Spec: {record['spec_package']['spec_path']} · SHA-256 {record['spec_package']['spec_sha256']}",
+                "Next: use this package with `hw sandbox create-generation <pilot> --from-package <package.zip> --target <claude|deepagents>` to add a runtime from the same spec.",
+            ], style="green")
+        elif record.get("spec_package_error"):
+            _panel("Reusable spec package unavailable", [record["spec_package_error"]], style="yellow")
         if not record["transcript"]:
             console.print("[yellow]Transcript not found.[/] Copy it into record/transcript.jsonl if available.")
         passed = [bundle for bundle, result in record.get("bundle_checks", {}).items() if result.get("passed")]
@@ -189,16 +201,43 @@ def _sandbox(args: argparse.Namespace) -> int:
             _panel("Bundle checks need attention", [
                 "Next: review the materialization reports, fix bundle-check failures, then create an execution sandbox."
             ], style="yellow")
+    elif args.sandbox_command == "package-spec":
+        package = sandbox.package_spec(args.generation)
+        _panel("Reusable spec package created", [
+            f"Package: {package}",
+            "Next: `hw sandbox create-generation <pilot> --from-package <package.zip> --target <claude|deepagents>`",
+        ], style="green")
+        print(package)
+        return 0
     else:
         path = sandbox.record_execution(args.sandbox)
+        metadata = yaml.safe_load((path / "sandbox.yaml").read_text(encoding="utf-8"))
+        check_record = json.loads((path / "check.json").read_text(encoding="utf-8")) if (path / "check.json").is_file() else {}
+        pilot = metadata.get("pilot", "the pilot")
+        check_names = ", ".join((check_record.get("checks") or {}).keys())
+        check_detail = f" ({check_names})" if check_names else ""
+        report_path = check_record.get("report")
+        output_files = sorted(p for p in (path / "output").rglob("*") if p.is_file())
+        output_lines = []
+        for output_file in output_files:
+            relative = output_file.relative_to(path).as_posix()
+            if relative == report_path:
+                detail = f"Review the {pilot} report, its evidence and gaps, and any draft or review status."
+            elif output_file.name == "transcript.jsonl":
+                detail = "Review execution events, including denied commands, repairs, and interventions."
+            elif output_file.name == "host-record.json":
+                detail = "Confirm stages completed; inspect warnings, repairs, and review gates."
+            else:
+                detail = f"Review this {pilot} runtime artifact and its role in the result."
+            output_lines.append(f"{relative} — {detail}")
+        if not output_lines:
+            output_lines.append("output/ — No output files were recorded; inspect the run status and check problems.")
         _panel("Execution evidence recorded", [f"Evidence directory: {path}"], style="green")
         _panel("Next: review the recorded evidence", [
             "sandbox.yaml — Confirm the pilot, target, case, bundle, model, and repository revision match this run.",
             "manifest.json — Check the recorded input and output digests for provenance.",
-            "check.json — Confirm schema, ATAM pilot, and reference-leakage checks passed; inspect any problems.",
-            "output/05_atam_report.json — Review evidence links, findings, gaps, and draft status before relying on the report.",
-            "output/06_review_findings.json — Review check results, applied or remaining corrections, and architect-review focus.",
-            "record/host-record.json — Confirm every stage completed; inspect warnings, repairs, and the pending human gate.",
+            f"check.json — Review all check results{check_detail}; inspect any reported problems.",
+            *output_lines,
             "record/*.txt — Confirm run status, exit code, and start/finish times.",
         ], style="green")
     # Keep the path alone on stdout so scripts can capture it; Rich summaries go to stderr.
@@ -237,6 +276,10 @@ def build_parser() -> argparse.ArgumentParser:
     generation.add_argument("pilot", help="pilot name (pilots/<name>) or directory with pilot.yaml")
     generation.add_argument("--arm", default="harnessweaver", choices=ARMS)
     generation.add_argument("--answers", type=Path, help="harness-answers.yaml to pre-answer gates (harnessweaver arm only)")
+    generation.add_argument("--target", action="append", choices=TARGETS,
+                            help="select a runtime target (repeat for multiple targets; overrides G4 in --answers)")
+    generation.add_argument("--from-package", type=Path,
+                            help="materialize selected target(s) from a collected, hash-checked spec-package.zip")
     generation.add_argument("--model", default="", help="Claude model for the session (default: Claude Code default)")
     generation.add_argument("--root", type=Path, help="parent directory (default: HW_SANDBOX_ROOT or a sibling of the repository)")
     generation.add_argument("--no-langchain-skills", action="store_true", help="do not add the langchain deep-agents skills")
@@ -250,6 +293,8 @@ def build_parser() -> argparse.ArgumentParser:
     collect = box_commands.add_parser("collect", help="save generation output, check runtime bundles, and show execution commands")
     collect.add_argument("sandbox", type=Path)
     collect.add_argument("--label", required=True)
+    package = box_commands.add_parser("package-spec", help="create a reusable spec package from an older collected generation")
+    package.add_argument("generation", type=Path, help="collected generation directory containing generation-record.json")
     record = box_commands.add_parser("record", help="copy an execution sandbox's evidence into docs/cain-2027/evidence/")
     record.add_argument("sandbox", nargs="?", type=Path, default=Path("."),
                         help="execution sandbox directory (default: current directory)")
