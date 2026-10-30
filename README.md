@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/harnessweaver-agentic-logo.png" alt="Interwoven workflow paths surrounding a connected agent network" width="220">
+  <img src="https://raw.githubusercontent.com/andresdp/harness-weaver/feat/cain-sources-sandbox-host/docs/assets/harnessweaver-agentic-logo.png" alt="Interwoven workflow paths surrounding a connected agent network" width="220">
 </p>
 
 <h1 align="center">HarnessWeaver</h1>
