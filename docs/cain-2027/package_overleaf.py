@@ -10,8 +10,8 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 HERE = Path(__file__).resolve().parent
 ARCHIVE = HERE / "HarnessWeaver-CAIN-2027-Overleaf.zip"
 SOURCE_FILES = (
-    HERE / "PAPER-DRAFT.tex",
-    HERE / "PAPER-DRAFT.md",
+    HERE / "main.tex",
+    HERE / "references.bib",
 )
 PACKAGE_README = HERE / "OVERLEAF.md"
 
