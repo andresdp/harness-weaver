@@ -1,0 +1,937 @@
+{
+  "ATAM_Evaluation": {
+    "title": "ATAM Evaluation \u2014 Session 92a49a66-32fd-48ab-8076-957ad8cfcd6a",
+    "metadata": {
+      "system_name": "Event framework",
+      "date": null,
+      "ref": null,
+      "evaluator_organization": null,
+      "phase_1_attendees": [],
+      "phase_2_attendees": []
+    },
+    "evaluation_inputs": {
+      "system_description": "An Event framework where the application logic and framework are highly inter-dependent. The Main module is part of the framework, and the Event Manager interacts directly with application handlers. It features an Event Queue and a base Handler component extended by standard and application-specific handlers.",
+      "phase_1_discovery": {
+        "initial_documentation_status": "Fully developed architecture with class diagrams, component descriptions, and defined component interactions.",
+        "evaluator_inquiry_questions": [
+          "Can the components of the architecture be reused for future projects?",
+          "Can the framework be expanded in the future to accommodate a new application or new components?",
+          "Will the system handle any input given by the user and handle invalid input?",
+          "Is the architecture consistent in behavior?",
+          "Can any new application-specific functionality be added to the architecture?",
+          "Can the system be modified in short time and cost-effective manner?",
+          "Do the components interact properly?",
+          "Does the architecture perform its event-processing task properly?"
+        ]
+      },
+      "phase_2_architectural_context": {
+        "hardware_view_description": [
+          "System accepts input via Command Line Interface (CLI)",
+          "Single processor execution implied (sequential event processing)"
+        ],
+        "runtime_constraints": [
+          "Events must be dispatched in a First-Come-First-Served (FIFO) pattern",
+          "System must maintain an 'idle wait' state until input is received",
+          "Application logic is embedded within framework components"
+        ]
+      },
+      "quantitative_model_parameters": {
+        "performance_proxy": "Number of components involved in a transaction",
+        "transaction_speed": "Qualitative (Slow due to high number of components involved)",
+        "architecture_limits": {
+          "event_managers": "1",
+          "event_queues": "1"
+        }
+      },
+      "investigative_prompts": {
+        "style_probes": {
+          "target_style": "Event-Driven Architecture",
+          "questions": [
+            "Does the system allow unauthorized access?",
+            "Does the architecture portray data confidentiality?",
+            "Does the architecture process any task in the fastest possible speed?"
+          ]
+        }
+      },
+      "raw_candidate_scenarios": [
+        {
+          "id": "RS-1",
+          "description": "No unauthorized access to the system"
+        },
+        {
+          "id": "RS-2",
+          "description": "All operations are processed in fastest possible speed"
+        },
+        {
+          "id": "RS-3",
+          "description": "Any failure should be followed by immediate recovery"
+        },
+        {
+          "id": "RS-4",
+          "description": "User errors in using system should be handled"
+        },
+        {
+          "id": "RS-5",
+          "description": "New demands on system functionality should be accommodated"
+        },
+        {
+          "id": "RS-6",
+          "description": "Major parts of the framework should be re-usable for future architectures"
+        },
+        {
+          "id": "RS-7",
+          "description": "Framework modification is cost-effective, fast and in minimal time"
+        },
+        {
+          "id": "RS-8",
+          "description": "Components in framework interact in a coordinated manner"
+        },
+        {
+          "id": "RS-9",
+          "description": "Framework expansion is possible to allow for more sophisticated options"
+        },
+        {
+          "id": "RS-10",
+          "description": "Implementation allows for execution in different environments"
+        },
+        {
+          "id": "RS-11",
+          "description": "Proper data encapsulation and secure data structures"
+        },
+        {
+          "id": "RS-12",
+          "description": "Flexible implementation using other programming languages"
+        },
+        {
+          "id": "RS-13",
+          "description": "Overall consistent behavior expected from the architecture"
+        },
+        {
+          "id": "RS-14",
+          "description": "Framework should be complete, clear and perform exactly as required"
+        },
+        {
+          "id": "RS-15",
+          "description": "Hook up multiple applications to the framework at same time"
+        },
+        {
+          "id": "RS-16",
+          "description": "Change interface from command-driven to window-based"
+        }
+      ],
+      "business_context": {
+        "business_goals": [
+          "Provide an Event framework to be used by an application",
+          "Handle and process events through component interaction",
+          "Allow application components to utilize the framework services"
+        ],
+        "technical_constraints": [
+          "Must handle system termination via STOP handler",
+          "Must maintain system in idle state until input is received"
+        ],
+        "architectural_drivers": [
+          "Variability",
+          "Reliability",
+          "Conceptual Integrity",
+          "Functionality",
+          "Modifiability"
+        ]
+      }
+    },
+    "evaluation_results": {
+      "utility_tree": {
+        "root": "Event framework utility tree",
+        "quality_attribute_nodes": [
+          {
+            "attribute_name": "Security",
+            "children": [
+              {
+                "refinement": "unauthorized access",
+                "scenario_id": "S-1",
+                "scenario_description": "An unauthorized user attempts to access the system via the CLI; the system denies access to protected event-processing capabilities.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "confidentiality",
+                "scenario_id": "S-2",
+                "scenario_description": "During event and handler processing, data passed among framework components remains encapsulated and protected.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Performance",
+            "children": [
+              {
+                "refinement": "event processing speed",
+                "scenario_id": "P-1",
+                "scenario_description": "When user input arrives at the CLI during normal sequential event processing on a single processor, the system processes the event as quickly as possible for the architecture\u2019s constraints.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Reliability",
+            "children": [
+              {
+                "refinement": "failure recovery",
+                "scenario_id": "R-1",
+                "scenario_description": "When a failure occurs during event processing or handler execution, the system recovers immediately and continues processing.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "invalid input handling",
+                "scenario_id": "R-2",
+                "scenario_description": "When the user provides invalid input at the CLI while the system is in idle-wait state, the system detects and handles the invalid input without breaking the flow.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "consistent behavior",
+                "scenario_id": "R-3",
+                "scenario_description": "Over repeated normal event-processing operations, the system maintains consistent behavior across runs and inputs within the supported scope.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Modifiability",
+            "children": [
+              {
+                "refinement": "add functionality",
+                "scenario_id": "M-1",
+                "scenario_description": "When a new functional demand is introduced, the framework is extended without major redesign.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "fast low-cost change",
+                "scenario_id": "M-2",
+                "scenario_description": "When a change request requires framework modification, the framework can be changed quickly and at low cost.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "interface change",
+                "scenario_id": "M-3",
+                "scenario_description": "When the interface is changed from CLI to window-based, the framework is modified without major redesign of the internal event-processing logic.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Reusability",
+            "children": [
+              {
+                "refinement": "reuse major parts",
+                "scenario_id": "U-1",
+                "scenario_description": "When a future project needs the framework, major components can be reused with minimal adaptation.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "expand framework",
+                "scenario_id": "U-2",
+                "scenario_description": "When a new component or more sophisticated option must be added, the framework expands without major rework.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "multiple applications",
+                "scenario_id": "U-3",
+                "scenario_description": "When more than one application is connected to the framework, multiple applications can share the framework without interference.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Conceptual Integrity",
+            "children": [
+              {
+                "refinement": "coordinated interactions",
+                "scenario_id": "C-1",
+                "scenario_description": "When framework components process an event through the defined interactions, the component interactions remain coordinated and consistent.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Functionality",
+            "children": [
+              {
+                "refinement": "core event processing",
+                "scenario_id": "F-1",
+                "scenario_description": "When the system is exercised according to its defined use cases, the framework performs the required event-processing task completely and clearly.",
+                "priority_tuple": null
+              }
+            ]
+          }
+        ]
+      },
+      "architectural_approaches": [
+        {
+          "approach_name": "Event-driven architecture with a single FIFO event queue",
+          "description": "The architecture uses one Event Queue and dispatches events in first-come-first-served order under sequential execution with an idle-wait state until input is received.",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Performance",
+              "rationale": "The evidence shows a single FIFO path and sequential processing; this supports a simple event-processing flow, while the supplied model also states transaction speed is slow due to the number of components involved."
+            },
+            {
+              "quality_attribute": "Reliability",
+              "rationale": "FIFO ordering and idle-wait behavior support predictable processing, although no explicit fault recovery mechanism is supplied."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "A single queue and ordered dispatch support a consistent component interaction structure."
+            }
+          ]
+        },
+        {
+          "approach_name": "Centralized Event Manager coordinating handlers",
+          "description": "A single Event Manager directly interacts with application handlers and includes a STOP handler for termination behavior.",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "The evidence indicates the framework can dispatch events and terminate via the STOP handler."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "Centralized dispatch helps keep interaction patterns consistent."
+            },
+            {
+              "quality_attribute": "Reliability",
+              "rationale": "A deterministic control path is implied, but recovery behavior is not evidenced."
+            }
+          ]
+        },
+        {
+          "approach_name": "Framework with embedded application logic and extensible handlers",
+          "description": "A base Handler is extended by standard and application-specific handlers, while application logic is embedded within framework components and the framework is highly inter-dependent with the application.",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Modifiability",
+              "rationale": "The handler inheritance structure provides an extension path, but embedded application logic and high inter-dependence suggest change ripple effects."
+            },
+            {
+              "quality_attribute": "Reusability",
+              "rationale": "The base handler abstraction supports some reuse, though tight coupling limits portability of the overall framework."
+            },
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "Direct framework-to-handler interaction supports the required event-processing flow."
+            }
+          ]
+        },
+        {
+          "approach_name": "CLI-driven, single-processor sequential runtime",
+          "description": "The system accepts input via a CLI and is implied to execute on a single processor in a sequential event-processing model.",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "This supports the current operating model described in the supplied evidence."
+            },
+            {
+              "quality_attribute": "Modifiability",
+              "rationale": "UI changes may be invasive because the evidence suggests input handling and framework logic are tightly coupled."
+            }
+          ]
+        }
+      ],
+      "analysis_records": [
+        {
+          "scenario_reference": {
+            "id": "S-1",
+            "text": "An unauthorized user attempts to access the system via the CLI; the system denies access to protected event-processing capabilities.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Security",
+          "environment": "CLI access to the system",
+          "stimulus": "An unauthorized user attempts access",
+          "response_measure": "Access is denied; protected handlers and event-processing capabilities are not exposed",
+          "architectural_decisions": [
+            "CLI entry point",
+            "direct Event Manager-to-handler interaction",
+            "no explicit security mechanism described"
+          ],
+          "reasoning": "The supplied evidence covers event flow, not access control, so the security outcome cannot be verified from the inputs.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-S1-1",
+                "description": "Security controls are not evidenced.",
+                "rationale": "No authentication, authorization, or access-control mechanism is described in the supplied architecture inputs."
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "SP-S1-1",
+                "parameter": "presence or absence of authentication/authorization at the CLI boundary",
+                "correlated_attribute": "Security"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "P-1",
+            "text": "When user input arrives at the CLI during normal sequential event processing on a single processor, the system processes the event as quickly as possible for the architecture\u2019s constraints.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Performance",
+          "environment": "Normal sequential event processing on a single processor",
+          "stimulus": "User input arrives at the CLI and must be processed",
+          "response_measure": "Operations complete as quickly as possible for the architecture\u2019s processing model",
+          "architectural_decisions": [
+            "single Event Queue",
+            "single Event Manager",
+            "sequential processing on one processor",
+            "many components involved in a transaction"
+          ],
+          "reasoning": "The supplied evidence explicitly indicates slow transaction speed due to component count, so the architecture is likely constrained on performance.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-P1-1",
+                "description": "Transaction speed is expected to be slow because many components participate in each transaction.",
+                "rationale": "The quantitative model parameters explicitly state slow transaction speed due to the high number of components involved."
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "SP-P1-1",
+                "parameter": "number of components in a transaction",
+                "correlated_attribute": "Performance"
+              },
+              {
+                "id": "SP-P1-2",
+                "parameter": "queue depth / dispatch steps",
+                "correlated_attribute": "Performance"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "TP-P1-1",
+                "parameter": "single FIFO queue and sequential dispatch",
+                "conflicting_attributes": [
+                  "Performance",
+                  "Conceptual Integrity"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "R-1",
+            "text": "When a failure occurs during event processing or handler execution, the system recovers immediately and continues processing.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "During event handling or handler execution",
+          "stimulus": "A failure occurs in event processing",
+          "response_measure": "The system recovers immediately and continues processing",
+          "architectural_decisions": [
+            "Event Manager coordinates handlers",
+            "no recovery mechanism described"
+          ],
+          "reasoning": "No retry, failover, rollback, or checkpointing behavior is described in the inputs.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-R1-1",
+                "description": "Immediate recovery capability is not evidenced.",
+                "rationale": "The supplied inputs do not describe any recovery mechanism."
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "SP-R1-1",
+                "parameter": "exception handling and recovery strategy in Event Manager/handlers",
+                "correlated_attribute": "Reliability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "R-2",
+            "text": "When the user provides invalid input at the CLI while the system is in idle-wait state, the system detects and handles the invalid input without breaking the flow.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "CLI input handling with idle-wait behavior",
+          "stimulus": "The user provides invalid input",
+          "response_measure": "Invalid input is detected and handled without breaking the flow",
+          "architectural_decisions": [
+            "CLI input",
+            "idle-wait state",
+            "STOP handler"
+          ],
+          "reasoning": "The architecture expects user input, but no validation or error handling is described.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-R2-1",
+                "description": "Invalid input handling is not evidenced.",
+                "rationale": "The supplied inputs do not describe input validation or error handling at the CLI boundary."
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "SP-R2-1",
+                "parameter": "input validation logic at the CLI boundary",
+                "correlated_attribute": "Reliability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "M-1",
+            "text": "When a new functional demand is introduced, the framework is extended without major redesign.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "Future change request",
+          "stimulus": "A new functional demand is introduced",
+          "response_measure": "The framework is extended without major redesign",
+          "architectural_decisions": [
+            "base handler extension",
+            "embedded application logic",
+            "high inter-dependence"
+          ],
+          "reasoning": "The extension mechanism helps, but coupling works against easy change.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-M1-1",
+                "description": "Embedded application logic may raise the cost of adding functionality.",
+                "rationale": "The inputs state that application logic is embedded within framework components and the framework is highly inter-dependent with the application."
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR-M1-1",
+                "description": "Base handler extension provides a path for adding functionality.",
+                "rationale": "The supplied architecture includes a base Handler extended by standard and application-specific handlers."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "SP-M1-1",
+                "parameter": "coupling between framework components and application handlers",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "TP-M1-1",
+                "parameter": "embedding application logic in framework components",
+                "conflicting_attributes": [
+                  "Modifiability",
+                  "Functionality"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "U-1",
+            "text": "When a future project needs the framework, major components can be reused with minimal adaptation.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reusability",
+          "environment": "Use in a future project",
+          "stimulus": "A future project needs to reuse the framework",
+          "response_measure": "Major components can be reused with minimal adaptation",
+          "architectural_decisions": [
+            "high inter-dependence",
+            "base handler supports extension",
+            "main module is part of the framework"
+          ],
+          "reasoning": "Common behavior is reusable, but coupling limits cross-project portability.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-U1-1",
+                "description": "High inter-dependence may limit reuse.",
+                "rationale": "The inputs explicitly describe the framework and application as highly inter-dependent."
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR-U1-1",
+                "description": "Base handler abstraction supports partial reuse.",
+                "rationale": "The architecture includes a reusable base Handler extended by specialized handlers."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "SP-U1-1",
+                "parameter": "extent to which application-specific behavior is separated from framework behavior",
+                "correlated_attribute": "Reusability"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "TP-U1-1",
+                "parameter": "direct framework-to-application interaction",
+                "conflicting_attributes": [
+                  "Reusability",
+                  "Functionality"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "M-2",
+            "text": "When a change request requires framework modification, the framework can be changed quickly and at low cost.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "Maintenance/change request",
+          "stimulus": "A change request requires framework modification",
+          "response_measure": "The framework changes quickly and at low cost",
+          "architectural_decisions": [
+            "high inter-dependence",
+            "base handler extension",
+            "single event manager and queue"
+          ],
+          "reasoning": "The architecture suggests ripple effects for changes because of tight coupling.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-M2-1",
+                "description": "Modifications may be slow and costly because of tight coupling.",
+                "rationale": "The inputs describe high inter-dependence and embedded application logic."
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "SP-M2-1",
+                "parameter": "coupling between framework and application logic",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "TP-M2-1",
+                "parameter": "shared event manager/queue",
+                "conflicting_attributes": [
+                  "Modifiability",
+                  "Conceptual Integrity"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "C-1",
+            "text": "When framework components process an event through the defined interactions, the component interactions remain coordinated and consistent.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Conceptual Integrity",
+          "environment": "Normal operation",
+          "stimulus": "Framework components process an event through the defined interactions",
+          "response_measure": "Component interactions remain coordinated and consistent",
+          "architectural_decisions": [
+            "defined component interactions",
+            "single queue",
+            "single Event Manager",
+            "handler extension hierarchy"
+          ],
+          "reasoning": "The centralized event-processing structure supports coordination, though behavioral conformance is not proven.",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-C1-1",
+                "description": "Defined component interactions support coordinated behavior.",
+                "rationale": "The inputs state that component interactions are defined and the architecture uses a single manager and queue."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "SP-C1-1",
+                "parameter": "strictness of the component interaction contract",
+                "correlated_attribute": "Conceptual Integrity"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "U-2",
+            "text": "When a new component or more sophisticated option must be added, the framework expands without major rework.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reusability",
+          "environment": "Future enhancement request",
+          "stimulus": "A new component or more sophisticated option must be added",
+          "response_measure": "The framework expands without major rework",
+          "architectural_decisions": [
+            "handler extension mechanism",
+            "single Event Manager",
+            "tight coupling"
+          ],
+          "reasoning": "The extension mechanism helps, but the coupling weakens independent growth.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-U2-1",
+                "description": "Expansion may require broad changes because extension is constrained by tight coupling.",
+                "rationale": "The supplied inputs describe high inter-dependence and embedded application logic."
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR-U2-1",
+                "description": "Handler extension model supports limited expansion.",
+                "rationale": "The architecture provides a base Handler and specialized handlers."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "SP-U2-1",
+                "parameter": "amount of framework logic embedded in application-specific handlers",
+                "correlated_attribute": "Reusability"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "TP-U2-1",
+                "parameter": "adding new handler types",
+                "conflicting_attributes": [
+                  "Reusability",
+                  "Conceptual Integrity"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "R-3",
+            "text": "Over repeated normal event-processing operations, the system maintains consistent behavior across runs and inputs within the supported scope.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "Repeated normal operation",
+          "stimulus": "The system processes events repeatedly over time",
+          "response_measure": "Behavior remains consistent across runs and inputs within the supported scope",
+          "architectural_decisions": [
+            "single Event Manager",
+            "single Event Queue",
+            "FIFO dispatch",
+            "defined component interactions"
+          ],
+          "reasoning": "Deterministic ordering supports consistency, but not robustness under failures.",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-R3-1",
+                "description": "A single FIFO event-processing path supports deterministic behavior.",
+                "rationale": "The inputs specify a single queue and FIFO dispatch."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "SP-R3-1",
+                "parameter": "strict adherence to FIFO ordering and centralized dispatch",
+                "correlated_attribute": "Reliability"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "TP-R3-1",
+                "parameter": "centralized event processing",
+                "conflicting_attributes": [
+                  "Reliability",
+                  "Scalability"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "F-1",
+            "text": "When the system is exercised according to its defined use cases, the framework performs the required event-processing task completely and clearly.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Functionality",
+          "environment": "Nominal operation",
+          "stimulus": "The system is exercised according to its defined use cases",
+          "response_measure": "The framework performs the required event-processing task completely and clearly",
+          "architectural_decisions": [
+            "event framework with queue",
+            "Event Manager interacts directly with handlers",
+            "STOP handler"
+          ],
+          "reasoning": "Core functionality is present, but acceptance criteria are too broad to verify completely.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-F1-1",
+                "description": "Exact completeness criteria are not defined in the supplied evidence.",
+                "rationale": "The inputs describe goals and components, but not detailed acceptance criteria."
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR-F1-1",
+                "description": "The architecture includes the main mechanisms needed for event processing and termination.",
+                "rationale": "The inputs mention an Event Queue, an Event Manager, handlers, and a STOP handler."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "SP-F1-1",
+                "parameter": "completeness of supported event/handler types",
+                "correlated_attribute": "Functionality"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "TP-F1-1",
+                "parameter": "direct handler integration",
+                "conflicting_attributes": [
+                  "Functionality",
+                  "Modifiability"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "M-3",
+            "text": "When the interface is changed from CLI to window-based, the framework is modified without major redesign of the internal event-processing logic.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "UI replacement effort",
+          "stimulus": "The interface is changed from CLI to window-based",
+          "response_measure": "The change is implemented without major redesign of the internal event-processing logic",
+          "architectural_decisions": [
+            "CLI input mechanism",
+            "embedded application logic",
+            "single processor / sequential event processing"
+          ],
+          "reasoning": "No presentation abstraction is described, so interface replacement likely touches internals.",
+          "findings": {
+            "risks": [
+              {
+                "id": "RISK-M3-1",
+                "description": "CLI-centric design may make UI replacement invasive.",
+                "rationale": "The inputs describe a CLI input mechanism and embedded application logic, with no UI abstraction."
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "SP-M3-1",
+                "parameter": "degree of separation between input interface and event-processing logic",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "TP-M3-1",
+                "parameter": "tight integration of UI/input and framework logic",
+                "conflicting_attributes": [
+                  "Modifiability",
+                  "Functionality"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "scenarios": [
+        {
+          "scenario_text": "An unauthorized user attempts to access the system via the CLI; the system denies access to protected event-processing capabilities.",
+          "primary_quality_attribute": [
+            "Security"
+          ]
+        },
+        {
+          "scenario_text": "When user input arrives at the CLI during normal sequential event processing on a single processor, the system processes the event as quickly as possible for the architecture\u2019s constraints.",
+          "primary_quality_attribute": [
+            "Performance"
+          ]
+        },
+        {
+          "scenario_text": "When a failure occurs during event processing or handler execution, the system recovers immediately and continues processing.",
+          "primary_quality_attribute": [
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "When the user provides invalid input at the CLI while the system is in idle-wait state, the system detects and handles the invalid input without breaking the flow.",
+          "primary_quality_attribute": [
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "When a new functional demand is introduced, the framework is extended without major redesign.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When a future project needs the framework, major components can be reused with minimal adaptation.",
+          "primary_quality_attribute": [
+            "Reusability"
+          ]
+        },
+        {
+          "scenario_text": "When a change request requires framework modification, the framework can be changed quickly and at low cost.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When framework components process an event through the defined interactions, the component interactions remain coordinated and consistent.",
+          "primary_quality_attribute": [
+            "Conceptual Integrity"
+          ]
+        },
+        {
+          "scenario_text": "When a new component or more sophisticated option must be added, the framework expands without major rework.",
+          "primary_quality_attribute": [
+            "Reusability"
+          ]
+        },
+        {
+          "scenario_text": "Over repeated normal event-processing operations, the system maintains consistent behavior across runs and inputs within the supported scope.",
+          "primary_quality_attribute": [
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "When the system is exercised according to its defined use cases, the framework performs the required event-processing task completely and clearly.",
+          "primary_quality_attribute": [
+            "Functionality"
+          ]
+        },
+        {
+          "scenario_text": "When the interface is changed from CLI to window-based, the framework is modified without major redesign of the internal event-processing logic.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        }
+      ]
+    }
+  }
+}

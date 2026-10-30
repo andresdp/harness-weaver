@@ -1,0 +1,599 @@
+{
+  "ATAM_Evaluation": {
+    "title": "ATAM Evaluation \u2014 Session f2ca45b7-78be-42e8-aeaa-37b97c834514",
+    "metadata": {
+      "system_name": "Event framework with inter-dependent application logic and framework components",
+      "date": null,
+      "ref": null,
+      "evaluator_organization": null,
+      "phase_1_attendees": [],
+      "phase_2_attendees": []
+    },
+    "evaluation_inputs": {
+      "system_description": "An Event framework where the application logic and framework are highly inter-dependent. The Main module is part of the framework, and the Event Manager interacts directly with application handlers. It features an Event Queue and a base Handler component extended by standard and application-specific handlers.",
+      "phase_1_discovery": {
+        "initial_documentation_status": "Fully developed architecture with class diagrams, component descriptions, and defined component interactions.",
+        "evaluator_inquiry_questions": [
+          "Can the components of the architecture be reused for future projects?",
+          "Can the framework be expanded in the future to accommodate a new application or new components?",
+          "Will the system handle any input given by the user and handle invalid input?",
+          "Is the architecture consistent in behavior?",
+          "Can any new application-specific functionality be added to the architecture?",
+          "Can the system be modified in short time and cost-effective manner?",
+          "Do the components interact properly?",
+          "Does the architecture perform its event-processing task properly?"
+        ]
+      },
+      "phase_2_architectural_context": {
+        "hardware_view_description": [
+          "System accepts input via Command Line Interface (CLI)",
+          "Single processor execution implied (sequential event processing)"
+        ],
+        "runtime_constraints": [
+          "Events must be dispatched in a First-Come-First-Served (FIFO) pattern",
+          "System must maintain an 'idle wait' state until input is received",
+          "Application logic is embedded within framework components"
+        ]
+      },
+      "quantitative_model_parameters": {
+        "performance_proxy": "Number of components involved in a transaction",
+        "transaction_speed": "Qualitative (Slow due to high number of components involved)",
+        "architecture_limits": {
+          "event_managers": "1",
+          "event_queues": "1"
+        }
+      },
+      "investigative_prompts": {
+        "style_probes": {
+          "target_style": "Event-Driven Architecture",
+          "questions": [
+            "Does the system allow unauthorized access?",
+            "Does the architecture portray data confidentiality?",
+            "Does the architecture process any task in the fastest possible speed?"
+          ]
+        }
+      },
+      "raw_candidate_scenarios": [
+        {
+          "id": "RS-1",
+          "description": "No unauthorized access to the system"
+        },
+        {
+          "id": "RS-2",
+          "description": "All operations are processed in fastest possible speed"
+        },
+        {
+          "id": "RS-3",
+          "description": "Any failure should be followed by immediate recovery"
+        },
+        {
+          "id": "RS-4",
+          "description": "User errors in using system should be handled"
+        },
+        {
+          "id": "RS-5",
+          "description": "New demands on system functionality should be accommodated"
+        },
+        {
+          "id": "RS-6",
+          "description": "Major parts of the framework should be re-usable for future architectures"
+        },
+        {
+          "id": "RS-7",
+          "description": "Framework modification is cost-effective, fast and in minimal time"
+        },
+        {
+          "id": "RS-8",
+          "description": "Components in framework interact in a coordinated manner"
+        },
+        {
+          "id": "RS-9",
+          "description": "Framework expansion is possible to allow for more sophisticated options"
+        },
+        {
+          "id": "RS-10",
+          "description": "Implementation allows for execution in different environments"
+        },
+        {
+          "id": "RS-11",
+          "description": "Proper data encapsulation and secure data structures"
+        },
+        {
+          "id": "RS-12",
+          "description": "Flexible implementation using other programming languages"
+        },
+        {
+          "id": "RS-13",
+          "description": "Overall consistent behavior expected from the architecture"
+        },
+        {
+          "id": "RS-14",
+          "description": "Framework should be complete, clear and perform exactly as required"
+        },
+        {
+          "id": "RS-15",
+          "description": "Hook up multiple applications to the framework at same time"
+        },
+        {
+          "id": "RS-16",
+          "description": "Change interface from command-driven to window-based"
+        }
+      ],
+      "business_context": {
+        "business_goals": [
+          "Provide an Event framework to be used by an application",
+          "Handle and process events through component interaction",
+          "Allow application components to utilize the framework services"
+        ],
+        "technical_constraints": [
+          "Must handle system termination via STOP handler",
+          "Must maintain system in idle state until input is received"
+        ],
+        "architectural_drivers": [
+          "Variability",
+          "Reliability",
+          "Conceptual Integrity",
+          "Functionality",
+          "Modifiability"
+        ]
+      }
+    },
+    "evaluation_results": {
+      "utility_tree": {
+        "root": "Event framework with inter-dependent application logic and framework components",
+        "quality_attribute_nodes": [
+          {
+            "attribute_name": "Functionality",
+            "children": [
+              {
+                "refinement": "core event processing",
+                "scenario_id": "RS-14",
+                "scenario_description": "Framework should be complete, clear and perform exactly as required",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              },
+              {
+                "refinement": "event handling correctness",
+                "scenario_id": "RS-8",
+                "scenario_description": "Components in framework interact in a coordinated manner",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              },
+              {
+                "refinement": "input handling",
+                "scenario_id": "RS-4",
+                "scenario_description": "User errors in using system should be handled",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              }
+            ]
+          },
+          {
+            "attribute_name": "Reliability",
+            "children": [
+              {
+                "refinement": "failure recovery",
+                "scenario_id": "RS-3",
+                "scenario_description": "Any failure should be followed by immediate recovery",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "High"
+                }
+              },
+              {
+                "refinement": "behavioral consistency",
+                "scenario_id": "RS-13",
+                "scenario_description": "Overall consistent behavior expected from the architecture",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              },
+              {
+                "refinement": "termination handling",
+                "scenario_id": "RS-14",
+                "scenario_description": "Framework should be complete, clear and perform exactly as required",
+                "priority_tuple": {
+                  "importance": "Medium",
+                  "difficulty": "Medium"
+                }
+              }
+            ]
+          },
+          {
+            "attribute_name": "Modifiability",
+            "children": [
+              {
+                "refinement": "framework change cost and speed",
+                "scenario_id": "RS-7",
+                "scenario_description": "Framework modification is cost-effective, fast and in minimal time",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "High"
+                }
+              },
+              {
+                "refinement": "new functionality addition",
+                "scenario_id": "RS-5",
+                "scenario_description": "New demands on system functionality should be accommodated",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "High"
+                }
+              },
+              {
+                "refinement": "framework expansion",
+                "scenario_id": "RS-9",
+                "scenario_description": "Framework expansion is possible to allow for more sophisticated options",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "High"
+                }
+              }
+            ]
+          },
+          {
+            "attribute_name": "Variability",
+            "children": [
+              {
+                "refinement": "reuse across future projects",
+                "scenario_id": "RS-6",
+                "scenario_description": "Major parts of the framework should be re-usable for future architectures",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "High"
+                }
+              },
+              {
+                "refinement": "multiple applications",
+                "scenario_id": "RS-15",
+                "scenario_description": "Hook up multiple applications to the framework at same time",
+                "priority_tuple": {
+                  "importance": "Medium",
+                  "difficulty": "High"
+                }
+              },
+              {
+                "refinement": "different environments",
+                "scenario_id": "RS-10",
+                "scenario_description": "Implementation allows for execution in different environments",
+                "priority_tuple": {
+                  "importance": "Medium",
+                  "difficulty": "Medium"
+                }
+              },
+              {
+                "refinement": "language flexibility",
+                "scenario_id": "RS-12",
+                "scenario_description": "Flexible implementation using other programming languages",
+                "priority_tuple": {
+                  "importance": "Low",
+                  "difficulty": "High"
+                }
+              }
+            ]
+          },
+          {
+            "attribute_name": "Conceptual Integrity",
+            "children": [
+              {
+                "refinement": "consistent system structure",
+                "scenario_id": "RS-13",
+                "scenario_description": "Overall consistent behavior expected from the architecture",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              },
+              {
+                "refinement": "clarity and completeness",
+                "scenario_id": "RS-14",
+                "scenario_description": "Framework should be complete, clear and perform exactly as required",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              },
+              {
+                "refinement": "component coordination",
+                "scenario_id": "RS-8",
+                "scenario_description": "Components in framework interact in a coordinated manner",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              }
+            ]
+          },
+          {
+            "attribute_name": "Security",
+            "children": [
+              {
+                "refinement": "unauthorized access prevention",
+                "scenario_id": "RS-1",
+                "scenario_description": "No unauthorized access to the system",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              },
+              {
+                "refinement": "data confidentiality",
+                "scenario_id": "RS-11",
+                "scenario_description": "Proper data encapsulation and secure data structures",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "Medium"
+                }
+              }
+            ]
+          },
+          {
+            "attribute_name": "Performance",
+            "children": [
+              {
+                "refinement": "fastest possible processing",
+                "scenario_id": "RS-2",
+                "scenario_description": "All operations are processed in fastest possible speed",
+                "priority_tuple": {
+                  "importance": "High",
+                  "difficulty": "High"
+                }
+              },
+              {
+                "refinement": "transaction speed proxy",
+                "scenario_id": "RS-14",
+                "scenario_description": "Framework should be complete, clear and perform exactly as required",
+                "priority_tuple": {
+                  "importance": "Medium",
+                  "difficulty": "High"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "architectural_approaches": [
+        {
+          "approach_name": "Single Event Manager with single Event Queue and FIFO dispatch",
+          "description": "The architecture uses one Event Manager and one Event Queue, with events dispatched in first-come-first-served order under sequential execution. The system remains idle until input is received, then routes events through framework components to application handlers.",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Performance",
+              "rationale": "The qualitative proxy states transaction speed is slow due to a high number of components involved; FIFO sequential dispatch and a single queue describe how event processing occurs, but do not provide evidence of high performance."
+            },
+            {
+              "quality_attribute": "Reliability",
+              "rationale": "A single Event Manager and single Event Queue centralize event control, which supports predictable behavior, but no direct recovery mechanism evidence is supplied."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "A single dispatch path and shared queue promote a uniform event-processing structure across the framework and application handlers."
+            }
+          ]
+        },
+        {
+          "approach_name": "Base Handler extended by standard and application-specific handlers",
+          "description": "A base Handler component is extended by standard handlers and application-specific handlers, allowing framework services to be reused while application logic remains embedded in framework components.",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Modifiability",
+              "rationale": "Extending a base Handler indicates variation through specialization, which can accommodate new handler behavior without changing all handler code, although no implementation detail is provided."
+            },
+            {
+              "quality_attribute": "Variability",
+              "rationale": "The existence of standard and application-specific handler extensions indicates the framework can be adapted to different application needs."
+            },
+            {
+              "quality_attribute": "Reuse",
+              "rationale": "A common base Handler provides a shared abstraction that can be reused across handler variants and future projects."
+            }
+          ]
+        },
+        {
+          "approach_name": "Embedded Main module inside the framework",
+          "description": "The Main module is part of the framework, and application logic is highly inter-dependent with framework code. This creates a tightly coupled event-processing environment under the documented architecture.",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "Direct interaction between the Event Manager and application handlers, together with the embedded Main module, supports execution of the documented event-processing task."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "The same framework boundary contains the Main module and event-processing components, which can simplify the conceptual model, though it also increases coupling."
+            }
+          ]
+        }
+      ],
+      "analysis_records": [
+        {
+          "scenario_reference": {
+            "id": "RS-8",
+            "text": "Components in framework interact in a coordinated manner",
+            "type": "raw_candidate_scenario"
+          },
+          "quality_attribute": "Functionality",
+          "environment": "CLI input environment with single-processor sequential execution and FIFO dispatch",
+          "stimulus": "A user submits an event through the command line interface while the system is idle",
+          "response_measure": "The Event Manager dispatches the event through the framework to the appropriate handler in FIFO order, and the components interact in a coordinated manner",
+          "architectural_decisions": [
+            "Single Event Manager",
+            "Single Event Queue",
+            "Direct interaction between Event Manager and application handlers",
+            "Base Handler extended by standard and application-specific handlers"
+          ],
+          "reasoning": "The supplied architecture explicitly uses one Event Manager and one Event Queue with FIFO dispatch, and the Event Manager interacts directly with application handlers. These decisions support coordinated component interaction during event processing, but no runtime evidence is supplied to confirm correctness beyond the textual description.",
+          "findings": {
+            "risks": [
+              {
+                "id": "R1",
+                "description": "Tight coupling between framework and application logic may reduce clarity of component responsibilities",
+                "rationale": "The system description states the application logic and framework are highly inter-dependent and the Main module is part of the framework. This can make coordinated interaction harder to evolve or verify, although no failure evidence is provided."
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR1",
+                "description": "A single queue and direct handler routing are consistent with a coordinated interaction model",
+                "rationale": "The architecture explicitly states one Event Queue and direct Event Manager interaction with handlers, which is consistent with the scenario of coordinated interaction."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S1",
+                "parameter": "Degree of coupling between Event Manager and application handlers",
+                "correlated_attribute": "Functionality"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "T1",
+                "parameter": "Direct interaction between framework and application handlers",
+                "conflicting_attributes": [
+                  "Functionality",
+                  "Modifiability"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-13",
+            "text": "Overall consistent behavior expected from the architecture",
+            "type": "raw_candidate_scenario"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "Normal operation under sequential FIFO event dispatch",
+          "stimulus": "Multiple events are submitted in sequence while the framework is idle between inputs",
+          "response_measure": "The system processes events consistently according to FIFO order and maintains the expected idle-wait behavior until input arrives",
+          "architectural_decisions": [
+            "Single Event Queue",
+            "FIFO dispatch",
+            "Idle wait until input is received"
+          ],
+          "reasoning": "FIFO sequencing and a single queue support predictable ordering, and the runtime constraints explicitly require idle waiting until input. However, no execution traces or tests are supplied, so consistency is inferred from design statements rather than measured evidence.",
+          "findings": {
+            "risks": [
+              {
+                "id": "R2",
+                "description": "Consistency depends on the correctness of the single queue and dispatch logic, which is not evidenced by tests or measurements",
+                "rationale": "The supplied materials describe the intended behavior but provide no direct evidence of implementation verification."
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR2",
+                "description": "FIFO dispatch is aligned with the stated runtime constraint for event ordering",
+                "rationale": "The runtime constraints explicitly require FIFO dispatch, so the architecture's event-ordering approach is directly aligned with the requirement."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S2",
+                "parameter": "Queue ordering discipline",
+                "correlated_attribute": "Reliability"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "T2",
+                "parameter": "Sequential FIFO processing",
+                "conflicting_attributes": [
+                  "Reliability",
+                  "Performance"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-7",
+            "text": "Framework modification is cost-effective, fast and in minimal time",
+            "type": "raw_candidate_scenario"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "Existing framework in operation with embedded application logic",
+          "stimulus": "A developer changes or extends event-handling behavior for a new use case",
+          "response_measure": "The change is implemented with limited impact on existing components and without extensive rewrite",
+          "architectural_decisions": [
+            "Base Handler extended by standard and application-specific handlers",
+            "Embedded Main module inside the framework",
+            "Direct interaction between Event Manager and application handlers"
+          ],
+          "reasoning": "Using a base Handler extension model can support localized changes, but the architecture is also described as highly inter-dependent with application logic embedded in framework components. That coupling can increase change cost and reduce modifiability, so the scenario is a likely concern rather than a demonstrated capability.",
+          "findings": {
+            "risks": [
+              {
+                "id": "R3",
+                "description": "Embedded application logic and direct framework-to-handler interaction may make changes costly and invasive",
+                "rationale": "The context explicitly says application logic is embedded within framework components and the Event Manager interacts directly with application handlers, which suggests changes may ripple across the framework."
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR3",
+                "description": "The base Handler abstraction can localize some handler-specific changes",
+                "rationale": "The system includes a base Handler component extended by standard and application-specific handlers, which supports limited extension without replacing the shared abstraction."
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S3",
+                "parameter": "Extent of logic embedded in the framework core",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "T3",
+                "parameter": "Tight framework/application coupling",
+                "conflicting_attributes": [
+                  "Functionality",
+                  "Modifiability"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "scenarios": [
+        {
+          "scenario_text": "A user submits an event through the command line interface while the system is idle, and the framework dispatches it in FIFO order to the appropriate handler.",
+          "primary_quality_attribute": [
+            "Functionality",
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "A developer adds a new application-specific handler while preserving existing event-processing behavior and minimizing changes to the framework core.",
+          "primary_quality_attribute": [
+            "Modifiability",
+            "Variability"
+          ]
+        },
+        {
+          "scenario_text": "Multiple events arrive in sequence and the framework must process them consistently while maintaining the required idle-wait behavior between inputs.",
+          "primary_quality_attribute": [
+            "Reliability",
+            "Performance"
+          ]
+        },
+        {
+          "scenario_text": "The architecture is adapted to support a future application or additional components without breaking existing framework behavior.",
+          "primary_quality_attribute": [
+            "Variability",
+            "Conceptual Integrity"
+          ]
+        }
+      ]
+    }
+  }
+}

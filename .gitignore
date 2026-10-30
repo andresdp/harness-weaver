@@ -6,3 +6,9 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+/.agents
+/benchmarks/saam
+/case-studies/architecture-eval
+/case-studies/atam-evaluator
+/case-studies/software-architecture-agent
+/papers
