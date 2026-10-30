@@ -70,6 +70,10 @@ COPY_PATHS = (
     "tools/create_reviewer_snapshot.py",
 )
 
+# Local-only source trees that must not enter the reviewer artifact, even if a
+# future change adds one of their parent directories to COPY_PATHS.
+EXCLUDED_DIRECTORIES = {".agents", "case-studies"}
+
 TEXT_SUFFIXES = {
     ".md", ".txt", ".json", ".jsonl", ".yaml", ".yml", ".tex", ".bib",
     ".py", ".sh", ".toml", ".mmd", ".ini", ".cfg", ".xml", ".csv",
@@ -149,10 +153,14 @@ def deidentification_tokens(names: list[str], emails: list[str]) -> list[tuple[s
 
 
 def copy_tree(source: Path, target: Path) -> None:
+    if source.name in EXCLUDED_DIRECTORIES:
+        raise RuntimeError(f"refusing to copy excluded source tree: {source.name}")
+
     def ignore(_directory: str, names: list[str]) -> set[str]:
         return {
             item for item in names
             if item == ".DS_Store"
+            or item in EXCLUDED_DIRECTORIES
             or item == "__pycache__"
             or item == "settings.local.json"
             or item.endswith((".pyc", ".pyo"))
@@ -189,16 +197,16 @@ def scrubber(root: Path, output: Path) -> tuple[callable, list[str]]:
 
     def scrub(value: str) -> str:
         value = re.sub(
-            r"$HOME/\s\"']+/Documents/GitHub/harness-weaver-sandboxes",
+            r"/Users/[^/\s\"']+/Documents/GitHub/harness-weaver-sandboxes",
             "$SANDBOX_ROOT", value,
         )
         value = re.sub(
-            r"$HOME/\s\"']+/Documents/GitHub/harness-weaver",
+            r"/Users/[^/\s\"']+/Documents/GitHub/harness-weaver",
             "$REPOSITORY_ROOT", value,
         )
-        value = re.sub(r"$HOME/\s\"']+", "$HOME", value)
-        value = re.sub(r"$SCRATCH/claude/\s\"']+", "$SCRATCH/claude", value)
-        value = re.sub(r"$SCRATCH/socket/\s\"']+", "$SCRATCH/socket", value)
+        value = re.sub(r"/Users/[^/\s\"']+", "$HOME", value)
+        value = re.sub(r"/private/tmp/claude-[^/\s\"']+", "$SCRATCH/claude", value)
+        value = re.sub(r"/tmp/cc-socks/[^/\s\"']+", "$SCRATCH/socket", value)
         value = re.sub(
             r'(?i)("(?:session_id|sessionId)"\s*:\s*")[^\"]*(")',
             r"\1<redacted>\2", value,
@@ -275,6 +283,10 @@ def scrub_files(output: Path, scrub) -> int:
     count = 0
     for path in sorted(output.rglob("*")):
         if not path.is_file() or path.suffix.lower() not in TEXT_SUFFIXES:
+            continue
+        # This source file contains the scrubber's own path patterns. Keep it
+        # intact; it contains no machine-specific identity data.
+        if path.relative_to(output).as_posix() == "tools/create_reviewer_snapshot.py":
             continue
         try:
             text = path.read_text(encoding="utf-8")
@@ -375,7 +387,7 @@ Claude targets use Claude Code subscription OAuth. DeepAgents targets require cr
 
 ## Input and redistribution boundary
 
-The ATAM Banking case contains generation inputs only; evaluator-only reference outputs were removed. The SARA CampusBike case contains the project description and requirements, with an empty evaluator-only section. Full third-party repositories and compiled paper PDFs are excluded. SARA provenance is documented under `pilots/sara/sources/`. Generated SARA bundles are retained as experiment artifacts; this does not change upstream licenses or establish additional redistribution rights. Revfactory attribution and license information remain in `THIRD-PARTY-NOTICES.md` and the baseline directory.
+The ATAM Banking case contains generation inputs only; evaluator-only reference outputs were removed. The SARA CampusBike case contains the project description and requirements, with an empty evaluator-only section. The local `.agents/` and third-party `case-studies/` trees, full third-party repositories, and compiled paper PDFs are excluded. SARA provenance is documented under `pilots/sara/sources/`. Generated SARA bundles are retained as experiment artifacts; this does not change upstream licenses or establish additional redistribution rights. Revfactory attribution and license information remain in `THIRD-PARTY-NOTICES.md` and the baseline directory.
 
 ## Anonymity
 
@@ -402,10 +414,10 @@ def validate(output: Path, identity_values: list[str]) -> None:
     if any(path.name == ".DS_Store" for path in output.rglob("*")):
         raise RuntimeError("Finder metadata remains in snapshot")
     patterns: list[tuple[str, str]] = [
-        # Avoid matching documentation examples such as `$HOME or
-        # `$HOME flag only a concrete path segment.
-        ("home path", r"$HOME/\s<>\"']+(?=/|$|[\"'])"),
-        ("Claude scratch path", r"$SCRATCH/claude/\s]+"),
+        # Avoid matching documentation examples such as `/Users/` or
+        # `/Users/<name>`; flag only a concrete path segment.
+        ("home path", r"/Users/(?!<)[^/\s<>\"']+(?=/|$|[\"'])"),
+        ("Claude scratch path", r"/private/tmp/claude-[^/\s]+"),
         ("machine hostname", r"MacBook-Air-[0-9]+"),
         ("session identifier", r"(?i)session_id\s*[:=]\s*[0-9a-f-]{36}"),
     ]
@@ -414,7 +426,14 @@ def validate(output: Path, identity_values: list[str]) -> None:
             patterns.append(("author identity", re.escape(value)))
     offenders: list[str] = []
     for path in output.rglob("*"):
+        relative_parts = path.relative_to(output).parts
+        if any(part in EXCLUDED_DIRECTORIES for part in relative_parts):
+            raise RuntimeError(f"excluded directory was copied: {path.relative_to(output)}")
         if not path.is_file():
+            continue
+        # The builder's literal patterns intentionally mention identity-bearing
+        # path shapes; exclude this generic source from residue scans.
+        if path.relative_to(output).as_posix() == "tools/create_reviewer_snapshot.py":
             continue
         if path.suffix.lower() in TEXT_SUFFIXES:
             try:

@@ -37,7 +37,7 @@ Claude targets use Claude Code subscription OAuth. DeepAgents targets require cr
 
 ## Input and redistribution boundary
 
-The ATAM Banking case contains generation inputs only; evaluator-only reference outputs were removed. The SARA CampusBike case contains the project description and requirements, with an empty evaluator-only section. Full third-party repositories and compiled paper PDFs are excluded. SARA provenance is documented under `pilots/sara/sources/`. Generated SARA bundles are retained as experiment artifacts; this does not change upstream licenses or establish additional redistribution rights. Revfactory attribution and license information remain in `THIRD-PARTY-NOTICES.md` and the baseline directory.
+The ATAM Banking case contains generation inputs only; evaluator-only reference outputs were removed. The SARA CampusBike case contains the project description and requirements, with an empty evaluator-only section. The local `.agents/` and third-party `case-studies/` trees, full third-party repositories, and compiled paper PDFs are excluded. SARA provenance is documented under `pilots/sara/sources/`. Generated SARA bundles are retained as experiment artifacts; this does not change upstream licenses or establish additional redistribution rights. Revfactory attribution and license information remain in `THIRD-PARTY-NOTICES.md` and the baseline directory.
 
 ## Anonymity
 
