@@ -53,6 +53,10 @@ Never commit API keys, local settings, private case data, or unreviewed run outp
 
 The [MIT License](LICENSE) covers original HarnessWeaver materials only. Third-party components keep their own terms; see [Third-party notices](THIRD-PARTY-NOTICES.md). Local paper and case-study copies are excluded from Git and are not covered by the repository license.
 
+## Anonymous reviewer snapshot
+
+To prepare the current CAIN experiment package as a separate anonymous repository with root-only history, run `python tools/create_reviewer_snapshot.py --output /path/to/new/hw-artifact` from this checkout with the `harness` Conda environment active. The builder copies the curated ATAM and SARA inputs, saved materializations and run evidence, omits ATAM evaluator-only reference data, sanitizes the output copy, and validates it before creating the `hw-artifact` branch. The output path must not already exist. The command prints the local `git fetch` command for adding that branch to this repository; it never pushes. Inspect the output and run it through anonymous4science before sharing. The source checkout is not modified by the builder.
+
 ## Development
 
 See [docs/quickstart.md](docs/quickstart.md) for the project validation workflow. The runtime-specific READMEs under `pilots/` document pilot setup and execution. Changes to a pilot should include the relevant source, contracts, generated-workflow implications, and validation evidence.
