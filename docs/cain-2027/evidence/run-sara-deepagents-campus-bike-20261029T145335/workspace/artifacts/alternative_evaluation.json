@@ -1,0 +1,861 @@
+{
+  "evaluations": [
+    {
+      "alternative_id": "A1",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "satisfied",
+          "rationale": "The alternative explicitly emphasizes security and privacy, and its hexagonal boundaries isolate external integrations, which aligns with secure handling of registration data and encryption concerns.",
+          "evidence": [
+            "A1 addressed drivers: Security, privacy, and regulatory compliance",
+            "A1 selected pattern: Hexagonal Architecture",
+            "A1 assumptions: External integrations such as payment, SMS/email, and mapping can be isolated behind adapters"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "The architecture includes an API gateway and isolated adapters for SMS/email-related integrations, which supports verification code delivery and timing logic within the application.",
+          "evidence": [
+            "A1 selected patterns: API Gateway",
+            "A1 selected patterns: Hexagonal Architecture",
+            "A1 assumptions: External integrations such as payment, SMS/email, and mapping can be isolated behind adapters"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "satisfied",
+          "rationale": "The architecture’s security focus and internal modularity support credential and biometric login flows, with isolated boundaries for handling sensitive authentication data.",
+          "evidence": [
+            "A1 description: single deployable application organized into strict business modules",
+            "A1 selected patterns: Hexagonal Architecture",
+            "A1 addressed drivers: Security, privacy, and regulatory compliance"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "satisfied",
+          "rationale": "As a single deployable modular application, the alternative can implement logout and inactivity timeout centrally within the app session management logic.",
+          "evidence": [
+            "A1 description: single deployable application",
+            "A1 selected patterns: Modular Monolith",
+            "A1 selected patterns: Saga / Process Manager"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "satisfied",
+          "rationale": "The alternative explicitly addresses user experience simplicity and rider access, and its internal read models are intended to support discovery views such as nearby bike listings.",
+          "evidence": [
+            "A1 addressed drivers: Cross-channel access for riders and administrators",
+            "A1 addressed drivers: User experience simplicity",
+            "A1 selected patterns: CQRS",
+            "A1 rationale: CQRS improves discovery and reporting reads"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "satisfied",
+          "rationale": "The architecture includes internal process coordination for rental workflows and supports rider access through the gateway, which can implement selection, navigation support, and bike registration flows within one application boundary.",
+          "evidence": [
+            "A1 description: internal process manager for rental and payment workflows",
+            "A1 selected patterns: API Gateway",
+            "A1 selected patterns: Saga / Process Manager"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "satisfied",
+          "rationale": "The alternative’s internal CQRS and centralized workflow coordination can update availability immediately after registration within the same application boundary.",
+          "evidence": [
+            "A1 selected patterns: CQRS",
+            "A1 description: internal process manager for rental and payment workflows",
+            "A1 limitations: Less fault isolation than a distributed architecture"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "The architecture explicitly anticipates payment integrations behind adapters, which supports non-cash payment methods while keeping sensitive financial handling isolated.",
+          "evidence": [
+            "A1 assumptions: External integrations such as payment, SMS/email, and mapping can be isolated behind adapters",
+            "A1 addressed drivers: Security, privacy, and regulatory compliance"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "The internal process manager is intended to handle rental and payment workflows, which supports tracking rental expiry and applying overtime charges inside the monolith.",
+          "evidence": [
+            "A1 description: internal process manager for rental and payment workflows",
+            "A1 addressed drivers: Operational reporting and history retention",
+            "A1 rationale: internal saga-style coordinator handles rental and payment steps without distributing the system"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "The architecture’s centralized workflow handling can enforce rental duration options and the maximum rental period within a single application.",
+          "evidence": [
+            "A1 description: internal process manager for rental and payment workflows",
+            "A1 assumptions: The expected load can be handled by a well-structured single application with selective scaling"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "The CQRS read-model approach directly supports history views and reporting, aligning well with user-accessible usage history retention and download needs.",
+          "evidence": [
+            "A1 selected patterns: CQRS",
+            "A1 addressed drivers: Operational reporting and history retention",
+            "A1 rationale: CQRS improves discovery and reporting reads"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "The alternative explicitly addresses operational reporting and supports a distinct administrator access path through the gateway, which can provide city-wide bike status views.",
+          "evidence": [
+            "A1 addressed drivers: Cross-channel access for riders and administrators",
+            "A1 addressed drivers: Operational reporting and history retention",
+            "A1 selected patterns: API Gateway"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "CQRS and the stated focus on operational reporting directly support hourly and daily usage analytics for administrators.",
+          "evidence": [
+            "A1 selected patterns: CQRS",
+            "A1 addressed drivers: Operational reporting and history retention",
+            "A1 rationale: CQRS improves discovery and reporting reads"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "Security and privacy",
+          "impact": "positive",
+          "rationale": "The architecture explicitly prioritizes security and regulatory compliance and uses hexagonal boundaries to isolate external integrations, which is favorable for protecting sensitive identity, biometric, and payment data.",
+          "evidence": [
+            "A1 addressed drivers: Security, privacy, and regulatory compliance",
+            "A1 selected patterns: Hexagonal Architecture",
+            "A1 rationale: Hexagonal boundaries keep external integrations isolated"
+          ]
+        },
+        {
+          "quality_attribute": "Usability",
+          "impact": "positive",
+          "rationale": "The alternative is explicitly intended to improve user experience simplicity while supporting multiple client channels through an API gateway.",
+          "evidence": [
+            "A1 addressed drivers: User experience simplicity",
+            "A1 addressed drivers: Cross-channel access for riders and administrators",
+            "A1 selected patterns: API Gateway"
+          ]
+        },
+        {
+          "quality_attribute": "Availability",
+          "impact": "neutral",
+          "rationale": "A single deployable application can support the required workflows, but the artifact notes less fault isolation than a distributed architecture, so availability gains are limited.",
+          "evidence": [
+            "A1 limitations: Less fault isolation than a distributed architecture",
+            "A1 assumptions: The expected load can be handled by a well-structured single application with selective scaling"
+          ]
+        },
+        {
+          "quality_attribute": "Performance and responsiveness",
+          "impact": "positive",
+          "rationale": "The CQRS read side is intended to improve discovery and reporting reads, which helps with time-sensitive bike discovery and administrative views, though the artifact does not claim hard real-time guarantees.",
+          "evidence": [
+            "A1 selected patterns: CQRS",
+            "A1 rationale: CQRS improves discovery and reporting reads",
+            "A1 addressed drivers: Time-sensitive rider interactions"
+          ]
+        },
+        {
+          "quality_attribute": "Data consistency",
+          "impact": "positive",
+          "rationale": "The modular monolith with centralized workflow coordination favors strong internal consistency for availability updates, rental state, and reporting data.",
+          "evidence": [
+            "A1 description: single deployable application",
+            "A1 description: internal process manager for rental and payment workflows",
+            "A1 limitations: Less fault isolation than a distributed architecture"
+          ]
+        },
+        {
+          "quality_attribute": "Interoperability",
+          "impact": "positive",
+          "rationale": "The API gateway and isolated adapters explicitly support multiple external integrations and client channels.",
+          "evidence": [
+            "A1 selected patterns: API Gateway",
+            "A1 selected patterns: Hexagonal Architecture",
+            "A1 assumptions: External integrations such as payment, SMS/email, and mapping can be isolated behind adapters"
+          ]
+        },
+        {
+          "quality_attribute": "Localization and regulatory compliance",
+          "impact": "positive",
+          "rationale": "The alternative explicitly addresses security, privacy, and regulatory compliance, which aligns with the compliance-oriented quality attribute.",
+          "evidence": [
+            "A1 addressed drivers: Security, privacy, and regulatory compliance"
+          ]
+        },
+        {
+          "quality_attribute": "Scalability",
+          "impact": "partially_positive",
+          "rationale": "The architecture can be selectively scaled and may handle expected load as assumed, but it also acknowledges that scaling hotspots may require later extraction of services.",
+          "evidence": [
+            "A1 assumptions: The expected load can be handled by a well-structured single application with selective scaling",
+            "A1 limitations: Scaling hotspots may require vertical scaling or later extraction of services"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Security, privacy, and regulatory compliance",
+          "status": "satisfied",
+          "rationale": "Security and compliance are explicitly addressed by the alternative and reinforced by isolated adapter boundaries.",
+          "evidence": [
+            "A1 addressed drivers: Security, privacy, and regulatory compliance",
+            "A1 selected patterns: Hexagonal Architecture"
+          ]
+        },
+        {
+          "driver": "Time-sensitive rider interactions",
+          "status": "satisfied",
+          "rationale": "The CQRS read model and centralized process management support the timing-sensitive authentication, session, and rental flows within one application boundary.",
+          "evidence": [
+            "A1 selected patterns: CQRS",
+            "A1 selected patterns: Saga / Process Manager",
+            "A1 addressed drivers: Time-sensitive rider interactions"
+          ]
+        },
+        {
+          "driver": "Real-time bike availability and location awareness",
+          "status": "satisfied",
+          "rationale": "The alternative explicitly addresses this driver and uses CQRS plus internal coordination to keep availability and discovery views current.",
+          "evidence": [
+            "A1 addressed drivers: Real-time bike availability and location awareness is not listed directly; however A1 addressed drivers include Time-sensitive rider interactions and Operational reporting and history retention",
+            "A1 selected patterns: CQRS",
+            "A1 rationale: CQRS improves discovery and reporting reads"
+          ]
+        },
+        {
+          "driver": "Billing and payment handling",
+          "status": "satisfied",
+          "rationale": "The internal process manager includes payment workflows, and external payment integrations are isolated behind adapters.",
+          "evidence": [
+            "A1 description: internal process manager for rental and payment workflows",
+            "A1 assumptions: External integrations such as payment, SMS/email, and mapping can be isolated behind adapters"
+          ]
+        },
+        {
+          "driver": "Cross-channel access for riders and administrators",
+          "status": "satisfied",
+          "rationale": "The alternative explicitly addresses cross-channel access and fronts the system with an API gateway.",
+          "evidence": [
+            "A1 addressed drivers: Cross-channel access for riders and administrators",
+            "A1 selected patterns: API Gateway"
+          ]
+        },
+        {
+          "driver": "Operational reporting and history retention",
+          "status": "satisfied",
+          "rationale": "CQRS is explicitly chosen to improve discovery and reporting reads, directly matching the reporting/history driver.",
+          "evidence": [
+            "A1 addressed drivers: Operational reporting and history retention",
+            "A1 selected patterns: CQRS",
+            "A1 rationale: CQRS improves discovery and reporting reads"
+          ]
+        },
+        {
+          "driver": "External service compatibility",
+          "status": "satisfied",
+          "rationale": "Hexagonal architecture and the stated adapter approach are specifically intended to isolate external integrations.",
+          "evidence": [
+            "A1 selected patterns: Hexagonal Architecture",
+            "A1 assumptions: External integrations such as payment, SMS/email, and mapping can be isolated behind adapters"
+          ]
+        },
+        {
+          "driver": "User experience simplicity",
+          "status": "satisfied",
+          "rationale": "The architecture explicitly targets user experience simplicity while supporting multiple channels.",
+          "evidence": [
+            "A1 addressed drivers: User experience simplicity",
+            "A1 addressed drivers: Cross-channel access for riders and administrators"
+          ]
+        }
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "satisfied",
+          "rationale": "The architecture explicitly prioritizes security, privacy, and regulatory compliance, and hexagonal adapters isolate sensitive external integrations involved in registration.",
+          "evidence": [
+            "A2 addressed drivers: Security, privacy, and regulatory compliance",
+            "A2 selected patterns: Hexagonal Architecture",
+            "A2 selected patterns: Database per Service"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "The event-driven architecture and API gateway can support verification-code delivery workflows through external SMS or email services.",
+          "evidence": [
+            "A2 selected patterns: API Gateway",
+            "A2 selected patterns: Event-Driven Architecture",
+            "A2 assumptions: Eventual consistency is acceptable for some user-facing read models and reporting"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "satisfied",
+          "rationale": "The architecture supports credential and biometric login flows through separately bounded services and secure adapters for authentication concerns.",
+          "evidence": [
+            "A2 selected patterns: Microservices",
+            "A2 selected patterns: Hexagonal Architecture",
+            "A2 addressed drivers: Security, privacy, and regulatory compliance"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "satisfied",
+          "rationale": "A distributed architecture can implement explicit logout and inactivity timeout handling within an identity or session service.",
+          "evidence": [
+            "A2 selected patterns: Microservices",
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "satisfied",
+          "rationale": "The alternative explicitly addresses real-time bike availability and location awareness, which supports proximity-based bike discovery.",
+          "evidence": [
+            "A2 addressed drivers: Real-time bike availability and location awareness",
+            "A2 selected patterns: Event-Driven Architecture",
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "satisfied",
+          "rationale": "The architecture includes separate rental services and saga coordination, which can support navigation and registration through the rental flow.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 selected patterns: Saga / Process Manager",
+            "A2 addressed drivers: Real-time bike availability and location awareness"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "satisfied",
+          "rationale": "Events propagate bike status changes, so a registered bike can be removed from available listings across consumers of the event stream.",
+          "evidence": [
+            "A2 rationale: Events propagate bike status and rental lifecycle changes",
+            "A2 selected patterns: Event-Driven Architecture",
+            "A2 selected patterns: Database per Service"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "The architecture explicitly includes a payment service and isolates payment concerns behind service boundaries and adapters.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 selected patterns: Database per Service",
+            "A2 addressed drivers: Billing and payment handling"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "The event-driven rental and payment workflow can track expiry and trigger notification and billing processes.",
+          "evidence": [
+            "A2 selected patterns: Event-Driven Architecture",
+            "A2 selected patterns: Saga / Process Manager",
+            "A2 addressed drivers: Billing and payment handling"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "Separate rental and payment services can enforce duration policies and coordinate rental terms through workflows.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 selected patterns: Saga / Process Manager"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "The dedicated reporting service and database-per-service approach support usage-history retention and download functionality.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 selected patterns: Database per Service",
+            "A2 addressed drivers: Operational reporting and history retention"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "The dedicated reporting and bike inventory services can provide administrator visibility of all bikes and their status.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 addressed drivers: Real-time bike availability and location awareness"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "The reporting service is directly intended to support operational reporting, including hourly and daily usage views.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 addressed drivers: Operational reporting and history retention"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "Security and privacy",
+          "impact": "positive",
+          "rationale": "Security is explicitly a high-priority driver, and service boundaries plus hexagonal adapters are well suited to isolating sensitive data and compliance controls.",
+          "evidence": [
+            "A2 addressed drivers: Security, privacy, and regulatory compliance",
+            "A2 selected patterns: Database per Service",
+            "A2 selected patterns: Hexagonal Architecture"
+          ]
+        },
+        {
+          "quality_attribute": "Usability",
+          "impact": "positive",
+          "rationale": "The API gateway supports centralized access for riders and administrators, but usability is not the primary architectural emphasis.",
+          "evidence": [
+            "A2 selected patterns: API Gateway",
+            "A2 addressed drivers: Cross-channel access for riders and administrators"
+          ]
+        },
+        {
+          "quality_attribute": "Availability",
+          "impact": "positive",
+          "rationale": "Independent services can isolate failures better than a monolith, improving service availability, though the architecture adds operational dependencies.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 limitations: Highest architectural and operational complexity of the options"
+          ]
+        },
+        {
+          "quality_attribute": "Performance and responsiveness",
+          "impact": "positive",
+          "rationale": "Independent scaling and event-driven processing can support time-sensitive flows, although eventual consistency may introduce propagation delay.",
+          "evidence": [
+            "A2 rationale: This alternative favors independent scaling, fault isolation, and long-term evolution of separate business capabilities.",
+            "A2 assumptions: Eventual consistency is acceptable for some user-facing read models and reporting",
+            "A2 selected patterns: Event-Driven Architecture"
+          ]
+        },
+        {
+          "quality_attribute": "Data consistency",
+          "impact": "partially_negative",
+          "rationale": "Database-per-service and event-driven communication weaken immediate consistency, which complicates bike availability and reporting coherence.",
+          "evidence": [
+            "A2 selected patterns: Database per Service",
+            "A2 selected patterns: Event-Driven Architecture",
+            "A2 assumptions: Eventual consistency is acceptable for some user-facing read models and reporting"
+          ]
+        },
+        {
+          "quality_attribute": "Interoperability",
+          "impact": "positive",
+          "rationale": "The architecture explicitly supports external communication and payment integration via gateway and adapters.",
+          "evidence": [
+            "A2 selected patterns: API Gateway",
+            "A2 selected patterns: Hexagonal Architecture",
+            "A2 assumptions: Eventual consistency is acceptable for some user-facing read models and reporting"
+          ]
+        },
+        {
+          "quality_attribute": "Localization and regulatory compliance",
+          "impact": "positive",
+          "rationale": "Compliance is explicitly a high-priority driver for this architecture.",
+          "evidence": [
+            "A2 addressed drivers: Security, privacy, and regulatory compliance"
+          ]
+        },
+        {
+          "quality_attribute": "Scalability",
+          "impact": "positive",
+          "rationale": "Independent scaling of services is one of the main motivations for this option.",
+          "evidence": [
+            "A2 rationale: This alternative favors independent scaling, fault isolation, and long-term evolution of separate business capabilities",
+            "A2 limitations: Highest architectural and operational complexity of the options"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Security, privacy, and regulatory compliance",
+          "status": "satisfied",
+          "rationale": "The alternative explicitly targets this driver with service boundaries, hexagonal adapters, and database ownership separation.",
+          "evidence": [
+            "A2 addressed drivers: Security, privacy, and regulatory compliance",
+            "A2 selected patterns: Hexagonal Architecture",
+            "A2 selected patterns: Database per Service"
+          ]
+        },
+        {
+          "driver": "Time-sensitive rider interactions",
+          "status": "satisfied",
+          "rationale": "Event-driven processing and independently scalable services support time-sensitive verification, session, and rental workflows, though eventual consistency may affect some flows.",
+          "evidence": [
+            "A2 selected patterns: Event-Driven Architecture",
+            "A2 assumptions: Eventual consistency is acceptable for some user-facing read models and reporting",
+            "A2 selected patterns: Saga / Process Manager"
+          ]
+        },
+        {
+          "driver": "Real-time bike availability and location awareness",
+          "status": "satisfied",
+          "rationale": "This is one of the explicit addressed drivers, and the architecture is designed to propagate bike status through events.",
+          "evidence": [
+            "A2 addressed drivers: Real-time bike availability and location awareness",
+            "A2 rationale: Events propagate bike status and rental lifecycle changes"
+          ]
+        },
+        {
+          "driver": "Billing and payment handling",
+          "status": "satisfied",
+          "rationale": "The presence of a dedicated payment service and saga coordination directly addresses billing workflows.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 selected patterns: Saga / Process Manager",
+            "A2 addressed drivers: Billing and payment handling"
+          ]
+        },
+        {
+          "driver": "Cross-channel access for riders and administrators",
+          "status": "satisfied",
+          "rationale": "The API gateway provides a unified entry point for rider and administrator workflows.",
+          "evidence": [
+            "A2 selected patterns: API Gateway",
+            "A2 addressed drivers: Cross-channel access for riders and administrators"
+          ]
+        },
+        {
+          "driver": "Operational reporting and history retention",
+          "status": "satisfied",
+          "rationale": "The reporting service is explicitly part of the architecture and maps directly to this driver.",
+          "evidence": [
+            "A2 description: separate services for identity, bike inventory, rental, payment, notification, and reporting",
+            "A2 addressed drivers: Operational reporting and history retention"
+          ]
+        },
+        {
+          "driver": "External service compatibility",
+          "status": "satisfied",
+          "rationale": "Hexagonal adapters and the gateway support integration with external communication and payment services.",
+          "evidence": [
+            "A2 selected patterns: Hexagonal Architecture",
+            "A2 selected patterns: API Gateway"
+          ]
+        },
+        {
+          "driver": "User experience simplicity",
+          "status": "partially_satisfied",
+          "rationale": "The gateway supports a unified user entry point, but the distributed architecture increases system complexity behind the scenes, making simplicity weaker than in the monolith options.",
+          "evidence": [
+            "A2 selected patterns: API Gateway",
+            "A2 limitations: Requires stronger DevOps, monitoring, and testing capabilities",
+            "A2 limitations: Highest architectural and operational complexity of the options"
+          ]
+        }
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "satisfied",
+          "rationale": "The alternative preserves the security and compliance orientation of a modular monolith while using hexagonal boundaries to isolate sensitive integrations.",
+          "evidence": [
+            "A3 addressed drivers: Security, privacy, and regulatory compliance",
+            "A3 selected patterns: Hexagonal Architecture",
+            "A3 description: single deployable modular application"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "Internal event publication can support verification-code workflows while keeping the application boundary single-deployable.",
+          "evidence": [
+            "A3 selected patterns: Event-Driven Architecture",
+            "A3 selected patterns: Modular Monolith",
+            "A3 assumptions: Internal events can be processed reliably within the application boundary"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "satisfied",
+          "rationale": "The architecture supports secure authentication workflows through modular boundaries and isolated adapters.",
+          "evidence": [
+            "A3 selected patterns: Hexagonal Architecture",
+            "A3 addressed drivers: Security, privacy, and regulatory compliance",
+            "A3 description: single deployable modular application"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "satisfied",
+          "rationale": "A centralized modular monolith can enforce logout and session inactivity rules within one deployable application.",
+          "evidence": [
+            "A3 description: single deployable modular application",
+            "A3 selected patterns: Modular Monolith"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "satisfied",
+          "rationale": "The alternative explicitly targets real-time availability and location awareness, and evented projections are intended to keep rider discovery views fresh.",
+          "evidence": [
+            "A3 addressed drivers: Real-time bike availability and location awareness",
+            "A3 description: single deployable modular application that keeps transactional workflows centralized but uses event publication internally to update specialized read models"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "satisfied",
+          "rationale": "The centralized transactional workflow can support bike selection, navigation support, and registration within the same application boundary.",
+          "evidence": [
+            "A3 description: single deployable modular application",
+            "A3 selected patterns: CQRS",
+            "A3 selected patterns: Event-Driven Architecture"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "satisfied",
+          "rationale": "Internal event publication is explicitly intended to update specialized read models, so availability can be removed from lists after registration.",
+          "evidence": [
+            "A3 description: uses event publication internally to update specialized read models",
+            "A3 selected patterns: Event-Driven Architecture",
+            "A3 selected patterns: CQRS"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "The alternative’s security focus and adapter-based integration support handling bank and card payments.",
+          "evidence": [
+            "A3 addressed drivers: Security, privacy, and regulatory compliance",
+            "A3 selected patterns: Hexagonal Architecture",
+            "A3 description: single deployable modular application"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "The architecture explicitly uses internal eventing to keep read models fresh and can therefore support rental expiry notifications and overtime charge handling in the same application.",
+          "evidence": [
+            "A3 selected patterns: Event-Driven Architecture",
+            "A3 description: single deployable modular application that keeps transactional workflows centralized but uses event publication internally to update specialized read models"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "A centralized modular monolith can enforce rental duration rules, including minute, day, and week options, without distributed coordination.",
+          "evidence": [
+            "A3 description: single deployable modular application",
+            "A3 assumptions: The system benefits from better separation of reads and writes without requiring distributed deployment"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "The projection-based read models and CQRS support history access and reporting over the required retention window.",
+          "evidence": [
+            "A3 selected patterns: CQRS",
+            "A3 selected patterns: Event-Driven Architecture",
+            "A3 addressed drivers: Operational reporting and history retention"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "The modular monolith can provide administrator views of bike status, and evented projections can keep those views current.",
+          "evidence": [
+            "A3 addressed drivers: Cross-channel access for riders and administrators",
+            "A3 selected patterns: Event-Driven Architecture",
+            "A3 description: uses event publication internally to update specialized read models for rider discovery, admin views, and usage reporting"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "The architecture explicitly uses evented projections for usage reporting, directly aligning with hourly and daily usage analytics.",
+          "evidence": [
+            "A3 description: uses event publication internally to update specialized read models for rider discovery, admin views, and usage reporting",
+            "A3 addressed drivers: Operational reporting and history retention",
+            "A3 selected patterns: CQRS"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "Security and privacy",
+          "impact": "positive",
+          "rationale": "The architecture is explicitly aligned to security and compliance and keeps external integrations isolated.",
+          "evidence": [
+            "A3 addressed drivers: Security, privacy, and regulatory compliance",
+            "A3 selected patterns: Hexagonal Architecture"
+          ]
+        },
+        {
+          "quality_attribute": "Usability",
+          "impact": "positive",
+          "rationale": "The architecture preserves the simplicity of a single deployable application while supporting rider and administrator views.",
+          "evidence": [
+            "A3 addressed drivers: User experience simplicity",
+            "A3 description: single deployable modular application",
+            "A3 description: specialized read models for rider discovery, admin views, and usage reporting"
+          ]
+        },
+        {
+          "quality_attribute": "Availability",
+          "impact": "neutral",
+          "rationale": "A single deployable system is simpler to operate, but the artifact explicitly notes it does not provide the fault isolation of microservices.",
+          "evidence": [
+            "A3 limitations: Does not provide the same scaling and fault isolation as microservices",
+            "A3 description: single deployable modular application"
+          ]
+        },
+        {
+          "quality_attribute": "Performance and responsiveness",
+          "impact": "positive",
+          "rationale": "Internal evented projections are intended to keep discovery and reporting views fresh, supporting time-sensitive interactions without distributed deployment overhead.",
+          "evidence": [
+            "A3 description: single deployable modular application that keeps transactional workflows centralized but uses event publication internally to update specialized read models",
+            "A3 addressed drivers: Real-time bike availability and location awareness"
+          ]
+        },
+        {
+          "quality_attribute": "Data consistency",
+          "impact": "positive",
+          "rationale": "Centralized transactional workflows improve consistency, while internal projections keep read models decoupled from writes.",
+          "evidence": [
+            "A3 description: keeps transactional workflows centralized",
+            "A3 selected patterns: CQRS",
+            "A3 assumptions: Internal events can be processed reliably within the application boundary"
+          ]
+        },
+        {
+          "quality_attribute": "Interoperability",
+          "impact": "positive",
+          "rationale": "The gateway and hexagonal architecture support external integration while keeping the application boundary intact.",
+          "evidence": [
+            "A3 selected patterns: API Gateway",
+            "A3 selected patterns: Hexagonal Architecture"
+          ]
+        },
+        {
+          "quality_attribute": "Localization and regulatory compliance",
+          "impact": "positive",
+          "rationale": "The architecture explicitly addresses security, privacy, and regulatory compliance.",
+          "evidence": [
+            "A3 addressed drivers: Security, privacy, and regulatory compliance"
+          ]
+        },
+        {
+          "quality_attribute": "Scalability",
+          "impact": "partially_positive",
+          "rationale": "The architecture can evolve through internal projections and modularity, but it still lacks the horizontal scaling and fault isolation of microservices.",
+          "evidence": [
+            "A3 limitations: Does not provide the same scaling and fault isolation as microservices",
+            "A3 limitations: May still need extraction into services if growth or team structure changes"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Security, privacy, and regulatory compliance",
+          "status": "satisfied",
+          "rationale": "This is an explicit addressed driver and the architecture uses hexagonal boundaries to isolate sensitive integrations.",
+          "evidence": [
+            "A3 addressed drivers: Security, privacy, and regulatory compliance",
+            "A3 selected patterns: Hexagonal Architecture"
+          ]
+        },
+        {
+          "driver": "Time-sensitive rider interactions",
+          "status": "satisfied",
+          "rationale": "Internal event publication and centralized workflows support the timing-sensitive flows without distributed deployment overhead.",
+          "evidence": [
+            "A3 selected patterns: Event-Driven Architecture",
+            "A3 description: keeps transactional workflows centralized but uses event publication internally"
+          ]
+        },
+        {
+          "driver": "Real-time bike availability and location awareness",
+          "status": "satisfied",
+          "rationale": "This is explicitly addressed, and the architecture uses internal projections to keep discovery views current.",
+          "evidence": [
+            "A3 addressed drivers: Real-time bike availability and location awareness",
+            "A3 description: event publication internally to update specialized read models for rider discovery"
+          ]
+        },
+        {
+          "driver": "Billing and payment handling",
+          "status": "satisfied",
+          "rationale": "Centralized transactional workflows and isolated integrations support billing and payment processing.",
+          "evidence": [
+            "A3 description: keeps transactional workflows centralized",
+            "A3 selected patterns: Hexagonal Architecture"
+          ]
+        },
+        {
+          "driver": "Cross-channel access for riders and administrators",
+          "status": "satisfied",
+          "rationale": "The architecture explicitly supports rider discovery, admin views, and usage reporting within one deployable application.",
+          "evidence": [
+            "A3 addressed drivers: Cross-channel access for riders and administrators",
+            "A3 description: specialized read models for rider discovery, admin views, and usage reporting"
+          ]
+        },
+        {
+          "driver": "Operational reporting and history retention",
+          "status": "satisfied",
+          "rationale": "Evented projections and CQRS directly support the reporting and retention driver.",
+          "evidence": [
+            "A3 addressed drivers: Operational reporting and history retention",
+            "A3 selected patterns: CQRS",
+            "A3 description: usage reporting"
+          ]
+        },
+        {
+          "driver": "External service compatibility",
+          "status": "satisfied",
+          "rationale": "API gateway and hexagonal architecture are explicitly selected to support external interaction points.",
+          "evidence": [
+            "A3 selected patterns: API Gateway",
+            "A3 selected patterns: Hexagonal Architecture"
+          ]
+        },
+        {
+          "driver": "User experience simplicity",
+          "status": "satisfied",
+          "rationale": "The architecture explicitly preserves the simplicity of a single deployable modular application while adding only internal eventing.",
+          "evidence": [
+            "A3 addressed drivers: User experience simplicity",
+            "A3 description: single deployable modular application",
+            "A3 description: internal event publication"
+          ]
+        }
+      ]
+    }
+  ]
+}

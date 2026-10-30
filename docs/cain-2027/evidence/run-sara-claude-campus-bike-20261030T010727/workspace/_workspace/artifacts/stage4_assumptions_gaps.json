@@ -1,0 +1,55 @@
+{
+  "stage": 4,
+  "entries": [
+    {
+      "id": "S4-G1",
+      "kind": "unresolved_gap",
+      "statement": "The ADR and diagram represent calls between the identity/session, bike fleet, rental, payment and notification modules as synchronous in-process calls, consistent with alternatives.json's 'Modules call each other synchronously through their public interfaces', but no input states the exact invocation mechanism (in-process method call vs. an internal RPC convention) because A1 is a single deployable.",
+      "origin": "adr.md#Decision; alternatives.json#/alternatives/0/description",
+      "source_refs": ["A1"],
+      "related_ids": [],
+      "status": "noted",
+      "resolution_needed": ""
+    },
+    {
+      "id": "S4-G2",
+      "kind": "unresolved_gap",
+      "statement": "The diagram shows the payment, notification and bike/lock adapters as generic 'adapter' edges to external payment platforms, SMS/email providers and the bike/lock interface because none of the Stage 1-3 artifacts specify a communication protocol (e.g. REST, SOAP, proprietary SDK) for these external systems.",
+      "origin": "architecture_diagram.mmd; alternatives.json#/alternatives/0/description",
+      "source_refs": ["A1", "S2", "S6", "S8"],
+      "related_ids": ["S1-G55", "S2-G12"],
+      "status": "open",
+      "resolution_needed": "What protocol or SDK does each external payment platform, SMS/email provider, and the bike/lock interface expose to the adapters?"
+    },
+    {
+      "id": "S4-G3",
+      "kind": "unresolved_gap",
+      "statement": "The ADR and diagram cannot show how client-to-backend traffic is protected in transit (no gateway or TLS-termination component exists in A1), because the selected alternative's description and limitations state only that protection in transit is not specified, carrying forward S3-G1 and S1-G1 into the modeled architecture without resolving it.",
+      "origin": "adr.md#Negative Consequences; alternative_evaluation.json#/evaluations/0/requirement_evaluations/0",
+      "source_refs": ["A1", "S1"],
+      "related_ids": ["S1-G1", "S3-G1"],
+      "status": "open",
+      "resolution_needed": "What mechanism protects data in transit between client devices and the single deployable back end, given no edge security component is present in A1?"
+    },
+    {
+      "id": "S4-G4",
+      "kind": "process_note",
+      "statement": "The ADR and diagram model the bike fleet module as owning the adapter to the bike/lock interface, since fleet data (location, availability) and the physical unlock interaction are the closest architectural fit in A1's module split; alternatives.json does not explicitly assign the bike/lock adapter to a named module.",
+      "origin": "adr.md#Decision; architecture_diagram.mmd",
+      "source_refs": ["A1", "S6", "S7"],
+      "related_ids": ["S1-G55", "S3-G4"],
+      "status": "noted",
+      "resolution_needed": ""
+    },
+    {
+      "id": "S4-G5",
+      "kind": "process_note",
+      "statement": "All open assumptions and unresolved gaps carried into the ADR's 'Assumptions and Unresolved Gaps' section (S2-G1, S2-G2, S2-G3, S2-G12, S3-G1 through S3-G9, S1-G65, S1-G66, S1-G67) remain unresolved by Stage 4; this register does not duplicate them but references them by ID as required.",
+      "origin": "adr.md#Assumptions and Unresolved Gaps",
+      "source_refs": ["A1"],
+      "related_ids": ["S2-G1", "S2-G2", "S2-G3", "S2-G12", "S3-G1", "S3-G2", "S3-G3", "S3-G4", "S3-G5", "S3-G6", "S3-G7", "S3-G8", "S3-G9", "S1-G65", "S1-G66", "S1-G67"],
+      "status": "noted",
+      "resolution_needed": ""
+    }
+  ]
+}

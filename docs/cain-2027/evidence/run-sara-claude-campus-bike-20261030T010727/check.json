@@ -1,0 +1,17 @@
+{
+  "sandbox": "run-sara-claude-campus-bike-20261030T010727",
+  "checked_at": "2026-10-30T01:54:16+00:00",
+  "report": "output/report.json",
+  "report_sha256": "6858166fecf20c02a5fe2daab1ba880cec8094277d4c6560ae93d3cb354c8e2c",
+  "passed": true,
+  "checks": {
+    "no-reference-leakage": {
+      "passed": true,
+      "problems": []
+    },
+    "schema": {
+      "passed": true,
+      "problems": []
+    }
+  }
+}

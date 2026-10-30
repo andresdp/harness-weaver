@@ -103,7 +103,7 @@ hw sandbox create-generation <pilot> --arm harnessweaver \
 
 To generate one target first, pass only that `--target`. Collection creates a reusable `spec-package.zip`; use `--from-package ... --target <other-target>` later to materialize another runtime without re-harvesting or revising the shared workflow definition.
 
-For a baseline comparison, use `--arm revfactory-en`; answer its questions live. The command prints a Rich summary with the next run command and sandbox `RUNBOOK.md` path. The sandbox path is also printed alone on standard output for scripts.
+For a baseline comparison, use `--arm revfactory-en`. The pilot must configure a separate `prompts.baseline_generation` entry so the Revfactory arm does not receive HarnessWeaver-specific generation instructions. The sandbox records the exact prompt digest in its manifest. The command prints a Rich summary with the next run command and sandbox `RUNBOOK.md` path. The sandbox path is also printed alone on standard output for scripts.
 
 Change into the printed sandbox path, then run Claude with subscription OAuth:
 

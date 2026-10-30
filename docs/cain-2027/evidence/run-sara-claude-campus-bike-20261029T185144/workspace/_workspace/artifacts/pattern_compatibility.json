@@ -1,0 +1,321 @@
+{
+  "compatibility_analysis": [
+    {
+      "patterns": ["Modular Monolith", "Microservices Architecture"],
+      "relationship": "conflicting",
+      "rationale": "Both are primary decomposition styles for the same backend: one deploys all capabilities as one unit with in-process module calls and local transactions, the other as independently deployed services owning their data. Applying both to the same capability set at the same time is contradictory. They trade strong local consistency and low footprint (Modular Monolith) against independent scaling and fault isolation (Microservices).",
+      "conditions": [
+        "They can coexist only as an evolution path or hybrid: a modular monolith core with selected modules (e.g. Notifications or Reporting) extracted as separate services, if module boundaries are kept clean and inter-module calls go through explicit interfaces."
+      ],
+      "affected_drivers": [
+        "Service availability to riders",
+        "Timely bike availability and location tracking",
+        "Low carbon footprint",
+        "Evolution of payment methods and jurisdictions"
+      ]
+    },
+    {
+      "patterns": ["Layered Architecture", "Modular Monolith"],
+      "relationship": "complementary",
+      "rationale": "Modular Monolith gives vertical decomposition by capability; Layered Architecture gives horizontal structure inside each module (API, application, domain, data access). Together they give one enforcement point for data protection per module and keep payment/messaging infrastructure in the lowest layer.",
+      "conditions": [
+        "Layers are applied within each module, not as one shared data layer that lets modules read each other's tables."
+      ],
+      "affected_drivers": [
+        "Security of user, biometric and payment data",
+        "GDPR and regional regulatory compliance",
+        "Evolution of payment methods and jurisdictions"
+      ]
+    },
+    {
+      "patterns": ["Layered Architecture", "Microservices Architecture"],
+      "relationship": "compatible",
+      "rationale": "Each microservice can be layered internally. The patterns act at different levels (system decomposition vs. internal structure) and do not interfere.",
+      "conditions": [],
+      "affected_drivers": [
+        "Security of user, biometric and payment data",
+        "GDPR and regional regulatory compliance"
+      ]
+    },
+    {
+      "patterns": ["API Gateway", "Microservices Architecture"],
+      "relationship": "complementary",
+      "rationale": "With many services, a gateway gives web and mobile clients one stable entry point, hides service decomposition, and centralizes TLS termination, token validation and rate limiting, so each service does not repeat these controls.",
+      "conditions": [
+        "The gateway is replicated so it is not a single point of failure for rider flows."
+      ],
+      "affected_drivers": [
+        "Web and mobile client accessibility",
+        "Security of user, biometric and payment data",
+        "User authentication and session management",
+        "Service availability to riders"
+      ]
+    },
+    {
+      "patterns": ["API Gateway", "Modular Monolith"],
+      "relationship": "conditionally_compatible",
+      "rationale": "A single backend does not need routing across services, so the gateway's routing/aggregation role is mostly unused. It remains useful as a security boundary (TLS termination, token validation, rate limiting) in front of the monolith and for both client types.",
+      "conditions": [
+        "The gateway is justified by cross-cutting security and traffic control, not by routing.",
+        "The gateway is kept thin so that it does not duplicate application logic of the monolith."
+      ],
+      "affected_drivers": [
+        "Security of user, biometric and payment data",
+        "Web and mobile client accessibility",
+        "Low carbon footprint"
+      ]
+    },
+    {
+      "patterns": ["API Gateway", "Backend for Frontend (BFF)"],
+      "relationship": "conditionally_compatible",
+      "rationale": "Both stand between clients and the backend. A BFF can be realized as a client-specific gateway, so combining a general gateway with BFFs can be redundant. They combine coherently when the gateway handles generic edge concerns (TLS, rate limiting, token validation) and the BFFs handle client-specific API shaping.",
+      "conditions": [
+        "Responsibilities are split: edge security in the gateway, client-specific composition in the BFFs.",
+        "If only one of the two is used, it must take over the other's security responsibilities."
+      ],
+      "affected_drivers": [
+        "Web and mobile client accessibility",
+        "Security of user, biometric and payment data",
+        "Ease of use for all riders"
+      ]
+    },
+    {
+      "patterns": ["Backend for Frontend (BFF)", "Modular Monolith"],
+      "relationship": "compatible",
+      "rationale": "BFFs can call the monolith's module interfaces and adapt them to web (administrator views, history downloads) and mobile (biometric login, scanning, navigation) needs. The BFFs are thin client facades and do not change the monolith's internal decomposition.",
+      "conditions": [
+        "BFFs contain no business rules; rental and availability logic stays in the monolith modules."
+      ],
+      "affected_drivers": [
+        "Web and mobile client accessibility",
+        "Ease of use for all riders"
+      ]
+    },
+    {
+      "patterns": ["Backend for Frontend (BFF)", "Microservices Architecture"],
+      "relationship": "complementary",
+      "rationale": "With many services, BFFs aggregate calls for each client type (e.g. a mobile 'nearby bikes and active rental' screen) and reduce round trips from mobile devices.",
+      "conditions": [
+        "BFFs do not become a place where cross-service business transactions are coordinated."
+      ],
+      "affected_drivers": [
+        "Web and mobile client accessibility",
+        "Ease of use for all riders"
+      ]
+    },
+    {
+      "patterns": ["Publish-Subscribe", "Microservices Architecture"],
+      "relationship": "complementary",
+      "rationale": "Events decouple services: Rental publishes BikeRegistered/RentalEnded, which Fleet/Availability, Notification and Reporting consume without synchronous chains. This reduces runtime coupling and cascading failures between services.",
+      "conditions": [
+        "The broker is highly available and delivery is at-least-once with idempotent consumers.",
+        "The delay between a bike registration and its removal from the available list is acceptable for S7 ('as soon as' is not quantified)."
+      ],
+      "affected_drivers": [
+        "Timely bike availability and location tracking",
+        "Service availability to riders",
+        "SMS and email message delivery",
+        "Usage history and administrative usage reporting"
+      ]
+    },
+    {
+      "patterns": ["Publish-Subscribe", "Modular Monolith"],
+      "relationship": "conditionally_compatible",
+      "rationale": "Modules can communicate through events (in-process or via an external broker) for non-critical side effects such as notifications and usage-record feeding, while keeping the critical register-and-remove-from-availability step in a local transaction.",
+      "conditions": [
+        "The S6/S7 registration and availability update stays synchronous and transactional; events are used only for side effects (notifications, history, administrator status refresh).",
+        "If an external broker is used, events are published reliably together with the local transaction (e.g. a transactional outbox)."
+      ],
+      "affected_drivers": [
+        "Timely bike availability and location tracking",
+        "SMS and email message delivery",
+        "Usage history and administrative usage reporting",
+        "Rental lifecycle and time-based charging"
+      ]
+    },
+    {
+      "patterns": ["Command Query Responsibility Segregation (CQRS)", "Publish-Subscribe"],
+      "relationship": "complementary",
+      "rationale": "Events published on rental and bike state changes are the natural mechanism to keep read models (nearby available bikes, usage history, hourly/daily usage aggregates) up to date.",
+      "conditions": [
+        "Read-model lag is acceptable for each view; for the available-bikes view this depends on the unquantified 'as soon as' in S7."
+      ],
+      "affected_drivers": [
+        "Usage history and administrative usage reporting",
+        "Timely bike availability and location tracking"
+      ]
+    },
+    {
+      "patterns": ["Command Query Responsibility Segregation (CQRS)", "Microservices Architecture"],
+      "relationship": "complementary",
+      "rationale": "A Reporting service can own read models built from other services' events, so S11 history and S13 aggregates do not require cross-service queries against transactional data.",
+      "conditions": [
+        "Retention and erasure rules (GDPR, three-month history) are applied to read models as well as to source data."
+      ],
+      "affected_drivers": [
+        "Usage history and administrative usage reporting",
+        "GDPR and regional regulatory compliance"
+      ]
+    },
+    {
+      "patterns": ["Command Query Responsibility Segregation (CQRS)", "Modular Monolith"],
+      "relationship": "conditionally_compatible",
+      "rationale": "A Reporting module can keep separate read models (e.g. hourly/daily aggregates, anonymized usage) inside the monolith. This is useful only for views whose query shape differs strongly from the transactional model.",
+      "conditions": [
+        "CQRS is limited to reporting and history views (S11, S13); the available-bikes list stays on the transactional model to keep S7 immediate.",
+        "Read models are fed by in-module events or scheduled projections."
+      ],
+      "affected_drivers": [
+        "Usage history and administrative usage reporting",
+        "GDPR and regional regulatory compliance",
+        "Timely bike availability and location tracking"
+      ]
+    },
+    {
+      "patterns": ["Saga", "Microservices Architecture"],
+      "relationship": "dependent",
+      "rationale": "When rental, availability and payment are owned by separate services with their own data stores, a saga is needed to keep the rental flow (S6, S7, S8, S9) consistent without distributed transactions.",
+      "conditions": [
+        "The sequence of payment relative to registration/unlock must be decided (S1-G17, S1-G22) to define compensating steps."
+      ],
+      "affected_drivers": [
+        "Rental lifecycle and time-based charging",
+        "Third-party payment platform integration",
+        "Timely bike availability and location tracking"
+      ]
+    },
+    {
+      "patterns": ["Saga", "Publish-Subscribe"],
+      "relationship": "complementary",
+      "rationale": "A choreographed saga uses published events (BikeRegistered, PaymentAuthorized, PaymentFailed) to drive the rental steps and their compensations.",
+      "conditions": [
+        "Event flows are traceable (distributed tracing is listed as available) so that failed rentals can be diagnosed."
+      ],
+      "affected_drivers": [
+        "Rental lifecycle and time-based charging",
+        "Third-party payment platform integration"
+      ]
+    },
+    {
+      "patterns": ["Saga", "Modular Monolith"],
+      "relationship": "redundant",
+      "rationale": "Within one deployable unit with one database, the rental flow's internal steps can use a local ACID transaction, so a saga adds complexity without benefit. External payment calls still need error handling, but that is not a saga across services.",
+      "conditions": [],
+      "affected_drivers": [
+        "Rental lifecycle and time-based charging"
+      ]
+    },
+    {
+      "patterns": ["Adapter (Integration Gateway)", "Circuit Breaker"],
+      "relationship": "complementary",
+      "rationale": "Adapters are the single place where external payment and SMS/email providers are called, so circuit breakers wrap the adapters and protect rider flows from provider outages.",
+      "conditions": [
+        "Fallback behavior per provider is defined (e.g. queue notifications, try another payment provider, or reject the payment)."
+      ],
+      "affected_drivers": [
+        "Third-party payment platform integration",
+        "SMS and email message delivery",
+        "Service availability to riders"
+      ]
+    },
+    {
+      "patterns": ["Adapter (Integration Gateway)", "Modular Monolith", "Microservices Architecture", "Layered Architecture"],
+      "relationship": "compatible",
+      "rationale": "Adapters are placed in the infrastructure layer of the Payments and Notifications modules (Modular Monolith) or inside the Payment and Notification services (Microservices). They work the same way under either decomposition.",
+      "conditions": [],
+      "affected_drivers": [
+        "Third-party payment platform integration",
+        "SMS and email message delivery",
+        "Evolution of payment methods and jurisdictions",
+        "Physical bike unlock by code"
+      ]
+    },
+    {
+      "patterns": ["Circuit Breaker", "Microservices Architecture"],
+      "relationship": "complementary",
+      "rationale": "Inter-service calls in a microservices system are remote and can fail; circuit breakers contain such failures and prevent cascading outages that would affect rider-facing flows.",
+      "conditions": [
+        "Failure thresholds can only be calibrated once availability/latency targets exist (S1-G50)."
+      ],
+      "affected_drivers": [
+        "Service availability to riders"
+      ]
+    },
+    {
+      "patterns": ["Circuit Breaker", "Modular Monolith"],
+      "relationship": "compatible",
+      "rationale": "In a monolith the only remote dependencies are external providers and the database; circuit breakers still protect calls to payment and SMS/email providers.",
+      "conditions": [],
+      "affected_drivers": [
+        "Service availability to riders",
+        "Third-party payment platform integration"
+      ]
+    },
+    {
+      "patterns": ["Federated Identity", "API Gateway"],
+      "relationship": "complementary",
+      "rationale": "The identity provider issues short-lived tokens with roles (biker, administrator); the gateway validates them on every request, rejecting expired sessions (S4) before they reach business components.",
+      "conditions": [
+        "Token lifetime and refresh are aligned with the 15-minute inactivity rule; what counts as activity must be defined (S1-G10)."
+      ],
+      "affected_drivers": [
+        "User authentication and session management",
+        "Security of user, biometric and payment data"
+      ]
+    },
+    {
+      "patterns": ["Federated Identity", "Backend for Frontend (BFF)"],
+      "relationship": "complementary",
+      "rationale": "The web BFF can hold tokens server-side and expose only a session cookie to the browser, while the mobile BFF accepts tokens from device-local biometric login. Each client type gets a login flow suited to its capabilities.",
+      "conditions": [
+        "Biometric login is device-local and the server receives only an assertion or token (interpretation of S3, see S1-G7)."
+      ],
+      "affected_drivers": [
+        "User authentication and session management",
+        "Security of user, biometric and payment data",
+        "Web and mobile client accessibility"
+      ]
+    },
+    {
+      "patterns": ["Federated Identity", "Modular Monolith", "Microservices Architecture"],
+      "relationship": "compatible",
+      "rationale": "The identity provider can be an internal Identity module/service or an external provider; under either decomposition, business components only consume validated tokens and do not handle credentials or biometric data.",
+      "conditions": [
+        "If an external identity provider is used, its data residency is acceptable under the applicable jurisdiction (S1-G43)."
+      ],
+      "affected_drivers": [
+        "User authentication and session management",
+        "GDPR and regional regulatory compliance"
+      ]
+    },
+    {
+      "patterns": ["Service Registry and Discovery", "Microservices Architecture"],
+      "relationship": "dependent",
+      "rationale": "Dynamically scheduled service instances need discovery so the gateway and services can find healthy instances.",
+      "conditions": [
+        "If the container orchestration platform provides built-in discovery, a separate registry is not needed."
+      ],
+      "affected_drivers": [
+        "Service availability to riders"
+      ]
+    },
+    {
+      "patterns": ["Service Registry and Discovery", "API Gateway"],
+      "relationship": "complementary",
+      "rationale": "The gateway resolves backend routes through the registry instead of fixed addresses, so scaled or replaced instances are reached without reconfiguration.",
+      "conditions": [],
+      "affected_drivers": [
+        "Service availability to riders"
+      ]
+    },
+    {
+      "patterns": ["Service Registry and Discovery", "Modular Monolith"],
+      "relationship": "redundant",
+      "rationale": "With a single deployable unit behind a load balancer there is nothing to discover between services; a registry adds an extra component without benefit.",
+      "conditions": [],
+      "affected_drivers": [
+        "Low carbon footprint"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "stage": 2,
+  "entries": [
+    {
+      "id": "S2-G1",
+      "kind": "assumption",
+      "statement": "The expected number of bikes and concurrent riders can be served by horizontally replicating a single deployable backend against one database.",
+      "origin": "alternatives.json#/alternatives/0/assumptions/0",
+      "source_refs": ["A1", "A3", "Timely bike availability and location tracking", "Service availability to riders"],
+      "related_ids": ["S1-G49"],
+      "status": "relied_upon",
+      "resolution_needed": "What is the expected fleet size, number of concurrent riders and peak request rate?"
+    },
+    {
+      "id": "S2-G2",
+      "kind": "assumption",
+      "statement": "Restarting or redeploying the whole backend as one unit is acceptable for the service's availability expectations.",
+      "origin": "alternatives.json#/alternatives/0/assumptions/1",
+      "source_refs": ["A1", "Service availability to riders"],
+      "related_ids": ["S1-G50"],
+      "status": "relied_upon",
+      "resolution_needed": "Is planned downtime or a short whole-service restart acceptable, and what uptime target applies?"
+    },
+    {
+      "id": "S2-G3",
+      "kind": "assumption",
+      "statement": "Biometric thumb-impression verification is performed on the device by its native authenticator, and only an authentication assertion or token is sent to the backend (all alternatives rely on this reading of S3).",
+      "origin": "alternatives.json#/alternatives/0/assumptions/2",
+      "source_refs": ["A1", "A2", "A3", "S3", "User authentication and session management", "Security of user, biometric and payment data"],
+      "related_ids": ["S1-G7", "S1-G8"],
+      "status": "relied_upon",
+      "resolution_needed": "Is device-local biometric verification (no thumb impression transmitted or stored server-side) an acceptable realization of S3?"
+    },
+    {
+      "id": "S2-G4",
+      "kind": "assumption",
+      "statement": "Bike location and status reach the backend through an interface (e.g. a lock or telematics provider) that can be wrapped by an adapter (all alternatives rely on this).",
+      "origin": "alternatives.json#/alternatives/0/assumptions/3",
+      "source_refs": ["A1", "A2", "A3", "S5", "S6", "Physical bike unlock by code", "Timely bike availability and location tracking"],
+      "related_ids": ["S1-G16", "S1-G44", "S1-G47"],
+      "status": "relied_upon",
+      "resolution_needed": "Do bikes have connected locks/trackers, and what interface (vendor API, protocol) do they expose to the system?"
+    },
+    {
+      "id": "S2-G5",
+      "kind": "assumption",
+      "statement": "Usage history (S11) and hourly/daily usage (S13) can be computed by querying the transactional rental data without unacceptable load on rider-facing operations.",
+      "origin": "alternatives.json#/alternatives/0/assumptions/4",
+      "source_refs": ["A1", "S11", "S13", "Usage history and administrative usage reporting"],
+      "related_ids": ["S1-G34", "S1-G49"],
+      "status": "relied_upon",
+      "resolution_needed": "How often and in what volume will administrators run hourly/daily usage queries and bikers download history?"
+    },
+    {
+      "id": "S2-G6",
+      "kind": "assumption",
+      "statement": "The organization can operate a container orchestration platform, message broker, service registry and distributed tracing in production.",
+      "origin": "alternatives.json#/alternatives/1/assumptions/0",
+      "source_refs": ["A2"],
+      "related_ids": ["S1-G53"],
+      "status": "relied_upon",
+      "resolution_needed": "Does the operating organization have the skills and budget to run the listed platform infrastructure?"
+    },
+    {
+      "id": "S2-G7",
+      "kind": "assumption",
+      "statement": "A short, eventually consistent delay between a bike registration and its removal from the available list satisfies 'as soon as' in S7.",
+      "origin": "alternatives.json#/alternatives/1/assumptions/1",
+      "source_refs": ["A2", "S7", "Timely bike availability and location tracking"],
+      "related_ids": ["S1-G18"],
+      "status": "relied_upon",
+      "resolution_needed": "What is the maximum acceptable delay before a registered bike disappears from riders' available lists?"
+    },
+    {
+      "id": "S2-G8",
+      "kind": "assumption",
+      "statement": "Concurrent registration attempts for the same bike can be serialized within the single service that owns bike availability.",
+      "origin": "alternatives.json#/alternatives/1/assumptions/2",
+      "source_refs": ["A2", "S6", "S7"],
+      "related_ids": ["S1-G20"],
+      "status": "relied_upon",
+      "resolution_needed": "What outcome is expected when two bikers try to register the same bike at once (first wins, reservation hold, etc.)?"
+    },
+    {
+      "id": "S2-G9",
+      "kind": "assumption",
+      "statement": "The expected scale or availability needs justify the higher resource footprint of multiple services, broker and registry.",
+      "origin": "alternatives.json#/alternatives/1/assumptions/3",
+      "source_refs": ["A2", "Service availability to riders", "Low carbon footprint"],
+      "related_ids": ["S1-G49", "S1-G50", "S1-G52"],
+      "status": "relied_upon",
+      "resolution_needed": "Are there scale, independent-release or fault-isolation needs that outweigh the added infrastructure footprint?"
+    },
+    {
+      "id": "S2-G10",
+      "kind": "assumption",
+      "statement": "The web and mobile flows differ enough (biometric login, scanning and navigation on mobile; downloads and administration on web) to justify two separate BFFs.",
+      "origin": "alternatives.json#/alternatives/2/assumptions/0",
+      "source_refs": ["A3", "Web and mobile client accessibility", "Ease of use for all riders"],
+      "related_ids": ["S1-G3", "S1-G8"],
+      "status": "relied_upon",
+      "resolution_needed": "Which features must be offered on web, which on mobile, and do the flows differ?"
+    },
+    {
+      "id": "S2-G11",
+      "kind": "assumption",
+      "statement": "A message broker is acceptable as an additional runtime component alongside the single deployable core.",
+      "origin": "alternatives.json#/alternatives/2/assumptions/1",
+      "source_refs": ["A3"],
+      "related_ids": ["S1-G53"],
+      "status": "relied_upon",
+      "resolution_needed": "Is operating a message broker acceptable for this deployment?"
+    },
+    {
+      "id": "S2-G12",
+      "kind": "assumption",
+      "statement": "Usage history (S11) and hourly/daily usage (S13) may lag the transactional rental data by the event propagation delay.",
+      "origin": "alternatives.json#/alternatives/2/assumptions/2",
+      "source_refs": ["A3", "A2", "S11", "S13", "Usage history and administrative usage reporting"],
+      "related_ids": ["S1-G34"],
+      "status": "relied_upon",
+      "resolution_needed": "How fresh must biker usage history and administrator usage reports be?"
+    },
+    {
+      "id": "S2-G13",
+      "kind": "unresolved_gap",
+      "statement": "The Adapter + Circuit Breaker combination requires per-provider fallback behavior (queue notifications, alternative payment provider, or reject payment) that the inputs do not specify.",
+      "origin": "pattern_compatibility.json#/compatibility_analysis/16/conditions/0",
+      "source_refs": ["A1", "A2", "A3", "S2", "S8", "S9", "Third-party payment platform integration", "SMS and email message delivery"],
+      "related_ids": ["S1-G50"],
+      "status": "open",
+      "resolution_needed": "What should happen to rentals, payments and notifications when a payment or SMS/email provider is unavailable?"
+    },
+    {
+      "id": "S2-G14",
+      "kind": "unresolved_gap",
+      "statement": "Token lifetime and refresh must be aligned with the 15-minute inactivity rule, which cannot be confirmed because 'activity' is undefined.",
+      "origin": "pattern_compatibility.json#/compatibility_analysis/20/conditions/0",
+      "source_refs": ["A1", "A2", "A3", "S4", "User authentication and session management"],
+      "related_ids": ["S1-G10", "S1-G11"],
+      "status": "open",
+      "resolution_needed": "Which events count as activity, and must an active rental keep the session alive?"
+    },
+    {
+      "id": "S2-G15",
+      "kind": "unresolved_gap",
+      "statement": "Saga compensation steps for the rental flow cannot be defined until the timing of payment relative to bike registration/unlock is decided.",
+      "origin": "pattern_compatibility.json#/compatibility_analysis/13/conditions/0",
+      "source_refs": ["A2", "S6", "S8", "S9", "Rental lifecycle and time-based charging"],
+      "related_ids": ["S1-G17", "S1-G22"],
+      "status": "open",
+      "resolution_needed": "Is the biker charged before unlock, at the end of the rental, or both?"
+    },
+    {
+      "id": "S2-G16",
+      "kind": "unresolved_gap",
+      "statement": "If Federated Identity uses an external identity provider, its data residency must be acceptable under the applicable jurisdiction, which the inputs leave undetermined (EU or China).",
+      "origin": "pattern_compatibility.json#/compatibility_analysis/22/conditions/0",
+      "source_refs": ["A1", "A2", "A3", "GDPR and regional regulatory compliance"],
+      "related_ids": ["S1-G43"],
+      "status": "open",
+      "resolution_needed": "Must identity and personal data stay within a specific jurisdiction, and may an external identity provider be used?"
+    },
+    {
+      "id": "S2-G17",
+      "kind": "unresolved_gap",
+      "statement": "CQRS read models replicate usage and personal data, so the GDPR retention/erasure rules must also apply to them; the retention policy beyond 3 months is not specified.",
+      "origin": "pattern_compatibility.json#/compatibility_analysis/11/conditions/0",
+      "source_refs": ["A2", "A3", "S11", "S13", "GDPR and regional regulatory compliance"],
+      "related_ids": ["S1-G30", "S1-G35"],
+      "status": "open",
+      "resolution_needed": "What retention and erasure rules apply to usage records and derived reports?"
+    }
+  ]
+}

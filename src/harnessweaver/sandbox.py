@@ -701,6 +701,7 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
     if from_package is not None and (arm != "harnessweaver" or not targets):
         raise SandboxError("spec-package materialization requires the HarnessWeaver arm and at least one --target")
     pilot = Pilot.load(pilot_name)
+    baseline_generation_prompt = pilot.prompt("baseline_generation") if arm == "revfactory-en" and from_package is None else None
     created = _now()
     name = f"gen-{pilot.name}-{arm}-{_stamp(created)}"
     sandbox = _new_sandbox_dir(root, name)
@@ -721,7 +722,9 @@ def create_generation_sandbox(pilot_name: str | Path, arm: str, *, root: Path | 
     (sandbox / "record").mkdir()
     if from_package is not None:
         shutil.copyfile(from_package, sandbox / "record/source-spec-package.zip")
-    if from_package is None:
+    if from_package is None and arm == "revfactory-en":
+        generation_prompt = baseline_generation_prompt
+    elif from_package is None:
         generation_prompt = pilot.prompt("generation")
     else:
         generation_prompt = (SKILLS_DIR / "harness/references/spec-package-materialization.md").read_text(encoding="utf-8")

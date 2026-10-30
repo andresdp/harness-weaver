@@ -1,0 +1,133 @@
+{
+  "system_name": "campus-bike",
+  "analysis_notes": [
+    "Based on alternative_evaluation.json; statuses and impacts are cited from it rather than re-evaluated.",
+    "All reasoning is qualitative. No performance, availability, cost or energy measurements exist in the inputs; no quantitative superiority is claimed. Counts below are tallies of evaluation statuses, not measurements.",
+    "No alternative is selected here."
+  ],
+  "evaluation_summary": {
+    "A1": {
+      "requirements": "10 satisfied (S2, S4, S6-S13), 3 partially_satisfied (S1, S3, S5), 0 not_satisfied",
+      "high_priority_drivers": "3 satisfied (consistency, payment integration, multi-channel), 2 partially_satisfied (data protection/compliance, bike location tracking/unlocking)",
+      "all_drivers": "7 satisfied, 5 partially_satisfied, 0 not_satisfied"
+    },
+    "A2": {
+      "requirements": "9 satisfied (S2, S4, S7-S13), 4 partially_satisfied (S1, S3, S5, S6), 0 not_satisfied",
+      "high_priority_drivers": "3 satisfied (data protection/compliance, payment integration, multi-channel), 2 partially_satisfied (consistency, bike location tracking/unlocking)",
+      "all_drivers": "9 satisfied, 2 partially_satisfied, 1 not_satisfied (minimized carbon footprint)"
+    },
+    "A3": {
+      "requirements": "10 satisfied (S2, S4, S5, S7-S13), 3 partially_satisfied (S1, S3, S6), 0 not_satisfied",
+      "high_priority_drivers": "3 satisfied (consistency, payment integration, bike location tracking/unlocking - conditional on connected bikes), 2 partially_satisfied (data protection/compliance, multi-channel)",
+      "all_drivers": "7 satisfied, 5 partially_satisfied, 0 not_satisfied"
+    },
+    "shared_partial_requirements": "S1 (end-to-end encryption reading unconfirmed) and S3 (on-device biometric matching assumed) are partially_satisfied in every alternative; they do not discriminate between alternatives and depend on requirement clarification."
+  },
+  "trade_offs": [
+    {
+      "alternative_id": "A1",
+      "strengths": [
+        "Strongest data consistency: single authoritative store, atomic registration and same-transaction read models make S7 immediate and keep biker (S5) and administrator (S12) views consistent without relying on any eventual-consistency assumption (evaluation: consistency driver satisfied; consistency QA positive).",
+        "Ties A3 for the most satisfied requirements (10 of 13) and is the only alternative that explicitly allocates navigation guidance (maps/navigation adapter), so S6 is satisfied.",
+        "Explicitly resolves the S4 vs S9 conflict by delivering notifications over session-independent channels.",
+        "Lowest structural complexity and runtime footprint: in-process calls (timeliness QA positive) and the only alternative satisfying the carbon-footprint driver under the resource-efficiency reading.",
+        "Integration variability (payment platforms, SMS/email, region-specific providers) is handled by adapters, satisfying the payment-integration driver."
+      ],
+      "weaknesses": [
+        "Protection/compliance driver only partially satisfied: personal-data isolation is logical within a shared process, and no centralized audit logging is selected, which weakens ISO 27001 scoping and security-event monitoring (security QA mixed).",
+        "Bike location tracking has no allocated mechanism (S5 and bike-tracking driver partially satisfied), although the project description explicitly requires tracking bike locations.",
+        "The deployable and database form a shared failure domain; a defect in reporting can affect rider functions (availability QA mixed; availability driver partially satisfied).",
+        "Ease of use is not targeted beyond channel-specific API modules (driver partially satisfied)."
+      ],
+      "qa_tensions": [
+        "Data consistency and timeliness (positive) vs availability (mixed): the single transactional store that guarantees immediate, consistent state is also the shared failure domain.",
+        "Sustainability (positive) and simplicity vs security (mixed): avoiding extra runtime components also forgoes physical isolation of sensitive data and centralized audit logging.",
+        "Modifiability (slightly positive): adapters ease provider changes, but region variants require variants of the whole deployable and adding broker/tracing later requires restructuring."
+      ],
+      "arch_tradeoff": [
+        "Trades fault isolation and physical data segregation for transactional simplicity and immediate consistency.",
+        "Trades use of the permitted platform technologies (broker, gateway, tracing) for a smaller operational footprint; any later move toward them is a restructuring, not an extension.",
+        "Treats the bike as a request/response adapter, trading coverage of location telemetry for not committing to an unconfirmed bike-side model."
+      ],
+      "risks": [
+        "If ISO 27001 scoping or the applicable regime (EU or China) requires physical separation of personal data or centralized security logging, A1 needs structural change (evidence: A1 limitation on logical isolation; no audit-logging pattern selected).",
+        "If bikes report location continuously, the request/response bike adapter assumption fails and a location-ingestion path must be added (A1 assumption on telemetry).",
+        "Module boundary erosion without enforcement tooling could undermine both data isolation and modifiability over time (A1 limitation).",
+        "Unresolved requirement issues (rental end/return, payment timing, value of X) affect the Fleet & Rental and Payment modules (A1 limitation; shared by all alternatives)."
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "strengths": [
+        "Best overall driver coverage (9 satisfied), including full satisfaction of the protection/compliance driver through physical segregation of Identity and Payment data, pseudonymization, mTLS, audit logging and a conditional provision for the strict S1 reading (security QA positive).",
+        "Strongest fault isolation: rider-facing discovery and registration continue when Payment, Notification or Reporting degrade (availability QA positive; availability driver satisfied).",
+        "Explicit per-channel handling via BFFs (usability and portability QA positive; multi-channel and ease-of-use drivers satisfied).",
+        "Independent deployability and segregated stores support region-specific data residency and provider variation (modifiability QA positive)."
+      ],
+      "weaknesses": [
+        "Fewest satisfied requirements (9 of 13): neither bike location ingestion (S5) nor navigation guidance (S6) is allocated.",
+        "Consistency driver (high priority) only partially satisfied: administrator views and reports are eventually consistent and rental-payment consistency spans services via saga, resting on the unconfirmed assumption that eventual consistency is acceptable (consistency QA slightly positive).",
+        "Does not satisfy the carbon-footprint driver; it has the largest runtime footprint (sustainability QA negative).",
+        "Most components to secure, audit and keep available; gateway and broker become critical infrastructure."
+      ],
+      "qa_tensions": [
+        "Security and availability (positive) vs data consistency (slightly positive): the service boundaries that isolate failures and sensitive data also introduce eventual consistency and cross-service sagas for money-bearing flows.",
+        "Security (positive) vs security operations: physical segregation narrows sensitive-data scope but multiplies the components that must themselves meet ISO 27001.",
+        "Usability/portability (positive) vs timeliness (mixed): BFFs and gateway tailor channels but add hops on every request.",
+        "Availability, modifiability (positive) vs sustainability (negative)."
+      ],
+      "arch_tradeoff": [
+        "Trades transactional simplicity and immediate administrator-view consistency for fault isolation, physical data segregation and independent deployability.",
+        "Uses all permitted platform technologies, trading a higher operational and resource footprint for observability and decoupling; the main traditional motivation (independent scaling) is not evidenced, so the decomposition is justified by isolation only.",
+        "Keeps bike availability and rental creation in one service to preserve atomic registration, trading some decomposition purity for the S7 guarantee."
+      ],
+      "risks": [
+        "Compensation in the rental-payment saga is not straightforward once a bike is physically unlocked (A2 limitation).",
+        "If administrators need up-to-date status (S12) the eventual-consistency assumption fails; no freshness bound is given in the requirements.",
+        "Operating an orchestration platform, broker, discovery and tracing stack in compliance with ISO 27001 is assumed but not evidenced (A2 assumption).",
+        "Unallocated bike location tracking and navigation leave a gap against an explicit project-description constraint."
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "strengths": [
+        "Ties A1 for the most satisfied requirements (10 of 13) and is the only alternative with an explicit bike location-tracking path (Device Gateway), satisfying S5 and the bike-tracking driver, which reflects the explicit project-description constraint on tracking and QR unlocking.",
+        "Keeps A1's consistency strength: authoritative state, rental records, reporting and admin views share the core transactional store with synchronous read models (consistency driver satisfied; consistency QA positive).",
+        "Stronger security posture than A1: payment data physically isolated and centralized audit logging/tracing present (security QA slightly positive vs A1 mixed).",
+        "Boundaries placed at the evidenced variation points (payment platforms, messaging providers, bike protocols), so external failures and region-specific provider variants do not destabilize the core (modifiability and interoperability QA positive; availability QA slightly positive)."
+      ],
+      "weaknesses": [
+        "Navigation guidance (S6) is not allocated; hexagonal adapters are limited to payment and messaging.",
+        "Multi-channel driver only partially satisfied: one gateway entry point without channel-specific handling of device-dependent capabilities (usability and portability QA neutral).",
+        "Personal data in the core (identity, location, history) has only logical isolation, so the protection/compliance driver is partially satisfied, as in A1.",
+        "The core remains a shared failure domain for identity, rental and reporting (availability driver partially satisfied).",
+        "More runtime components than A1 (sustainability QA slightly negative; carbon-footprint driver partially satisfied)."
+      ],
+      "qa_tensions": [
+        "Data consistency (positive) vs availability (slightly positive): consistency-critical capabilities stay in one failure domain while only external integrations are isolated.",
+        "Security and auditability (positive/slightly positive) vs sustainability (slightly negative): physical payment isolation, broker and tracing add components.",
+        "Interoperability (positive) vs privacy: ingesting bike location telemetry during rentals adds personal location data that must be minimized under GDPR.",
+        "Modifiability (positive) vs conceptual integrity: two architectural styles coexist and need clear placement rules."
+      ],
+      "arch_tradeoff": [
+        "Trades the uniformity of a single style for boundaries justified by external dependencies: consistency inside the core, isolation at the edges.",
+        "Commits to a connected-bike model (Device Gateway) to cover location tracking, trading certainty for coverage of an explicit constraint; the alternative states a fallback to a core adapter if bikes are not connected.",
+        "Uses a subset of permitted technologies (API gateway, broker, tracing) only where they serve extracted boundaries, a middle ground between A1 and A2 in footprint and isolation."
+      ],
+      "risks": [
+        "The bike-side interaction is unresolved; the Device Gateway may turn out unnecessary or insufficient (A3 limitation), in which case S5 and the bike-tracking driver fall back to the same partial status as A1.",
+        "Personal data in the core may need physical separation for ISO 27001 scoping, the same risk as A1 for non-payment data.",
+        "Payment saga across the broker inherits the compensation difficulty for physically unlocked bikes, though confined to the payment step.",
+        "Gateway and broker are additional critical components that must be redundant and secured."
+      ]
+    }
+  ],
+  "cross_alternative_tradeoffs": [
+    "Requirements (primary criterion): A1 and A3 each satisfy 10 of 13 requirements; A2 satisfies 9. The discriminating requirements are S5 (bike location: only A3 satisfied) and S6 (navigation: only A1 satisfied). S1 and S3 are partial for all.",
+    "Consistency vs isolation: A1 and A3 keep consistency-critical state in one transactional store (consistency driver satisfied); A2 gains fault isolation and physical data segregation at the cost of eventual consistency for administrator views and cross-service sagas (consistency driver partial).",
+    "Security/compliance: A2 > A3 > A1 qualitatively (positive, slightly positive, mixed), driven by physical isolation and audit logging; A3 isolates payment data only.",
+    "Footprint/sustainability: A1 < A3 < A2 in runtime components; only A1 satisfies the carbon-footprint driver and A2 does not satisfy it. This ordering is structural, not measured, and the driver's interpretation is ambiguous.",
+    "Channel handling: A2 (BFFs) > A1 (channel-specific API modules) > A3 (single gateway entry).",
+    "Uncertainty exposure: A3's distinguishing benefit depends on the most uncertain assumption (connected bikes); A1's main gap (no location ingestion) is exposed by the same uncertainty in the opposite direction; A2's main dependency is acceptance of eventual consistency."
+  ]
+}

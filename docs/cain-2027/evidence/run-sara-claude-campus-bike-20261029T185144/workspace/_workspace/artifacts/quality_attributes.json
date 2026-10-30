@@ -1,0 +1,107 @@
+{
+  "quality_attributes": [
+    {
+      "name": "Security",
+      "description": "Protection of user information, credentials, biometric data and payment information against unauthorized access or disclosure, in line with ISO 27001.",
+      "rationale": "Explicit: S1 requires end-to-end encryption of user information between device and database; S3 requires the thumb impression to be flushed after login; S4 requires inactivity logout; the project description requires compliance with ISO 27001 and security of user data including payment information.",
+      "source_requirement_ids": ["S1", "S3", "S4", "S8"],
+      "evidence": [
+        "S1: 'user information is secured with an end-to-end encryption of information between user device and app database'",
+        "S3: 'The login module must flush out user thumb impression as soon as the user has been able to login.'",
+        "S4: 'after an inactivity of 15 minutes'",
+        "Project description: 'comply with the relevant security and data protection standards, such as ISO 27001'",
+        "Project description: 'ensure the security and privacy of user data, including payment information'"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Privacy and Regulatory Compliance",
+      "description": "Handling of personal data (registration data, location, usage history, biometric data, payment data) in compliance with GDPR, the Privacy Directive and local regulations (EU or China depending on location).",
+      "rationale": "Explicit constraints in the project description. Applies to personal data collected in S1, biometric data in S3, payment data in S8 and retained usage history in S11/S13. The applicable jurisdiction is ambiguous (EU or China).",
+      "source_requirement_ids": ["S1", "S3", "S5", "S8", "S11", "S13"],
+      "evidence": [
+        "Project description: 'comply with the General Data Protection Regulation (GDPR) and the Privacy Directive'",
+        "Project description: 'comply with local regulations and standards, including EU or China standards, depending on the location of the university'",
+        "S11: 'usage history up to last 3 months'"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Interoperability",
+      "description": "Ability to exchange information with external systems: a variety of third-party payment platforms (bank account, debit/credit card) and SMS/email delivery for verification codes and notifications.",
+      "rationale": "Explicit for payments (project description and S8). Strongly implied for messaging, since S2 requires sending codes via SMS or email and S9 requires notifying the biker.",
+      "source_requirement_ids": ["S2", "S8", "S9"],
+      "evidence": [
+        "Project description: 'compatible with a variety of third-party payment platforms to allow users to pay for the bike rental fee seamlessly'",
+        "S8: 'pay via their bank account or by their debit/credit card'",
+        "S2: 'verification code via an SMS or email'"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Portability (multi-client accessibility)",
+      "description": "The system's functionality must be accessible from both web and mobile devices.",
+      "rationale": "Explicit and repeated in the project description. Biometric login (S3) and code scanning/navigation (S6) depend on device capabilities, so behavior across client types matters.",
+      "source_requirement_ids": ["S1", "S3", "S5", "S6", "S11"],
+      "evidence": [
+        "Project description: 'available on web and mobile devices'",
+        "Project description: 'accessible through both web and mobile devices to maximize the availability of the service'"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Usability",
+      "description": "The application must be user-friendly and easy to use for all potential riders.",
+      "rationale": "Explicit in the project description; supported by user-facing functions such as proximity filtering (S5), navigation to the bike (S6) and expiry notification (S9).",
+      "source_requirement_ids": ["S5", "S6", "S9"],
+      "evidence": [
+        "Project description: 'user-friendly and easy to use for all potential riders'",
+        "S6: 'App must help the biker to navigate to the available bike that they have selected.'"
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "Performance (timeliness of bike availability and location)",
+      "description": "Bike availability and location information must be updated and presented promptly, so that registered bikes disappear from the available list immediately and bikers see current bikes near them.",
+      "rationale": "Strongly implied: S7 states 'As soon as' a bike is registered it must be removed from the available list, and the project description requires tracking and displaying bike locations within a radius. No quantitative latency or throughput target is given.",
+      "source_requirement_ids": ["S5", "S6", "S7", "S12"],
+      "evidence": [
+        "S7: 'As soon as the bike is registered it must be removed from the list of available bikes.'",
+        "Project description: 'capable of tracking and displaying the location of available bikes within a 1000-meter radius'"
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "Availability",
+      "description": "The rental service should be available to riders when they want to use it.",
+      "rationale": "Strongly implied: the project description states the goal 'to maximize the availability of the service', though in the context of web and mobile access; no uptime target is given.",
+      "source_requirement_ids": ["S5", "S6", "S8"],
+      "evidence": [
+        "Project description: 'accessible through both web and mobile devices to maximize the availability of the service'"
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "Modifiability",
+      "description": "Ability to accommodate changes in payment methods/platforms and in regulatory requirements depending on deployment location.",
+      "rationale": "Strongly implied: S8 says cash is 'Currently' not supported; the project description requires compatibility with 'a variety' of payment platforms and compliance with EU or China standards depending on location.",
+      "source_requirement_ids": ["S8"],
+      "evidence": [
+        "S8: 'Currently cash payments are not supported.'",
+        "Project description: 'a variety of third-party payment platforms'",
+        "Project description: 'including EU or China standards, depending on the location of the university'"
+      ],
+      "priority": "low"
+    },
+    {
+      "name": "Sustainability (resource efficiency)",
+      "description": "The software should be designed to minimize its carbon footprint.",
+      "rationale": "Explicit constraint in the project description; it is not tied to any functional requirement and has no measurable target, so its architectural weight is limited.",
+      "source_requirement_ids": [],
+      "evidence": [
+        "Project description: 'designed to minimize the carbon footprint and promote sustainable mobility'"
+      ],
+      "priority": "low"
+    }
+  ]
+}

@@ -1,0 +1,545 @@
+{
+  "stage": 1,
+  "entries": [
+    {
+      "id": "S1-G1",
+      "kind": "ambiguity",
+      "statement": "Scope of 'end-to-end encryption of information between user device and app database' is unclear (in transit, at rest, or both; registration data only or all user information).",
+      "origin": "requirements_analysis.json#/requirements/0/ambiguities/0",
+      "source_refs": ["S1", "Security of user, biometric and payment data"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Does end-to-end encryption mean protection in transit, at rest in the database, or both, and does it cover all user information or only registration data?"
+    },
+    {
+      "id": "S1-G2",
+      "kind": "ambiguity",
+      "statement": "No rules for uniqueness of email/phone, password strength or duplicate-account handling.",
+      "origin": "requirements_analysis.json#/requirements/0/ambiguities/1",
+      "source_refs": ["S1"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "What uniqueness, password and duplicate-account rules apply at registration?"
+    },
+    {
+      "id": "S1-G3",
+      "kind": "ambiguity",
+      "statement": "Not stated whether registration is available identically on web and mobile clients.",
+      "origin": "requirements_analysis.json#/requirements/0/ambiguities/2",
+      "source_refs": ["S1", "Web and mobile client accessibility"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Must registration be offered on both web and mobile with the same behavior?"
+    },
+    {
+      "id": "S1-G4",
+      "kind": "ambiguity",
+      "statement": "S2 states contradictory verification code validity: 'valid for 30 minutes' versus 'If the code is not entered within 30 seconds it is expired'.",
+      "origin": "requirements_analysis.json#/requirements/1/ambiguities/0",
+      "source_refs": ["S2", "SMS and email message delivery"],
+      "related_ids": ["S1-G38"],
+      "status": "open",
+      "resolution_needed": "Is the verification code valid for 30 minutes or 30 seconds?"
+    },
+    {
+      "id": "S1-G5",
+      "kind": "ambiguity",
+      "statement": "Not stated when the verification code is sent (registration only, login, password reset) nor who chooses SMS versus email.",
+      "origin": "requirements_analysis.json#/requirements/1/ambiguities/1",
+      "source_refs": ["S2"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "In which flows is a verification code sent, and does the biker or the system choose SMS or email?"
+    },
+    {
+      "id": "S1-G6",
+      "kind": "ambiguity",
+      "statement": "Behavior on verification code expiry (resend, retry limits) is not specified.",
+      "origin": "requirements_analysis.json#/requirements/1/ambiguities/2",
+      "source_refs": ["S2"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "What happens when a code expires: can it be resent, and are there retry limits?"
+    },
+    {
+      "id": "S1-G7",
+      "kind": "ambiguity",
+      "statement": "How a biometric thumb impression is verified if it must be flushed after login is unclear (what reference is compared and where it is held).",
+      "origin": "requirements_analysis.json#/requirements/2/ambiguities/0",
+      "source_refs": ["S3", "Security of user, biometric and payment data", "User authentication and session management"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Where is the biometric reference held and what exactly must be 'flushed' after login?"
+    },
+    {
+      "id": "S1-G8",
+      "kind": "ambiguity",
+      "statement": "Availability of biometric login on the web client is not specified.",
+      "origin": "requirements_analysis.json#/requirements/2/ambiguities/1",
+      "source_refs": ["S3", "Web and mobile client accessibility"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Must biometric login be supported on web clients, or only on mobile devices?"
+    },
+    {
+      "id": "S1-G9",
+      "kind": "ambiguity",
+      "statement": "Handling of failed login attempts is not specified.",
+      "origin": "requirements_analysis.json#/requirements/2/ambiguities/2",
+      "source_refs": ["S3"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "What policy applies to repeated failed login attempts?"
+    },
+    {
+      "id": "S1-G10",
+      "kind": "ambiguity",
+      "statement": "What counts as 'activity' for the 15-minute inactivity logout is not defined.",
+      "origin": "requirements_analysis.json#/requirements/3/ambiguities/0",
+      "source_refs": ["S4"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Which user or app events reset the inactivity timer?"
+    },
+    {
+      "id": "S1-G11",
+      "kind": "ambiguity",
+      "statement": "Interaction between automatic logout and an ongoing rental (expiry notification, overtime) is not specified.",
+      "origin": "requirements_analysis.json#/requirements/3/ambiguities/1",
+      "source_refs": ["S4", "S6", "S9"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Must the biker still receive rental notifications and be able to end a rental after being logged out for inactivity?"
+    },
+    {
+      "id": "S1-G12",
+      "kind": "ambiguity",
+      "statement": "Relation between the rider-defined proximity in S5 (example 100 m) and the project description's 1000-meter radius is unclear.",
+      "origin": "requirements_analysis.json#/requirements/4/ambiguities/0",
+      "source_refs": ["S5", "Timely bike availability and location tracking"],
+      "related_ids": ["S1-G39"],
+      "status": "open",
+      "resolution_needed": "Is 1000 m the maximum, the default, or a fixed search radius, and may riders choose any value up to it?"
+    },
+    {
+      "id": "S1-G13",
+      "kind": "ambiguity",
+      "statement": "Required freshness of bike location/availability data shown to bikers is not specified.",
+      "origin": "requirements_analysis.json#/requirements/4/ambiguities/1",
+      "source_refs": ["S5", "Timely bike availability and location tracking"],
+      "related_ids": ["S1-G49"],
+      "status": "open",
+      "resolution_needed": "How current must displayed bike locations and availability be?"
+    },
+    {
+      "id": "S1-G14",
+      "kind": "ambiguity",
+      "statement": "'scan the code on bike scanner' is unclear: the biker's device scans a code on the bike, or a scanner on the bike reads a code from the device.",
+      "origin": "requirements_analysis.json#/requirements/5/ambiguities/0",
+      "source_refs": ["S6", "Physical bike unlock by code"],
+      "related_ids": ["S1-G41"],
+      "status": "open",
+      "resolution_needed": "Which party scans which code during bike registration?"
+    },
+    {
+      "id": "S1-G15",
+      "kind": "ambiguity",
+      "statement": "The fixed 90-minute registration in S6 is unexplained against the variable rental durations of S10.",
+      "origin": "requirements_analysis.json#/requirements/5/ambiguities/1",
+      "source_refs": ["S6", "S10", "Rental lifecycle and time-based charging"],
+      "related_ids": ["S1-G40"],
+      "status": "open",
+      "resolution_needed": "Is 90 minutes a default, a minimum, a reservation window, or the only duration?"
+    },
+    {
+      "id": "S1-G16",
+      "kind": "ambiguity",
+      "statement": "How the unlock action reaches the physical bike is not described.",
+      "origin": "requirements_analysis.json#/requirements/5/ambiguities/2",
+      "source_refs": ["S6", "Physical bike unlock by code"],
+      "related_ids": ["S1-G44"],
+      "status": "open",
+      "resolution_needed": "Do bikes have connected locks that the system communicates with, and if so what capabilities do they have?"
+    },
+    {
+      "id": "S1-G17",
+      "kind": "ambiguity",
+      "statement": "Whether payment must occur before, at, or after bike registration is not stated.",
+      "origin": "requirements_analysis.json#/requirements/5/ambiguities/3",
+      "source_refs": ["S6", "S8", "Rental lifecycle and time-based charging"],
+      "related_ids": ["S1-G22"],
+      "status": "open",
+      "resolution_needed": "At what point in the rental is the biker charged?"
+    },
+    {
+      "id": "S1-G18",
+      "kind": "ambiguity",
+      "statement": "The maximum acceptable delay implied by 'as soon as' (S7) is not quantified.",
+      "origin": "requirements_analysis.json#/requirements/6/ambiguities/0",
+      "source_refs": ["S7", "Timely bike availability and location tracking"],
+      "related_ids": ["S1-G49"],
+      "status": "open",
+      "resolution_needed": "Within what time must a registered bike disappear from the available list?"
+    },
+    {
+      "id": "S1-G19",
+      "kind": "ambiguity",
+      "statement": "How a bike returns to the available list (end of rental, return location) is not specified.",
+      "origin": "requirements_analysis.json#/requirements/6/ambiguities/1",
+      "source_refs": ["S7", "Rental lifecycle and time-based charging"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "How is a rental ended and where/how is a bike returned to availability?"
+    },
+    {
+      "id": "S1-G20",
+      "kind": "ambiguity",
+      "statement": "Handling of two bikers attempting to register the same bike concurrently is not specified.",
+      "origin": "requirements_analysis.json#/requirements/6/ambiguities/2",
+      "source_refs": ["S6", "S7", "Timely bike availability and location tracking"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "What outcome is expected when two bikers try to register the same bike at the same time?"
+    },
+    {
+      "id": "S1-G21",
+      "kind": "ambiguity",
+      "statement": "Which third-party payment platforms must be supported is not stated.",
+      "origin": "requirements_analysis.json#/requirements/7/ambiguities/0",
+      "source_refs": ["S8", "Third-party payment platform integration"],
+      "related_ids": ["S1-G42"],
+      "status": "open",
+      "resolution_needed": "Which payment platforms/providers must be supported at launch?"
+    },
+    {
+      "id": "S1-G22",
+      "kind": "ambiguity",
+      "statement": "When payment is taken (upfront, at end of rental, including overtime) is not stated.",
+      "origin": "requirements_analysis.json#/requirements/7/ambiguities/1",
+      "source_refs": ["S8", "S9", "Third-party payment platform integration"],
+      "related_ids": ["S1-G17"],
+      "status": "open",
+      "resolution_needed": "Are rental fees charged upfront, at the end, or both, and how are overtime charges collected?"
+    },
+    {
+      "id": "S1-G23",
+      "kind": "ambiguity",
+      "statement": "'Currently' cash is not supported suggests future payment methods, but none are specified.",
+      "origin": "requirements_analysis.json#/requirements/7/ambiguities/2",
+      "source_refs": ["S8", "Evolution of payment methods and jurisdictions"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Are additional payment methods (e.g. cash) planned, and on what horizon?"
+    },
+    {
+      "id": "S1-G24",
+      "kind": "ambiguity",
+      "statement": "The value of X (minutes before rental expiry for notification) is not defined.",
+      "origin": "requirements_analysis.json#/requirements/8/ambiguities/0",
+      "source_refs": ["S9"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "How many minutes before expiry must the biker be notified, and is it configurable?"
+    },
+    {
+      "id": "S1-G25",
+      "kind": "ambiguity",
+      "statement": "The notification channel for rental expiry (in-app, push, SMS, email) is not specified.",
+      "origin": "requirements_analysis.json#/requirements/8/ambiguities/1",
+      "source_refs": ["S9", "SMS and email message delivery"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Through which channel(s) must the expiry notification be delivered?"
+    },
+    {
+      "id": "S1-G26",
+      "kind": "ambiguity",
+      "statement": "Overtime charge rates and rules are not specified.",
+      "origin": "requirements_analysis.json#/requirements/8/ambiguities/2",
+      "source_refs": ["S9", "Rental lifecycle and time-based charging"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "How are overtime charges calculated?"
+    },
+    {
+      "id": "S1-G27",
+      "kind": "ambiguity",
+      "statement": "Pricing for each rental duration is not specified.",
+      "origin": "requirements_analysis.json#/requirements/9/ambiguities/0",
+      "source_refs": ["S10"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "What is the pricing model for minute, day and week rentals?"
+    },
+    {
+      "id": "S1-G28",
+      "kind": "ambiguity",
+      "statement": "Unclear whether 'specific minutes' is free-form or predefined options, and how it relates to the 90 minutes in S6.",
+      "origin": "requirements_analysis.json#/requirements/9/ambiguities/1",
+      "source_refs": ["S10", "S6"],
+      "related_ids": ["S1-G15", "S1-G40"],
+      "status": "open",
+      "resolution_needed": "Can the biker enter any number of minutes, or choose from fixed options?"
+    },
+    {
+      "id": "S1-G29",
+      "kind": "ambiguity",
+      "statement": "S11 text is truncated ('in the form.'); the download format is not specified.",
+      "origin": "requirements_analysis.json#/requirements/10/ambiguities/0",
+      "source_refs": ["S11", "Usage history and administrative usage reporting"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "In what form/format must usage history be downloadable?"
+    },
+    {
+      "id": "S1-G30",
+      "kind": "ambiguity",
+      "statement": "Whether usage records older than 3 months are deleted, archived or merely hidden is not specified (GDPR retention).",
+      "origin": "requirements_analysis.json#/requirements/10/ambiguities/1",
+      "source_refs": ["S11", "GDPR and regional regulatory compliance"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "What is the retention policy for rental records beyond 3 months?"
+    },
+    {
+      "id": "S1-G31",
+      "kind": "ambiguity",
+      "statement": "How administrators are registered and authenticated is not specified.",
+      "origin": "requirements_analysis.json#/requirements/11/ambiguities/0",
+      "source_refs": ["S12", "User authentication and session management"],
+      "related_ids": ["S1-G45"],
+      "status": "open",
+      "resolution_needed": "How are administrator accounts created and how do administrators log in?"
+    },
+    {
+      "id": "S1-G32",
+      "kind": "ambiguity",
+      "statement": "Whether the administrator view includes bike locations or only status is not specified.",
+      "origin": "requirements_analysis.json#/requirements/11/ambiguities/1",
+      "source_refs": ["S12"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Must administrators see bike locations, or only availability status?"
+    },
+    {
+      "id": "S1-G33",
+      "kind": "ambiguity",
+      "statement": "Bike statuses beyond 'available' and 'under utilization' (e.g. maintenance) are not mentioned.",
+      "origin": "requirements_analysis.json#/requirements/11/ambiguities/2",
+      "source_refs": ["S12"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Are there other bike statuses the system must track?"
+    },
+    {
+      "id": "S1-G34",
+      "kind": "ambiguity",
+      "statement": "S13 is grammatically incomplete ('do an hourly and daily usage'); the intended administrator capability (view report, export, analysis) is unclear.",
+      "origin": "requirements_analysis.json#/requirements/12/ambiguities/0",
+      "source_refs": ["S13", "Usage history and administrative usage reporting"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "What exactly must administrators be able to do with hourly and daily usage data?"
+    },
+    {
+      "id": "S1-G35",
+      "kind": "ambiguity",
+      "statement": "Whether administrator usage data is aggregated/anonymized or per-biker is not specified (GDPR).",
+      "origin": "requirements_analysis.json#/requirements/12/ambiguities/1",
+      "source_refs": ["S13", "GDPR and regional regulatory compliance"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "May administrators see per-biker usage, or only aggregated usage?"
+    },
+    {
+      "id": "S1-G36",
+      "kind": "process_note",
+      "statement": "Requirement IDs S1..S13 were supplied in the input and preserved; no relabeling to RF1..RFn was performed. Note that these IDs resemble the gap-register ID prefix 'S1-G'; requirement 'S1' and gap 'S1-G*' are unrelated.",
+      "origin": "input:functional_requirements",
+      "source_refs": [],
+      "related_ids": [],
+      "status": "noted",
+      "resolution_needed": ""
+    },
+    {
+      "id": "S1-G37",
+      "kind": "ambiguity",
+      "statement": "Each input requirement carries a numeric 'priority' (1.0 to 6.0) whose scale direction (1 = highest?) and meaning are not explained; driver priorities in drivers.json were assigned by architectural significance, not derived from this field.",
+      "origin": "input:functional_requirements",
+      "source_refs": ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "What does the numeric priority field mean, and is a lower value a higher priority?"
+    },
+    {
+      "id": "S1-G38",
+      "kind": "unresolved_gap",
+      "statement": "Inconsistency within S2: verification code validity of 30 minutes versus expiry after 30 seconds.",
+      "origin": "requirements_analysis.json#/cross_requirement_relationships/1",
+      "source_refs": ["S2"],
+      "related_ids": ["S1-G4"],
+      "status": "open",
+      "resolution_needed": "Same as S1-G4: which validity period applies?"
+    },
+    {
+      "id": "S1-G39",
+      "kind": "unresolved_gap",
+      "statement": "Inconsistency between S5 (rider-defined proximity, e.g. 100 m) and the project description (1000-meter radius).",
+      "origin": "requirements_analysis.json#/cross_requirement_relationships/8",
+      "source_refs": ["S5", "Timely bike availability and location tracking"],
+      "related_ids": ["S1-G12"],
+      "status": "open",
+      "resolution_needed": "Same as S1-G12: how do the two radii relate?"
+    },
+    {
+      "id": "S1-G40",
+      "kind": "unresolved_gap",
+      "statement": "Conflict between S6 (bike registered for 90 minutes) and S10 (rental for specific minutes, a day, or up to a week).",
+      "origin": "requirements_analysis.json#/cross_requirement_relationships/9",
+      "source_refs": ["S6", "S10", "Rental lifecycle and time-based charging"],
+      "related_ids": ["S1-G15", "S1-G28"],
+      "status": "open",
+      "resolution_needed": "How does the 90-minute registration relate to the selectable rental durations?"
+    },
+    {
+      "id": "S1-G41",
+      "kind": "unresolved_gap",
+      "statement": "Inconsistency in the unlock mechanism: project description says QR code; S6 says 'scan the code on bike scanner' or a four-digit code.",
+      "origin": "requirements_analysis.json#/cross_requirement_relationships/10",
+      "source_refs": ["S6", "Physical bike unlock by code"],
+      "related_ids": ["S1-G14"],
+      "status": "open",
+      "resolution_needed": "Is the code a QR code, and is the four-digit code an alternative to it?"
+    },
+    {
+      "id": "S1-G42",
+      "kind": "unresolved_gap",
+      "statement": "Inconsistency between S8 (bank account, debit/credit card) and the project description ('a variety of third-party payment platforms').",
+      "origin": "requirements_analysis.json#/cross_requirement_relationships/13",
+      "source_refs": ["S8", "Third-party payment platform integration"],
+      "related_ids": ["S1-G21"],
+      "status": "open",
+      "resolution_needed": "Are bank account and card the payment methods, delivered through several third-party platforms, or are other platform types (e.g. wallets) also expected?"
+    },
+    {
+      "id": "S1-G43",
+      "kind": "unresolved_gap",
+      "statement": "Inconsistent deployment context: the project description refers to a city administration and 'CityBike', but also to 'the location of the university' and the system is named 'campus-bike'; the regulatory jurisdiction (EU or China) is therefore undetermined.",
+      "origin": "requirements_analysis.json#/cross_requirement_relationships/19",
+      "source_refs": ["GDPR and regional regulatory compliance", "Evolution of payment methods and jurisdictions"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Is the system operated by a city or a university, and in which jurisdiction(s) (EU, China, both) will it be deployed?"
+    },
+    {
+      "id": "S1-G44",
+      "kind": "inference",
+      "statement": "Inferred that registering a bike results in it being unlocked (based on the project description's 'unlocking them using a QR code'); S6 itself only says 'register the bike'. The driver 'Physical bike unlock by code' relies on this.",
+      "origin": "requirements_analysis.json#/requirements/5/implicit_behaviors/3",
+      "source_refs": ["S6", "Physical bike unlock by code"],
+      "related_ids": ["S1-G16", "S1-G41"],
+      "status": "relied_upon",
+      "resolution_needed": "Does registering the bike in S6 unlock it, and is the system responsible for the unlock?"
+    },
+    {
+      "id": "S1-G45",
+      "kind": "inference",
+      "statement": "Inferred that administrators require a distinct role and authentication from bikers; the driver 'User authentication and session management' includes this role.",
+      "origin": "requirements_analysis.json#/requirements/11/implicit_behaviors/1",
+      "source_refs": ["S12", "S13", "User authentication and session management"],
+      "related_ids": ["S1-G31"],
+      "status": "relied_upon",
+      "resolution_needed": "Confirm that administrators are a separate role with their own access rights."
+    },
+    {
+      "id": "S1-G46",
+      "kind": "inference",
+      "statement": "Inferred that payments are processed through external third-party payment platforms (from the project description), which the driver 'Third-party payment platform integration' relies on.",
+      "origin": "requirements_analysis.json#/requirements/7/implicit_behaviors/1",
+      "source_refs": ["S8", "Third-party payment platform integration"],
+      "related_ids": ["S1-G42"],
+      "status": "relied_upon",
+      "resolution_needed": "Confirm that payment processing is delegated to external payment platforms."
+    },
+    {
+      "id": "S1-G47",
+      "kind": "inference",
+      "statement": "Inferred that the system knows the current location of the biker and of every bike, and that the system tracks rental start time and duration; the drivers 'Timely bike availability and location tracking' and 'Rental lifecycle and time-based charging' rely on this.",
+      "origin": "requirements_analysis.json#/requirements/4/implicit_behaviors/1",
+      "source_refs": ["S5", "S9", "Timely bike availability and location tracking", "Rental lifecycle and time-based charging"],
+      "related_ids": ["S1-G13", "S1-G16"],
+      "status": "relied_upon",
+      "resolution_needed": "How is bike location obtained (do bikes report their own position)?"
+    },
+    {
+      "id": "S1-G48",
+      "kind": "inference",
+      "statement": "Interoperability for messaging (SMS/email delivery) is strongly implied rather than explicit; the driver 'SMS and email message delivery' relies on S2's wording.",
+      "origin": "quality_attributes.json#/quality_attributes/2",
+      "source_refs": ["S2", "S9", "SMS and email message delivery"],
+      "related_ids": ["S1-G25"],
+      "status": "relied_upon",
+      "resolution_needed": "Confirm that the system must itself deliver SMS and email messages."
+    },
+    {
+      "id": "S1-G49",
+      "kind": "inference",
+      "statement": "Performance (timeliness) is strongly implied from 'As soon as' in S7 and bike tracking in the project description; no quantitative latency or throughput target exists.",
+      "origin": "quality_attributes.json#/quality_attributes/5",
+      "source_refs": ["S5", "S7", "Timely bike availability and location tracking"],
+      "related_ids": ["S1-G13", "S1-G18"],
+      "status": "relied_upon",
+      "resolution_needed": "What response-time and update-latency targets apply, and what is the expected number of bikes and concurrent riders?"
+    },
+    {
+      "id": "S1-G50",
+      "kind": "inference",
+      "statement": "Availability is strongly implied from 'to maximize the availability of the service', a phrase used in the context of web and mobile access; no uptime target is given.",
+      "origin": "quality_attributes.json#/quality_attributes/6",
+      "source_refs": ["Service availability to riders"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "Is there an availability (uptime) target for the service?"
+    },
+    {
+      "id": "S1-G51",
+      "kind": "inference",
+      "statement": "Modifiability is strongly implied from 'Currently' in S8, 'a variety of' payment platforms, and location-dependent regulations.",
+      "origin": "quality_attributes.json#/quality_attributes/7",
+      "source_refs": ["S8", "Evolution of payment methods and jurisdictions"],
+      "related_ids": ["S1-G23", "S1-G43"],
+      "status": "noted",
+      "resolution_needed": ""
+    },
+    {
+      "id": "S1-G52",
+      "kind": "unresolved_gap",
+      "statement": "The carbon-footprint constraint has no measurable target and is not tied to any functional requirement, so the driver 'Low carbon footprint' has empty source_requirement_ids.",
+      "origin": "drivers.json#/drivers/13",
+      "source_refs": ["Low carbon footprint"],
+      "related_ids": [],
+      "status": "open",
+      "resolution_needed": "How should software carbon footprint be measured or judged for this system?"
+    },
+    {
+      "id": "S1-G53",
+      "kind": "process_note",
+      "statement": "The project description says the design 'can rely on' a container orchestration platform, service registry and discovery, API gateway, message broker and distributed tracing. This is permissive, not a mandate, so it was not recorded as a constraint driver; it remains available to Stage 2 as input context.",
+      "origin": "input:project_description",
+      "source_refs": [],
+      "related_ids": [],
+      "status": "noted",
+      "resolution_needed": ""
+    },
+    {
+      "id": "S1-G54",
+      "kind": "process_note",
+      "statement": "The file functional_requirements.md contains JSON (system_name 'campus-bike', with id/description/patterns/priority per requirement) rather than Markdown; all 'patterns' arrays are empty. Requirement texts contain typos (e.g. S2 'must sent'), quoted verbatim.",
+      "origin": "input:functional_requirements",
+      "source_refs": [],
+      "related_ids": [],
+      "status": "noted",
+      "resolution_needed": ""
+    }
+  ]
+}

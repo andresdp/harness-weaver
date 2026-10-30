@@ -1,0 +1,65 @@
+flowchart LR
+    rider["Rider<br/>web or mobile user"]
+    admin["Bike Administrator"]
+    identityProvider["Identity Module<br/>Federated Identity, token issuance"]
+
+    subgraph clients["Client Applications"]
+        webClient["Web Client"]
+        mobileClient["Mobile Client"]
+    end
+
+    subgraph bffs["Client-Specific BFFs"]
+        webBFF["Web BFF<br/>rider web access, history downloads,<br/>admin fleet status and usage views,<br/>server-side token storage"]
+        mobileBFF["Mobile BFF<br/>device-local biometric login,<br/>code scanning, navigation,<br/>nearby bikes"]
+    end
+
+    subgraph core["Modular Monolith Core<br/>one deployable, shared transactional database"]
+        rentals["Rentals Module<br/>registration, availability removal,<br/>rental lifecycle, local transaction"]
+        fleet["Fleet and Availability Module<br/>bike status and location"]
+        payments["Payments Module<br/>rental and overtime charging"]
+        notifications["Notifications Module<br/>verification and expiry codes"]
+        reporting["Reporting Module<br/>CQRS read models for history<br/>and hourly/daily usage"]
+    end
+
+    broker["Message Broker<br/>publish-subscribe, transactional outbox"]
+
+    paymentAdapter["Payment Adapter<br/>circuit breaker"]
+    messagingAdapter["SMS/Email Adapter<br/>circuit breaker"]
+    lockInterface["Bike Lock/Telematics Interface<br/>adapter-wrapped"]
+
+    paymentPlatforms["Third-Party Payment Platforms"]
+    smsEmailProviders["SMS/Email Providers"]
+    physicalBikes["Physical Bikes<br/>locks and location sensors"]
+
+    rider -->|"HTTP/REST"| webClient
+    rider -->|"HTTP/REST"| mobileClient
+    admin -->|"HTTP/REST"| webClient
+
+    webClient -->|"HTTP/REST"| webBFF
+    mobileClient -->|"HTTP/REST"| mobileBFF
+
+    webBFF -->|"token validation"| identityProvider
+    mobileBFF -->|"token validation"| identityProvider
+    identityProvider -->|"Federated Identity"| rentals
+
+    webBFF -->|"synchronous request"| rentals
+    webBFF -->|"synchronous request"| reporting
+    webBFF -->|"synchronous request"| fleet
+    mobileBFF -->|"synchronous request"| rentals
+    mobileBFF -->|"synchronous request"| fleet
+
+    rentals -->|"local transaction"| fleet
+    rentals -->|"synchronous request"| payments
+    rentals -->|"code to unlock"| lockInterface
+    fleet -->|"status and location feed"| lockInterface
+    lockInterface -->|"adapter call"| physicalBikes
+
+    rentals -->|"publish event<br/>transactional outbox"| broker
+    fleet -->|"publish event<br/>admin status refresh"| broker
+    broker -->|"subscribe event"| notifications
+    broker -->|"subscribe event"| reporting
+
+    payments -->|"HTTP/REST via adapter"| paymentAdapter
+    paymentAdapter -->|"HTTP/REST"| paymentPlatforms
+    notifications -->|"HTTP/REST via adapter"| messagingAdapter
+    messagingAdapter -->|"HTTP/REST"| smsEmailProviders

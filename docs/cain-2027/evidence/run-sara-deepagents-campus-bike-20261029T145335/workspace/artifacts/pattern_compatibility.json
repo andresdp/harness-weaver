@@ -1,0 +1,183 @@
+{
+  "compatibility_analysis": [
+    {
+      "patterns": [
+        "API Gateway",
+        "Microservices"
+      ],
+      "relationship": "compatible",
+      "rationale": "An API gateway is a common front door for a microservices architecture. It helps route rider and administrator traffic to multiple backend services while centralizing cross-cutting concerns such as authentication and request policy enforcement.",
+      "conditions": [
+        "Gateway must be deployed redundantly to avoid becoming a single point of failure",
+        "Service contracts must be stable enough for gateway routing rules",
+        "Authentication and authorization rules must be consistently enforced at the edge"
+      ],
+      "affected_drivers": [
+        "Cross-channel access for riders and administrators",
+        "Security, privacy, and regulatory compliance",
+        "User experience simplicity"
+      ]
+    },
+    {
+      "patterns": [
+        "Microservices",
+        "Database per Service"
+      ],
+      "relationship": "compatible",
+      "rationale": "Database per service complements microservices by giving each service ownership of its own data. This fits the need to isolate sensitive user, bike, payment, and reporting concerns and reduces tight coupling between services.",
+      "conditions": [
+        "Cross-service queries must be handled through APIs, events, or read models rather than direct database joins",
+        "Data synchronization and reporting pipelines must be designed explicitly",
+        "Operational and compliance controls must be maintained across multiple data stores"
+      ],
+      "affected_drivers": [
+        "Security, privacy, and regulatory compliance",
+        "Real-time bike availability and location awareness",
+        "Operational reporting and history retention"
+      ]
+    },
+    {
+      "patterns": [
+        "Microservices",
+        "Event-Driven Architecture"
+      ],
+      "relationship": "compatible",
+      "rationale": "Event-driven communication is a natural fit for microservices because it allows services to react to business events such as bike registration, rental expiration, and payment completion without tight synchronous coupling.",
+      "conditions": [
+        "Events must be versioned and idempotently processed",
+        "Delivery guarantees and failure handling must be defined",
+        "Business processes that require immediate consistency may still need synchronous coordination"
+      ],
+      "affected_drivers": [
+        "Time-sensitive rider interactions",
+        "Real-time bike availability and location awareness",
+        "Operational reporting and history retention"
+      ]
+    },
+    {
+      "patterns": [
+        "Event-Driven Architecture",
+        "CQRS"
+      ],
+      "relationship": "compatible",
+      "rationale": "CQRS can use events to update specialized read models for nearby bike discovery, rider history, admin status views, and usage reporting. This pairing supports read optimization and decouples write-side transactions from query-side projections.",
+      "conditions": [
+        "Projection lag must be acceptable for the user experience",
+        "Event ordering and replay rules must be established",
+        "Read models must be rebuilt or repaired when projections drift"
+      ],
+      "affected_drivers": [
+        "Real-time bike availability and location awareness",
+        "Operational reporting and history retention",
+        "Cross-channel access for riders and administrators"
+      ]
+    },
+    {
+      "patterns": [
+        "Saga / Process Manager",
+        "Event-Driven Architecture"
+      ],
+      "relationship": "compatible",
+      "rationale": "A saga or process manager can be implemented through events or a mix of events and commands to coordinate multi-step rental workflows, including payment, registration, and timeout handling.",
+      "conditions": [
+        "Compensation actions must be defined for failed steps",
+        "Orchestration responsibilities must be clearly assigned",
+        "The system must tolerate eventual consistency during workflow execution"
+      ],
+      "affected_drivers": [
+        "Billing and payment handling",
+        "Time-sensitive rider interactions",
+        "Real-time bike availability and location awareness"
+      ]
+    },
+    {
+      "patterns": [
+        "Saga / Process Manager",
+        "Microservices"
+      ],
+      "relationship": "compatible",
+      "rationale": "Sagas are often used with microservices to coordinate transactions that span independently deployed services. This is relevant where bike registration, payment, notifications, and availability updates must remain consistent across service boundaries.",
+      "conditions": [
+        "Service boundaries must align with workflow steps",
+        "Compensation or reconciliation must be feasible across services",
+        "Observability for workflow state must be provided"
+      ],
+      "affected_drivers": [
+        "Billing and payment handling",
+        "Real-time bike availability and location awareness",
+        "Time-sensitive rider interactions"
+      ]
+    },
+    {
+      "patterns": [
+        "Modular Monolith",
+        "CQRS"
+      ],
+      "relationship": "compatible",
+      "rationale": "A modular monolith can adopt CQRS inside a single application to separate transactional write flows from optimized read models for discovery, history, and admin reporting without introducing distributed deployment complexity.",
+      "conditions": [
+        "Internal module boundaries must remain strict",
+        "Read-model synchronization must be implemented within the application boundary",
+        "The added complexity of CQRS must be justified by query load or reporting needs"
+      ],
+      "affected_drivers": [
+        "Operational reporting and history retention",
+        "Real-time bike availability and location awareness",
+        "Cross-channel access for riders and administrators"
+      ]
+    },
+    {
+      "patterns": [
+        "Modular Monolith",
+        "Saga / Process Manager"
+      ],
+      "relationship": "compatible",
+      "rationale": "A process manager can coordinate complex rental and payment workflows even within a modular monolith, using local modules and transactions rather than distributed services.",
+      "conditions": [
+        "The workflow should remain bounded enough to avoid excessive orchestration complexity",
+        "Compensating actions must be supported by local module APIs",
+        "The design should avoid unnecessary ceremony if a simple transactional flow suffices"
+      ],
+      "affected_drivers": [
+        "Billing and payment handling",
+        "Time-sensitive rider interactions",
+        "Real-time bike availability and location awareness"
+      ]
+    },
+    {
+      "patterns": [
+        "API Gateway",
+        "Modular Monolith"
+      ],
+      "relationship": "compatible",
+      "rationale": "An API gateway can still front a modular monolith, especially when multiple client channels need a single access point and centralized security controls. The backend remains a single deployable application behind the gateway.",
+      "conditions": [
+        "The gateway should not duplicate business logic",
+        "The monolith must expose clear module-oriented interfaces",
+        "Redundancy and routing rules should be simple enough to avoid unnecessary overhead"
+      ],
+      "affected_drivers": [
+        "Cross-channel access for riders and administrators",
+        "Security, privacy, and regulatory compliance",
+        "User experience simplicity"
+      ]
+    },
+    {
+      "patterns": [
+        "CQRS",
+        "Database per Service"
+      ],
+      "relationship": "compatible",
+      "rationale": "When each service owns its database, CQRS can place read projections close to the service or in separate query stores, which is useful for availability, history, and reporting use cases.",
+      "conditions": [
+        "Projection pipelines must be explicitly maintained",
+        "Cross-service reporting must aggregate data from multiple read models",
+        "Consistency expectations for queries must be clearly communicated"
+      ],
+      "affected_drivers": [
+        "Operational reporting and history retention",
+        "Real-time bike availability and location awareness"
+      ]
+    }
+  ]
+}

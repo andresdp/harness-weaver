@@ -1,0 +1,373 @@
+{
+  "requirements": [
+    {
+      "requirement_id": "S1",
+      "requirement_description": "The biker must be able to register with the app by providing their name, email address, phone number, and selecting a password, and provide Zip code of residential address (optional information). The app must ensure that user information is secured with an end-to-end encryption of information between user device and app database.",
+      "implicit_behaviors": [
+        "Name, email address, phone number and password are mandatory registration fields; residential Zip code is optional (explicit).",
+        "User information must be encrypted end-to-end between the user device and the app database (explicit).",
+        "Inferred: registration creates a persistent biker account that is later used by login (S3), payment (S8) and usage history (S11).",
+        "Inferred: the email address and/or phone number collected here are the destinations for the verification code of S2.",
+        "Inferred: the collected fields are personal data subject to the GDPR and Privacy Directive constraints stated in the project description."
+      ],
+      "ambiguities": [
+        "The scope of 'end-to-end encryption of information between user device and app database' is unclear: whether it means encryption in transit only, at rest in the database, or both, and whether it applies only to registration data or to all user information.",
+        "No rules are given for uniqueness of email/phone, password strength, or duplicate-account handling.",
+        "It is not stated whether registration is available identically on web and mobile clients."
+      ]
+    },
+    {
+      "requirement_id": "S2",
+      "requirement_description": "The app must sent a verification code via an SMS or email that is valid for 30 minutes. If the code is not entered within 30 seconds it is expired.",
+      "implicit_behaviors": [
+        "A verification code is sent via SMS or email (explicit).",
+        "The code has an expiry (explicit, but with contradictory durations).",
+        "Inferred: verification is part of the registration flow of S1 and the account is not usable until the code is verified.",
+        "Inferred: the system must deliver messages through an SMS channel and an email channel."
+      ],
+      "ambiguities": [
+        "The validity period is contradictory: 'valid for 30 minutes' versus 'If the code is not entered within 30 seconds it is expired'.",
+        "It is not stated when the code is sent (registration only, or also at login / password reset) nor who chooses between SMS and email.",
+        "Behavior on expiry (resend, retry limits) is not specified."
+      ]
+    },
+    {
+      "requirement_id": "S3",
+      "requirement_description": "The biker must be able to login to the app via their email and password or by using their biometric thumb-impression. The login module must flush out user thumb impression as soon as the user has been able to login.",
+      "implicit_behaviors": [
+        "Two login methods: email + password, or biometric thumb impression (explicit).",
+        "Thumb impression data must be discarded immediately after successful login (explicit).",
+        "Inferred: login authenticates against the account created in S1.",
+        "Inferred: biometric login depends on device capabilities (fingerprint reader), so it may only be available on some clients (e.g. mobile)."
+      ],
+      "ambiguities": [
+        "It is unclear how a biometric thumb impression is verified if it must be flushed after login (i.e. what reference is compared and where it is held).",
+        "Biometric login availability on the web client is not specified.",
+        "Handling of failed login attempts is not specified."
+      ]
+    },
+    {
+      "requirement_id": "S4",
+      "requirement_description": "Biker must be logged out of the app by clicking on logout button or after an inactivity of 15 minutes to avoid unnecessary (idle) users on the app in a session.",
+      "implicit_behaviors": [
+        "Explicit logout via a logout button (explicit).",
+        "Automatic logout after 15 minutes of inactivity (explicit).",
+        "Inferred: the system tracks user sessions and their last activity time."
+      ],
+      "ambiguities": [
+        "What counts as 'activity' is not defined (e.g. whether an active rental or background location updates keep the session alive).",
+        "Interaction between automatic logout and an ongoing rental (S6, S9) is not specified."
+      ]
+    },
+    {
+      "requirement_id": "S5",
+      "requirement_description": "Biker can view all of available bikes in close proximity defined by him/her such as specifying that they only want to see bikes that are available in a proximity of 100 meters.",
+      "implicit_behaviors": [
+        "The biker defines the proximity radius used to filter available bikes (explicit, example 100 meters).",
+        "Inferred: the system knows the current location of the biker and of every bike.",
+        "Inferred: the system maintains the availability status of every bike (see S7, S12)."
+      ],
+      "ambiguities": [
+        "The relation between the user-defined proximity (example 100 m) and the project description's '1000-meter radius' is unclear: whether 1000 m is a maximum, a default, or a fixed radius.",
+        "Freshness of bike location/availability data shown to the biker is not specified."
+      ]
+    },
+    {
+      "requirement_id": "S6",
+      "requirement_description": "App must help the biker to navigate to the available bike that they have selected. Upon reaching bike, biker should scan the code on bike scanner or by inputting the four digit code to register the bike for 90 minutes.",
+      "implicit_behaviors": [
+        "The app provides navigation guidance to the selected bike (explicit).",
+        "The bike is registered (rented) by scanning a code or entering a four-digit code (explicit).",
+        "The registration period stated is 90 minutes (explicit).",
+        "Inferred: registering the bike results in the bike being unlocked for the biker; the project description states bikes are unlocked 'using a QR code'.",
+        "Inferred: the biker must be logged in (S3) to register a bike."
+      ],
+      "ambiguities": [
+        "'scan the code on bike scanner' is unclear: whether the biker's device scans a code on the bike, or the bike has a scanner that reads a code on the device.",
+        "The fixed 90-minute registration conflicts with or is unexplained against the variable rental durations of S10 (specific minutes, a day, a week).",
+        "How the unlock action reaches the physical bike is not described.",
+        "Whether payment (S8) must occur before, at, or after registration is not stated."
+      ]
+    },
+    {
+      "requirement_id": "S7",
+      "requirement_description": "As soon as the bike is registered it must be removed from the list of available bikes.",
+      "implicit_behaviors": [
+        "A registered bike must be removed from the available list immediately (explicit: 'As soon as').",
+        "Inferred: when a rental ends the bike becomes available again; this is not stated."
+      ],
+      "ambiguities": [
+        "The maximum acceptable delay implied by 'as soon as' is not quantified.",
+        "How a bike returns to the available list (end of rental, return location) is not specified.",
+        "Handling of two bikers attempting to register the same bike concurrently is not specified."
+      ]
+    },
+    {
+      "requirement_id": "S8",
+      "requirement_description": "The biker must be able to pay via their bank account or by their debit/credit card. Currently cash payments are not supported.",
+      "implicit_behaviors": [
+        "Payment via bank account or debit/credit card; no cash (explicit).",
+        "Inferred: payment is processed through external third-party payment platforms, as the project description states compatibility 'with a variety of third-party payment platforms'.",
+        "Inferred: payment information is sensitive data subject to the security/privacy constraints in the project description."
+      ],
+      "ambiguities": [
+        "Which third-party payment platforms must be supported is not stated.",
+        "When payment is taken (upfront, at end of rental, including overtime of S9) is not stated.",
+        "'Currently' suggests cash or other methods may be added later, but no future payment methods are specified."
+      ]
+    },
+    {
+      "requirement_id": "S9",
+      "requirement_description": "The app must notify the biker X minutes prior to the expiry of their rental time. Any overtime rides are subject to additional charges.",
+      "implicit_behaviors": [
+        "A notification is sent before the rental expires (explicit).",
+        "Overtime incurs additional charges (explicit).",
+        "Inferred: the system tracks rental start time and duration for every active rental.",
+        "Inferred: overtime charges are collected through the payment means of S8."
+      ],
+      "ambiguities": [
+        "The value of X is not defined.",
+        "The notification channel (in-app, push, SMS, email) is not specified.",
+        "The overtime charge rates and rules are not specified."
+      ]
+    },
+    {
+      "requirement_id": "S10",
+      "requirement_description": "The biker must be able to rent a bike for specific minutes, a day or for a week at maximum.",
+      "implicit_behaviors": [
+        "Rental durations: a specific number of minutes, a day, or up to a week maximum (explicit).",
+        "Inferred: the selected duration determines the rental expiry used by S9 and the fee charged via S8."
+      ],
+      "ambiguities": [
+        "Pricing for each rental duration is not specified.",
+        "It is unclear whether 'specific minutes' is free-form or a set of predefined options, and how it relates to the 90 minutes in S6."
+      ]
+    },
+    {
+      "requirement_id": "S11",
+      "requirement_description": "The app allows the biker to view and download their bike usage history up to last 3 months in the form.",
+      "implicit_behaviors": [
+        "Bikers can view and download their own usage history for up to the last 3 months (explicit).",
+        "Inferred: rental records are retained for at least 3 months per biker."
+      ],
+      "ambiguities": [
+        "The requirement text is truncated ('in the form.'); the download format is not specified.",
+        "Whether records older than 3 months are deleted, archived or merely not shown is not specified (relevant to GDPR data retention)."
+      ]
+    },
+    {
+      "requirement_id": "S12",
+      "requirement_description": "The bike administrator is able to view all of the bikes in the city as available or under utilization.",
+      "implicit_behaviors": [
+        "A bike administrator role exists and can view all bikes with status available or under utilization (explicit).",
+        "Inferred: administrators require a distinct role/authentication from bikers; administrator login is not described.",
+        "Inferred: the view uses the same bike status data maintained by S5/S7."
+      ],
+      "ambiguities": [
+        "How administrators are registered and authenticated is not specified.",
+        "Whether the view includes bike locations (map) or only status is not specified.",
+        "Statuses beyond 'available' and 'under utilization' (e.g. maintenance, out of service) are not mentioned."
+      ]
+    },
+    {
+      "requirement_id": "S13",
+      "requirement_description": "The administrator must be able to do an hourly and daily usage of the bikes.",
+      "implicit_behaviors": [
+        "Inferred: administrators can obtain hourly and daily usage information about bikes (the requirement wording is incomplete).",
+        "Inferred: usage data is aggregated from rental records (shared with S11)."
+      ],
+      "ambiguities": [
+        "The requirement is grammatically incomplete ('do an hourly and daily usage'): it is unclear whether it means view a report, export, analysis, or something else.",
+        "Whether usage data shown to administrators is aggregated/anonymized or per-biker is not specified (relevant to GDPR)."
+      ]
+    }
+  ],
+  "cross_requirement_relationships": [
+    {
+      "requirement_ids": ["S1", "S2"],
+      "relationship_type": "dependency",
+      "description": "Verification (S2) relies on the email address or phone number collected during registration (S1).",
+      "evidence": [
+        "S1: 'providing their name, email address, phone number'",
+        "S2: 'sent a verification code via an SMS or email'"
+      ]
+    },
+    {
+      "requirement_ids": ["S2"],
+      "relationship_type": "inconsistency",
+      "description": "S2 states two contradictory validity periods for the verification code.",
+      "evidence": [
+        "S2: 'valid for 30 minutes'",
+        "S2: 'If the code is not entered within 30 seconds it is expired.'"
+      ]
+    },
+    {
+      "requirement_ids": ["S1", "S3"],
+      "relationship_type": "dependency",
+      "description": "Login (S3) authenticates with the credentials (email, password) established at registration (S1).",
+      "evidence": [
+        "S1: 'email address ... and selecting a password'",
+        "S3: 'login to the app via their email and password'"
+      ]
+    },
+    {
+      "requirement_ids": ["S3", "S4"],
+      "relationship_type": "shared_concern",
+      "description": "Login and logout/inactivity timeout together define the user session lifecycle.",
+      "evidence": [
+        "S3: 'login to the app'",
+        "S4: 'logged out ... after an inactivity of 15 minutes'"
+      ]
+    },
+    {
+      "requirement_ids": ["S1", "S3", "S8"],
+      "relationship_type": "shared_concern",
+      "description": "Protection of personal, biometric and payment data is a concern shared by registration, login and payment, reinforced by GDPR, Privacy Directive and ISO 27001 constraints.",
+      "evidence": [
+        "S1: 'user information is secured with an end-to-end encryption'",
+        "S3: 'must flush out user thumb impression as soon as the user has been able to login'",
+        "Project description: 'ensure the security and privacy of user data, including payment information'",
+        "Project description: 'comply with the General Data Protection Regulation (GDPR) and the Privacy Directive' and 'ISO 27001'"
+      ]
+    },
+    {
+      "requirement_ids": ["S5", "S7", "S12"],
+      "relationship_type": "shared_data",
+      "description": "Bike availability status (and location) is read by bikers (S5), updated on registration (S7), and viewed by administrators (S12).",
+      "evidence": [
+        "S5: 'view all of available bikes in close proximity'",
+        "S7: 'it must be removed from the list of available bikes'",
+        "S12: 'view all of the bikes in the city as available or under utilization'"
+      ]
+    },
+    {
+      "requirement_ids": ["S5", "S6"],
+      "relationship_type": "dependency",
+      "description": "Navigation and registration (S6) operate on a bike selected from the available bikes shown in S5.",
+      "evidence": [
+        "S6: 'navigate to the available bike that they have selected'",
+        "S5: 'view all of available bikes in close proximity'"
+      ]
+    },
+    {
+      "requirement_ids": ["S6", "S7"],
+      "relationship_type": "dependency",
+      "description": "Removing a bike from the available list (S7) is triggered by bike registration (S6).",
+      "evidence": [
+        "S7: 'As soon as the bike is registered it must be removed from the list of available bikes.'",
+        "S6: 'register the bike for 90 minutes'"
+      ]
+    },
+    {
+      "requirement_ids": ["S5"],
+      "relationship_type": "inconsistency",
+      "description": "The proximity radius is user-defined in S5 (example 100 m) whereas the project description states a 1000-meter radius; their relationship is not stated.",
+      "evidence": [
+        "S5: 'proximity defined by him/her ... proximity of 100 meters'",
+        "Project description: 'tracking and displaying the location of available bikes within a 1000-meter radius'"
+      ]
+    },
+    {
+      "requirement_ids": ["S6", "S10"],
+      "relationship_type": "conflict",
+      "description": "S6 registers the bike for a fixed 90 minutes, while S10 allows renting for specific minutes, a day or up to a week.",
+      "evidence": [
+        "S6: 'register the bike for 90 minutes'",
+        "S10: 'rent a bike for specific minutes, a day or for a week at maximum'"
+      ]
+    },
+    {
+      "requirement_ids": ["S6"],
+      "relationship_type": "inconsistency",
+      "description": "The unlock mechanism is described as a QR code in the project description, while S6 mentions scanning 'the code on bike scanner' or a four-digit code.",
+      "evidence": [
+        "Project description: 'unlocking them using a QR code'",
+        "S6: 'scan the code on bike scanner or by inputting the four digit code'"
+      ]
+    },
+    {
+      "requirement_ids": ["S9", "S10"],
+      "relationship_type": "dependency",
+      "description": "The expiry notification and overtime determination (S9) depend on the rental duration chosen (S10).",
+      "evidence": [
+        "S9: 'notify the biker X minutes prior to the expiry of their rental time'",
+        "S10: 'rent a bike for specific minutes, a day or for a week at maximum'"
+      ]
+    },
+    {
+      "requirement_ids": ["S8", "S9", "S10"],
+      "relationship_type": "shared_functionality",
+      "description": "Charging the biker covers the rental fee for the chosen duration and additional overtime charges, all paid via the payment means of S8.",
+      "evidence": [
+        "S8: 'pay via their bank account or by their debit/credit card'",
+        "S9: 'overtime rides are subject to additional charges'",
+        "Project description: 'third-party payment platforms to allow users to pay for the bike rental fee seamlessly'"
+      ]
+    },
+    {
+      "requirement_ids": ["S8"],
+      "relationship_type": "inconsistency",
+      "description": "S8 names bank account and debit/credit card, while the project description requires compatibility with 'a variety of third-party payment platforms'; the set of platforms is not reconciled.",
+      "evidence": [
+        "S8: 'pay via their bank account or by their debit/credit card'",
+        "Project description: 'compatible with a variety of third-party payment platforms'"
+      ]
+    },
+    {
+      "requirement_ids": ["S2", "S9"],
+      "relationship_type": "shared_functionality",
+      "description": "Both require sending messages to the biker (verification code; expiry notification).",
+      "evidence": [
+        "S2: 'sent a verification code via an SMS or email'",
+        "S9: 'The app must notify the biker'"
+      ]
+    },
+    {
+      "requirement_ids": ["S6", "S11", "S13"],
+      "relationship_type": "shared_data",
+      "description": "Rental records created at registration feed the biker usage history (S11) and the administrator hourly/daily usage (S13).",
+      "evidence": [
+        "S11: 'view and download their bike usage history up to last 3 months'",
+        "S13: 'an hourly and daily usage of the bikes'"
+      ]
+    },
+    {
+      "requirement_ids": ["S12", "S13"],
+      "relationship_type": "overlap",
+      "description": "Both are administrator capabilities over the bike fleet (status view and usage information).",
+      "evidence": [
+        "S12: 'The bike administrator is able to view all of the bikes'",
+        "S13: 'The administrator must be able to do an hourly and daily usage of the bikes.'"
+      ]
+    },
+    {
+      "requirement_ids": ["S1", "S11", "S13"],
+      "relationship_type": "shared_concern",
+      "description": "Storage and retention of personal and usage data must respect GDPR and the Privacy Directive.",
+      "evidence": [
+        "S11: 'up to last 3 months'",
+        "Project description: 'comply with the General Data Protection Regulation (GDPR) and the Privacy Directive'"
+      ]
+    },
+    {
+      "requirement_ids": ["S1", "S3", "S5", "S6", "S8", "S11", "S12"],
+      "relationship_type": "shared_concern",
+      "description": "All user-facing functionality must be accessible through both web and mobile devices and be user-friendly.",
+      "evidence": [
+        "Project description: 'accessible through both web and mobile devices to maximize the availability of the service'",
+        "Project description: 'available on web and mobile devices'",
+        "Project description: 'user-friendly and easy to use for all potential riders'"
+      ]
+    },
+    {
+      "requirement_ids": ["S1", "S8", "S11"],
+      "relationship_type": "inconsistency",
+      "description": "The project description names the service CityBike for a city administration but also refers to 'the location of the university' (and the system is named campus-bike), leaving the regulatory jurisdiction (EU or China) and deployment context unclear.",
+      "evidence": [
+        "Project description: 'the city administration have introduced CityBike service'",
+        "Project description: 'including EU or China standards, depending on the location of the university'",
+        "Input system_name: 'campus-bike'"
+      ]
+    }
+  ]
+}

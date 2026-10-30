@@ -1,0 +1,21 @@
+{
+  "reviews": [
+    { "stage": 1, "verdict": "pass", "blocking": [], "findings": [] },
+    { "stage": 2, "verdict": "pass", "blocking": [], "findings": [] },
+    { "stage": 3, "verdict": "pass", "blocking": [], "findings": [] },
+    {
+      "stage": 4,
+      "verdict": "pass_with_findings",
+      "blocking": [],
+      "findings": [
+        { "severity": "major", "artifact": "architecture_diagram.mmd", "issue": "The diagram labels edges with a protocol (HTTP/REST) that does not appear in the inputs or in alternative A3. The stage 4 register (S4-G1) only covers the client-to-BFF edges. The same label is also put on the rider/admin-to-client edges, which are human interactions, and on the payment and SMS/email adapter edges, which no gap entry covers.", "evidence": "Lines 34-39 and 62-65 label rider/admin->webClient, webClient->webBFF, payments/notifications adapter edges as HTTP/REST; no protocol appears in 00_input/* or alternatives.json; S4-G1 origin is only 'architecture_diagram.mmd#/edges/webClient-webBFF'." },
+        { "severity": "minor", "artifact": "architecture_diagram.mmd", "issue": "The diagram draws the Identity module outside the Modular Monolith Core subgraph, as a separate 'identityProvider' node. The selected alternative and the ADR place Identity among the core's capability modules.", "evidence": "adr.md Decision lists Identity among the core capability modules; diagram line 4 declares identityProvider outside subgraph core (lines 16-22)." },
+        { "severity": "minor", "artifact": "adr.md", "issue": "The Traceability table does not cite requirement S10 or the driver 'Physical bike unlock by code', although both exist and the ADR discusses them elsewhere. The Context section also groups S10 under 'expiry and overtime handling', while S10 is actually about rental duration.", "evidence": "Traceability rows cite S1-S9, S11-S13 only; Context: 'receive expiry and overtime handling (S9-S10)'; input S10 is about rental duration." },
+        { "severity": "minor", "artifact": "adr.md", "issue": "The ADR describes gap S3-G8 inaccurately. It pairs S3-G8 with S2-G12 as being about read-model lag, but S3-G8 is about whether the single core database can absorb location updates and rider transactions.", "evidence": "adr.md '**S2-G12 / S3-G8** ... read models may lag'; stage3 S3-G8 concerns single core database capacity." },
+        { "severity": "minor", "artifact": "adr.md", "issue": "The Traceability table shortens quality attribute names, so they do not exactly match the names in quality_attributes.json.", "evidence": "'Performance (timeliness)', 'Portability', 'Sustainability' vs full names in quality_attributes.json." }
+      ]
+    }
+  ],
+  "carried": "see review_findings_carried in ../output/assumptions_and_gaps.json (the Stage 4 findings above, each tagged stage 4)",
+  "notes": "Stage 4 review ran in a resumed session as a general-purpose agent following .claude/agents/sara-contract-reviewer.md, after the first attempt was cut off by a usage limit."
+}

@@ -1,0 +1,182 @@
+{
+  "system_name": "campus-bike",
+  "priority_scale_note": "Priority (high/medium/low) reflects the strength and breadth of evidence in the requirements and project description constraints. The numeric 'priority' attribute of the functional requirements is not used because its direction (ascending/descending importance) is undefined in the input.",
+  "quality_attributes": [
+    {
+      "name": "security",
+      "description": "Protection of user data (identity and contact data, credentials, biometric data, location, usage history) and payment information against unauthorized access and disclosure, including authentication and session control, and compliance with GDPR, the Privacy Directive, ISO 27001 and applicable local regulations (EU or China).",
+      "rationale": "Security and privacy are stated explicitly and repeatedly: as project constraints (GDPR, Privacy Directive, ISO 27001, security and privacy of payment information) and in requirements demanding end-to-end encryption (S1), biometric data disposal (S3), session timeout (S4) and verification codes (S2). Personal data is handled by most requirements (S1, S3, S5, S8, S11, S13).",
+      "source_requirement_ids": ["S1", "S2", "S3", "S4", "S5", "S8", "S11", "S12", "S13"],
+      "evidence": [
+        "Project description: 'comply with the General Data Protection Regulation (GDPR) and the Privacy Directive'",
+        "Project description: 'comply with the relevant security and data protection standards, such as ISO 27001'",
+        "Project description: 'ensure the security and privacy of user data, including payment information'",
+        "Project description: 'comply with local regulations and standards, including EU or China standards'",
+        "S1: 'user information is secured with an end-to-end encryption of information between user device and app database'",
+        "S2: 'send a verification code via an SMS or email that is valid for 30 minutes'",
+        "S3: 'flush out user thumb impression as soon as the user has been able to login'",
+        "S4: 'logged out ... after an inactivity of 15 minutes'",
+        "S8: 'pay via their bank account or by their debit/credit card'",
+        "S11: 'usage history up to last 3 months' (retention of personal data)",
+        "S12/S13: administrator role distinct from biker role (access control)"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "interoperability",
+      "description": "Ability of the system to exchange information correctly with external parties: a variety of third-party payment platforms (bank account, debit/credit card), SMS and email delivery, location/navigation information, and the bikes themselves (QR / four-digit code registration and unlocking).",
+      "rationale": "The project description explicitly requires compatibility with 'a variety of third-party payment platforms' and the requirements depend on external capabilities for verification (S2), payment (S8), navigation (S6) and bike unlocking/location tracking (project description, S6). The details of the bike-side interaction are ambiguous (see requirements_analysis, S6).",
+      "source_requirement_ids": ["S2", "S5", "S6", "S8", "S9"],
+      "evidence": [
+        "Project description: 'compatible with a variety of third-party payment platforms to allow users to pay for the bike rental fee seamlessly'",
+        "Project description: 'tracking and displaying the location of available bikes ... and unlocking them using a QR code'",
+        "S2: 'send a verification code via an SMS or email'",
+        "S6: 'help the biker to navigate to the available bike'; 'scan the code on bike scanner or by inputting the four digit code'",
+        "S8: 'pay via their bank account or by their debit/credit card'"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "data consistency / correctness (reliability)",
+      "description": "Correctness of shared state related to bikes and rentals: a bike must be registered by at most one biker at a time, its availability status must be consistent across biker and administrator views, rental expiry and overtime must be computed correctly, and payment/charges must correspond to rentals.",
+      "rationale": "S7 requires a registered bike to be removed from the available list 'as soon as' it is registered; the cross-requirement analysis shows bike status is shared data among S5, S7 and S12 and that concurrent registrations of the same bike are possible because S6 does not reserve bikes. S8/S9 tie money to rental durations, so incorrect rental data has financial consequences.",
+      "source_requirement_ids": ["S5", "S6", "S7", "S8", "S9", "S10", "S12"],
+      "evidence": [
+        "S7: 'As soon as the bike is registered it must be removed from the list of available bikes'",
+        "S6: 'navigate to the available bike that they have selected. Upon reaching bike ... register the bike'",
+        "S12: 'view all of the bikes in the city as available or under utilization'",
+        "S9: 'Any overtime rides are subject to additional charges'",
+        "S10: 'rent a bike for specific minutes, a day or for a week at maximum'"
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "availability",
+      "description": "The rental service must be reachable for riders when they want to find, register and pay for bikes, on both web and mobile channels.",
+      "rationale": "The project description explicitly links multi-channel access to maximizing the availability of the service. Rentals can last up to a week (S10) and expiry notifications (S9) must be delivered at the right time during a rental, which implies the service is expected to operate continuously. No numeric availability target is given.",
+      "source_requirement_ids": ["S5", "S6", "S8", "S9", "S10"],
+      "evidence": [
+        "Project description: 'accessible through both web and mobile devices to maximize the availability of the service'",
+        "S9: 'notify the biker X minutes prior to the expiry of their rental time'",
+        "S10: 'a day or for a week at maximum'"
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "performance (timeliness)",
+      "description": "Timely responses and updates for time-sensitive behaviours: displaying nearby available bikes with current locations, propagating availability changes upon registration, delivering verification codes within their validity window, and sending expiry notifications before rental expiry.",
+      "rationale": "Several requirements contain explicit timing elements: 'as soon as' (S7), verification code validity of 30 minutes / 30 seconds (S2, inconsistent), notification X minutes prior to expiry (S9), 15-minute inactivity logout (S4), and real-time tracking of bike locations (project description, S5). No response-time or throughput targets are stated.",
+      "source_requirement_ids": ["S2", "S4", "S5", "S7", "S9"],
+      "evidence": [
+        "S7: 'As soon as the bike is registered it must be removed from the list of available bikes'",
+        "S2: 'valid for 30 minutes. If the code is not entered within 30 seconds it is expired'",
+        "S9: 'notify the biker X minutes prior to the expiry of their rental time'",
+        "Project description: 'tracking and displaying the location of available bikes within a 1000-meter radius'",
+        "S5: 'view all of available bikes in close proximity'"
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "usability",
+      "description": "The system must be user-friendly and easy to use for all potential riders, including convenient login (biometric), bike discovery by proximity, navigation guidance, simple registration via code scan or four-digit code, and seamless payment.",
+      "rationale": "Stated explicitly as a project constraint ('user-friendly and easy to use for all potential riders') and reflected in features whose purpose is convenience (S3 biometric login, S5 user-defined proximity, S6 navigation and alternative code entry, 'pay ... seamlessly').",
+      "source_requirement_ids": ["S3", "S5", "S6", "S8", "S11"],
+      "evidence": [
+        "Project description: 'user-friendly and easy to use for all potential riders'",
+        "Project description: 'pay for the bike rental fee seamlessly'",
+        "S3: 'by using their biometric thumb-impression'",
+        "S6: 'scan the code on bike scanner or by inputting the four digit code'"
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "portability (multi-platform access)",
+      "description": "The same service functionality must be offered through web and mobile devices.",
+      "rationale": "Explicit project constraint; S3 (biometric login) shows that some capabilities depend on device features, which creates differences between channels that must be handled.",
+      "source_requirement_ids": ["S3", "S5", "S6"],
+      "evidence": [
+        "Project description: 'available on web and mobile devices'",
+        "Project description: 'accessible through both web and mobile devices'",
+        "S3: 'biometric thumb-impression' (device-dependent capability)"
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "modifiability",
+      "description": "Ability to accommodate expected variation: adding or changing third-party payment platforms and payment methods, adapting to different regulatory regimes (EU or China) depending on deployment location, and adjusting rental parameters (durations, X minutes, overtime charges).",
+      "rationale": "The project description requires support for 'a variety' of payment platforms and compliance with EU or China standards 'depending on the location'; S8 says cash is 'currently' not supported, hinting at future payment-method change. Several parameters (X in S9, rental durations in S6/S10) are unspecified or inconsistent, suggesting they may change. Evidence is mostly implied, hence lower priority.",
+      "source_requirement_ids": ["S8", "S9", "S10"],
+      "evidence": [
+        "Project description: 'compatible with a variety of third-party payment platforms'",
+        "Project description: 'including EU or China standards, depending on the location of the university'",
+        "S8: 'Currently cash payments are not supported'",
+        "S9: 'notify the biker X minutes prior to the expiry'"
+      ],
+      "priority": "low"
+    },
+    {
+      "name": "auditability / traceability of usage data",
+      "description": "Rental and usage records must be retained and retrievable to provide biker usage history (3 months, downloadable) and administrator hourly/daily usage information, and to support charging.",
+      "rationale": "S11 and S13 explicitly require historical usage information for bikers and administrators; S9 overtime charges require a record of rental times. Retention must be balanced with GDPR obligations.",
+      "source_requirement_ids": ["S9", "S11", "S13"],
+      "evidence": [
+        "S11: 'view and download their bike usage history up to last 3 months'",
+        "S13: 'hourly and daily usage of the bikes'",
+        "S9: 'Any overtime rides are subject to additional charges'"
+      ],
+      "priority": "low"
+    },
+    {
+      "name": "sustainability (resource efficiency)",
+      "description": "The software should be designed to minimize its carbon footprint while promoting sustainable mobility.",
+      "rationale": "Stated explicitly as a project constraint. It is ambiguous whether it targets the software's own resource/energy usage or the mobility outcome of the service; it is recorded as stated without interpretation.",
+      "source_requirement_ids": [],
+      "evidence": [
+        "Project description: 'designed to minimize the carbon footprint and promote sustainable mobility'"
+      ],
+      "priority": "low"
+    }
+  ],
+  "excluded_attributes": [
+    {
+      "name": "scalability",
+      "reason": "No requirement or constraint states expected numbers of users, bikes, concurrent rentals or growth. A city-wide service suggests load concerns, but this is not supported by explicit evidence and is not included."
+    },
+    {
+      "name": "maintainability (as distinct from modifiability)",
+      "reason": "No evidence beyond the variation points covered under modifiability."
+    }
+  ],
+  "quality_attribute_interactions": [
+    {
+      "attributes": ["security", "usability"],
+      "description": "Short session timeout (S4), short verification code validity (S2) and verification steps increase protection but may reduce ease of use, especially during long rentals (S6, S10).",
+      "source_requirement_ids": ["S2", "S4", "S6", "S10"]
+    },
+    {
+      "attributes": ["security", "portability (multi-platform access)"],
+      "description": "Biometric login (S3) and end-to-end encryption from the user device (S1) depend on device capabilities that may differ between web and mobile channels.",
+      "source_requirement_ids": ["S1", "S3"]
+    },
+    {
+      "attributes": ["security", "auditability / traceability of usage data"],
+      "description": "Retaining usage history and per-bike usage (S11, S13) is in tension with GDPR data minimization/retention constraints; location data increases privacy sensitivity.",
+      "source_requirement_ids": ["S5", "S11", "S13"]
+    },
+    {
+      "attributes": ["data consistency / correctness (reliability)", "performance (timeliness)"],
+      "description": "Availability status must be updated 'as soon as' a bike is registered (S7) and remain consistent for all viewers (S5, S12) while preventing double registration.",
+      "source_requirement_ids": ["S5", "S7", "S12"]
+    },
+    {
+      "attributes": ["interoperability", "modifiability"],
+      "description": "Support for 'a variety' of payment platforms and region-dependent standards requires that external integrations can vary.",
+      "source_requirement_ids": ["S8"]
+    },
+    {
+      "attributes": ["interoperability", "security"],
+      "description": "Exchanging payment information and personal contact data with third parties (payment platforms, SMS/email) must respect the security and privacy constraints.",
+      "source_requirement_ids": ["S2", "S8"]
+    }
+  ]
+}

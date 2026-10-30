@@ -1,0 +1,26 @@
+{
+  "mode": "fallback",
+  "reviews": [
+    { "stage": 1, "verdict": "pass", "blocking": [], "findings": [] },
+    { "stage": 2, "verdict": "pass", "blocking": [], "findings": [] },
+    { "stage": 3, "verdict": "pass", "blocking": [], "findings": [] },
+    { "stage": 4, "verdict": "pass_with_findings", "blocking": [], "findings": [
+      {
+        "severity": "major",
+        "artifact": "architecture_diagram.mmd",
+        "issue": "Client-to-backend edges are labeled with the protocol 'HTTP/REST', a technology detail not stated in any Stage 1-3 input or in alternatives.json's A1 description.",
+        "evidence": "architecture_diagram.mmd lines 21-28, e.g. 'biker -->|\"HTTP/REST, access token\"| identity'; vs. alternatives.json#/alternatives/0/description which describes client authentication without naming a transport protocol; 00_input files do not mention HTTP or REST."
+      }
+    ] }
+  ],
+  "carried": [
+    {
+      "stage": 4,
+      "severity": "major",
+      "artifact": "architecture_diagram.mmd",
+      "issue": "Client-to-backend edges are labeled with the protocol 'HTTP/REST', a technology detail not stated in any Stage 1-3 input or in alternatives.json's A1 description.",
+      "evidence": "architecture_diagram.mmd lines 21-28, e.g. 'biker -->|\"HTTP/REST, access token\"| identity'; vs. alternatives.json#/alternatives/0/description which describes client authentication without naming a transport protocol; 00_input files do not mention HTTP or REST."
+    }
+  ],
+  "finalReview": { "stage": 5, "verdict": "pass", "blocking": [], "findings": [] }
+}

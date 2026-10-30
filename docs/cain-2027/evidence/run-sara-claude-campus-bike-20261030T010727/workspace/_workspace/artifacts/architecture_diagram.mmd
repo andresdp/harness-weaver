@@ -1,0 +1,45 @@
+flowchart LR
+    biker["Biker<br/>web or mobile client"]
+    admin["Administrator<br/>admin console client"]
+
+    subgraph backend["Single deployable back end"]
+        direction LR
+        identity["Identity and Session Module<br/>registration, login, tokens, logout, inactivity timeout"]
+        fleet["Bike Fleet Module<br/>bike location and availability"]
+        rental["Rental Module<br/>rental lifecycle, expiry and overtime time-based jobs"]
+        payment["Payment Module<br/>payment orchestration and adapters"]
+        notification["Notification Module<br/>verification and expiry message dispatch"]
+        reporting["Usage and Reporting Module<br/>usage history and fleet reporting"]
+    end
+
+    db[("Shared Transactional Database<br/>schema per module, local ACID transactions")]
+
+    paymentPlatforms["Third-Party Payment Platforms<br/>bank and card"]
+    smsEmail["SMS / Email Providers"]
+    bikeLock["Bike / Lock Interface<br/>physical bike hardware"]
+
+    biker -->|"HTTP/REST, access token"| identity
+    biker -->|"HTTP/REST"| fleet
+    biker -->|"HTTP/REST"| rental
+    biker -->|"HTTP/REST"| payment
+    biker -->|"HTTP/REST"| reporting
+    admin -->|"HTTP/REST, access token"| identity
+    admin -->|"HTTP/REST"| fleet
+    admin -->|"HTTP/REST"| reporting
+
+    identity -->|"synchronous call"| rental
+    fleet -->|"synchronous call, local transaction"| rental
+    rental -->|"synchronous call, local transaction"| fleet
+    rental -->|"synchronous call"| payment
+    rental -->|"synchronous call"| notification
+    reporting -->|"data access"| db
+
+    identity -->|"data access"| db
+    fleet -->|"data access, local ACID transaction"| db
+    rental -->|"data access, local ACID transaction"| db
+    payment -->|"data access"| db
+    notification -->|"data access"| db
+
+    payment -->|"adapter, external payment request"| paymentPlatforms
+    notification -->|"adapter, SMS or email send"| smsEmail
+    fleet -->|"adapter, bike/lock status and command"| bikeLock

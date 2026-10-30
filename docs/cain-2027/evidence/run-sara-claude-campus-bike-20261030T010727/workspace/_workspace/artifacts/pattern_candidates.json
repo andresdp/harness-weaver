@@ -1,0 +1,266 @@
+{
+  "pattern_candidates": [
+    {
+      "pattern_name": "Layered Architecture",
+      "description": "Organizes the system into horizontal layers (presentation, application/business logic, data access) where each layer only depends on the layer below it.",
+      "addressed_concerns": [
+        "Separating web and mobile presentation from shared business logic so both clients use the same rules",
+        "Placing security controls (authentication, authorization, encryption handling) in well-defined layers",
+        "Isolating data access for personal, payment and usage data"
+      ],
+      "source_requirement_ids": ["S1", "S3", "S4", "S5", "S11", "S12"],
+      "source_driver_names": [
+        "Web and mobile client access",
+        "Security of user and payment data",
+        "Biker authentication and session management"
+      ],
+      "rationale": "The project description requires the same functionality on web and mobile devices, which favours keeping presentation separate from business logic. S1, S3 and S4 place security and session rules on the server side, and these can be enforced consistently in an application layer. This is a well-established baseline structure that can be used inside other decomposition styles.",
+      "limitations": [
+        "Does not decide how the system is split into deployable units; it only structures code inside a unit.",
+        "Strict layering can lead to pass-through code and does not by itself isolate external integrations (payment, SMS/email) from business logic.",
+        "Gives no specific support for time-driven behaviour (S9 rental expiry) or event propagation (S7 availability changes)."
+      ]
+    },
+    {
+      "pattern_name": "Modular Monolith",
+      "description": "A single deployable application divided internally into well-bounded modules (for example identity, bike fleet, rental, payment, notification, reporting), each with its own public interface and owned data, communicating only through those interfaces.",
+      "addressed_concerns": [
+        "Functional decomposition along the requirement clusters (authentication, bike tracking, rental, payment, reporting)",
+        "Strong consistency of bike and rental state through local transactions in one process",
+        "Keeping operational complexity low while preserving module boundaries for later change"
+      ],
+      "source_requirement_ids": ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13"],
+      "source_driver_names": [
+        "Consistent bike and rental state",
+        "Bike registration and unlocking",
+        "Bike location and availability tracking",
+        "Rental lifecycle timing",
+        "Changeability of payment options and regulations",
+        "Sustainable mobility goal"
+      ],
+      "rationale": "The requirements form clear functional clusters (S1-S4 identity, S5/S7/S12 fleet status, S6/S9/S10 rental, S8 payment, S11/S13 history and reporting), which justifies modular decomposition. S7 and the inferred one-rental-per-bike rule require that registration and availability change consistently, which a single process with local transactions supports directly. No scalability or load targets are stated (stage 1 gap S1-G67), so the evidence does not demand independent scaling. A single deployment also uses fewer runtime resources, which is weakly related to the unquantified sustainability goal.",
+      "limitations": [
+        "All modules scale and are deployed together; if load on bike tracking differs strongly from other functions, the whole application must be scaled.",
+        "Module boundaries are enforced only by discipline or tooling, not by process isolation, so they may erode.",
+        "A fault in one module can affect the whole application.",
+        "Makes limited use of the permitted technology context (service registry, distributed tracing), although that context is not mandatory."
+      ]
+    },
+    {
+      "pattern_name": "Microservices",
+      "description": "Decomposes the system into independently deployable services, each owning a business capability (for example identity, bike fleet, rental, payment, notification, reporting) and communicating over the network.",
+      "addressed_concerns": [
+        "Independent deployment and evolution of capabilities such as payment integration and regional compliance",
+        "Isolation of sensitive data (credentials, payment) in separate services with restricted access",
+        "Independent scaling of bike tracking versus other functions"
+      ],
+      "source_requirement_ids": ["S1", "S2", "S3", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13"],
+      "source_driver_names": [
+        "Changeability of payment options and regulations",
+        "Third-party payment platform integration",
+        "Security of user and payment data",
+        "Bike location and availability tracking",
+        "Permitted technology context"
+      ],
+      "rationale": "The project description permits a container orchestration platform, service registry and discovery, API gateway, message broker and distributed tracing, which is the typical runtime context for microservices. The expectation that payment options and regional regulations change (S8 'Currently', 'EU or China standards') supports isolating these capabilities so they can be changed and deployed independently. Isolating payment and identity data in their own services can narrow the scope of security and compliance controls.",
+      "limitations": [
+        "Bike registration (S6), availability removal (S7) and charging (S8/S9) span several services, so consistency requires distributed coordination instead of local transactions.",
+        "Considerably higher operational complexity (service discovery, distributed tracing, network failures), with no stated scalability or load target to justify it (stage 1 gap S1-G67).",
+        "More network hops carry personal and payment data, widening the surface that must be encrypted and secured.",
+        "Cross-service reporting (S11, S13) needs data to be collected from several services."
+      ]
+    },
+    {
+      "pattern_name": "API Gateway",
+      "description": "A single entry point between clients and back-end components that routes requests and centralizes cross-cutting edge concerns such as authentication, TLS termination, rate limiting and request logging.",
+      "addressed_concerns": [
+        "One secured entry point for web and mobile clients",
+        "Centralized enforcement of authentication and session validation at the edge",
+        "Hiding the internal decomposition from clients"
+      ],
+      "source_requirement_ids": ["S1", "S3", "S4", "S12", "S13"],
+      "source_driver_names": [
+        "Web and mobile client access",
+        "Security of user and payment data",
+        "Biker authentication and session management",
+        "Permitted technology context"
+      ],
+      "rationale": "Both web and mobile clients must reach the same functionality (project description), and S1, S3, S4 and the administrator role in S12/S13 require consistent authentication and access control. A gateway gives one place to enforce these. The project description explicitly permits an API gateway.",
+      "limitations": [
+        "Adds an extra network hop and a component that must be highly available, otherwise it becomes a single point of failure.",
+        "Its routing value is low when the back end is a single deployable unit.",
+        "Risk of business logic leaking into the gateway."
+      ]
+    },
+    {
+      "pattern_name": "Backend for Frontend",
+      "description": "A separate server-side facade per client type (for example one for the mobile app, one for the web app, possibly one for the administrator console) that tailors APIs to that client's needs and capabilities.",
+      "addressed_concerns": [
+        "Different capabilities of web and mobile clients (biometric login, location, code scanning)",
+        "Separating biker-facing and administrator-facing APIs"
+      ],
+      "source_requirement_ids": ["S3", "S5", "S6", "S12", "S13"],
+      "source_driver_names": [
+        "Web and mobile client access",
+        "Usability for all riders",
+        "Usage history and administrative reporting"
+      ],
+      "rationale": "Stage 1 recorded that biometric login (S3), location (S5) and scanning (S6) depend on device capabilities that differ between web and mobile clients (S1-G11). A client-specific facade can expose flows suitable for each client. S12 and S13 define an administrator role with different needs from bikers, which is another client type.",
+      "limitations": [
+        "Multiplies facades to build and maintain; logic may be duplicated across them.",
+        "Its benefit depends on how much web and mobile flows really differ, which the inputs do not state (biometric login on web is unresolved, S1-G11).",
+        "Partly overlaps with an API Gateway."
+      ]
+    },
+    {
+      "pattern_name": "Ports and Adapters",
+      "description": "Also known as Hexagonal Architecture. Business logic defines ports (interfaces) for what it needs from the outside; adapters implement them for concrete technologies such as specific payment platforms, SMS/email providers, the bike lock interface and persistence.",
+      "addressed_concerns": [
+        "Integration with a variety of third-party payment platforms behind one interface",
+        "Isolation of SMS and email providers",
+        "Isolation of the not-yet-described bike/lock interface",
+        "Adding or replacing payment methods and region-specific providers without changing business logic"
+      ],
+      "source_requirement_ids": ["S2", "S6", "S8", "S9"],
+      "source_driver_names": [
+        "Third-party payment platform integration",
+        "External SMS and email delivery",
+        "Changeability of payment options and regulations",
+        "Bike registration and unlocking"
+      ],
+      "rationale": "The project description requires compatibility with 'a variety of third-party payment platforms', S8 requires bank account and card payment and implies future change ('Currently'), and S2 depends on external SMS and email channels. The bike-side interface for registration/unlocking is not described (S1-G55). Defining ports for these external dependencies keeps the rental and payment rules independent of the specific platforms, which can differ by region (EU or China).",
+      "limitations": [
+        "Adds abstraction and mapping code for every external dependency.",
+        "A port designed without knowing the actual platforms (S1-G28) may need redesign when real providers are chosen.",
+        "Does not by itself decide the system's deployment decomposition."
+      ]
+    },
+    {
+      "pattern_name": "Publish-Subscribe",
+      "description": "Components publish events (for example BikeRegistered, RentalStarted, RentalExpiring, RentalEnded) to a message broker or event bus, and interested components subscribe to them without the publisher knowing the subscribers.",
+      "addressed_concerns": [
+        "Propagating bike availability changes to biker and administrator views",
+        "Triggering expiry notifications and overtime charging from rental time events independently of the user session",
+        "Feeding usage history and reporting from rental events",
+        "Decoupling notification delivery from core rental logic"
+      ],
+      "source_requirement_ids": ["S6", "S7", "S9", "S10", "S11", "S12", "S13"],
+      "source_driver_names": [
+        "Bike location and availability tracking",
+        "Rental lifecycle timing",
+        "Usage history and administrative reporting",
+        "Permitted technology context"
+      ],
+      "rationale": "S7 requires availability to change as soon as a bike is registered, and that change must reach biker views (S5) and the administrator view (S12). S9 requires notifying the biker before expiry and charging overtime, independently of the 15-minute session (S4, inferred S1-G57). S11 and S13 consume the same rental records. These are several independent consumers of the same events. The project description permits a message broker.",
+      "limitations": [
+        "Asynchronous delivery introduces eventual consistency; the window during which a registered bike may still appear available must be bounded, but no bound is stated (S1-G24).",
+        "Requires handling of duplicate, lost or out-of-order events.",
+        "A broker is an extra component to operate and secure; event payloads with personal data are subject to encryption and GDPR.",
+        "Time-based triggers (expiry X minutes before end) still require a scheduling mechanism that publishes the event."
+      ]
+    },
+    {
+      "pattern_name": "CQRS",
+      "description": "Command Query Responsibility Segregation: separates the model that handles state-changing commands (register bike, start/end rental, pay) from read models optimized for queries (nearby available bikes, fleet status, usage history, hourly/daily aggregates).",
+      "addressed_concerns": [
+        "Efficient proximity queries over available bikes",
+        "Fleet-wide status views for administrators",
+        "Biker usage history for the last 3 months and administrator hourly/daily aggregates",
+        "Keeping reporting load away from the transactional rental model"
+      ],
+      "source_requirement_ids": ["S5", "S11", "S12", "S13"],
+      "source_driver_names": [
+        "Usage history and administrative reporting",
+        "Bike location and availability tracking"
+      ],
+      "rationale": "S5 (proximity view), S12 (fleet status), S11 (3-month history) and S13 (hourly/daily usage) are read-heavy and shaped differently from the transactional operations of S6-S10. Separate read models can be designed for each query shape, including a 3-month-scoped history view relevant to GDPR retention questions (S1-G40).",
+      "limitations": [
+        "Read models lag behind the command model when updated asynchronously, which conflicts with immediate removal of a registered bike (S7) unless the lag is bounded.",
+        "Adds complexity (two models, synchronization) that may be disproportionate since no data volumes or query loads are stated (S1-G67).",
+        "Duplicated personal data in read models increases the data that must be protected and erased for GDPR."
+      ]
+    },
+    {
+      "pattern_name": "Shared Database",
+      "description": "All modules or components use one logical transactional database (possibly with separate schemas per module), allowing local ACID transactions across related data.",
+      "addressed_concerns": [
+        "Atomic bike registration: marking a bike unavailable and creating the rental in one transaction",
+        "Preventing two bikers from registering the same bike",
+        "Single place to apply encryption at rest, access control, retention and erasure for personal data"
+      ],
+      "source_requirement_ids": ["S1", "S6", "S7", "S9", "S10", "S11", "S12"],
+      "source_driver_names": [
+        "Consistent bike and rental state",
+        "GDPR and regional regulatory compliance",
+        "Security of user and payment data"
+      ],
+      "rationale": "S7 and the inferred one-active-registration-per-bike rule (S1-G58) require the bike's availability and the rental record to change together. S9 overtime charging relies on correct rental timing records. A single transactional store supports this with local transactions. S1 mentions an 'app database' as the endpoint of encryption, and centralizing personal data simplifies GDPR retention and erasure.",
+      "limitations": [
+        "Couples modules through the data store; schema changes can affect several modules.",
+        "Incompatible with independently deployable services that own their data.",
+        "The single store is a shared point of failure and contention."
+      ]
+    },
+    {
+      "pattern_name": "Database per Service",
+      "description": "Each service owns its private data store, which no other service accesses directly; data is shared only through the service's API or events.",
+      "addressed_concerns": [
+        "Isolation of credentials, payment and personal data in their owning services",
+        "Independent evolution of service data models"
+      ],
+      "source_requirement_ids": ["S1", "S3", "S8", "S11"],
+      "source_driver_names": [
+        "Security of user and payment data",
+        "GDPR and regional regulatory compliance",
+        "Changeability of payment options and regulations"
+      ],
+      "rationale": "Personal (S1), biometric-related (S3), payment (S8) and usage (S11) data fall under GDPR and ISO 27001 constraints. Restricting each category to its owning service narrows access and the scope of compliance controls, and lets payment-related data evolve with changing payment options.",
+      "limitations": [
+        "Operations that span services (registration plus availability plus charging) cannot use a single ACID transaction.",
+        "Queries across services (S13 usage by hour/day, S12 fleet status with rental data) require composition or replicated read models.",
+        "Only meaningful together with a service-based decomposition."
+      ]
+    },
+    {
+      "pattern_name": "Saga",
+      "description": "Manages a business transaction that spans several services as a sequence of local transactions, each publishing an event or message that triggers the next, with compensating actions on failure (orchestrated or choreographed).",
+      "addressed_concerns": [
+        "Consistency of bike registration, availability update and payment across separately owned data",
+        "Handling failed unlock or failed payment with compensating actions"
+      ],
+      "source_requirement_ids": ["S6", "S7", "S8", "S9", "S10"],
+      "source_driver_names": [
+        "Consistent bike and rental state",
+        "Bike registration and unlocking",
+        "Third-party payment platform integration"
+      ],
+      "rationale": "Starting a rental involves registering/unlocking the bike (S6), removing it from availability (S7) and, at some point, charging through an external payment platform (S8, S9). External payment platforms cannot join a local database transaction in any decomposition, and when rental, fleet and payment data are owned by different services, a Saga is the established way to keep them consistent. Behaviour on failed unlock is unstated (S1-G23), which is exactly where compensation would apply.",
+      "limitations": [
+        "Only eventual consistency; intermediate states (bike reserved but payment pending) are visible.",
+        "Compensating actions must be designed for each step, but the payment timing (S1-G27) and failure behaviour (S1-G23) are not specified.",
+        "Adds significant design and testing complexity; largely unnecessary where all internal data is in one transactional store."
+      ]
+    },
+    {
+      "pattern_name": "Access Token",
+      "description": "After authentication, a token (for example a signed token with expiry) representing the user's identity and role is issued and passed with each request; components validate the token instead of re-authenticating the user.",
+      "addressed_concerns": [
+        "Uniform authentication for email/password and biometric login",
+        "Session expiry after 15 minutes of inactivity and explicit logout",
+        "Separating biker and administrator permissions"
+      ],
+      "source_requirement_ids": ["S1", "S2", "S3", "S4", "S12", "S13"],
+      "source_driver_names": [
+        "Biker authentication and session management",
+        "Security of user and payment data",
+        "Web and mobile client access"
+      ],
+      "rationale": "S3 allows two authentication methods that must lead to the same authenticated session, S4 requires logout and a 15-minute inactivity timeout, and S12/S13 require an administrator role distinct from bikers (S1-G60). A token that carries identity and role, with server-side expiry and revocation, works the same way for web and mobile clients.",
+      "limitations": [
+        "Stateless tokens cannot be revoked immediately on logout or inactivity without additional state (revocation list, short expiry with refresh), which S4 requires.",
+        "Does not resolve where biometric matching happens (S1-G9); it only standardizes what happens after authentication.",
+        "Token leakage gives access until expiry; transport encryption is required (S1)."
+      ]
+    }
+  ]
+}

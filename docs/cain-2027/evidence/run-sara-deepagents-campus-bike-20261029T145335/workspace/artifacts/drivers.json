@@ -1,0 +1,145 @@
+{
+  "drivers": [
+    {
+      "name": "Security, privacy, and regulatory compliance",
+      "description": "The system must protect personal, biometric, and payment data and satisfy GDPR, the Privacy Directive, ISO 27001, and local regional standards.",
+      "driver_type": "constraint",
+      "priority": "high",
+      "source_requirement_ids": [
+        "S1",
+        "S3",
+        "S8"
+      ],
+      "supporting_evidence": [
+        "Project description requires GDPR and Privacy Directive compliance.",
+        "Project description requires ISO 27001 compliance.",
+        "Project description requires compliance with local regulations and standards, including EU or China standards, depending on location.",
+        "S1 requires secure handling of registration data.",
+        "S3 involves biometric login handling.",
+        "S8 involves payment data handling."
+      ]
+    },
+    {
+      "name": "Time-sensitive rider interactions",
+      "description": "The system must handle authentication timing, session timeout, rental expiration notifications, and short-lived verification flows correctly.",
+      "driver_type": "functional_requirement",
+      "priority": "high",
+      "source_requirement_ids": [
+        "S2",
+        "S3",
+        "S4",
+        "S9",
+        "S10"
+      ],
+      "supporting_evidence": [
+        "S2 defines verification code validity and expiration timing.",
+        "S3 requires login by credentials or biometric thumb-impression.",
+        "S4 requires logout after 15 minutes of inactivity.",
+        "S9 requires notification before rental expiry.",
+        "S10 defines rental duration limits."
+      ]
+    },
+    {
+      "name": "Real-time bike availability and location awareness",
+      "description": "The system must keep nearby bike discovery, bike selection, registration, and availability status aligned with current bike state and user proximity needs.",
+      "driver_type": "functional_requirement",
+      "priority": "high",
+      "source_requirement_ids": [
+        "S5",
+        "S6",
+        "S7",
+        "S12"
+      ],
+      "supporting_evidence": [
+        "S5 requires viewing available bikes by proximity.",
+        "S6 requires navigation to a selected bike and registration by scan or code.",
+        "S7 requires immediate removal from available bikes after registration.",
+        "S12 requires administrator visibility of all bikes as available or under utilization."
+      ]
+    },
+    {
+      "name": "Billing and payment handling",
+      "description": "The system must support payment processing and additional charges associated with overtime rides.",
+      "driver_type": "functional_requirement",
+      "priority": "high",
+      "source_requirement_ids": [
+        "S8",
+        "S9"
+      ],
+      "supporting_evidence": [
+        "S8 requires payment by bank account or debit/credit card and disallows cash.",
+        "S9 states overtime rides are subject to additional charges."
+      ]
+    },
+    {
+      "name": "Cross-channel access for riders and administrators",
+      "description": "The system must serve both web and mobile users while supporting rider and administrator workflows.",
+      "driver_type": "business_concern",
+      "priority": "medium",
+      "source_requirement_ids": [
+        "S1",
+        "S5",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "supporting_evidence": [
+        "Project description states the software should be available on web and mobile devices.",
+        "S1 involves rider registration.",
+        "S5 and S11 involve rider-facing bike discovery and usage history.",
+        "S12 and S13 involve administrator views and usage reporting."
+      ]
+    },
+    {
+      "name": "Operational reporting and history retention",
+      "description": "The system must retain and expose historical usage data for riders and administrators.",
+      "driver_type": "functional_requirement",
+      "priority": "medium",
+      "source_requirement_ids": [
+        "S11",
+        "S13"
+      ],
+      "supporting_evidence": [
+        "S11 requires viewing and downloading usage history up to the last 3 months.",
+        "S13 requires hourly and daily bike usage reporting."
+      ]
+    },
+    {
+      "name": "External service compatibility",
+      "description": "The system must interoperate with external communication and payment services.",
+      "driver_type": "integration_concern",
+      "priority": "medium",
+      "source_requirement_ids": [
+        "S2",
+        "S8"
+      ],
+      "supporting_evidence": [
+        "S2 allows verification code delivery via SMS or email.",
+        "Project description requires compatibility with a variety of third-party payment platforms.",
+        "S8 requires payment via bank account or debit/credit card."
+      ]
+    },
+    {
+      "name": "User experience simplicity",
+      "description": "The system must be easy to use for potential riders in routine registration, login, bike discovery, rental, and history tasks.",
+      "driver_type": "quality_attribute",
+      "priority": "medium",
+      "source_requirement_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S5",
+        "S6",
+        "S8",
+        "S11"
+      ],
+      "supporting_evidence": [
+        "Project description states the software should be user-friendly and easy to use for all potential riders.",
+        "S1-S3 cover registration and login.",
+        "S5-S6 cover locating and registering a bike.",
+        "S8 covers payment.",
+        "S11 covers history access."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+kind: execution
+name: run-sara-claude-campus-bike-20261029T185144
+pilot: sara
+pilot_dir: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/sara
+target: claude
+case: campus-bike
+case_binding: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/sara/cases/campus-bike.yaml
+bundle_source: /Users/adiazpace/Documents/GitHub/harness-weaver/pilots/sara/generated/sara-revfactory-en-claude-1/build/claude
+created_at: '2026-10-29T18:51:44+00:00'
+repository_commit: 276a25f690943f9f7f26334b39089fa2de14d247
+session_id: 28110481-93f7-4d1d-9c12-2da35362a6e6
+model_requested: null

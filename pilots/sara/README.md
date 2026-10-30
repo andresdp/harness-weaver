@@ -105,3 +105,24 @@ hw sandbox create-execution sara \
 ```
 
 Enter the printed sandbox directory and run `./run.sh`, then run `hw check` and `hw sandbox record`. The Claude and DeepAgents runs use the same case inputs but separate sandboxes, outputs, and runtime credentials.
+
+## Revfactory baseline comparison
+
+This pilot has a separate `prompts.baseline_generation` prompt for the Revfactory arm. It asks Revfactory to create a Claude Code-native assistant from the harvested SARA workflow and shared final-output contract, without asking it to create a HarnessSpec or implement a HarnessWeaver host. CampusBike remains an execution-time input.
+
+From the repository root:
+
+```sh
+hw sandbox create-generation sara --arm revfactory-en
+```
+
+Run the printed generation sandbox with `ISOLATION=settings ./run.sh`, collect it as `sara-revfactory-en-claude-1`, and review the bundle check. Then run the collected Claude bundle on CampusBike:
+
+```sh
+hw sandbox create-execution sara \
+  --target claude \
+  --bundle pilots/sara/generated/sara-revfactory-en-claude-1/build/claude \
+  --case campus-bike
+```
+
+Run `ISOLATION=settings ./run.sh` inside that execution sandbox, then use `hw check` and `hw sandbox record` from the repository root. The comparison protocol and differences from ATAM are recorded in [`docs/cain-2027/PILOT-COMPARISON.md`](../../docs/cain-2027/PILOT-COMPARISON.md).

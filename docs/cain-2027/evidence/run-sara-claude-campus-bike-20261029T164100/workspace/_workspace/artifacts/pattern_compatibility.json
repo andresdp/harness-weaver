@@ -1,0 +1,471 @@
+{
+  "system_name": "campus-bike",
+  "analysis_notes": [
+    "Pattern names are copied exactly from pattern_candidates.json; affected_drivers are copied exactly from drivers.json.",
+    "Relationship vocabulary: 'compatible' (can coexist without special effort), 'complementary' (each strengthens the other for a driver), 'conflict' (pull in opposite directions; may be combinable under conditions), 'mutually_exclusive' (alternative answers to the same structural question), 'redundant' (overlapping responsibility; using both adds cost without benefit unless conditions hold), 'dependency' (first pattern effectively requires the second to address the drivers).",
+    "The only pattern not in the candidate list mentioned here is the Transactional Outbox, cited as a condition (not a candidate) where events must be published reliably after an atomic state change; it is introduced because S7 requires both an atomic availability change and its propagation.",
+    "No complete alternatives are formed here; that is Task 3."
+  ],
+  "compatibility_analysis": [
+    {
+      "patterns": ["Modular Monolith (domain-partitioned modules in a single deployable)", "Microservices"],
+      "relationship": "mutually_exclusive",
+      "rationale": "Both answer the same question: how the backend is decomposed into deployable units. A design is primarily one or the other. They trade off differently on the drivers: the monolith makes atomic bike/rental consistency (S6/S7) simple and minimizes runtime components (carbon footprint), while microservices give fault isolation for rider availability and isolate sensitive-data and integration-heavy capabilities.",
+      "conditions": [
+        "A hybrid is possible: a modular monolith core (bike availability, rentals) with a small number of extracted services for capabilities whose isolation is evidenced (e.g. payment integration, notifications, device gateway). Such a hybrid must state which boundaries are extracted and why.",
+        "Module boundaries in a modular monolith can be aligned with prospective service boundaries to keep later extraction possible."
+      ],
+      "affected_drivers": [
+        "Consistent bike availability and rental state under concurrent use",
+        "Service availability for riders",
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Minimized carbon footprint",
+        "Region-dependent regulatory compliance"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith (domain-partitioned modules in a single deployable)", "Layered Architecture"],
+      "relationship": "complementary",
+      "rationale": "Layering can be the internal structure of each module (API, application, persistence), giving shared business rules for web and mobile channels and a clear enforcement point for access control, while modules provide vertical capability boundaries.",
+      "conditions": [
+        "Layers must not become the primary partition across the whole codebase, otherwise capability boundaries erode."
+      ],
+      "affected_drivers": [
+        "Multi-channel access through web and mobile devices",
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["Layered Architecture", "Hexagonal Architecture (Ports and Adapters)"],
+      "relationship": "redundant",
+      "rationale": "Both define the internal structure of a deployable unit. Hexagonal architecture subsumes the separation that layering provides (presentation and persistence become adapters) and additionally addresses external integration variability (payments, SMS/email, region-specific providers). Using both as top-level internal structures adds overlapping rules.",
+      "conditions": [
+        "They can coexist if hexagonal architecture defines the boundary to external parties and simple layering is used only inside the domain core.",
+        "Layering alone is sufficient for modules with no external integrations (e.g. usage reporting)."
+      ],
+      "affected_drivers": [
+        "Integration with multiple third-party payment platforms",
+        "Region-dependent regulatory compliance",
+        "Multi-channel access through web and mobile devices"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith (domain-partitioned modules in a single deployable)", "Hexagonal Architecture (Ports and Adapters)"],
+      "relationship": "complementary",
+      "rationale": "Ports and adapters inside the modules that touch external parties (payment, notification/verification, bike connectivity) let the monolith support a variety of payment platforms and region-specific providers without changing rental logic, compensating for the monolith's single-deployable rigidity regarding EU/China variants.",
+      "conditions": [
+        "Region-specific adapters selected by configuration at deployment time."
+      ],
+      "affected_drivers": [
+        "Integration with multiple third-party payment platforms",
+        "Region-dependent regulatory compliance",
+        "User verification via external SMS/email delivery"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Hexagonal Architecture (Ports and Adapters)"],
+      "relationship": "complementary",
+      "rationale": "Each service (especially the payment and notification services) can be structured with ports and adapters, so adding a payment platform affects only the payment service's adapters. Service boundaries and ports address variability at two different granularities.",
+      "conditions": [
+        "Avoid one service per provider adapter unless provider isolation is evidenced; adapters normally live inside the owning service."
+      ],
+      "affected_drivers": [
+        "Integration with multiple third-party payment platforms",
+        "Region-dependent regulatory compliance"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith (domain-partitioned modules in a single deployable)", "Atomic conditional state transition with Optimistic Concurrency Control (single authoritative bike state)"],
+      "relationship": "complementary",
+      "rationale": "With one transactional store, registering a bike and creating the rental record can be a single atomic conditional update, directly satisfying 'at most one biker per bike' and immediate removal from availability (S6/S7) and giving a correct rental start for S9/S10 charging.",
+      "conditions": [],
+      "affected_drivers": [
+        "Consistent bike availability and rental state under concurrent use"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Atomic conditional state transition with Optimistic Concurrency Control (single authoritative bike state)"],
+      "relationship": "conflict",
+      "rationale": "If bike availability and rental creation are owned by different services, a registration spans two data stores and cannot be a single atomic update; double registration or an available-but-rented bike becomes possible. The combination works only if the service boundaries keep the authoritative bike state and the rental start together.",
+      "conditions": [
+        "Bike availability and rental creation must be owned by one service (e.g. a combined 'Rental & Fleet' service) that performs the conditional update.",
+        "Other services (reporting, admin view, notifications) receive changes asynchronously and must tolerate lag."
+      ],
+      "affected_drivers": [
+        "Consistent bike availability and rental state under concurrent use"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Saga (orchestrated or choreographed) for rental and payment"],
+      "relationship": "dependency",
+      "rationale": "When rental and payment are separate services and payment platforms are external, keeping rental and charge records consistent (including overtime) requires sagas with compensations, since distributed transactions across services and third parties are not viable.",
+      "conditions": [
+        "The point at which payment occurs (before, after, pre-authorization) must be clarified to define saga steps (open issue in Stage 1).",
+        "Payment steps must be idempotent."
+      ],
+      "affected_drivers": [
+        "Integration with multiple third-party payment platforms",
+        "Consistent bike availability and rental state under concurrent use",
+        "Time-driven rental lifecycle and notifications"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith (domain-partitioned modules in a single deployable)", "Saga (orchestrated or choreographed) for rental and payment"],
+      "relationship": "compatible",
+      "rationale": "Internal rental/payment consistency can use local transactions in a monolith, so a full saga is largely unnecessary there. However, interactions with external payment platforms are still long-running and may confirm asynchronously, so a lightweight orchestrated process (a saga confined to the external payment step) can still be warranted.",
+      "conditions": [
+        "Use only where third-party payment confirmation is asynchronous or can fail after a rental has started."
+      ],
+      "affected_drivers": [
+        "Integration with multiple third-party payment platforms"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "API Gateway"],
+      "relationship": "dependency",
+      "rationale": "With several backend services, web and mobile clients need one stable, secured entry point; otherwise clients couple to internal service topology and each service must enforce authentication separately.",
+      "conditions": [
+        "Gateway deployed redundantly to avoid becoming a single point of failure for rider availability."
+      ],
+      "affected_drivers": [
+        "Multi-channel access through web and mobile devices",
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Service availability for riders"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith (domain-partitioned modules in a single deployable)", "API Gateway"],
+      "relationship": "compatible",
+      "rationale": "A gateway can front a monolith to centralize TLS, token validation and rate limiting, but its routing benefit is small with a single backend; an ordinary reverse proxy / load balancer may suffice, making the gateway partly redundant.",
+      "conditions": [
+        "Justified when there are several backends (e.g. monolith plus extracted services or BFFs) or when centralized cross-cutting enforcement is preferred."
+      ],
+      "affected_drivers": [
+        "Multi-channel access through web and mobile devices",
+        "Minimized carbon footprint"
+      ]
+    },
+    {
+      "patterns": ["API Gateway", "Backends for Frontends (BFF)"],
+      "relationship": "complementary",
+      "rationale": "The gateway handles cross-cutting concerns (TLS, token validation, rate limiting) while BFFs tailor APIs for mobile (biometric login, scanning, push), web, and the administrator console. Together they keep channel differences out of the core.",
+      "conditions": [
+        "If the gateway is also configured to do per-client aggregation, the two become redundant; responsibilities must be split explicitly.",
+        "BFFs must stay thin to avoid duplicating rental and payment logic."
+      ],
+      "affected_drivers": [
+        "Multi-channel access through web and mobile devices",
+        "Ease of use for all riders",
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["Backends for Frontends (BFF)", "Modular Monolith (domain-partitioned modules in a single deployable)"],
+      "relationship": "compatible",
+      "rationale": "BFFs can be separate thin deployables in front of the monolith, or channel-specific API modules inside it. The latter keeps the single deployable but loses independent channel evolution.",
+      "conditions": [
+        "Separate BFF deployables increase runtime component count; justify by evidenced channel differences."
+      ],
+      "affected_drivers": [
+        "Multi-channel access through web and mobile devices",
+        "Minimized carbon footprint"
+      ]
+    },
+    {
+      "patterns": ["Event-Driven Architecture (Publish-Subscribe via message broker)", "Atomic conditional state transition with Optimistic Concurrency Control (single authoritative bike state)"],
+      "relationship": "complementary",
+      "rationale": "The conditional update decides which registration wins; events then propagate the outcome (BikeRegistered) to the availability view, admin view, notifications and reporting. Events alone cannot prevent double registration, and the atomic update alone does not propagate changes, so each covers the other's gap.",
+      "conditions": [
+        "Events must be published only after the state change commits, and reliably (e.g. Transactional Outbox), so views are not left inconsistent with the authoritative state.",
+        "Consumers must tolerate duplicates (idempotent handlers)."
+      ],
+      "affected_drivers": [
+        "Consistent bike availability and rental state under concurrent use",
+        "Usage history and administrative usage information"
+      ]
+    },
+    {
+      "patterns": ["Event-Driven Architecture (Publish-Subscribe via message broker)", "CQRS (Command Query Responsibility Segregation) with read models"],
+      "relationship": "dependency",
+      "rationale": "CQRS read models (proximity index, city-wide status, usage aggregates) must be updated from write-side changes; in a distributed setting this is done by consuming events. Without an event stream, CQRS reduces to synchronous dual writes or periodic batch refresh.",
+      "conditions": [
+        "In a monolith, read models may be updated in-process within the same transaction, removing the broker dependency."
+      ],
+      "affected_drivers": [
+        "Usage history and administrative usage information",
+        "Bike location tracking and code-based registration/unlocking of physical bikes"
+      ]
+    },
+    {
+      "patterns": ["CQRS (Command Query Responsibility Segregation) with read models", "Atomic conditional state transition with Optimistic Concurrency Control (single authoritative bike state)"],
+      "relationship": "conflict",
+      "rationale": "S7 requires a registered bike to disappear from the available list 'as soon as' it is registered. An asynchronously updated read model may still show the bike as available for a short time, so bikers may navigate to an already rented bike. The write side still prevents double registration, so correctness holds, but timeliness of the displayed availability is weakened.",
+      "conditions": [
+        "Accept bounded read-model lag only if stakeholders accept a latency bound for S7 (not specified in the requirements).",
+        "Keep the authoritative check on the write side at registration time; read models are advisory.",
+        "Alternatively apply CQRS only to administrator reporting (S11, S13) and query availability from the authoritative store."
+      ],
+      "affected_drivers": [
+        "Consistent bike availability and rental state under concurrent use",
+        "Ease of use for all riders"
+      ]
+    },
+    {
+      "patterns": ["CQRS (Command Query Responsibility Segregation) with read models", "Modular Monolith (domain-partitioned modules in a single deployable)"],
+      "relationship": "compatible",
+      "rationale": "Read models (e.g. aggregated hourly/daily usage tables, geospatial index) can live in the monolith's store and be updated synchronously, avoiding eventual-consistency issues while still separating query shapes.",
+      "conditions": [
+        "Synchronous updates increase write latency and couple modules; acceptable given no load targets."
+      ],
+      "affected_drivers": [
+        "Usage history and administrative usage information",
+        "Consistent bike availability and rental state under concurrent use"
+      ]
+    },
+    {
+      "patterns": ["Event-Driven Architecture (Publish-Subscribe via message broker)", "Scheduler / Durable Timer for time-based rental events"],
+      "relationship": "complementary",
+      "rationale": "The scheduler determines when pre-expiry and expiry moments occur; it can emit RentalNearingExpiry / RentalExpired events to which notification and payment components subscribe. This decouples timing from delivery channel (unspecified in S9) and from charging.",
+      "conditions": [
+        "Scheduler state must be durable and fire exactly once (or idempotently) across restarts and replicas."
+      ],
+      "affected_drivers": [
+        "Time-driven rental lifecycle and notifications",
+        "Service availability for riders"
+      ]
+    },
+    {
+      "patterns": ["Scheduler / Durable Timer for time-based rental events", "Centralized Identity and Access Management with token-based authentication"],
+      "relationship": "complementary",
+      "rationale": "S4 terminates sessions after 15 minutes of inactivity, while S9 requires notification during rentals lasting up to a week. A server-side scheduler acting on rentals (not sessions) lets notifications and overtime charging proceed independently of session state managed by IAM, defusing the S4/S9 conflict architecturally (the requirements conflict itself remains open).",
+      "conditions": [
+        "Notifications must be delivered through a channel that does not require an active session (e.g. push, SMS or email), which is unspecified."
+      ],
+      "affected_drivers": [
+        "Time-driven rental lifecycle and notifications",
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["Event-Driven Architecture (Publish-Subscribe via message broker)", "Microservices"],
+      "relationship": "complementary",
+      "rationale": "Asynchronous events reduce temporal coupling between services so that rider-facing services keep working when reporting, notification or payment services are degraded, supporting availability.",
+      "conditions": [
+        "Broker must be highly available and secured; events containing personal data must follow GDPR minimization."
+      ],
+      "affected_drivers": [
+        "Service availability for riders",
+        "Usage history and administrative usage information",
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["Event-Driven Architecture (Publish-Subscribe via message broker)", "Modular Monolith (domain-partitioned modules in a single deployable)"],
+      "relationship": "compatible",
+      "rationale": "Modules can communicate through in-process domain events, or the monolith can use an external broker for asynchronous work (notifications, reporting, external integrations). Using an external broker inside a monolith adds an operational component whose benefit is mainly asynchronous offloading.",
+      "conditions": [
+        "In-process events are lost on crash unless persisted; durable events need an outbox or a broker."
+      ],
+      "affected_drivers": [
+        "Time-driven rental lifecycle and notifications",
+        "Minimized carbon footprint"
+      ]
+    },
+    {
+      "patterns": ["Saga (orchestrated or choreographed) for rental and payment", "Event-Driven Architecture (Publish-Subscribe via message broker)"],
+      "relationship": "complementary",
+      "rationale": "Choreographed sagas are built from events; orchestrated sagas commonly use messaging for commands and replies. The broker supplies the reliable asynchronous communication sagas need for long-running rentals and asynchronous payment confirmations.",
+      "conditions": [
+        "Choreography across many steps obscures the overall flow; orchestration is preferable if the rental-payment flow has several compensations."
+      ],
+      "affected_drivers": [
+        "Integration with multiple third-party payment platforms",
+        "Time-driven rental lifecycle and notifications"
+      ]
+    },
+    {
+      "patterns": ["Saga (orchestrated or choreographed) for rental and payment", "Scheduler / Durable Timer for time-based rental events"],
+      "relationship": "complementary",
+      "rationale": "Overtime charging (S9) is a time-triggered step of the rental-payment flow; the scheduler provides the trigger and the saga coordinates the charge and its failure handling.",
+      "conditions": [],
+      "affected_drivers": [
+        "Time-driven rental lifecycle and notifications",
+        "Integration with multiple third-party payment platforms"
+      ]
+    },
+    {
+      "patterns": ["Hexagonal Architecture (Ports and Adapters)", "Circuit Breaker with Retry and Timeout for external integrations"],
+      "relationship": "complementary",
+      "rationale": "Adapters are the natural place to apply timeouts, retries and circuit breakers for payment platforms, SMS/email providers and bike connectivity, keeping resilience policies out of domain logic.",
+      "conditions": [
+        "Retries on payment operations require idempotency keys to avoid double charges."
+      ],
+      "affected_drivers": [
+        "Service availability for riders",
+        "Integration with multiple third-party payment platforms",
+        "User verification via external SMS/email delivery"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Circuit Breaker with Retry and Timeout for external integrations"],
+      "relationship": "dependency",
+      "rationale": "In microservices, internal service-to-service calls are also network calls that can fail; without circuit breakers and timeouts, failures cascade and undermine the availability benefit that motivated the decomposition.",
+      "conditions": [],
+      "affected_drivers": [
+        "Service availability for riders"
+      ]
+    },
+    {
+      "patterns": ["Hexagonal Architecture (Ports and Adapters)", "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)"],
+      "relationship": "complementary",
+      "rationale": "A payment port can expose a provider-neutral token abstraction while each adapter handles its provider's tokenization model; the core never sees card/bank data. Likewise, a personal-data repository port can target a segregated store.",
+      "conditions": [
+        "The port must accommodate differences in provider tokenization and redirect flows."
+      ],
+      "affected_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Integration with multiple third-party payment platforms"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)"],
+      "relationship": "complementary",
+      "rationale": "Database-per-service makes segregation physical: identity/personal data and payment tokens live in dedicated services and stores with restricted access, reducing the ISO 27001/GDPR scope and enabling region-specific data residency.",
+      "conditions": [
+        "Other services must reference users by pseudonymous identifiers."
+      ],
+      "affected_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Region-dependent regulatory compliance"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith (domain-partitioned modules in a single deployable)", "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)"],
+      "relationship": "compatible",
+      "rationale": "Payment tokenization by providers is independent of decomposition. Personal-data segregation in a monolith is achievable via separate schema/encrypted store accessed only by the identity module, but isolation is logical, since all modules share one process and its privileges.",
+      "conditions": [
+        "Separate database credentials or a separate store for the personal-data module to make segregation enforceable."
+      ],
+      "affected_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["CQRS (Command Query Responsibility Segregation) with read models", "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)"],
+      "relationship": "conflict",
+      "rationale": "Read models replicate data; if they copy personal data (location, usage history) they enlarge the GDPR scope and complicate retention/deletion (S11 3-month window). Conversely, read models can support minimization if they hold only aggregated or pseudonymized data for administrators (S13).",
+      "conditions": [
+        "Administrator read models contain only aggregated or pseudonymized data.",
+        "Per-biker history read models fall under the same retention and deletion rules as the source."
+      ],
+      "affected_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Usage history and administrative usage information"
+      ]
+    },
+    {
+      "patterns": ["API Gateway", "Centralized Identity and Access Management with token-based authentication"],
+      "relationship": "complementary",
+      "rationale": "IAM issues tokens and enforces session lifetime (S4) and roles (S12/S13); the gateway validates tokens on every request, giving uniform enforcement across web and mobile channels.",
+      "conditions": [
+        "Inactivity timeout (S4) requires session activity tracking, not only token expiry; the design must define where that is tracked."
+      ],
+      "affected_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Multi-channel access through web and mobile devices"
+      ]
+    },
+    {
+      "patterns": ["API Gateway", "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)"],
+      "relationship": "conflict",
+      "rationale": "A gateway that terminates TLS sees plaintext traffic, which conflicts with a strict reading of S1 'end-to-end encryption between user device and app database'. Under a looser reading (encryption in transit on every hop plus encryption at rest) they are compatible. Stage 1 left the meaning of S1 ambiguous.",
+      "conditions": [
+        "Re-encrypt traffic between gateway and backends (mutual TLS) and encrypt sensitive data at rest.",
+        "If the strict reading is confirmed, sensitive fields require application-level encryption from the client, which the gateway cannot read."
+      ],
+      "affected_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["Centralized Identity and Access Management with token-based authentication", "Backends for Frontends (BFF)"],
+      "relationship": "compatible",
+      "rationale": "Each BFF can handle the channel-specific authentication flow (device-based biometric unlock of a stored credential on mobile, password on web) while relying on the same IAM for tokens and roles.",
+      "conditions": [
+        "Biometric matching should remain on the device to satisfy S3 'flush out thumb impression' and avoid storing biometric data server-side; S3 is ambiguous on this point."
+      ],
+      "affected_drivers": [
+        "Multi-channel access through web and mobile devices",
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["Distributed Tracing and centralized audit logging", "Microservices"],
+      "relationship": "dependency",
+      "rationale": "Diagnosing a rental-payment failure across several services and a broker is impractical without correlated traces; tracing is effectively required to operate microservices with acceptable availability.",
+      "conditions": [],
+      "affected_drivers": [
+        "Service availability for riders"
+      ]
+    },
+    {
+      "patterns": ["Distributed Tracing and centralized audit logging", "Modular Monolith (domain-partitioned modules in a single deployable)"],
+      "relationship": "redundant",
+      "rationale": "Within a single deployable, conventional structured logging with correlation IDs covers most of what distributed tracing provides; centralized audit logging remains useful for ISO 27001.",
+      "conditions": [
+        "Becomes useful if a broker, external integrations or extracted services are added."
+      ],
+      "affected_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Minimized carbon footprint"
+      ]
+    },
+    {
+      "patterns": ["Distributed Tracing and centralized audit logging", "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)"],
+      "relationship": "conflict",
+      "rationale": "Traces and logs can leak personal data (location, contact details, tokens) into an observability store outside the segregated personal-data store, enlarging the GDPR scope.",
+      "conditions": [
+        "Logs and traces carry pseudonymous identifiers only; personal fields are redacted; retention is limited."
+      ],
+      "affected_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["Device Gateway for bike connectivity (IoT ingestion and command channel)", "Hexagonal Architecture (Ports and Adapters)"],
+      "relationship": "redundant",
+      "rationale": "Both can isolate the unspecified bike-side protocol. A 'bike port' with an adapter suffices if bike interaction is a simple request/response API; a separate Device Gateway is only warranted if bikes push continuous telemetry or need a persistent command channel.",
+      "conditions": [
+        "Use a separate Device Gateway only if bikes are confirmed to be connected devices reporting location; otherwise model bike interaction as an adapter.",
+        "Bike-side interaction is an open issue in Stage 1."
+      ],
+      "affected_drivers": [
+        "Bike location tracking and code-based registration/unlocking of physical bikes"
+      ]
+    },
+    {
+      "patterns": ["Device Gateway for bike connectivity (IoT ingestion and command channel)", "Event-Driven Architecture (Publish-Subscribe via message broker)"],
+      "relationship": "complementary",
+      "rationale": "Bike telemetry (location, lock state) arrives as a stream; publishing it as events lets the availability view and admin view consume it without coupling to device protocols.",
+      "conditions": [
+        "Location telemetry is personal data during rentals (it reveals the biker's movements) and must follow GDPR minimization."
+      ],
+      "affected_drivers": [
+        "Bike location tracking and code-based registration/unlocking of physical bikes",
+        "Protection and regulatory compliance of personal, biometric, location and payment data"
+      ]
+    },
+    {
+      "patterns": ["Scheduler / Durable Timer for time-based rental events", "Microservices"],
+      "relationship": "compatible",
+      "rationale": "The scheduler can be part of the rental service or a dedicated component; with replicas it must avoid double firing (duplicate notifications or duplicate overtime charges).",
+      "conditions": [
+        "Leader election or a durable job store with locking; idempotent consumers."
+      ],
+      "affected_drivers": [
+        "Time-driven rental lifecycle and notifications",
+        "Service availability for riders"
+      ]
+    }
+  ]
+}

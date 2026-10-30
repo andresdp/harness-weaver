@@ -4,6 +4,7 @@ sources: sources
 cases: cases
 prompts:
   generation: prompts/generation.md
+  baseline_generation: prompts/baseline-generation.md
   execution:
     claude: prompts/execution-claude.md
 execution:

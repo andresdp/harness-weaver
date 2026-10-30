@@ -1,0 +1,115 @@
+{
+  "stage": 3,
+  "entries": [
+    {
+      "id": "S3-G1",
+      "kind": "unresolved_gap",
+      "statement": "Selected alternative A1 is rated partially_satisfied on S1 and on the 'Security of user and payment data' driver. Encryption at rest and access control are centralized, but A1 does not describe how data is protected in transit along the device-to-database path.",
+      "origin": "alternative_evaluation.json#/evaluations/0/requirement_evaluations/0",
+      "source_refs": ["A1", "S1", "Security of user and payment data"],
+      "related_ids": ["S1-G1"],
+      "status": "open",
+      "resolution_needed": "Does 'end-to-end encryption between user device and app database' require encryption on every hop (including inside the back end) and at rest, or is transport encryption from device to back end plus encryption at rest sufficient?"
+    },
+    {
+      "id": "S3-G2",
+      "kind": "unresolved_gap",
+      "statement": "Selected alternative A1 is rated partially_satisfied on S3 and on the 'Biker authentication and session management' driver. Where the thumb impression is matched, and how it is flushed, is not resolved by A1 (its own limitation).",
+      "origin": "alternative_evaluation.json#/evaluations/0/requirement_evaluations/2",
+      "source_refs": ["A1", "S3", "Biker authentication and session management"],
+      "related_ids": ["S1-G9", "S1-G10", "S1-G11"],
+      "status": "open",
+      "resolution_needed": "Is biometric matching done on the device (with only a result sent to the system) or by the system, and is biometric login required on web clients?"
+    },
+    {
+      "id": "S3-G3",
+      "kind": "unresolved_gap",
+      "statement": "Selected alternative A1 is rated partially_satisfied on S6 and on the 'Usability for all riders' driver, because navigation help to the selected bike is not described in A1 (or in any alternative).",
+      "origin": "alternative_evaluation.json#/evaluations/0/requirement_evaluations/5",
+      "source_refs": ["A1", "S6", "Usability for all riders"],
+      "related_ids": ["S1-G22"],
+      "status": "open",
+      "resolution_needed": "Must navigation to the bike be provided inside the app (for example a map service integration), or may the app hand off to an external navigation application?"
+    },
+    {
+      "id": "S3-G4",
+      "kind": "unresolved_gap",
+      "statement": "Selected alternative A1 is rated partially_satisfied on the 'Bike registration and unlocking' driver. Registration is atomic in a local transaction, but the physical unlock is an external step behind a port, outside that transaction, and the expected behaviour when unlocking fails is not stated.",
+      "origin": "alternative_evaluation.json#/evaluations/0/driver_evaluations/5",
+      "source_refs": ["A1", "S6", "S7", "Bike registration and unlocking"],
+      "related_ids": ["S1-G23", "S1-G54", "S1-G55"],
+      "status": "open",
+      "resolution_needed": "How does the system communicate with the bike lock, and what must happen to the registration and rental if the unlock fails after registration has been committed?"
+    },
+    {
+      "id": "S3-G5",
+      "kind": "assumption",
+      "statement": "Selected alternative A1 is rated partially_satisfied on the 'Changeability of payment options and regulations' driver, because any change requires redeploying the whole application. The selection over A3 relies on the A1 assumption that independent release is not needed.",
+      "origin": "alternative_evaluation.json#/evaluations/0/driver_evaluations/12",
+      "source_refs": ["A1", "A3", "S8", "Changeability of payment options and regulations"],
+      "related_ids": ["S2-G3", "S2-G6", "S1-G64"],
+      "status": "relied_upon",
+      "resolution_needed": "Is it acceptable for payment-platform or regional-compliance changes to be released together with the rest of the application?"
+    },
+    {
+      "id": "S3-G6",
+      "kind": "unresolved_gap",
+      "statement": "Selected alternative A1 is rated unclear on the Sustainability quality attribute and on the 'Sustainable mobility goal' driver, because the goal has no target and its meaning (software resource efficiency vs promoting cycling) is unresolved.",
+      "origin": "alternative_evaluation.json#/evaluations/0/driver_evaluations/14",
+      "source_refs": ["A1", "Sustainable mobility goal"],
+      "related_ids": ["S1-G65"],
+      "status": "open",
+      "resolution_needed": "What does 'minimize the carbon footprint' require of the software architecture, and how will it be measured?"
+    },
+    {
+      "id": "S3-G7",
+      "kind": "assumption",
+      "statement": "The performance-related judgments for A1 (Performance (timeliness) mixed, acceptable reporting on the shared transactional database, sufficiency of scaling one deployable) are qualitative only. No measured evidence or load targets exist, and the selection relies on them.",
+      "origin": "trade_off_analysis.json#/trade_offs/0/risks/0",
+      "source_refs": ["A1", "S12", "S13", "Usage history and administrative reporting"],
+      "related_ids": ["S1-G62", "S1-G67", "S2-G1", "S2-G2"],
+      "status": "relied_upon",
+      "resolution_needed": "What peak users, fleet size, concurrent rentals and administrator reporting frequency must the system support, and what response-time targets apply?"
+    },
+    {
+      "id": "S3-G8",
+      "kind": "unresolved_gap",
+      "statement": "A1 has weak fault isolation: a failure or slowness in one module (for example reporting or notification) can affect rental operations. Availability was not identified as a quality attribute, so the severity of this limitation cannot be assessed against any stated target.",
+      "origin": "alternative_selection.json#/key_limitations/2",
+      "source_refs": ["A1"],
+      "related_ids": ["S1-G67"],
+      "status": "open",
+      "resolution_needed": "What uptime is required for renting, and is it acceptable for a reporting or notification fault to disrupt rentals?"
+    },
+    {
+      "id": "S3-G9",
+      "kind": "assumption",
+      "statement": "A1 is rated satisfied on S8 and on the 'Third-party payment platform integration' driver at the level of architectural support (payment adapters). The external payment step cannot take part in A1's local transaction, so the selection relies on adapter-level retry and reconciliation.",
+      "origin": "alternative_evaluation.json#/evaluations/0/driver_evaluations/2",
+      "source_refs": ["A1", "S8", "S9", "Third-party payment platform integration"],
+      "related_ids": ["S2-G12", "S1-G27", "S1-G30"],
+      "status": "relied_upon",
+      "resolution_needed": "When is the biker charged, and do the target payment platforms support pre-authorization, idempotent requests and reconciliation?"
+    },
+    {
+      "id": "S3-G10",
+      "kind": "process_note",
+      "statement": "Problems found in earlier-stage artifacts, recorded rather than edited. (1) alternatives.json A2 terminates TLS at the API gateway but does not list the resulting tension with S1's device-to-database encryption among its limitations. (2) alternatives.json A3 does not describe how logout and the 15-minute inactivity timeout are enforced against tokens the gateway validates. Both were reflected in alternative_evaluation.json (A2/S1, A3/S4 partially_satisfied). Neither affects the selected alternative.",
+      "origin": "alternatives.json#/alternatives/1/description",
+      "source_refs": ["A2", "A3", "S1", "S4"],
+      "related_ids": [],
+      "status": "noted",
+      "resolution_needed": ""
+    },
+    {
+      "id": "S3-G11",
+      "kind": "process_note",
+      "statement": "'satisfied' ratings for S2, S5, S8, S9, S10, S11 and S13 mean that the alternative structurally supports the requirement. Requirement-level ambiguities (for example the S2 code expiry, the value of X in S9, the S11 download format) remain open in the stage 1 register and do not affect the comparison, because they apply equally to all alternatives.",
+      "origin": "alternative_evaluation.json#/evaluations",
+      "source_refs": ["A1", "A2", "A3", "S2", "S5", "S8", "S9", "S10", "S11", "S13"],
+      "related_ids": ["S1-G5", "S1-G31", "S1-G39", "S1-G61"],
+      "status": "noted",
+      "resolution_needed": ""
+    }
+  ]
+}

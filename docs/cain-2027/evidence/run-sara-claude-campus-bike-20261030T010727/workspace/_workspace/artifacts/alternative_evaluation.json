@@ -1,0 +1,993 @@
+{
+  "evaluations": [
+    {
+      "alternative_id": "A1",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "partially_satisfied",
+          "rationale": "The identity and session module provides registration and stores the account in the shared transactional database. The rationale states that encryption at rest and access control are applied in one store. A1 does not describe how data is protected in transit between device and database, and the scope of 'end-to-end encryption' is itself ambiguous (S1-G1). So the encryption half of S1 is only partly addressed.",
+          "evidence": [
+            "alternatives.json A1 description: 'divided into modules (identity and session, ...)'",
+            "alternatives.json A1 rationale: 'Personal, payment and usage data sit in one store, so encryption at rest, access control, retention and erasure for GDPR are applied in one place.'",
+            "S1: 'end-to-end encryption of information between user device and app database'",
+            "stage1_assumptions_gaps.json S1-G1"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "Verification codes can be generated and checked by the identity and session module and delivered through the notification module's SMS/email adapters behind ports. The contradictory expiry value (30 minutes vs 30 seconds, S1-G5) is a requirements issue. Either value can be enforced, so it does not affect architectural support.",
+          "evidence": [
+            "alternatives.json A1 description: 'dependencies on external systems (payment platforms, SMS/email providers, ...) sit behind ports with replaceable adapters'",
+            "alternatives.json A1 addressed_drivers: 'External SMS and email delivery'",
+            "S2: 'sent a verification code via an SMS or email'"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "partially_satisfied",
+          "rationale": "Email/password and biometric login are both named, and both lead to an access token. A1 explicitly does not resolve where biometric matching happens or how the thumb impression is flushed (S1-G9). So the biometric and flush part of S3 is not shown to be met.",
+          "evidence": [
+            "alternatives.json A1 description: 'Clients authenticate (email/password or biometric) and receive an access token carrying identity and role'",
+            "alternatives.json A1 limitations: 'Does not resolve ... where biometric matching happens (S1-G9)'",
+            "S3: 'flush out user thumb impression as soon as the user has been able to login'"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "satisfied",
+          "rationale": "Logout and the 15-minute inactivity timeout are explicitly enforced on the server.",
+          "evidence": [
+            "alternatives.json A1 description: 'with logout and the 15-minute inactivity timeout enforced on the server'",
+            "S4: 'logged out of the app by clicking on logout button or after an inactivity of 15 minutes'"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "satisfied",
+          "rationale": "The bike fleet module holds bike location and availability in the transactional database, which can be queried by a biker-defined radius. The source of bike location data (the bike/lock interface, S1-G55) sits behind a port and is still unresolved, but this is the same for all alternatives.",
+          "evidence": [
+            "alternatives.json A1 description: 'modules (... bike fleet, ...)'",
+            "alternatives.json A1 addressed_drivers: 'Bike location and availability tracking'",
+            "alternatives.json A1 limitations: 'Does not resolve how the bike/lock interface works (S1-G55)'"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "partially_satisfied",
+          "rationale": "Registration by code starts a rental in one local transaction, and the bike/lock interface is isolated behind a port. A1 does not describe navigation to the selected bike, and it does not resolve how the physical unlock works or what happens when it fails (S1-G23, S1-G55).",
+          "evidence": [
+            "alternatives.json A1 description: 'bike registration, availability removal and rental creation happen in one local transaction'",
+            "alternatives.json A1 limitations: 'Does not resolve how the bike/lock interface works (S1-G55)'",
+            "S6: 'App must help the biker to navigate to the available bike that they have selected'"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "satisfied",
+          "rationale": "Availability removal happens in the same local ACID transaction as registration. The available list is read from the same database, so a registered bike disappears immediately and cannot be registered twice.",
+          "evidence": [
+            "alternatives.json A1 description: 'bike registration, availability removal and rental creation happen in one local transaction'",
+            "alternatives.json A1 rationale: 'S7 and the inferred one-active-registration-per-bike rule are met directly by local ACID transactions'"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "The payment module reaches bank and card payment platforms through replaceable adapters. The external platform cannot take part in the local transaction, so the external step is handled at the adapter. Whether that works depends on payment timing (S2-G12), which affects how payment is done, not whether it is supported.",
+          "evidence": [
+            "alternatives.json A1 description: 'dependencies on external systems (payment platforms, ...) sit behind ports with replaceable adapters'",
+            "alternatives.json A1 rationale: 'Payment platform variety and change (S8, project description) ... are isolated by Ports and Adapters'",
+            "stage2_assumptions_gaps.json S2-G12"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "Rental expiry notifications and overtime detection run as time-based jobs in the rental module, independent of user sessions. So notification before expiry and overtime charging are supported even after a session timeout. X, the channel and the ride-end event are still undefined (S1-G31, S1-G32, S1-G34).",
+          "evidence": [
+            "alternatives.json A1 description: 'Rental expiry notifications and overtime detection run as time-based jobs inside the rental module, independent of user sessions'",
+            "S9: 'notify the biker X minutes prior to the expiry of their rental time'"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "The rental module records the rental and its duration, and time-based jobs track it, so minute, day and week rentals can be represented. The conflict with S6's 90 minutes (S1-G50) is a requirements issue.",
+          "evidence": [
+            "alternatives.json A1 description: 'modules (... rental ...)' and 'time-based jobs inside the rental module'",
+            "S10: 'rent a bike for specific minutes, a day or for a week at maximum'"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "The usage and reporting module reads rental records from the shared database to provide history for the last 3 months. The download format is unspecified (S1-G39), but any format can be produced.",
+          "evidence": [
+            "alternatives.json A1 description: 'modules (... usage and reporting)'",
+            "alternatives.json A1 addressed_drivers: 'Usage history and administrative reporting'"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "The administrator console is served by the same back end. Fleet-wide status is read from the transactional bike fleet data, so it is consistent with what bikers see. Role-based access comes from the access token role.",
+          "evidence": [
+            "alternatives.json A1 description: 'serving the web app, the mobile app and the administrator console' and 'access token carrying identity and role'",
+            "alternatives.json A1 assumptions: 'Fleet-wide status (S12) ... can be computed from the transactional database'"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "Hourly and daily usage aggregation is computed by the usage and reporting module from the transactional database. This rests on the assumption that reporting does not unacceptably affect rental operations (S2-G2), which is unmeasured. The meaning of S13 is itself an interpretation (S1-G61).",
+          "evidence": [
+            "alternatives.json A1 assumptions: '... hourly/daily usage aggregation (S13) can be computed from the transactional database without unacceptable impact on rental operations'",
+            "alternatives.json A1 limitations: 'Reporting queries share the transactional database with rental operations.'"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "Security",
+          "impact": "mixed",
+          "rationale": "Positive: one process and one database mean fewer network hops carrying personal and payment data. Sessions are enforced on the server, and access control and encryption at rest sit in one place. Negative: there is no edge component such as a gateway, protection in transit is not described, and payment and credential data share one process and store, so they are not isolated from each other.",
+          "evidence": [
+            "alternatives.json A1 rationale: 'encryption at rest, access control, retention and erasure for GDPR are applied in one place'",
+            "alternatives.json A1 description: 'logout and the 15-minute inactivity timeout enforced on the server'",
+            "alternatives.json A1 rationale: 'The permitted technologies (gateway, broker, registry, tracing) are not used.'"
+          ]
+        },
+        {
+          "quality_attribute": "Privacy and Regulatory Compliance",
+          "impact": "positive",
+          "rationale": "Personal, payment and usage data are held in one store and not copied into read models or event records. Retention and erasure can therefore be applied in one place. Jurisdiction (S1-G66) and biometric handling (S1-G9) remain open for all alternatives.",
+          "evidence": [
+            "alternatives.json A1 rationale: 'Personal, payment and usage data sit in one store, so ... retention and erasure for GDPR are applied in one place.'"
+          ]
+        },
+        {
+          "quality_attribute": "Interoperability",
+          "impact": "positive",
+          "rationale": "Payment platforms and SMS/email providers are reached through ports with replaceable adapters, so several platforms can be supported.",
+          "evidence": [
+            "alternatives.json A1 description: 'external systems (payment platforms, SMS/email providers, bike/lock interface, persistence) sit behind ports with replaceable adapters'"
+          ]
+        },
+        {
+          "quality_attribute": "Portability (multi-platform access)",
+          "impact": "neutral",
+          "rationale": "One back end serves web, mobile and administrator clients with token-based access. Nothing in the architecture adapts to device-specific differences such as biometric login on web (S1-G11), so those are left to the clients.",
+          "evidence": [
+            "alternatives.json A1 description: 'A single deployable back end serving the web app, the mobile app and the administrator console'"
+          ]
+        },
+        {
+          "quality_attribute": "Usability",
+          "impact": "neutral",
+          "rationale": "A1 has no architectural element aimed at usability, and navigation is not described. The available list is immediately consistent, which avoids showing bikes that are already taken. That is a minor qualitative benefit.",
+          "evidence": [
+            "alternatives.json A1 addressed_drivers does not include 'Usability for all riders'",
+            "alternatives.json A1 description: 'bike registration, availability removal and rental creation happen in one local transaction'"
+          ]
+        },
+        {
+          "quality_attribute": "Performance (timeliness)",
+          "impact": "mixed",
+          "rationale": "Qualitative only. Availability is updated immediately, and calls between modules are in-process. On the other hand, reporting queries share the transactional database, and slowness in synchronous calls to notification or reporting can propagate to the caller. No measurements or targets exist (S1-G62).",
+          "evidence": [
+            "alternatives.json A1 limitations: 'Synchronous coupling between modules means notification or reporting slowness can affect the calling module'",
+            "alternatives.json A1 limitations: 'Reporting queries share the transactional database with rental operations.'"
+          ]
+        },
+        {
+          "quality_attribute": "Reliability (correctness of rental and bike state)",
+          "impact": "positive",
+          "rationale": "Bike availability, rental creation and status seen by bikers and administrators come from one ACID store, so state is correct and consistent. Fault isolation is weaker: a failing module can affect rentals. That concerns availability, which was not identified as a quality attribute (S1-G67).",
+          "evidence": [
+            "alternatives.json A1 rationale: 'met directly by local ACID transactions'",
+            "alternatives.json A1 limitations: 'A failure in one module (for example reporting) can affect rental operations.'"
+          ]
+        },
+        {
+          "quality_attribute": "Modifiability",
+          "impact": "mixed",
+          "rationale": "Positive: payment and regulatory variation is isolated behind adapters and module interfaces. Negative: every change requires redeploying the whole application, and module boundaries can erode over time.",
+          "evidence": [
+            "alternatives.json A1 limitations: 'a change to one payment adapter requires redeploying everything'",
+            "alternatives.json A1 limitations: 'Module boundaries in the code and the database rely on discipline and tooling and may erode over time.'"
+          ]
+        },
+        {
+          "quality_attribute": "Sustainability",
+          "impact": "unclear",
+          "rationale": "If sustainability means the software's own resource use, a single deployment plausibly needs fewer runtime resources (qualitative; A1 itself calls the link weak). If it means promoting cycling, the architecture is neutral. The meaning is unresolved (S1-G65).",
+          "evidence": [
+            "alternatives.json A1 rationale: 'Using a single deployment needs fewer runtime resources, which relates weakly to the sustainability goal.'",
+            "stage1_assumptions_gaps.json S1-G65"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Security of user and payment data",
+          "status": "partially_satisfied",
+          "rationale": "Access control, encryption at rest and server-side session enforcement are centralized. Protection in transit along the device-to-database path is not described, and the scope of encryption is ambiguous (S1-G1).",
+          "evidence": [
+            "alternatives.json A1 rationale: 'encryption at rest, access control ... applied in one place'",
+            "S1: 'end-to-end encryption of information between user device and app database'"
+          ]
+        },
+        {
+          "driver": "GDPR and regional regulatory compliance",
+          "status": "satisfied",
+          "rationale": "All personal, payment and usage data sits in one store, so retention, erasure and access controls are applied in one place and data is not replicated. Jurisdiction (S1-G66) and biometric handling (S1-G9) are input gaps that no alternative resolves.",
+          "evidence": [
+            "alternatives.json A1 rationale: 'Personal, payment and usage data sit in one store, so encryption at rest, access control, retention and erasure for GDPR are applied in one place.'"
+          ]
+        },
+        {
+          "driver": "Third-party payment platform integration",
+          "status": "satisfied",
+          "rationale": "The payment module reaches several platforms through replaceable adapters. The external payment step is handled at the adapter rather than in the local transaction, which depends on unstated payment timing (S2-G12).",
+          "evidence": [
+            "alternatives.json A1 rationale: 'Payment platform variety and change (S8, project description) ... are isolated by Ports and Adapters'",
+            "stage2_assumptions_gaps.json S2-G12"
+          ]
+        },
+        {
+          "driver": "Web and mobile client access",
+          "status": "satisfied",
+          "rationale": "One back end with token-based access serves the web, mobile and administrator clients. Device-specific features are handled by the clients.",
+          "evidence": [
+            "alternatives.json A1 description: 'A single deployable back end serving the web app, the mobile app and the administrator console'"
+          ]
+        },
+        {
+          "driver": "Bike location and availability tracking",
+          "status": "satisfied",
+          "rationale": "Bike location and availability are held in the transactional bike fleet data. Registration-driven changes are visible immediately to bikers and administrators. The source of bike location data stays behind a port (S1-G55).",
+          "evidence": [
+            "alternatives.json A1 description: 'bike registration, availability removal and rental creation happen in one local transaction'",
+            "alternatives.json A1 limitations: 'Does not resolve how the bike/lock interface works (S1-G55)'"
+          ]
+        },
+        {
+          "driver": "Bike registration and unlocking",
+          "status": "partially_satisfied",
+          "rationale": "Registration and rental creation are atomic. The physical unlock is an external step behind a port, outside the local transaction. Its mechanism (S1-G55) and failure behaviour (S1-G23) are not resolved.",
+          "evidence": [
+            "alternatives.json A1 description: 'bike/lock interface ... behind ports with replaceable adapters'",
+            "alternatives.json A1 limitations: 'it only isolates them behind ports'"
+          ]
+        },
+        {
+          "driver": "Consistent bike and rental state",
+          "status": "satisfied",
+          "rationale": "Local ACID transactions directly ensure that a registered bike is not offered or registered again, and that rental timing is recorded in one consistent store.",
+          "evidence": [
+            "alternatives.json A1 rationale: 'S7 and the inferred one-active-registration-per-bike rule are met directly by local ACID transactions'"
+          ]
+        },
+        {
+          "driver": "Rental lifecycle timing",
+          "status": "satisfied",
+          "rationale": "Time-based jobs in the rental module handle expiry notification and overtime detection independently of user sessions. This resolves the architectural side of the S4/S9 conflict.",
+          "evidence": [
+            "alternatives.json A1 description: 'Rental expiry notifications and overtime detection run as time-based jobs inside the rental module, independent of user sessions'"
+          ]
+        },
+        {
+          "driver": "Biker authentication and session management",
+          "status": "partially_satisfied",
+          "rationale": "Registration, email/password login, logout and the server-enforced inactivity timeout are covered. Biometric matching and flushing are unresolved (S1-G9).",
+          "evidence": [
+            "alternatives.json A1 description: 'Clients authenticate (email/password or biometric) ... with logout and the 15-minute inactivity timeout enforced on the server'",
+            "alternatives.json A1 limitations: 'Does not resolve ... where biometric matching happens (S1-G9)'"
+          ]
+        },
+        {
+          "driver": "External SMS and email delivery",
+          "status": "satisfied",
+          "rationale": "SMS/email providers are behind ports with replaceable adapters.",
+          "evidence": [
+            "alternatives.json A1 description: 'SMS/email providers ... sit behind ports with replaceable adapters'"
+          ]
+        },
+        {
+          "driver": "Usage history and administrative reporting",
+          "status": "satisfied",
+          "rationale": "The usage and reporting module serves biker history and administrator views from the transactional database. This relies on the unmeasured assumption that reporting load is acceptable (S2-G2).",
+          "evidence": [
+            "alternatives.json A1 assumptions: 'Fleet-wide status (S12) and hourly/daily usage aggregation (S13) can be computed from the transactional database without unacceptable impact on rental operations.'"
+          ]
+        },
+        {
+          "driver": "Usability for all riders",
+          "status": "partially_satisfied",
+          "rationale": "Finding and registering bikes is supported, and the available list is consistent. Navigation help (S6) is not described, and no architectural element targets usability.",
+          "evidence": [
+            "alternatives.json A1 addressed_drivers does not include 'Usability for all riders'",
+            "S6: 'App must help the biker to navigate to the available bike'"
+          ]
+        },
+        {
+          "driver": "Changeability of payment options and regulations",
+          "status": "partially_satisfied",
+          "rationale": "Adapters isolate payment platform changes in the code. Changes still require redeploying the whole application, and A1 assumes independent release is not needed (S2-G3).",
+          "evidence": [
+            "alternatives.json A1 limitations: 'a change to one payment adapter requires redeploying everything'",
+            "alternatives.json A1 assumptions: 'Different parts of the system do not need to be released on independent schedules'"
+          ]
+        },
+        {
+          "driver": "Permitted technology context",
+          "status": "satisfied",
+          "rationale": "This driver is a permission, not a mandate. A1 stays within it by using none of the listed technologies.",
+          "evidence": [
+            "drivers.json Permitted technology context: 'This is a permission, not a mandate'",
+            "alternatives.json A1 rationale: 'They are permitted, not mandated.'"
+          ]
+        },
+        {
+          "driver": "Sustainable mobility goal",
+          "status": "unclear",
+          "rationale": "A1 claims a weak link through lower runtime resource use. The goal has no target and its meaning is unresolved (S1-G65), so satisfaction cannot be judged.",
+          "evidence": [
+            "alternatives.json A1 rationale: 'relates weakly to the sustainability goal'",
+            "stage1_assumptions_gaps.json S1-G65"
+          ]
+        }
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "partially_satisfied",
+          "rationale": "The identity module provides registration on the shared database. The API gateway terminates TLS, so traffic is protected from device to gateway. How the hop from gateway to application to database is protected is not described, and terminating TLS at an intermediate component sits uneasily with 'end-to-end ... between user device and app database' (scope ambiguous, S1-G1). Personal data is also copied into event records and read models.",
+          "evidence": [
+            "alternatives.json A2 description: 'An API gateway ... terminates TLS, validates access tokens'",
+            "alternatives.json A2 limitations: 'Personal data is replicated into read models and event records'",
+            "S1: 'end-to-end encryption of information between user device and app database'"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "The module split matches A1, including the notification module with SMS/email adapters behind ports. Code generation and expiry belong to the identity module. The contradictory expiry value (S1-G5) has no architectural effect.",
+          "evidence": [
+            "alternatives.json A2 description: 'the same module split as A1 ... using ports and adapters for external systems'",
+            "alternatives.json A2 addressed_drivers: 'External SMS and email delivery'"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "partially_satisfied",
+          "rationale": "Login produces access tokens that the gateway validates. As with A1, biometric matching location and flushing are not resolved (S1-G9).",
+          "evidence": [
+            "alternatives.json A2 selected_patterns: 'Access Token', 'API Gateway'",
+            "stage1_assumptions_gaps.json S1-G9"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "satisfied",
+          "rationale": "The gateway rejects revoked or expired sessions, which supports explicit logout (revocation) and the inactivity timeout (expiry). The identity and session module manages sessions.",
+          "evidence": [
+            "alternatives.json A2 description: 'validates access tokens and rejects revoked or expired sessions'"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "satisfied",
+          "rationale": "A CQRS nearby-bikes read model fed by availability events serves proximity queries. The bike location source stays behind a port (S1-G55).",
+          "evidence": [
+            "alternatives.json A2 description: 'updates to the nearby-bikes ... read models' handled by event subscribers",
+            "alternatives.json A2 rationale: 'Availability changes feed both the biker proximity view (S5) and the administrator fleet view (S12)'"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "partially_satisfied",
+          "rationale": "Registration plus rental creation is one local transaction, and the bike/lock interface sits behind ports. Navigation is not described, and the unlock mechanism and its failure behaviour are unresolved (S1-G23, S1-G55).",
+          "evidence": [
+            "alternatives.json A2 description: 'Atomic operations (registration plus availability removal plus rental creation) stay in local transactions'",
+            "S6: 'App must help the biker to navigate to the available bike'"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "partially_satisfied",
+          "rationale": "Availability is removed atomically on the transactional model, and registration re-checks it, so double registration is prevented. The list bikers see is an eventually consistent read model, so a registered bike may briefly still appear. Whether that meets 'as soon as' depends on an unstated bound (S1-G24, S2-G4).",
+          "evidence": [
+            "alternatives.json A2 limitations: 'Read models are eventually consistent, so a bike may briefly still appear in the nearby list after registration (S7 gives no time bound, S1-G24).'",
+            "alternatives.json A2 assumptions: 'provided that bike registration itself re-checks availability on the transactional model'"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "The payment module uses adapters for bank and card platforms, as in A1, and overtime charge triggers are driven by events. Handling the external payment step at the adapter depends on payment timing (S2-G12).",
+          "evidence": [
+            "alternatives.json A2 description: 'Delay-tolerant consequences (... overtime charge triggers ...) are handled by event subscribers'",
+            "stage2_assumptions_gaps.json S2-G12"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "RentalExpiring events drive the notification, and rental events trigger overtime charges, independently of the S4 session. X, the channel and the ride-end event are undefined (S1-G31, S1-G32, S1-G34).",
+          "evidence": [
+            "alternatives.json A2 description: 'domain events (for example ... RentalExpiring, RentalEnded)'",
+            "alternatives.json A2 rationale: 'Rental time events drive the S9 notification and overtime charging independently of the S4 session.'"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "The rental module records the rental duration, and time events track its lifecycle for minute, day and week rentals.",
+          "evidence": [
+            "alternatives.json A2 addressed_drivers: 'Rental lifecycle timing'",
+            "alternatives.json A2 description: 'RentalStarted, RentalExpiring, RentalEnded'"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "A usage-history read model fed by rental events supports viewing and downloading the last 3 months. The format is unspecified (S1-G39).",
+          "evidence": [
+            "alternatives.json A2 description: 'updates to the ... usage-history ... read models'"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "A fleet-status read model fed by availability events serves the administrator console through the gateway. It may lag slightly behind the transactional state.",
+          "evidence": [
+            "alternatives.json A2 description: 'fleet-status ... read models' and 'single entry point for web, mobile and administrator clients'"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "An hourly/daily-usage read model is maintained from rental events, separate from the transactional model. The meaning of S13 is an interpretation (S1-G61).",
+          "evidence": [
+            "alternatives.json A2 description: 'updates to the ... hourly/daily-usage read models'"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "Security",
+          "impact": "mixed",
+          "rationale": "Positive: the gateway is a single edge entry point for TLS, token validation and session revocation. Negative: terminating TLS at the gateway leaves the protection of internal hops undescribed (relevant to S1). Personal data is also copied into event records and read models, and the gateway must be redundant.",
+          "evidence": [
+            "alternatives.json A2 description: 'terminates TLS, validates access tokens and rejects revoked or expired sessions'",
+            "alternatives.json A2 limitations: 'Personal data is replicated into read models and event records'"
+          ]
+        },
+        {
+          "quality_attribute": "Privacy and Regulatory Compliance",
+          "impact": "mixed",
+          "rationale": "There is one primary store, but replicated read models and event records widen the data that retention and erasure must cover. The retention rule is unstated (S2-G11).",
+          "evidence": [
+            "alternatives.json A2 limitations: 'Personal data is replicated into read models and event records, which enlarges the data subject to encryption, retention and erasure under GDPR.'"
+          ]
+        },
+        {
+          "quality_attribute": "Interoperability",
+          "impact": "positive",
+          "rationale": "Ports and adapters isolate payment platforms and SMS/email providers, as in A1.",
+          "evidence": [
+            "alternatives.json A2 selected_patterns: 'Ports and Adapters'"
+          ]
+        },
+        {
+          "quality_attribute": "Portability (multi-platform access)",
+          "impact": "neutral",
+          "rationale": "The gateway gives web, mobile and administrator clients one entry point, but nothing adapts to device-specific differences (S1-G11).",
+          "evidence": [
+            "alternatives.json A2 description: 'single entry point for web, mobile and administrator clients'"
+          ]
+        },
+        {
+          "quality_attribute": "Usability",
+          "impact": "neutral",
+          "rationale": "No element targets usability, and navigation is not described. The read-model lag could briefly show bikes that are already registered (qualitative).",
+          "evidence": [
+            "alternatives.json A2 limitations: 'a bike may briefly still appear in the nearby list after registration'"
+          ]
+        },
+        {
+          "quality_attribute": "Performance (timeliness)",
+          "impact": "mixed",
+          "rationale": "Qualitative only. Read models take proximity, fleet and reporting queries off the transactional model, and notifications are asynchronous. On the other hand, read-model updates lag the state change and the gateway adds a hop. Nothing is measured (S1-G62).",
+          "evidence": [
+            "alternatives.json A2 rationale: 'CQRS is applied only to the read-heavy S5/S11/S12/S13 concerns'",
+            "alternatives.json A2 limitations: 'The API gateway adds a hop'"
+          ]
+        },
+        {
+          "quality_attribute": "Reliability (correctness of rental and bike state)",
+          "impact": "mixed",
+          "rationale": "Authoritative state stays transactional, events are recorded atomically with state changes, and subscribers are idempotent. Displayed state is eventually consistent, though, and event delivery, idempotency and replay add failure modes to design and test.",
+          "evidence": [
+            "alternatives.json A2 description: 'These events are recorded in the same transaction as the state change and published afterwards.'",
+            "alternatives.json A2 limitations: 'with event delivery, idempotency and replay to design and test'"
+          ]
+        },
+        {
+          "quality_attribute": "Modifiability",
+          "impact": "mixed",
+          "rationale": "Events make it possible to add consumers (for example new reports) without changing producers, and adapters isolate payment changes. The application still deploys as one unit.",
+          "evidence": [
+            "alternatives.json A2 rationale: 'decoupling the parts of the requirements that have several independent consumers'",
+            "alternatives.json A2 limitations: 'the payment capability cannot be released independently'"
+          ]
+        },
+        {
+          "quality_attribute": "Sustainability",
+          "impact": "unclear",
+          "rationale": "A2 adds a broker and a gateway to a single application. Under a resource-efficiency reading this plausibly uses more resources than A1 and fewer than A3 (qualitative). The meaning of the goal is unresolved (S1-G65).",
+          "evidence": [
+            "alternatives.json A2 limitations: 'More moving parts than A1 (broker, gateway, event store table, read models)'",
+            "stage1_assumptions_gaps.json S1-G65"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Security of user and payment data",
+          "status": "partially_satisfied",
+          "rationale": "Edge security is centralized at the gateway. Protection beyond TLS termination is not described, and personal data is copied into read models and events.",
+          "evidence": [
+            "alternatives.json A2 description: 'terminates TLS, validates access tokens'",
+            "alternatives.json A2 limitations: 'Personal data is replicated into read models and event records'"
+          ]
+        },
+        {
+          "driver": "GDPR and regional regulatory compliance",
+          "status": "partially_satisfied",
+          "rationale": "Compliance controls must also cover the replicated read models and event records, and the retention rule is not stated (S2-G11).",
+          "evidence": [
+            "alternatives.json A2 limitations: 'enlarges the data subject to encryption, retention and erasure under GDPR'",
+            "stage2_assumptions_gaps.json S2-G11"
+          ]
+        },
+        {
+          "driver": "Third-party payment platform integration",
+          "status": "satisfied",
+          "rationale": "Payment adapters support several platforms. The external step depends on payment timing (S2-G12).",
+          "evidence": [
+            "alternatives.json A2 selected_patterns: 'Ports and Adapters'",
+            "stage2_assumptions_gaps.json S2-G12"
+          ]
+        },
+        {
+          "driver": "Web and mobile client access",
+          "status": "satisfied",
+          "rationale": "One gateway entry point serves web, mobile and administrator clients.",
+          "evidence": [
+            "alternatives.json A2 description: 'single entry point for web, mobile and administrator clients'"
+          ]
+        },
+        {
+          "driver": "Bike location and availability tracking",
+          "status": "partially_satisfied",
+          "rationale": "Tracking and proximity views are supported through read models. Registration-driven changes reach biker and administrator views only after a lag that the inputs do not bound (S1-G24, S2-G4).",
+          "evidence": [
+            "alternatives.json A2 limitations: 'Read models are eventually consistent'"
+          ]
+        },
+        {
+          "driver": "Bike registration and unlocking",
+          "status": "partially_satisfied",
+          "rationale": "Registration is atomic in a local transaction. The physical unlock behind a port, and its failure behaviour, are unresolved (S1-G23, S1-G55).",
+          "evidence": [
+            "alternatives.json A2 description: 'Atomic operations (registration plus availability removal plus rental creation) stay in local transactions'"
+          ]
+        },
+        {
+          "driver": "Consistent bike and rental state",
+          "status": "partially_satisfied",
+          "rationale": "Authoritative bike and rental state is transactional, and registration re-checks availability. Displayed availability is eventually consistent, so a registered bike may briefly be shown to others.",
+          "evidence": [
+            "alternatives.json A2 assumptions: 'bike registration itself re-checks availability on the transactional model'",
+            "alternatives.json A2 limitations: 'a bike may briefly still appear in the nearby list after registration'"
+          ]
+        },
+        {
+          "driver": "Rental lifecycle timing",
+          "status": "satisfied",
+          "rationale": "Rental time events drive notifications and overtime independently of sessions.",
+          "evidence": [
+            "alternatives.json A2 rationale: 'Rental time events drive the S9 notification and overtime charging independently of the S4 session.'"
+          ]
+        },
+        {
+          "driver": "Biker authentication and session management",
+          "status": "partially_satisfied",
+          "rationale": "Tokens, revocation and expiry are enforced at the gateway. Biometric matching and flushing are unresolved (S1-G9).",
+          "evidence": [
+            "alternatives.json A2 description: 'rejects revoked or expired sessions'",
+            "stage1_assumptions_gaps.json S1-G9"
+          ]
+        },
+        {
+          "driver": "External SMS and email delivery",
+          "status": "satisfied",
+          "rationale": "SMS/email adapters sit behind ports, and notification is driven by events.",
+          "evidence": [
+            "alternatives.json A2 addressed_drivers: 'External SMS and email delivery'"
+          ]
+        },
+        {
+          "driver": "Usage history and administrative reporting",
+          "status": "satisfied",
+          "rationale": "Dedicated read models for usage history, fleet status and hourly/daily usage are separated from rental operations.",
+          "evidence": [
+            "alternatives.json A2 rationale: 'rental events feed S11 history and S13 aggregates'"
+          ]
+        },
+        {
+          "driver": "Usability for all riders",
+          "status": "partially_satisfied",
+          "rationale": "Finding and registering bikes is supported. Navigation is not described, and nothing targets usability.",
+          "evidence": [
+            "alternatives.json A2 addressed_drivers does not include 'Usability for all riders'"
+          ]
+        },
+        {
+          "driver": "Changeability of payment options and regulations",
+          "status": "partially_satisfied",
+          "rationale": "Adapters and events isolate changes in the code, but deployment remains a single unit (S2-G3).",
+          "evidence": [
+            "alternatives.json A2 limitations: 'The application still scales and deploys as one unit; the payment capability cannot be released independently.'"
+          ]
+        },
+        {
+          "driver": "Permitted technology context",
+          "status": "satisfied",
+          "rationale": "A2 uses the API gateway and message broker, both within the permitted technology context.",
+          "evidence": [
+            "alternatives.json A2 rationale: 'The broker and gateway are within the permitted technology context.'"
+          ]
+        },
+        {
+          "driver": "Sustainable mobility goal",
+          "status": "unclear",
+          "rationale": "A2 does not claim to address this goal, which has no target and an unresolved meaning (S1-G65).",
+          "evidence": [
+            "alternatives.json A2 addressed_drivers does not include 'Sustainable mobility goal'",
+            "stage1_assumptions_gaps.json S1-G65"
+          ]
+        }
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "partially_satisfied",
+          "rationale": "Registration is provided by the identity and session service, whose credential data is confined to its own store. More network communication carries personal data, which widens the surface that must be encrypted. Protection behind the gateway is not described, and the encryption scope is ambiguous (S1-G1).",
+          "evidence": [
+            "alternatives.json A3 limitations: 'More network communication carries personal and payment data, widening the surface that must be encrypted (S1)'",
+            "alternatives.json A3 rationale: 'Credential, payment and personal data are confined to their owning services'"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "The notification service integrates with SMS/email providers through ports and adapters. The identity service can generate and expire codes. The contradictory expiry value (S1-G5) has no architectural effect.",
+          "evidence": [
+            "alternatives.json A3 description: 'Payment, notification and fleet services integrate with external platforms, providers and bikes through ports and adapters.'"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "partially_satisfied",
+          "rationale": "The mobile BFF serves biometric login, and access tokens are validated at the gateway. Biometric matching location and flushing remain unresolved (S1-G9), as does biometric login on web (S1-G11).",
+          "evidence": [
+            "alternatives.json A3 description: 'separate backends for frontend serve the mobile app (biometric login, location, code scanning)'",
+            "stage1_assumptions_gaps.json S1-G9"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "partially_satisfied",
+          "rationale": "There is an identity and session service, and the gateway validates access tokens. A3 does not describe how logout or the 15-minute inactivity timeout invalidates tokens that the gateway accepts.",
+          "evidence": [
+            "alternatives.json A3 description: 'An API gateway is the single edge entry point, validating access tokens.'",
+            "S4: 'after an inactivity of 15 minutes'"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "satisfied",
+          "rationale": "The fleet service maintains the proximity view, and the mobile BFF serves location features. The bike location source is unresolved (S1-G55).",
+          "evidence": [
+            "alternatives.json A3 description: 'the fleet service maintains the proximity and fleet-status views'"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "partially_satisfied",
+          "rationale": "The rental-start saga registers and unlocks the bike, with compensation for a failed unlock, and the mobile BFF serves code scanning. Navigation is not described, and the compensation depends on unstated failure behaviour (S1-G23, S2-G10).",
+          "evidence": [
+            "alternatives.json A3 description: 'rental start: register and unlock the bike, mark it unavailable, authorize payment ... sagas with compensating actions for failed unlock or payment'",
+            "alternatives.json A3 limitations: 'Saga compensations depend on unstated behaviour for failed unlock (S1-G23)'"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "partially_satisfied",
+          "rationale": "Marking the bike unavailable is a saga step in the fleet service, not part of a single transaction with the rental. Correctness depends on how the saga steps are designed, on idempotent handlers, and on compensation re-listing the bike if payment or unlock fails.",
+          "evidence": [
+            "alternatives.json A3 limitations: 'Bike registration consistency (S7) depends on correctly designed saga steps and idempotent handlers rather than a single transaction.'",
+            "alternatives.json A3 assumptions: 'a bike marked unavailable while payment authorization is pending'"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "A dedicated payment service with adapters supports bank and card platforms. Payment is authorized in the rental-start saga, and overtime is collected in the rental-end saga. Compensation depends on payment timing (S1-G27).",
+          "evidence": [
+            "alternatives.json A3 description: 'authorize payment' and 'rental end: release the bike, compute and collect overtime'"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "Event-driven rental and notification services handle expiry notifications, and the rental-end saga computes and collects overtime, independently of sessions.",
+          "evidence": [
+            "alternatives.json A3 description: 'rental end: release the bike, compute and collect overtime'",
+            "alternatives.json A3 addressed_drivers: 'Rental lifecycle timing'"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "The rental service owns rental durations, which supports minute, day and week rentals.",
+          "evidence": [
+            "alternatives.json A3 description: 'services along the same capabilities (... rental ...)'"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "The reporting service builds CQRS read models from events for S11 history.",
+          "evidence": [
+            "alternatives.json A3 description: 'A reporting service maintains CQRS read models built from events for S11 history'"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "The fleet service maintains a fleet-status view, served through the administrator BFF.",
+          "evidence": [
+            "alternatives.json A3 description: 'the fleet service maintains the proximity and fleet-status views' and BFF for 'the administrator console'"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "The reporting service's read models provide S13 hourly/daily usage. The meaning of S13 is an interpretation (S1-G61).",
+          "evidence": [
+            "alternatives.json A3 description: 'CQRS read models built from events for S11 history and S13 hourly/daily usage'"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "Security",
+          "impact": "mixed",
+          "rationale": "Positive: credential and payment data are confined to their owning services, which narrows access, and the gateway centralizes edge validation. Negative: more network communication carries personal and payment data, widening the surface to encrypt and audit under ISO 27001.",
+          "evidence": [
+            "alternatives.json A3 rationale: 'confined to their owning services ... which narrows access and the scope of compliance controls'",
+            "alternatives.json A3 limitations: 'widening the surface that must be encrypted (S1) and audited (ISO 27001)'"
+          ]
+        },
+        {
+          "quality_attribute": "Privacy and Regulatory Compliance",
+          "impact": "mixed",
+          "rationale": "Confining data narrows the scope of compliance controls. However, GDPR erasure and retention must be coordinated across several service-private stores and read models (S1-G40).",
+          "evidence": [
+            "alternatives.json A3 limitations: 'GDPR erasure and retention (S1-G40) must be coordinated across several service-private stores and read models.'"
+          ]
+        },
+        {
+          "quality_attribute": "Interoperability",
+          "impact": "positive",
+          "rationale": "Dedicated payment and notification services integrate with external platforms and providers through ports and adapters.",
+          "evidence": [
+            "alternatives.json A3 description: 'Payment, notification and fleet services integrate with external platforms, providers and bikes through ports and adapters.'"
+          ]
+        },
+        {
+          "quality_attribute": "Portability (multi-platform access)",
+          "impact": "positive",
+          "rationale": "Separate BFFs explicitly handle device-dependent differences between mobile (biometric, location, scanning), web and administrator clients. The benefit depends on the clients actually differing materially (S2-G9).",
+          "evidence": [
+            "alternatives.json A3 rationale: 'Device-dependent differences between web and mobile clients (S3 biometric, S5 location, S6 scanning) are handled by BFFs.'",
+            "alternatives.json A3 limitations: 'BFFs may duplicate logic if web and mobile flows turn out to be similar (S1-G11 unresolved).'"
+          ]
+        },
+        {
+          "quality_attribute": "Usability",
+          "impact": "positive",
+          "rationale": "Indirect and qualitative: client-specific backends allow APIs tailored to each client's flows, and A3 lists usability among its addressed drivers. Navigation is still not described.",
+          "evidence": [
+            "alternatives.json A3 addressed_drivers: 'Usability for all riders'",
+            "alternatives.json A3 selected_patterns: 'Backend for Frontend'"
+          ]
+        },
+        {
+          "quality_attribute": "Performance (timeliness)",
+          "impact": "mixed",
+          "rationale": "Qualitative only. Services can scale independently, but no load target requires that (S1-G67). Network hops and multi-step sagas add latency to rental start and end. Nothing is measured.",
+          "evidence": [
+            "alternatives.json A3 limitations: 'with no stated scalability, load or team-size reason that requires it (S1-G67)'",
+            "alternatives.json A3 description: 'Services communicate mainly through events on a message broker.'"
+          ]
+        },
+        {
+          "quality_attribute": "Reliability (correctness of rental and bike state)",
+          "impact": "mixed",
+          "rationale": "Service isolation limits how far faults spread. But bike and rental state is eventually consistent across services, and correctness depends on saga compensations whose required behaviour is unstated (S2-G10).",
+          "evidence": [
+            "alternatives.json A3 assumptions: 'Eventual consistency during a rental start or end ... is acceptable'",
+            "alternatives.json A3 limitations: 'Saga compensations depend on unstated behaviour for failed unlock (S1-G23) and payment timing (S1-G27).'"
+          ]
+        },
+        {
+          "quality_attribute": "Modifiability",
+          "impact": "positive",
+          "rationale": "Payment and region-dependent compliance can be changed and released independently. The value of this depends on the assumed rate of change (S2-G6).",
+          "evidence": [
+            "alternatives.json A3 rationale: 'The payment capability ... and region-dependent compliance can change and be released independently.'"
+          ]
+        },
+        {
+          "quality_attribute": "Sustainability",
+          "impact": "unclear",
+          "rationale": "Under a resource-efficiency reading, many services plus orchestration, registry, broker and tracing plausibly use the most runtime resources (qualitative). The meaning of the goal is unresolved (S1-G65).",
+          "evidence": [
+            "alternatives.json A3 limitations: 'Highest operational and development complexity of the alternatives'",
+            "stage1_assumptions_gaps.json S1-G65"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Security of user and payment data",
+          "status": "partially_satisfied",
+          "rationale": "Data confinement and the gateway help. The wider network surface carrying personal and payment data has to be protected, and protection behind the gateway is not described.",
+          "evidence": [
+            "alternatives.json A3 limitations: 'More network communication carries personal and payment data'"
+          ]
+        },
+        {
+          "driver": "GDPR and regional regulatory compliance",
+          "status": "partially_satisfied",
+          "rationale": "Region-specific logic can be released independently. Erasure and retention, however, must be coordinated across service-private stores and read models.",
+          "evidence": [
+            "alternatives.json A3 limitations: 'GDPR erasure and retention (S1-G40) must be coordinated across several service-private stores and read models.'"
+          ]
+        },
+        {
+          "driver": "Third-party payment platform integration",
+          "status": "satisfied",
+          "rationale": "A dedicated payment service with adapters sits inside rental-start and rental-end sagas.",
+          "evidence": [
+            "alternatives.json A3 description: 'authorize payment' and 'compute and collect overtime'"
+          ]
+        },
+        {
+          "driver": "Web and mobile client access",
+          "status": "satisfied",
+          "rationale": "There is a separate BFF for each of the mobile, web and administrator clients behind one gateway.",
+          "evidence": [
+            "alternatives.json A3 description: 'separate backends for frontend serve the mobile app ..., the web app and the administrator console'"
+          ]
+        },
+        {
+          "driver": "Bike location and availability tracking",
+          "status": "partially_satisfied",
+          "rationale": "The fleet service maintains the proximity and fleet-status views. Availability changes depend on saga steps and may be compensated, so the reflected state is eventually consistent.",
+          "evidence": [
+            "alternatives.json A3 limitations: 'Bike registration consistency (S7) depends on correctly designed saga steps'"
+          ]
+        },
+        {
+          "driver": "Bike registration and unlocking",
+          "status": "partially_satisfied",
+          "rationale": "Unlock is modelled as a saga step with compensation. The unlock mechanism (S1-G55) and the required failure behaviour (S1-G23) are unstated.",
+          "evidence": [
+            "alternatives.json A3 description: 'compensating actions for failed unlock or payment'",
+            "stage2_assumptions_gaps.json S2-G10"
+          ]
+        },
+        {
+          "driver": "Consistent bike and rental state",
+          "status": "partially_satisfied",
+          "rationale": "Sagas and idempotent handlers provide consistency, not single transactions. Intermediate states such as payment pending are assumed acceptable (S2-G7).",
+          "evidence": [
+            "alternatives.json A3 assumptions: 'Eventual consistency during a rental start or end ... is acceptable, provided double registration of a bike is prevented by the fleet service.'"
+          ]
+        },
+        {
+          "driver": "Rental lifecycle timing",
+          "status": "satisfied",
+          "rationale": "Event-driven rental and notification services, together with the rental-end saga, handle expiry and overtime independently of sessions.",
+          "evidence": [
+            "alternatives.json A3 addressed_drivers: 'Rental lifecycle timing'",
+            "alternatives.json A3 description: 'rental end: release the bike, compute and collect overtime'"
+          ]
+        },
+        {
+          "driver": "Biker authentication and session management",
+          "status": "partially_satisfied",
+          "rationale": "The identity service, access tokens and the mobile BFF handle biometric login. Enforcement of logout and inactivity at the gateway is not described, and biometric matching is unresolved (S1-G9).",
+          "evidence": [
+            "alternatives.json A3 description: 'validating access tokens'",
+            "stage1_assumptions_gaps.json S1-G9"
+          ]
+        },
+        {
+          "driver": "External SMS and email delivery",
+          "status": "satisfied",
+          "rationale": "The notification service uses adapters to SMS/email providers.",
+          "evidence": [
+            "alternatives.json A3 description: 'notification ... services integrate with external ... providers ... through ports and adapters'"
+          ]
+        },
+        {
+          "driver": "Usage history and administrative reporting",
+          "status": "satisfied",
+          "rationale": "The reporting service's CQRS read models cover S11 and S13, and the fleet service's view covers S12.",
+          "evidence": [
+            "alternatives.json A3 description: 'A reporting service maintains CQRS read models built from events for S11 history and S13 hourly/daily usage'"
+          ]
+        },
+        {
+          "driver": "Usability for all riders",
+          "status": "partially_satisfied",
+          "rationale": "BFFs allow client-tailored APIs. Navigation help (S6) is not described.",
+          "evidence": [
+            "alternatives.json A3 addressed_drivers: 'Usability for all riders'",
+            "S6: 'App must help the biker to navigate to the available bike'"
+          ]
+        },
+        {
+          "driver": "Changeability of payment options and regulations",
+          "status": "satisfied",
+          "rationale": "Payment and region-dependent compliance capabilities can be deployed independently, under assumption S2-G6.",
+          "evidence": [
+            "alternatives.json A3 rationale: 'can change and be released independently'"
+          ]
+        },
+        {
+          "driver": "Permitted technology context",
+          "status": "satisfied",
+          "rationale": "All runtime technologies A3 uses are in the permitted list.",
+          "evidence": [
+            "alternatives.json A3 rationale: 'All runtime technologies used (orchestration, registry and discovery, gateway, broker, tracing) are in the permitted technology context.'"
+          ]
+        },
+        {
+          "driver": "Sustainable mobility goal",
+          "status": "unclear",
+          "rationale": "A3 does not claim to address this goal, which has no target and an unresolved meaning (S1-G65).",
+          "evidence": [
+            "alternatives.json A3 addressed_drivers does not include 'Sustainable mobility goal'",
+            "stage1_assumptions_gaps.json S1-G65"
+          ]
+        }
+      ]
+    }
+  ]
+}

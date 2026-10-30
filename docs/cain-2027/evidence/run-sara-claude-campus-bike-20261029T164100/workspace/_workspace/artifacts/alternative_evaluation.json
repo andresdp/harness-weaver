@@ -1,0 +1,970 @@
+{
+  "system_name": "campus-bike",
+  "evaluation_notes": [
+    "Requirements S1-S13 (requirements_analysis.json) are the primary criteria; quality attributes (quality_attributes.json) and drivers (drivers.json) complement them.",
+    "Requirement and driver status scale: satisfied | partially_satisfied | not_satisfied | unclear. A requirement-level inconsistency (e.g. S2 30 min vs 30 s, S6 90 min vs S10) does not by itself lower the status when the alternative supports either reading; it is recorded in the rationale.",
+    "Quality-attribute impact scale: positive | slightly_positive | neutral | mixed | slightly_negative | negative. Impact is judged against the attribute description in quality_attributes.json.",
+    "Evidence cites alternatives.json (description, key_decisions, compatibility_conditions_applied, assumptions, limitations) and pattern_candidates.json where a selected pattern's documented scope is used.",
+    "Where satisfaction depends on an assumption stated by the alternative, the assumption is named; satisfaction is not assumed where the alternative does not allocate the responsibility.",
+    "No trade-off analysis, ranking or recommendation is performed here."
+  ],
+  "evaluations": [
+    {
+      "alternative_id": "A1",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "partially_satisfied",
+          "rationale": "Registration is allocated to the Identity & Access module and personal data is stored in a segregated, encrypted schema accessible only to that module. 'End-to-end encryption between user device and app database' is only met under the alternative's own reading (TLS on all hops plus encryption at rest), which it marks as unconfirmed; no provision is made for the strict reading (data unreadable by intermediate layers).",
+          "evidence": [
+            "alternatives.json A1.description: 'Personal data lives in a segregated, encrypted schema accessible only to the Identity module'",
+            "alternatives.json A1.assumptions: ''End-to-end encryption' (S1) is satisfied by TLS on all hops plus encryption at rest of sensitive data; this reading is unconfirmed.'",
+            "requirements_analysis.json S1.ambiguities: E2E encryption meaning unclear"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "A Notification & Verification module sends codes through SMS/email adapters protected by timeouts/retries/circuit breakers; the selected Scheduler / Durable Timer pattern covers verification-code expiry. Either validity period (30 min or 30 s) can be configured; the inconsistency is a requirement issue.",
+          "evidence": [
+            "alternatives.json A1.description: 'Notification & Verification' module; 'provider-specific adapters (... SMS/email, push ...)'",
+            "pattern_candidates.json Scheduler / Durable Timer addressed_concerns: 'Expiring verification codes'",
+            "alternatives.json A1.key_decisions: 'ports and adapters with timeouts, retries and circuit breakers'"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "partially_satisfied",
+          "rationale": "Email/password login is handled by Centralized IAM in the Identity module. Biometric login and the 'flush out thumb impression' obligation are satisfied only under the assumption that matching occurs on the device and the server never receives the impression; enrolment and web-channel behaviour are not addressed.",
+          "evidence": [
+            "alternatives.json A1.selected_patterns: 'Centralized Identity and Access Management with token-based authentication'",
+            "alternatives.json A1.assumptions: 'Biometric matching occurs on the device; the server never receives the thumb impression (S3 ambiguity).'",
+            "requirements_analysis.json S3.ambiguities"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "satisfied",
+          "rationale": "Centralized IAM with token-based authentication covers explicit logout and the 15-minute inactivity expiry. A1 explicitly decouples rental notifications from sessions, so automatic logout does not suppress S9 notifications.",
+          "evidence": [
+            "pattern_candidates.json Centralized IAM addressed_concerns: '15-minute inactivity session expiry'",
+            "alternatives.json A1.compatibility_conditions_applied: 'Scheduler + IAM: notifications delivered via session-independent channels (push/SMS/email).'"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "partially_satisfied",
+          "rationale": "Proximity queries read the authoritative availability state in the single database, so only truly available bikes are shown. However, how bike locations are obtained is not allocated: the bike port is modelled for request/response unlocking and the alternative assumes continuous telemetry is not needed or low volume, leaving the location source open.",
+          "evidence": [
+            "alternatives.json A1.key_decisions: 'availability queries read the authoritative state'",
+            "alternatives.json A1.assumptions: 'Bike interaction can be expressed as request/response calls ...; continuous bike telemetry is either not needed or low volume.'",
+            "drivers.json open_issues_affecting_drivers: bike-side interaction for location tracking not described"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "satisfied",
+          "rationale": "Navigation is supported via a maps/navigation adapter; registration by QR or four-digit code is a single atomic conditional update creating the rental; unlocking goes through the bike lock/registration adapter. The 90-minute vs S10 duration conflict is a requirement issue that the rental module can parameterize.",
+          "evidence": [
+            "alternatives.json A1.description: 'provider-specific adapters (payment platforms, SMS/email, push, maps/navigation, bike lock/registration)'",
+            "alternatives.json A1.description: 'registration is a single conditional update that creates the rental and marks the bike unavailable atomically'"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "satisfied",
+          "rationale": "The rental is created and the bike marked unavailable in one transaction; availability queries and read models are updated in the same transaction, so removal is immediate for all viewers and double registration is prevented.",
+          "evidence": [
+            "alternatives.json A1.key_decisions: 'single authoritative store, atomic conditional update; availability queries read the authoritative state, so S7 removal is immediate.'",
+            "alternatives.json A1.compatibility_conditions_applied: 'CQRS + Modular Monolith: read models updated synchronously in the same transaction'"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "A Payment module with per-provider adapters supports bank account and card payment; card/bank data is tokenized by providers; an orchestrated saga handles asynchronous external confirmation, with idempotency keys on retries. Payment timing remains unspecified in the requirements.",
+          "evidence": [
+            "alternatives.json A1.description: 'card/bank data is tokenized by payment providers'",
+            "alternatives.json A1.key_decisions: 'an orchestrated saga only for the asynchronous external payment step'",
+            "alternatives.json A1.compatibility_conditions_applied: 'Hexagonal + Circuit Breaker: idempotency keys on payment retries.'"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "A durable scheduler in Fleet & Rental fires pre-expiry notifications and overtime charging; notifications use session-independent channels; overtime charging is covered by the payment saga. Value of X, channel and rental end are unspecified requirement issues.",
+          "evidence": [
+            "alternatives.json A1.description: 'A durable scheduler inside the Fleet & Rental module fires pre-expiry notifications and overtime charging.'",
+            "alternatives.json A1.compatibility_conditions_applied: 'Modular Monolith + Saga: saga confined to third-party payment confirmation and overtime charging.'"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "Rental records with durations up to one week are held in the Fleet & Rental module and expiry is tracked by a durable scheduler resilient to restarts, which supports minute/day/week rentals.",
+          "evidence": [
+            "alternatives.json A1.description: 'Fleet & Rental (authoritative bike availability and rental records)'",
+            "pattern_candidates.json Scheduler / Durable Timer: 'fires actions when they elapse, independent of user sessions and resilient to restarts'"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "Per-biker history is maintained as a read model in the same database, updated transactionally, and follows source-data retention rules; it can serve view and download for 3 months. The download format is unspecified.",
+          "evidence": [
+            "alternatives.json A1.description: 'Usage aggregates and per-biker history are maintained as read models in the same database'",
+            "alternatives.json A1.compatibility_conditions_applied: 'per-biker history follows the same retention rules as source data'"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "The administrator view reads bike status from the same transactional store/read models, so it is consistent with the biker view; administrator role separation is provided by IAM.",
+          "evidence": [
+            "alternatives.json A1.compatibility_conditions_applied: 'read models updated synchronously in the same transaction'",
+            "pattern_candidates.json Centralized IAM addressed_concerns: 'Separation of biker and administrator privileges'"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "The Usage Reporting module keeps hourly/daily aggregates as read models; administrator read models hold aggregated/pseudonymized data. The exact action ('do' usage) is ambiguous but any view/report reading is supported.",
+          "evidence": [
+            "alternatives.json A1.description: 'Usage Reporting' module; 'Usage aggregates ... maintained as read models'",
+            "alternatives.json A1.compatibility_conditions_applied: 'administrator read models (S13) hold aggregated/pseudonymized data only'"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "security",
+          "impact": "mixed",
+          "rationale": "Positive: IAM, provider tokenization, segregated encrypted personal-data schema with separate credentials, fewer components to secure. Negative: isolation is only logical (shared process), weaker for ISO 27001 scoping; no centralized audit logging pattern is selected; strict reading of S1 not covered.",
+          "evidence": [
+            "alternatives.json A1.limitations: 'Personal-data isolation is logical (shared process), weaker than physical separation for ISO 27001 scoping.'",
+            "alternatives.json A1.compatibility_conditions_applied: 'separate store/credentials for the personal-data schema'",
+            "alternatives.json A1.selected_patterns: does not include 'Distributed Tracing and centralized audit logging'"
+          ]
+        },
+        {
+          "quality_attribute": "interoperability",
+          "impact": "positive",
+          "rationale": "All external parties (payment platforms, SMS/email, push, maps, bike lock) are behind ports with provider-specific adapters and resilience wrappers. Bike interaction is limited to request/response, which may not fit telemetry-reporting bikes.",
+          "evidence": [
+            "alternatives.json A1.description: ports 'with provider-specific adapters (payment platforms, SMS/email, push, maps/navigation, bike lock/registration)'",
+            "alternatives.json A1.assumptions: bike interaction as request/response"
+          ]
+        },
+        {
+          "quality_attribute": "data consistency / correctness (reliability)",
+          "impact": "positive",
+          "rationale": "Single authoritative transactional store, atomic conditional registration, and read models updated in the same transaction give consistent state across biker and administrator views; the saga is confined to the external payment step.",
+          "evidence": [
+            "alternatives.json A1.key_decisions: 'single authoritative store, atomic conditional update'",
+            "alternatives.json A1.key_decisions: 'synchronous in-process updates of read models (no message broker)'"
+          ]
+        },
+        {
+          "quality_attribute": "availability",
+          "impact": "mixed",
+          "rationale": "Redundant instances behind a load balancer and circuit breakers isolate external failures, but the deployable and its database are a shared failure domain: a defect in reporting can affect rider functions.",
+          "evidence": [
+            "alternatives.json A1.description: 'run redundantly (at least two instances behind a load balancer)'",
+            "alternatives.json A1.limitations: 'The deployable and its database are shared failure domains'"
+          ]
+        },
+        {
+          "quality_attribute": "performance (timeliness)",
+          "impact": "positive",
+          "rationale": "In-process calls and synchronous read-model updates make availability changes visible immediately (S7) without network hops through a gateway or broker; the durable scheduler handles time-based events.",
+          "evidence": [
+            "alternatives.json A1.key_decisions: 'S7 removal is immediate'",
+            "alternatives.json A1.key_decisions: 'no separate BFF deployables, no API gateway'"
+          ]
+        },
+        {
+          "quality_attribute": "usability",
+          "impact": "slightly_positive",
+          "rationale": "Channel-specific API modules allow web and mobile flows to differ, and consistent availability avoids showing bikes that are already taken. No explicit mechanism targets ease of use; losing concurrent registrants are rejected after navigating (shared with all alternatives).",
+          "evidence": [
+            "alternatives.json A1.key_decisions: 'channel-specific API modules inside the deployable'",
+            "pattern_candidates.json Atomic conditional state transition limitations: 'Losing bikers receive a rejection after navigating to the bike'"
+          ]
+        },
+        {
+          "quality_attribute": "portability (multi-platform access)",
+          "impact": "slightly_positive",
+          "rationale": "Web and mobile clients are served by channel-specific API modules of the same deployable, allowing device-dependent capabilities (biometric login) to be handled per channel, without a dedicated per-channel backend.",
+          "evidence": [
+            "alternatives.json A1.description: 'Web and mobile clients call channel-specific API modules of the same deployable.'"
+          ]
+        },
+        {
+          "quality_attribute": "modifiability",
+          "impact": "slightly_positive",
+          "rationale": "Adapters make adding payment platforms and region-specific providers local changes; however, region variants require variants of the whole unit, module boundaries may erode, and adding the broker/tracing later requires restructuring.",
+          "evidence": [
+            "alternatives.json A1.limitations: 'Module boundary erosion is possible without enforcement tooling.'",
+            "alternatives.json A1.limitations: 'adding them later requires restructuring of propagation and observability'",
+            "pattern_candidates.json Modular Monolith limitations: 'Deploying region-specific variants (EU vs China) requires configuration or build variants of the whole unit.'"
+          ]
+        },
+        {
+          "quality_attribute": "auditability / traceability of usage data",
+          "impact": "slightly_positive",
+          "rationale": "Rental records, history and aggregates are transactionally consistent in one store, supporting S11/S13 and charge traceability; no centralized audit logging or tracing is selected for security-event and charge-dispute traceability.",
+          "evidence": [
+            "alternatives.json A1.description: 'Usage aggregates and per-biker history ... updated within the same transaction'",
+            "alternatives.json A1.limitations: 'Does not use the permitted ... distributed tracing'"
+          ]
+        },
+        {
+          "quality_attribute": "sustainability (resource efficiency)",
+          "impact": "positive",
+          "rationale": "Fewest runtime components of the three alternatives (no broker, gateway, BFFs, tracing stack), consistent with the carbon-footprint constraint if read as resource efficiency; that reading is unconfirmed.",
+          "evidence": [
+            "alternatives.json A1.rationale: 'fewer runtime components is consistent with the carbon-footprint constraint if read as resource efficiency'",
+            "quality_attributes.json sustainability rationale: interpretation ambiguous"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Protection and regulatory compliance of personal, biometric, location and payment data",
+          "status": "partially_satisfied",
+          "rationale": "Tokenization, segregated encrypted personal-data schema and IAM address the driver, but isolation is logical only, no centralized audit logging is provided, and the S1 strict reading and biometric handling rest on unconfirmed assumptions.",
+          "evidence": [
+            "alternatives.json A1.limitations: 'Personal-data isolation is logical (shared process)'",
+            "alternatives.json A1.assumptions: S1 reading unconfirmed; biometric matching on device"
+          ]
+        },
+        {
+          "driver": "Consistent bike availability and rental state under concurrent use",
+          "status": "satisfied",
+          "rationale": "Atomic conditional registration in a single authoritative store and same-transaction read-model updates guarantee single registration and immediate, consistent status for bikers and administrators.",
+          "evidence": [
+            "alternatives.json A1.key_decisions: 'single authoritative store, atomic conditional update'",
+            "alternatives.json A1.compatibility_conditions_applied: 'read models updated synchronously in the same transaction'"
+          ]
+        },
+        {
+          "driver": "Integration with multiple third-party payment platforms",
+          "status": "satisfied",
+          "rationale": "Per-provider payment adapters, tokenization, a saga for asynchronous confirmation and idempotent retries.",
+          "evidence": [
+            "alternatives.json A1.selected_patterns: Hexagonal Architecture; Saga; Circuit Breaker",
+            "alternatives.json A1.compatibility_conditions_applied: 'idempotency keys on payment retries'"
+          ]
+        },
+        {
+          "driver": "Bike location tracking and code-based registration/unlocking of physical bikes",
+          "status": "partially_satisfied",
+          "rationale": "Code-based registration and unlocking via a bike adapter are covered; bike location tracking has no allocated mechanism and depends on the assumption that telemetry is unnecessary or low volume.",
+          "evidence": [
+            "alternatives.json A1.key_decisions: 'Bike interaction: modeled as a port with an adapter; no dedicated device-ingestion component.'",
+            "alternatives.json A1.assumptions: 'continuous bike telemetry is either not needed or low volume'"
+          ]
+        },
+        {
+          "driver": "Multi-channel access through web and mobile devices",
+          "status": "satisfied",
+          "rationale": "Channel-specific API modules serve web and mobile clients from the same deployable, accommodating device-dependent capabilities.",
+          "evidence": [
+            "alternatives.json A1.key_decisions: 'Channels: channel-specific API modules inside the deployable'"
+          ]
+        },
+        {
+          "driver": "Time-driven rental lifecycle and notifications",
+          "status": "satisfied",
+          "rationale": "Durable scheduler for pre-expiry notifications and overtime, with notifications delivered independently of sessions, explicitly addressing the S4 vs S9 conflict.",
+          "evidence": [
+            "alternatives.json A1.description: 'A durable scheduler inside the Fleet & Rental module'",
+            "alternatives.json A1.compatibility_conditions_applied: 'Scheduler + IAM: notifications delivered via session-independent channels'"
+          ]
+        },
+        {
+          "driver": "Service availability for riders",
+          "status": "partially_satisfied",
+          "rationale": "Redundant instances and circuit breakers help, but the single deployable and database are a shared failure domain for all rider functions.",
+          "evidence": [
+            "alternatives.json A1.limitations: 'a defect in one module (e.g. reporting) can affect rider-facing functions'"
+          ]
+        },
+        {
+          "driver": "Region-dependent regulatory compliance",
+          "status": "partially_satisfied",
+          "rationale": "One deployment per jurisdiction with configuration and adapter selection is a plausible mechanism, but the applicable regime is unknown and region variants require variants of the whole unit; satisfaction cannot be confirmed.",
+          "evidence": [
+            "alternatives.json A1.assumptions: 'A single deployment per jurisdiction is acceptable; EU vs China differences are handled by configuration and adapter selection.'",
+            "drivers.json open_issues_affecting_drivers: deployment jurisdiction not stated"
+          ]
+        },
+        {
+          "driver": "Ease of use for all riders",
+          "status": "partially_satisfied",
+          "rationale": "Not listed in A1's addressed drivers; indirect support comes from channel-specific APIs and immediately consistent availability, but no mechanism targets ease of use.",
+          "evidence": [
+            "alternatives.json A1.addressed_drivers: 'Ease of use for all riders' not listed",
+            "alternatives.json A1.key_decisions: channel-specific API modules"
+          ]
+        },
+        {
+          "driver": "Usage history and administrative usage information",
+          "status": "satisfied",
+          "rationale": "Per-biker history and pseudonymized aggregates as transactionally updated read models with retention rules aligned to source data.",
+          "evidence": [
+            "alternatives.json A1.compatibility_conditions_applied: 'administrator read models (S13) hold aggregated/pseudonymized data only; per-biker history follows the same retention rules'"
+          ]
+        },
+        {
+          "driver": "User verification via external SMS/email delivery",
+          "status": "satisfied",
+          "rationale": "SMS/email adapters in the Notification & Verification module with timeouts, retries and circuit breakers.",
+          "evidence": [
+            "alternatives.json A1.description: 'Notification & Verification' module and SMS/email adapters"
+          ]
+        },
+        {
+          "driver": "Minimized carbon footprint",
+          "status": "satisfied",
+          "rationale": "Under the resource-efficiency reading, A1 has the smallest runtime footprint; the interpretation of the driver remains ambiguous.",
+          "evidence": [
+            "alternatives.json A1.rationale: 'fewer runtime components is consistent with the carbon-footprint constraint if read as resource efficiency'",
+            "drivers.json Minimized carbon footprint: interpretation unclear"
+          ]
+        }
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "partially_satisfied",
+          "rationale": "Registration is handled by the Identity service with a segregated store. TLS terminates at the API Gateway with mTLS behind it plus encryption at rest; A2 also provides a conditional application-level field encryption if the strict reading of S1 is confirmed. The interpretation remains unconfirmed, so satisfaction is not established.",
+          "evidence": [
+            "alternatives.json A2.compatibility_conditions_applied: 'API Gateway + Sensitive Data Isolation: mutual TLS between gateway and services, encryption at rest; application-level field encryption if the strict reading of S1 is confirmed.'",
+            "alternatives.json A2.assumptions: S1 reading unconfirmed",
+            "pattern_candidates.json API Gateway limitations: TLS termination may conflict with strict S1 reading"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "A Notification & Verification service with hexagonal SMS/email adapters and circuit breakers sends codes; expiry is time-tracked. The validity-period inconsistency is a requirement issue.",
+          "evidence": [
+            "alternatives.json A2.description: 'Notification & Verification' service",
+            "alternatives.json A2.selected_patterns: Hexagonal Architecture; Circuit Breaker; Scheduler / Durable Timer"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "partially_satisfied",
+          "rationale": "Identity (IAM) service handles password login; the mobile BFF explicitly handles biometric unlock. Thumb-impression disposal is satisfied only under the on-device matching assumption; web-channel biometric behaviour is not addressed.",
+          "evidence": [
+            "alternatives.json A2.description: 'thin BFFs serve the mobile app (biometric unlock, code scanning, push)'",
+            "alternatives.json A2.assumptions: 'Biometric matching occurs on the device (S3 ambiguity).'"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "satisfied",
+          "rationale": "Centralized IAM with token-based authentication covers logout and inactivity expiry, with token validation at the gateway. Notifications are produced by Notification & Verification from scheduler events, independent of the biker's session.",
+          "evidence": [
+            "alternatives.json A2.description: 'An API Gateway is the single entry point for TLS, token validation and rate limiting'",
+            "pattern_candidates.json Centralized IAM addressed_concerns: '15-minute inactivity session expiry'",
+            "alternatives.json A2.description: 'a durable scheduler in Rental & Fleet emits time-based events'"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "partially_satisfied",
+          "rationale": "Proximity queries are served by Rental & Fleet from the authoritative state, so availability is current. The source of bike location data is not allocated beyond an adapter in Rental & Fleet; no ingestion path for bike locations is described.",
+          "evidence": [
+            "alternatives.json A2.description: 'biker proximity queries are served by Rental & Fleet from the authoritative state'",
+            "alternatives.json A2.key_decisions: 'Bike interaction: adapter inside Rental & Fleet service; no dedicated device-ingestion component.'"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "partially_satisfied",
+          "rationale": "Registration via code scan (mobile BFF) or four-digit code is an atomic conditional update in Rental & Fleet, and unlocking uses the bike adapter. Navigation guidance to the selected bike is not allocated to any service or adapter in A2's description.",
+          "evidence": [
+            "alternatives.json A2.description: mobile BFF handles 'code scanning'",
+            "alternatives.json A2.compatibility_conditions_applied: 'bike availability and rental creation owned by one Rental & Fleet service'",
+            "alternatives.json A2.description: no navigation/maps component or adapter named"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "satisfied",
+          "rationale": "Bike availability and rental creation are owned by one service with atomic conditional update; biker-facing availability reads the authoritative state, so the bike leaves the available list immediately. Events are published after commit via outbox.",
+          "evidence": [
+            "alternatives.json A2.compatibility_conditions_applied: 'CQRS + Atomic conditional state transition: biker availability/proximity reads use the authoritative state'",
+            "alternatives.json A2.compatibility_conditions_applied: 'events published after commit via transactional outbox; idempotent consumers'"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "A dedicated Payment service with per-provider adapters and tokenization; an orchestrated saga with compensations and idempotent payment steps coordinates rental and payment.",
+          "evidence": [
+            "alternatives.json A2.key_decisions: 'Rental-payment consistency: orchestrated saga with compensations and idempotent payment steps.'",
+            "alternatives.json A2.description: 'Payment and Identity services hold sensitive data in segregated stores'"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "The durable scheduler emits RentalNearingExpiry/RentalExpired events; Notification & Verification delivers the notice and the saga applies overtime charges. Durable job store with locking avoids double firing.",
+          "evidence": [
+            "alternatives.json A2.description: 'Rental & Fleet publishes ... RentalNearingExpiry/RentalExpired ... events'",
+            "alternatives.json A2.description: 'An orchestrated saga coordinates rental and payment, including overtime charges.'",
+            "alternatives.json A2.compatibility_conditions_applied: 'Scheduler + Microservices: durable job store with locking to avoid double firing.'"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "Rental records and durations are owned by Rental & Fleet; the durable scheduler supports expiries from minutes to one week.",
+          "evidence": [
+            "alternatives.json A2.description: 'Rental & Fleet (owns authoritative bike availability and rental records together)'",
+            "alternatives.json A2.selected_patterns: Scheduler / Durable Timer"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "Usage Reporting maintains event-fed read models including per-biker history; eventual consistency is acceptable for history under A2's assumption. Use of pseudonymous identifiers outside Identity means producing a personal history download requires resolution through Identity, which is feasible.",
+          "evidence": [
+            "alternatives.json A2.description: 'Usage Reporting and the admin city-wide view are CQRS read models fed by events'",
+            "alternatives.json A2.description: 'other services use pseudonymous identifiers'"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "An admin BFF and an event-fed city-wide read model provide the view of all bikes as available or in use, with role separation via IAM. The view is eventually consistent and may briefly be stale; the requirement states no freshness bound.",
+          "evidence": [
+            "alternatives.json A2.description: 'thin BFFs serve ... the administrator console'",
+            "alternatives.json A2.limitations: 'Eventual consistency may show stale status to administrators.'"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "Usage Reporting builds hourly/daily aggregates from rental events.",
+          "evidence": [
+            "alternatives.json A2.description: 'Usage Reporting ... CQRS read models fed by events'"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "security",
+          "impact": "positive",
+          "rationale": "Physical segregation of Identity and Payment data, pseudonymous identifiers elsewhere, gateway-centralized token validation and rate limiting, mTLS, centralized audit logging and tracing with redaction, and a conditional provision for the strict S1 reading. Countervailing: the largest number of components to secure and audit for ISO 27001.",
+          "evidence": [
+            "alternatives.json A2.description: 'Payment and Identity services hold sensitive data in segregated stores; other services use pseudonymous identifiers.'",
+            "alternatives.json A2.compatibility_conditions_applied: 'Distributed Tracing + Sensitive Data Isolation: pseudonymous identifiers only, redaction, limited retention.'",
+            "alternatives.json A2.limitations: 'More components that must be secured, audited and kept available'"
+          ]
+        },
+        {
+          "quality_attribute": "interoperability",
+          "impact": "positive",
+          "rationale": "Hexagonal adapters with circuit breakers for payment and messaging providers within dedicated services; bike interaction is an adapter in Rental & Fleet without a device-ingestion path.",
+          "evidence": [
+            "alternatives.json A2.selected_patterns: Hexagonal Architecture; Circuit Breaker",
+            "alternatives.json A2.key_decisions: 'Bike interaction: adapter inside Rental & Fleet service'"
+          ]
+        },
+        {
+          "quality_attribute": "data consistency / correctness (reliability)",
+          "impact": "slightly_positive",
+          "rationale": "Core guarantee (single registration, immediate removal) is kept by co-locating availability and rental in one service. Rental-payment consistency spans services via saga and outbox, and administrator/report views are eventually consistent; compensation for a physically unlocked bike is not straightforward.",
+          "evidence": [
+            "alternatives.json A2.key_decisions: 'read models for admin and reporting are eventually consistent'",
+            "alternatives.json A2.limitations: 'Saga and outbox add coordination complexity; compensation for a physically unlocked bike is not straightforward.'"
+          ]
+        },
+        {
+          "quality_attribute": "availability",
+          "impact": "positive",
+          "rationale": "Rider-facing discovery and registration keep working when Payment, Notification or Reporting degrade, thanks to asynchronous coupling; gateway and broker deployed redundantly. The gateway and broker become critical infrastructure.",
+          "evidence": [
+            "alternatives.json A2.rationale: 'Rider-facing discovery and registration (Rental & Fleet) keep working when Payment, Notification or Reporting are degraded'",
+            "alternatives.json A2.compatibility_conditions_applied: 'gateway and broker deployed redundantly'",
+            "alternatives.json A2.limitations: 'the gateway and broker become critical infrastructure'"
+          ]
+        },
+        {
+          "quality_attribute": "performance (timeliness)",
+          "impact": "mixed",
+          "rationale": "Biker-facing availability is immediate and slow external work is moved off the request path by events; but every request traverses gateway and BFF hops, and admin views lag behind the authoritative state.",
+          "evidence": [
+            "alternatives.json A2.compatibility_conditions_applied: 'biker availability/proximity reads use the authoritative state'",
+            "alternatives.json A2.limitations: 'Eventual consistency may show stale status to administrators.'",
+            "pattern_candidates.json API Gateway limitations: 'Adds a network hop'"
+          ]
+        },
+        {
+          "quality_attribute": "usability",
+          "impact": "positive",
+          "rationale": "BFFs tailor flows per client: biometric unlock, code scanning and push on mobile, separate web and admin experiences.",
+          "evidence": [
+            "alternatives.json A2.description: 'thin BFFs serve the mobile app (biometric unlock, code scanning, push), the web application, and the administrator console'"
+          ]
+        },
+        {
+          "quality_attribute": "portability (multi-platform access)",
+          "impact": "positive",
+          "rationale": "Dedicated BFFs per client type with a common gateway explicitly handle web/mobile/admin differences.",
+          "evidence": [
+            "alternatives.json A2.key_decisions: 'Channels: API gateway plus thin BFFs per client type (mobile, web, admin).'"
+          ]
+        },
+        {
+          "quality_attribute": "modifiability",
+          "impact": "positive",
+          "rationale": "Independently deployable services with adapters allow payment platforms and region-specific data residency to change locally; changes spanning the rental-payment saga require coordinated changes across services.",
+          "evidence": [
+            "alternatives.json A2.rationale: 'enabling region-specific data residency'",
+            "alternatives.json A2.key_decisions: 'capability-aligned services with database-per-service'"
+          ]
+        },
+        {
+          "quality_attribute": "auditability / traceability of usage data",
+          "impact": "positive",
+          "rationale": "Rental events, distributed tracing and centralized audit logging support charge traceability and usage history; reports are eventually consistent.",
+          "evidence": [
+            "alternatives.json A2.selected_patterns: 'Distributed Tracing and centralized audit logging'",
+            "alternatives.json A2.description: events BikeRegistered/RentalStarted/.../RentalEnded"
+          ]
+        },
+        {
+          "quality_attribute": "sustainability (resource efficiency)",
+          "impact": "negative",
+          "rationale": "Highest number of runtime components (gateway, BFFs, five services, broker, tracing, per-service stores), acknowledged by A2 as in tension with the carbon-footprint constraint under the resource-efficiency reading.",
+          "evidence": [
+            "alternatives.json A2.limitations: 'Highest number of runtime components ..., in tension with the carbon-footprint constraint if read as resource efficiency.'"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Protection and regulatory compliance of personal, biometric, location and payment data",
+          "status": "satisfied",
+          "rationale": "Physical segregation of Identity and Payment data, tokenization, pseudonymization elsewhere, mTLS, audit logging with redaction, and a conditional provision covering the strict S1 reading. Residual dependence on the on-device biometric assumption is shared by all alternatives.",
+          "evidence": [
+            "alternatives.json A2.description: segregated stores for Payment and Identity; pseudonymous identifiers",
+            "alternatives.json A2.compatibility_conditions_applied: 'application-level field encryption if the strict reading of S1 is confirmed'"
+          ]
+        },
+        {
+          "driver": "Consistent bike availability and rental state under concurrent use",
+          "status": "partially_satisfied",
+          "rationale": "Single registration and immediate biker-facing removal are guaranteed. The driver also covers status read by administrators and correctness of charges; A2 makes administrator views eventually consistent and spreads rental-payment consistency across services via saga, relying on the unconfirmed assumption that eventual consistency is acceptable.",
+          "evidence": [
+            "alternatives.json A2.assumptions: 'Eventual consistency of admin views (S12) and usage reports (S11, S13) is acceptable; only biker-facing availability must be immediate.'",
+            "drivers.json Consistent bike availability...: 'Bike availability is shared state read by all bikers (S5) and administrators (S12)'"
+          ]
+        },
+        {
+          "driver": "Integration with multiple third-party payment platforms",
+          "status": "satisfied",
+          "rationale": "Dedicated Payment service with per-provider adapters, tokenization, saga with idempotent steps.",
+          "evidence": [
+            "alternatives.json A2.key_decisions: 'orchestrated saga with compensations and idempotent payment steps'"
+          ]
+        },
+        {
+          "driver": "Bike location tracking and code-based registration/unlocking of physical bikes",
+          "status": "partially_satisfied",
+          "rationale": "Code-based registration and unlocking via an adapter are covered; bike location tracking and navigation guidance have no allocated mechanism.",
+          "evidence": [
+            "alternatives.json A2.key_decisions: 'no dedicated device-ingestion component'",
+            "alternatives.json A2.assumptions: 'Bike interaction can be handled through an adapter within the Rental & Fleet service.'"
+          ]
+        },
+        {
+          "driver": "Multi-channel access through web and mobile devices",
+          "status": "satisfied",
+          "rationale": "Gateway plus mobile, web and admin BFFs explicitly handle device-dependent capabilities.",
+          "evidence": [
+            "alternatives.json A2.rationale: 'Web/mobile/admin differences (S3 biometric login, S5/S6 device sensors, S12/S13 administrator role) are handled by BFFs.'"
+          ]
+        },
+        {
+          "driver": "Time-driven rental lifecycle and notifications",
+          "status": "satisfied",
+          "rationale": "Durable scheduler with locking emits time-based events consumed by notification and payment, independent of sessions.",
+          "evidence": [
+            "alternatives.json A2.compatibility_conditions_applied: 'Scheduler + Microservices: durable job store with locking to avoid double firing.'"
+          ]
+        },
+        {
+          "driver": "Service availability for riders",
+          "status": "satisfied",
+          "rationale": "Fault isolation between rider-critical Rental & Fleet and other capabilities, asynchronous coupling, redundant gateway and broker.",
+          "evidence": [
+            "alternatives.json A2.rationale: 'Rider-facing discovery and registration ... keep working when Payment, Notification or Reporting are degraded'",
+            "alternatives.json A2.compatibility_conditions_applied: 'gateway and broker deployed redundantly'"
+          ]
+        },
+        {
+          "driver": "Region-dependent regulatory compliance",
+          "status": "partially_satisfied",
+          "rationale": "Segregated per-service stores enable region-specific data residency and provider variation, but the applicable regime is unknown, so satisfaction cannot be confirmed; external platform components must themselves comply.",
+          "evidence": [
+            "alternatives.json A2.rationale: 'enabling region-specific data residency'",
+            "alternatives.json A2.assumptions: 'The organization can operate a container orchestration platform, broker, service discovery and tracing stack in compliance with ISO 27001.'"
+          ]
+        },
+        {
+          "driver": "Ease of use for all riders",
+          "status": "satisfied",
+          "rationale": "Per-channel BFFs support convenient biometric login, code scanning and push notifications on mobile and tailored web/admin flows.",
+          "evidence": [
+            "alternatives.json A2.addressed_drivers: 'Ease of use for all riders'",
+            "alternatives.json A2.description: mobile BFF '(biometric unlock, code scanning, push)'"
+          ]
+        },
+        {
+          "driver": "Usage history and administrative usage information",
+          "status": "satisfied",
+          "rationale": "Event-fed Usage Reporting read models provide history and aggregates; eventual consistency is acceptable for these under A2's assumption.",
+          "evidence": [
+            "alternatives.json A2.description: 'Usage Reporting and the admin city-wide view are CQRS read models fed by events'"
+          ]
+        },
+        {
+          "driver": "User verification via external SMS/email delivery",
+          "status": "satisfied",
+          "rationale": "Dedicated Notification & Verification service with provider adapters and circuit breakers.",
+          "evidence": [
+            "alternatives.json A2.description: 'Notification & Verification' service"
+          ]
+        },
+        {
+          "driver": "Minimized carbon footprint",
+          "status": "not_satisfied",
+          "rationale": "Under the resource-efficiency reading, A2 has the largest runtime footprint and explicitly acknowledges the tension; it does not list this driver as addressed.",
+          "evidence": [
+            "alternatives.json A2.limitations: 'Highest number of runtime components'",
+            "alternatives.json A2.addressed_drivers: 'Minimized carbon footprint' not listed"
+          ]
+        }
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "requirement_evaluations": [
+        {
+          "requirement_id": "S1",
+          "status": "partially_satisfied",
+          "rationale": "Registration is in the core's Identity & Access module with a segregated personal-data schema. TLS terminates at the API Gateway with mTLS behind and encryption at rest; the strict reading of S1 is not addressed and the reading is unconfirmed.",
+          "evidence": [
+            "alternatives.json A3.compatibility_conditions_applied: 'API Gateway + Sensitive Data Isolation: mTLS behind gateway, encryption at rest.'",
+            "alternatives.json A3.assumptions: S1 reading unconfirmed"
+          ]
+        },
+        {
+          "requirement_id": "S2",
+          "status": "satisfied",
+          "rationale": "An extracted Notification & Verification service with SMS/email/push adapters delivers codes; time-limited validity is supported. The validity-period inconsistency is a requirement issue.",
+          "evidence": [
+            "alternatives.json A3.description: 'a Notification & Verification service (SMS/email/push adapters)'"
+          ]
+        },
+        {
+          "requirement_id": "S3",
+          "status": "partially_satisfied",
+          "rationale": "Password login via IAM in the core. Biometric login and thumb-impression disposal rely on on-device matching (assumption); no channel-specific handling of biometric login is described.",
+          "evidence": [
+            "alternatives.json A3.assumptions: 'Biometric matching occurs on the device (S3 ambiguity).'",
+            "alternatives.json A3.key_decisions: 'Channels: API gateway in front of the core; no separate BFF deployables.'"
+          ]
+        },
+        {
+          "requirement_id": "S4",
+          "status": "satisfied",
+          "rationale": "Centralized IAM with token-based authentication covers logout and inactivity expiry; time-based notifications are emitted by the core scheduler and delivered by the Notification service independently of sessions.",
+          "evidence": [
+            "alternatives.json A3.selected_patterns: 'Centralized Identity and Access Management with token-based authentication'",
+            "pattern_candidates.json Centralized IAM addressed_concerns: '15-minute inactivity session expiry'"
+          ]
+        },
+        {
+          "requirement_id": "S5",
+          "status": "satisfied",
+          "rationale": "The Device Gateway ingests bike location telemetry and the core holds authoritative availability, so proximity of available bikes can be computed from current locations. This depends on the assumption that bikes are connected devices; otherwise the location source reverts to an unallocated adapter.",
+          "evidence": [
+            "alternatives.json A3.description: 'a Device Gateway that ingests bike location/lock telemetry'",
+            "alternatives.json A3.key_decisions: 'biker availability reads are immediate'",
+            "alternatives.json A3.assumptions: 'Bikes are connected devices (smart locks) that report location and accept unlock commands'"
+          ]
+        },
+        {
+          "requirement_id": "S6",
+          "status": "partially_satisfied",
+          "rationale": "Atomic code-based registration in the core and unlock commands relayed through the Device Gateway are covered. Navigation guidance is not allocated: hexagonal adapters are restricted to payment and messaging providers and no maps/navigation component is named.",
+          "evidence": [
+            "alternatives.json A3.description: 'Device Gateway ... relays unlock commands'",
+            "alternatives.json A3.compatibility_conditions_applied: 'hexagonal adapters used for payment and messaging providers'"
+          ]
+        },
+        {
+          "requirement_id": "S7",
+          "status": "satisfied",
+          "rationale": "Atomic conditional update in the core database; biker availability reads are immediate and in-core read models are updated synchronously.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'atomic conditional update in the core database; biker availability reads are immediate.'",
+            "alternatives.json A3.key_decisions: 'in-core read models updated synchronously'"
+          ]
+        },
+        {
+          "requirement_id": "S8",
+          "status": "satisfied",
+          "rationale": "Physically isolated Payment Integration service with per-provider adapters and tokenization; core-orchestrated saga for asynchronous payment, idempotency keys on retries.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'Payment: physically isolated Payment Integration service with per-provider adapters and tokenization; saga orchestrated by the core.'",
+            "alternatives.json A3.compatibility_conditions_applied: 'Hexagonal + Circuit Breaker: idempotency keys on payment retries.'"
+          ]
+        },
+        {
+          "requirement_id": "S9",
+          "status": "satisfied",
+          "rationale": "Durable scheduler in the core Fleet & Rental module; rental events published via outbox to the Notification service; overtime charging through the core saga and Payment service.",
+          "evidence": [
+            "alternatives.json A3.description: 'Fleet & Rental (... atomic conditional registration and a durable scheduler)'",
+            "alternatives.json A3.description: 'core publishes rental events via outbox'"
+          ]
+        },
+        {
+          "requirement_id": "S10",
+          "status": "satisfied",
+          "rationale": "Rental records and durations held in the core with a durable scheduler supporting up to week-long rentals.",
+          "evidence": [
+            "alternatives.json A3.description: 'Fleet & Rental (authoritative bike availability and rental records ...)'"
+          ]
+        },
+        {
+          "requirement_id": "S11",
+          "status": "satisfied",
+          "rationale": "Usage Reporting in the core shares the transactional database with rental records, supporting 3-month history view and download.",
+          "evidence": [
+            "alternatives.json A3.description: 'a modular core deployable holds ... Usage Reporting, sharing one transactional database'"
+          ]
+        },
+        {
+          "requirement_id": "S12",
+          "status": "satisfied",
+          "rationale": "City-wide status comes from the core's authoritative state with synchronously updated read models; Device Gateway telemetry adds bike locations; IAM separates the administrator role.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'in-core read models updated synchronously'",
+            "alternatives.json A3.description: Device Gateway ingests bike location telemetry"
+          ]
+        },
+        {
+          "requirement_id": "S13",
+          "status": "satisfied",
+          "rationale": "Usage Reporting in the core aggregates rental data hourly and daily from the same database.",
+          "evidence": [
+            "alternatives.json A3.description: 'Usage Reporting' in the core"
+          ]
+        }
+      ],
+      "quality_attribute_evaluations": [
+        {
+          "quality_attribute": "security",
+          "impact": "slightly_positive",
+          "rationale": "Payment data is physically isolated and tokenized, gateway centralizes entry, mTLS, centralized audit logging with redaction. Personal data in the core (identity, location, history) has only logical isolation; location telemetry adds personal data that must be minimized; more components than A1 to secure.",
+          "evidence": [
+            "alternatives.json A3.limitations: 'Personal data in the core (identity, location, history) has only logical isolation, unlike payment data.'",
+            "alternatives.json A3.compatibility_conditions_applied: 'Device Gateway + EDA: location telemetry during rentals treated as personal data and minimized.'"
+          ]
+        },
+        {
+          "quality_attribute": "interoperability",
+          "impact": "positive",
+          "rationale": "Extracted integration services with per-provider adapters for payment and messaging, plus a Device Gateway translating bike protocols; navigation integration is not named.",
+          "evidence": [
+            "alternatives.json A3.rationale: 'capabilities dominated by external parties ... are isolated so their failures, protocols and region-specific variants do not destabilize the core'"
+          ]
+        },
+        {
+          "quality_attribute": "data consistency / correctness (reliability)",
+          "impact": "positive",
+          "rationale": "Authoritative state, rental records, reporting and admin views share the core transactional store; only payment outcomes and telemetry cross the broker (outbox, idempotent consumers).",
+          "evidence": [
+            "alternatives.json A3.rationale: 'the consistency-critical shared state (S5, S6, S7, S9, S10, S12) stays in one transactional core'",
+            "alternatives.json A3.compatibility_conditions_applied: 'EDA + Atomic conditional state transition: outbox, idempotent consumers.'"
+          ]
+        },
+        {
+          "quality_attribute": "availability",
+          "impact": "slightly_positive",
+          "rationale": "Failures of payment, messaging or bike connectivity are isolated from the core; the core remains a shared failure domain for identity, rental and reporting, and gateway/broker add critical components.",
+          "evidence": [
+            "alternatives.json A3.limitations: 'The core remains a shared failure domain for identity, rental and reporting.'",
+            "alternatives.json A3.limitations: 'Broker, gateway and tracing add runtime components compared with A1.'"
+          ]
+        },
+        {
+          "quality_attribute": "performance (timeliness)",
+          "impact": "slightly_positive",
+          "rationale": "Biker availability and in-core read models are immediate; telemetry ingestion supports fresh bike locations; requests pass through the gateway hop.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'biker availability reads are immediate'",
+            "alternatives.json A3.description: Device Gateway ingests telemetry"
+          ]
+        },
+        {
+          "quality_attribute": "usability",
+          "impact": "neutral",
+          "rationale": "No channel-specific backend or explicit usability mechanism; A3 does not list ease of use among addressed drivers. Fresh location data may help discovery if bikes report location.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'no separate BFF deployables'",
+            "alternatives.json A3.addressed_drivers: 'Ease of use for all riders' not listed"
+          ]
+        },
+        {
+          "quality_attribute": "portability (multi-platform access)",
+          "impact": "neutral",
+          "rationale": "The API gateway gives web and mobile a single entry point, but device-dependent differences (biometric, scanning) are not explicitly handled.",
+          "evidence": [
+            "alternatives.json A3.description: 'An API Gateway fronts the core and exposes a single entry point for web and mobile channels.'"
+          ]
+        },
+        {
+          "quality_attribute": "modifiability",
+          "impact": "positive",
+          "rationale": "Boundaries are extracted exactly at the evidenced variation points (payment platforms, messaging providers, bike protocols, region variants), which can change independently of the core; two coexisting styles require clear placement rules.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'separate services only for external-integration capabilities (payment, notification/verification, bike connectivity)'",
+            "alternatives.json A3.limitations: 'Two architectural styles coexist, requiring clear rules for what belongs in the core vs a service.'"
+          ]
+        },
+        {
+          "quality_attribute": "auditability / traceability of usage data",
+          "impact": "positive",
+          "rationale": "Consistent rental records and reporting in the core plus distributed tracing and centralized audit logging across core, broker and extracted services.",
+          "evidence": [
+            "alternatives.json A3.description: 'Distributed tracing covers the core, broker and extracted services.'"
+          ]
+        },
+        {
+          "quality_attribute": "sustainability (resource efficiency)",
+          "impact": "slightly_negative",
+          "rationale": "More runtime components than A1 (broker, gateway, tracing, three extracted services including an always-on Device Gateway), fewer than A2; A3 does not list the carbon-footprint driver as addressed.",
+          "evidence": [
+            "alternatives.json A3.limitations: 'Broker, gateway and tracing add runtime components compared with A1.'",
+            "pattern_candidates.json Device Gateway limitations: 'Adds an always-on ingestion component whose resource use ... must be considered.'"
+          ]
+        }
+      ],
+      "driver_evaluations": [
+        {
+          "driver": "Protection and regulatory compliance of personal, biometric, location and payment data",
+          "status": "partially_satisfied",
+          "rationale": "Payment data is physically isolated and audit logging is present, but personal data in the core (identity, location, history) is only logically isolated and the strict S1 reading is not addressed.",
+          "evidence": [
+            "alternatives.json A3.limitations: 'Personal data in the core ... has only logical isolation, unlike payment data.'"
+          ]
+        },
+        {
+          "driver": "Consistent bike availability and rental state under concurrent use",
+          "status": "satisfied",
+          "rationale": "Atomic registration and synchronous in-core read models keep biker and administrator views consistent; rental records and expiry share the core store.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'atomic conditional update in the core database'; 'in-core read models updated synchronously'"
+          ]
+        },
+        {
+          "driver": "Integration with multiple third-party payment platforms",
+          "status": "satisfied",
+          "rationale": "Dedicated Payment Integration service with per-provider adapters, tokenization, saga and idempotent retries.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'physically isolated Payment Integration service with per-provider adapters and tokenization'"
+          ]
+        },
+        {
+          "driver": "Bike location tracking and code-based registration/unlocking of physical bikes",
+          "status": "satisfied",
+          "rationale": "The Device Gateway provides both location ingestion and unlock commands; atomic registration in the core. Satisfaction is conditional on bikes being connected devices, which is the main open risk; navigation guidance is not allocated.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'Bike interaction: dedicated Device Gateway service for telemetry and unlock commands.'",
+            "alternatives.json A3.limitations: 'Depends heavily on the unresolved bike-side interaction; the Device Gateway may turn out unnecessary or insufficient.'"
+          ]
+        },
+        {
+          "driver": "Multi-channel access through web and mobile devices",
+          "status": "partially_satisfied",
+          "rationale": "Web and mobile reach the system through one gateway, but device-dependent capabilities (biometric, scanning, device location) are not explicitly accommodated per channel.",
+          "evidence": [
+            "alternatives.json A3.key_decisions: 'Channels: API gateway in front of the core; no separate BFF deployables.'"
+          ]
+        },
+        {
+          "driver": "Time-driven rental lifecycle and notifications",
+          "status": "satisfied",
+          "rationale": "Durable scheduler in the core; events to the Notification service via outbox, independent of user sessions.",
+          "evidence": [
+            "alternatives.json A3.description: durable scheduler in Fleet & Rental; 'core publishes rental events via outbox'"
+          ]
+        },
+        {
+          "driver": "Service availability for riders",
+          "status": "partially_satisfied",
+          "rationale": "External-integration failures are isolated from the core, but rider-critical identity and rental share the core failure domain with reporting.",
+          "evidence": [
+            "alternatives.json A3.limitations: 'The core remains a shared failure domain for identity, rental and reporting.'"
+          ]
+        },
+        {
+          "driver": "Region-dependent regulatory compliance",
+          "status": "partially_satisfied",
+          "rationale": "Region-specific payment and messaging providers can vary in extracted services; the regime is unknown so satisfaction cannot be confirmed.",
+          "evidence": [
+            "alternatives.json A3.rationale: '... region-specific variants do not destabilize the core'",
+            "drivers.json open_issues_affecting_drivers: deployment jurisdiction not stated"
+          ]
+        },
+        {
+          "driver": "Ease of use for all riders",
+          "status": "partially_satisfied",
+          "rationale": "Not listed in A3's addressed drivers; no channel-specific handling. Indirect support from immediate availability and fresh location data.",
+          "evidence": [
+            "alternatives.json A3.addressed_drivers: 'Ease of use for all riders' not listed"
+          ]
+        },
+        {
+          "driver": "Usage history and administrative usage information",
+          "status": "satisfied",
+          "rationale": "Usage Reporting in the core over the same transactional store.",
+          "evidence": [
+            "alternatives.json A3.description: core holds 'Usage Reporting, sharing one transactional database'"
+          ]
+        },
+        {
+          "driver": "User verification via external SMS/email delivery",
+          "status": "satisfied",
+          "rationale": "Extracted Notification & Verification service with SMS/email adapters.",
+          "evidence": [
+            "alternatives.json A3.description: 'a Notification & Verification service (SMS/email/push adapters)'"
+          ]
+        },
+        {
+          "driver": "Minimized carbon footprint",
+          "status": "partially_satisfied",
+          "rationale": "Fewer components than A2 but more than A1, including an always-on Device Gateway; not listed as an addressed driver. Interpretation of the driver is ambiguous.",
+          "evidence": [
+            "alternatives.json A3.limitations: 'Broker, gateway and tracing add runtime components compared with A1.'",
+            "alternatives.json A3.addressed_drivers: 'Minimized carbon footprint' not listed"
+          ]
+        }
+      ]
+    }
+  ]
+}

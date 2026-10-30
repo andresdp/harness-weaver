@@ -1,0 +1,253 @@
+{
+  "pattern_candidates": [
+    {
+      "pattern_name": "API Gateway",
+      "description": "A single entry point for client requests that routes registration, authentication, bike discovery, rental, payment, history, and admin operations to backend services.",
+      "addressed_concerns": [
+        "cross-channel access",
+        "request routing",
+        "client simplification",
+        "security enforcement at the edge"
+      ],
+      "source_requirement_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S5",
+        "S6",
+        "S8",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "source_driver_names": [
+        "Cross-channel access for riders and administrators",
+        "User experience simplicity",
+        "Security, privacy, and regulatory compliance"
+      ],
+      "rationale": "The requirements involve multiple rider and administrator interactions over web and mobile clients. An API gateway can centralize authentication, routing, throttling, and policy enforcement while supporting a simpler client experience and consistent security controls.",
+      "limitations": [
+        "Can become a bottleneck or single point of failure if not deployed redundantly",
+        "Adds operational complexity and must be kept aligned with service interfaces",
+        "Does not by itself solve domain decomposition or data consistency"
+      ]
+    },
+    {
+      "pattern_name": "Microservices",
+      "description": "A system decomposition approach where major business capabilities are implemented as independently deployable services such as identity, bike inventory, rental, payment, notification, and reporting.",
+      "addressed_concerns": [
+        "scalability",
+        "team/service autonomy",
+        "fault isolation",
+        "independent evolution of business capabilities"
+      ],
+      "source_requirement_ids": [
+        "S1",
+        "S2",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "source_driver_names": [
+        "Real-time bike availability and location awareness",
+        "Billing and payment handling",
+        "Operational reporting and history retention",
+        "Time-sensitive rider interactions"
+      ],
+      "rationale": "The system has distinct functional areas with different time and data characteristics: authentication, bike availability, reservations, payments, notifications, and reporting. Microservices can separate these concerns and allow independent scaling and evolution.",
+      "limitations": [
+        "Introduces distributed-system complexity",
+        "Requires careful handling of inter-service consistency and observability",
+        "Can increase latency and deployment/operational overhead"
+      ]
+    },
+    {
+      "pattern_name": "Modular Monolith",
+      "description": "A single deployable application organized into strict internal modules for identity, bike management, rental, payment, notification, and reporting boundaries.",
+      "addressed_concerns": [
+        "development simplicity",
+        "data consistency",
+        "deployment simplicity",
+        "maintainability"
+      ],
+      "source_requirement_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S10",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "source_driver_names": [
+        "Real-time bike availability and location awareness",
+        "Billing and payment handling",
+        "Operational reporting and history retention",
+        "Time-sensitive rider interactions"
+      ],
+      "rationale": "The requirements span many related business capabilities but do not yet prove that independent deployment is necessary. A modular monolith can preserve clear boundaries while avoiding distributed complexity, making it suitable when consistency and delivery simplicity are important.",
+      "limitations": [
+        "May scale less flexibly than microservices for hotspots",
+        "Can evolve into a monolith if module boundaries are not enforced",
+        "Some availability and fault-isolation benefits are limited compared with distributed services"
+      ]
+    },
+    {
+      "pattern_name": "Event-Driven Architecture",
+      "description": "An asynchronous communication style where significant business events such as registration completion, bike reserved, bike released, rental expiring, and payment completed are published to interested consumers.",
+      "addressed_concerns": [
+        "loose coupling",
+        "timely notifications",
+        "state propagation",
+        "scalable integration"
+      ],
+      "source_requirement_ids": [
+        "S2",
+        "S4",
+        "S6",
+        "S7",
+        "S9",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "source_driver_names": [
+        "Time-sensitive rider interactions",
+        "Real-time bike availability and location awareness",
+        "Operational reporting and history retention"
+      ],
+      "rationale": "Many requirements depend on state changes being propagated quickly and on time-based reactions such as expiry notices and reporting updates. Event-driven integration supports decoupling between rental, notification, availability, and analytics functions.",
+      "limitations": [
+        "Adds eventual consistency and message-delivery complexity",
+        "Requires robust event design and idempotent consumers",
+        "Harder to reason about end-to-end flows than synchronous calls"
+      ]
+    },
+    {
+      "pattern_name": "Saga / Process Manager",
+      "description": "A coordination pattern for multi-step business processes that spans several services or modules, using orchestration or choreography to manage long-running workflows and compensating actions.",
+      "addressed_concerns": [
+        "rental workflow coordination",
+        "payment and reservation consistency",
+        "timeout handling",
+        "compensation for failures"
+      ],
+      "source_requirement_ids": [
+        "S6",
+        "S7",
+        "S8",
+        "S9",
+        "S10"
+      ],
+      "source_driver_names": [
+        "Billing and payment handling",
+        "Real-time bike availability and location awareness",
+        "Time-sensitive rider interactions"
+      ],
+      "rationale": "Bike selection, registration, payment, rental duration, and availability updates form a business process that may involve several components. A saga or process manager can coordinate these steps and define rollback/compensation when one step fails.",
+      "limitations": [
+        "Increases workflow design complexity",
+        "Compensation logic may be approximate rather than fully transactional",
+        "Can be overkill if the system remains a modular monolith with local transactions"
+      ]
+    },
+    {
+      "pattern_name": "CQRS",
+      "description": "A separation of write-optimized commands from read-optimized queries, allowing availability, history, and reporting views to be modeled differently from transactional rental operations.",
+      "addressed_concerns": [
+        "read scalability",
+        "reporting optimization",
+        "model separation",
+        "query performance"
+      ],
+      "source_requirement_ids": [
+        "S5",
+        "S7",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "source_driver_names": [
+        "Real-time bike availability and location awareness",
+        "Operational reporting and history retention",
+        "Cross-channel access for riders and administrators"
+      ],
+      "rationale": "The system has distinct read concerns: nearby bike discovery, rider history, admin availability views, and aggregated usage reporting. CQRS can optimize these reads independently from rental and payment writes.",
+      "limitations": [
+        "Introduces additional data synchronization and consistency concerns",
+        "Raises implementation complexity",
+        "May be unnecessary if query load is modest"
+      ]
+    },
+    {
+      "pattern_name": "Database per Service",
+      "description": "A data ownership pattern in which each service or bounded context stores and manages its own data independently rather than sharing one central database.",
+      "addressed_concerns": [
+        "service autonomy",
+        "bounded consistency",
+        "change isolation"
+      ],
+      "source_requirement_ids": [
+        "S1",
+        "S6",
+        "S7",
+        "S8",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "source_driver_names": [
+        "Security, privacy, and regulatory compliance",
+        "Real-time bike availability and location awareness",
+        "Operational reporting and history retention"
+      ],
+      "rationale": "If the system is decomposed into separate services, independent data ownership helps isolate sensitive user, bike, payment, and reporting data and reduces coupling between capabilities.",
+      "limitations": [
+        "Cross-service reporting and joins become harder",
+        "Requires integration patterns for synchronization and analytics",
+        "May complicate compliance auditing if data is widely distributed"
+      ]
+    },
+    {
+      "pattern_name": "Hexagonal Architecture",
+      "description": "An architecture that isolates core business logic from external systems by using ports and adapters for user interfaces, payment providers, messaging, mapping, and device capabilities.",
+      "addressed_concerns": [
+        "testability",
+        "external integration isolation",
+        "technology independence",
+        "maintainability"
+      ],
+      "source_requirement_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S5",
+        "S6",
+        "S8",
+        "S11"
+      ],
+      "source_driver_names": [
+        "External service compatibility",
+        "User experience simplicity",
+        "Security, privacy, and regulatory compliance"
+      ],
+      "rationale": "The system must interact with clients, SMS/email providers, payment platforms, mapping/navigation services, and biometric input. Hexagonal architecture helps keep these integrations separate from core rental and identity logic.",
+      "limitations": [
+        "Does not by itself define process orchestration or data distribution",
+        "Requires discipline to maintain adapter boundaries",
+        "May need to be combined with other patterns for scaling and events"
+      ]
+    }
+  ]
+}
