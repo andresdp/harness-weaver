@@ -1,0 +1,422 @@
+# HarnessSpec for the evidence-grounded ATAM evaluation harness.
+# Runtime-neutral: no runtime paths, tools or syntax; no case data or reference outputs.
+# Gate answers and design rationale: design-notes.md (same directory).
+
+spec_version: '0.2'
+id: archeval-atam-harness
+intent:
+  goal: >-
+    Produce an evidence-grounded ATAM evaluation draft of a supplied software architecture, as a JSON
+    report conforming to the ATAM report contract with status kept at draft, for review by a software
+    architect familiar with the evaluated system.
+  scope:
+  - architecture description and supporting evidence
+  - business drivers and constraints
+  - quality attribute drivers refined into prioritized scenarios
+  - architecture approaches, scenario analysis, risks, non-risks, sensitivity points and tradeoff points
+  - evidence-backed methodology state and open gaps
+  exclusions:
+  - conducting or simulating stakeholder workshops
+  - inventing stakeholder priorities, measurements or attendees
+  - accepting architecture decisions without expert review
+  - using reference evaluation outputs (ground_truth_outputs) during generation or execution
+methodology:
+  id: atam-evaluation-methodology
+  name: ATAM evaluation methodology profile 0.1.0 (HarnessWeaver adaptation of the ArchEval ATAM materials)
+  source_refs:
+  - sources/methodology.yaml
+  - sources/domain/sources.yaml
+  adaptations:
+  - >-
+    Source adaptation (methodology.yaml): explicit readiness, evidence and gap tracking, evaluator-only
+    reference separation and human review added to the ArchEval ATAM workflow.
+  - >-
+    Harness design: the ArchEval Customer/Architect/Manager/EvaluationTeam roles are not simulated; the
+    Customer role is the input port, and the human Architect role is the review gate.
+  - >-
+    Harness design: intermediate artifacts carry basis (observed/inferred/assumption) and source_refs
+    so evidence links survive into the report rationale.
+  - >-
+    Harness design: scenario_analysis_status is never set to reviewed by the harness; only a recorded
+    architect review may do so.
+domain: >-
+  Software architecture evaluation with the Architecture Tradeoff Analysis Method (ATAM): business drivers,
+  quality attribute utility trees, quality attribute scenarios (stimulus, environment, response, response
+  measure), architectural approaches, risks, non-risks, sensitivity points and tradeoff points.
+sources:
+- id: intent
+  kind: intent
+  ref: sources/intent.yaml
+  authority: Pilot intent for the archeval-atam harness
+- id: atam-methodology
+  kind: methodology-and-semantic-state
+  ref: sources/methodology.yaml
+  authority: HarnessWeaver adaptation profile derived from the ArchEval ATAM materials
+  revision: 0.1.0 (sha256 5921b1acaed96160dfcf17bf7ace87e6dd1ddea52f8c04a55b28ebdd908fb0d7)
+  notes: Bounded prototype; does not replace a facilitated ATAM workshop.
+- id: domain-source-catalog
+  kind: source-catalog
+  ref: sources/domain/sources.yaml
+  authority: Local source catalog of the ATAM pilot
+- id: atam-report-contract
+  kind: output-contract
+  ref: sources/domain/contracts/atam-report.schema.json
+  authority: Generated from the HarnessWeaver ATAM report model
+  revision: sha256 72c2397daaa33bae63eaabbaa87823d9a7915b8644d1af7dc260ea3523e59b45
+- id: atam-report-template
+  kind: output-template
+  ref: sources/domain/references/atam-report-template.json
+  authority: Derived from the ArchEval ATAM template (ground_truth_outputs renamed to evaluation_results)
+- id: evaluate-architecture
+  kind: domain-skill
+  ref: sources/domain/skills/evaluate-architecture/SKILL.md
+  authority: HarnessWeaver; consolidated from two reference realizations
+  revision: sha256 948c4c17182764a7e657d56295d1e10f03f36dbcb8e9e36a605fb291093034fa
+- id: check-evaluation
+  kind: domain-skill
+  ref: sources/domain/skills/check-evaluation/SKILL.md
+  authority: HarnessWeaver; consolidated from two reference realizations
+  revision: sha256 4eaefbce037b66f4dae71c1b045fa0e477bb4ca2c0a0107e3ff908d4c0e80ed0
+- id: intermediate-contracts
+  kind: design-contract
+  ref: contracts/context.schema.json
+  authority: Harness design (gate G3); derived from the report contract's definitions
+  notes: >-
+    Sibling files contracts/evaluation-inputs, utility-tree, approaches, analysis and review-findings
+    schemas share the same authority.
+roles:
+- id: context-analyst
+  purpose: >-
+    Establish system scope, business drivers, architecture evidence, metadata and open questions strictly
+    from the supplied inputs, and assess context availability.
+  skill_refs:
+  - sources/domain/skills/evaluate-architecture/SKILL.md
+- id: utility-tree-analyst
+  purpose: >-
+    Refine quality attribute drivers into utility-tree scenarios with stimulus, environment, response
+    and response measure; assign priority tuples only where evidence supports them.
+  skill_refs:
+  - sources/domain/skills/evaluate-architecture/SKILL.md
+- id: approach-analyst
+  purpose: >-
+    Identify architectural approaches from supplied architecture evidence, separating observed decisions
+    from inferred approaches.
+  skill_refs:
+  - sources/domain/skills/evaluate-architecture/SKILL.md
+- id: scenario-analyst
+  purpose: >-
+    Analyze each prioritized scenario against the approaches and record risks, non-risks, sensitivity
+    points and tradeoff points with reasoning and evidence.
+  skill_refs:
+  - sources/domain/skills/evaluate-architecture/SKILL.md
+- id: report-synthesizer
+  purpose: >-
+    Project the stage artifacts into the contract-conforming ATAM report with semantic state and gaps,
+    and apply reviewer corrections once without adding facts.
+  skill_refs:
+  - sources/domain/skills/evaluate-architecture/SKILL.md
+- id: evaluation-reviewer
+  purpose: >-
+    Independently check the report draft for structure, semantic-state evidence, evidence traceability,
+    preserved uncertainty and method coverage, and decide readiness for architect review.
+  skill_refs:
+  - sources/domain/skills/check-evaluation/SKILL.md
+artifacts:
+- id: evaluation_inputs
+  kind: json
+  direction: input
+  ref: contracts/evaluation-inputs.schema.json
+  schema_ref: contracts/evaluation-inputs.schema.json
+  description: >-
+    Input port. ATAM_Evaluation.evaluation_inputs of one case, with optional metadata and title. Must
+    not contain ground_truth_outputs or evaluation_results; such inputs are rejected.
+- id: context
+  kind: json
+  direction: intermediate
+  ref: contracts/context.schema.json
+  schema_ref: contracts/context.schema.json
+  description: >-
+    Metadata, system scope, business drivers (BD-n), architecture evidence (AE-n), open questions (Q-n),
+    three availability assessments and gaps.
+- id: utility_tree
+  kind: json
+  direction: intermediate
+  ref: contracts/utility-tree.schema.json
+  schema_ref: contracts/utility-tree.schema.json
+  description: >-
+    Utility tree with quality attribute nodes linked to BD ids, measurable scenarios, nullable priority
+    tuples with cited basis, analysis order, refined driver status and gaps.
+- id: approaches
+  kind: json
+  direction: intermediate
+  ref: contracts/approaches.schema.json
+  schema_ref: contracts/approaches.schema.json
+  description: >-
+    Architectural approaches (AP-n) linked to AE ids, marked observed or inferred, with addressed attributes,
+    refined architecture evidence status and gaps.
+- id: analysis
+  kind: json
+  direction: intermediate
+  ref: contracts/analysis.schema.json
+  schema_ref: contracts/analysis.schema.json
+  description: >-
+    Analysis records (AR-n) linked to scenario, approach and evidence ids, with risks, non-risks, sensitivity
+    and tradeoff points, unanalyzed scenarios with reasons, scenario analysis status (at most partial)
+    and gaps.
+- id: atam_report
+  kind: json
+  direction: output
+  ref: sources/domain/contracts/atam-report.schema.json
+  schema_ref: sources/domain/contracts/atam-report.schema.json
+  description: >-
+    ATAM report rooted at ATAM_Evaluation with metadata, the original evaluation inputs and evaluation_results
+    including semantic_state; report_status is draft.
+- id: review_findings
+  kind: json
+  direction: output
+  ref: contracts/review-findings.schema.json
+  schema_ref: contracts/review-findings.schema.json
+  description: >-
+    Independent review of the draft report - checks by category, unsupported claims, deterministic validation
+    result, revision record, readiness for architect review and the architect's review focus.
+stages:
+- id: establish-context
+  purpose: >-
+    Record system scope, business drivers, constraints, architecture evidence, metadata and open questions
+    from the supplied inputs; reject inputs that contain reference outputs.
+  role: context-analyst
+  inputs:
+  - port:evaluation_inputs
+  outputs:
+  - artifact:context
+  readiness:
+  - >-
+    evaluation_inputs is present, conforms to its contract and contains no ground_truth_outputs or evaluation_results.
+  completion_criteria:
+  - context conforms to its contract.
+  - every observed item cites at least one resolving input path.
+  - context_status, driver_status and architecture_evidence_status each carry evidence.
+  - every material absence is a gap.
+- id: build-utility-tree
+  purpose: >-
+    Refine quality attribute drivers into a utility tree of measurable scenarios and evidence-supported
+    priorities.
+  role: utility-tree-analyst
+  inputs:
+  - port:evaluation_inputs
+  - artifact:context
+  outputs:
+  - artifact:utility_tree
+  readiness:
+  - >-
+    business drivers are identified in context (driver_status is not missing) or their absence is recorded
+    as a gap.
+  - unknown details remain explicit.
+  completion_criteria:
+  - every scenario has stimulus, environment and response.
+  - a null response measure or priority tuple has a matching gap.
+  - every raw candidate scenario is either refined into the tree or listed in a gap with the reason.
+  - analysis_order lists every scenario id.
+- id: identify-approaches
+  purpose: Identify the architectural approaches the supplied evidence shows or implies.
+  role: approach-analyst
+  inputs:
+  - port:evaluation_inputs
+  - artifact:context
+  outputs:
+  - artifact:approaches
+  readiness:
+  - architecture evidence is available in context (architecture_evidence_status is not missing).
+  - otherwise the stage records a gap and produces an empty approach list.
+  completion_criteria:
+  - every approach cites AE ids that exist.
+  - inferred approaches carry an inference note.
+  - architecture_evidence_status is refined with evidence.
+- id: analyze-scenarios
+  purpose: Analyze each scenario in analysis order against the approaches and record ATAM findings.
+  role: scenario-analyst
+  inputs:
+  - port:evaluation_inputs
+  - artifact:context
+  - artifact:utility_tree
+  - artifact:approaches
+  outputs:
+  - artifact:analysis
+  readiness:
+  - utility_tree has at least one scenario and approaches is present.
+  completion_criteria:
+  - every scenario in analysis_order has an analysis record or an unanalyzed entry with a reason.
+  - every record references its scenario by id and verbatim text.
+  - every finding cites evidence ids that resolve.
+  - scenario_analysis_status is not_started or partial with evidence.
+- id: synthesize-and-review
+  purpose: >-
+    Synthesize the contract-conforming ATAM report draft, review it independently, apply one revision
+    pass and decide readiness for architect review.
+  role: report-synthesizer
+  inputs:
+  - port:evaluation_inputs
+  - artifact:context
+  - artifact:utility_tree
+  - artifact:approaches
+  - artifact:analysis
+  outputs:
+  - artifact:atam_report
+  - artifact:review_findings
+  readiness:
+  - all earlier artifacts are present.
+  - unresolved gaps are recorded in them.
+  completion_criteria:
+  - atam_report validates against the report contract.
+  - evaluation_inputs in the report equal the supplied inputs.
+  - every gap from earlier artifacts appears in semantic_state.gaps.
+  - report_status is draft.
+  - review_findings records every check and the revision.
+  - ready_for_architect_review is true only when no structure, semantic-state or evidence check fails.
+workflow:
+  id: atam-sequential-pipeline
+  purpose: >-
+    Sequential five-stage pipeline following the methodology activities. Stages exchange only the declared
+    artifacts. identify-approaches depends only on evaluation_inputs and context, so a runtime may run
+    it alongside build-utility-tree; all other stages are strictly ordered. A stage whose artifact fails
+    verification is retried once with the failure details; a second failure stops the pipeline and the
+    failure is reported, never filled with guesses.
+  completion_criteria:
+  - >-
+    context_status, driver_status and architecture_evidence_status are assessed with evidence and an atam_report
+    draft exists that validates against the report contract.
+  - >-
+    Partial inputs are acceptable only when every material gap and assumption is identified and no unsupported
+    claim is presented as fact (methodology completion rule).
+  - Runtime task completion never counts as methodology progress.
+verification:
+- id: V1-reference-boundary
+  criterion: >-
+    The supplied inputs and every produced artifact contain no ground_truth_outputs or evaluation-only
+    reference answers.
+  method: >-
+    Deterministic code checks the input before stage 1 and the report after stage 5; producer (context-analyst)
+    refuses such input. Checker: deterministic code + producer.
+  artifact: evaluation_inputs
+- id: V2-intermediate-contracts
+  criterion: Each intermediate artifact conforms to its JSON Schema.
+  method: >-
+    Producer reads its artifact back; deterministic schema validation after each stage. Checker: producer
+    + deterministic code.
+  artifact: context
+- id: V3-cross-reference-integrity
+  criterion: >-
+    Every BD/AE/AP/scenario id referenced downstream exists upstream, every source_ref resolves to a path
+    in evaluation_inputs, and every observed item cites at least one source_ref.
+  method: 'Deterministic cross-artifact check after stages 2, 3, 4 and 5. Checker: deterministic code.'
+  artifact: analysis
+- id: V4-report-contract
+  criterion: >-
+    The report validates against atam-report.schema.json and its evaluation_inputs equal the supplied
+    inputs.
+  method: >-
+    Deterministic schema validation and equality check. Checker: deterministic code; the DeepAgents host
+    also validates the named schema.
+  artifact: atam_report
+- id: V5-semantic-state-discipline
+  criterion: >-
+    Semantic state uses only methodology values, each with evidence; report_status is draft and scenario_analysis_status
+    is not reviewed until a recorded architect review exists.
+  method: >-
+    Deterministic check of values and evidence presence; reviewer judges whether the evidence actually
+    supports each status. Checker: deterministic code + evaluation-reviewer.
+  artifact: atam_report
+- id: V6-evidence-grounding
+  criterion: >-
+    Every material finding traces to supplied evidence; unsupported claims are flagged; evidence and assumptions
+    are distinguished in scenarios, priorities and response measures.
+  method: >-
+    Independent review applying check-evaluation. Checker: evaluation-reviewer (verifier, separate from
+    the producer where the runtime allows).
+  artifact: review_findings
+- id: V7-uncertainty-preserved
+  criterion: >-
+    Every gap from the stage artifacts appears in the report and no missing reference data is presented
+    as a known answer.
+  method: >-
+    Deterministic gap carry-over check; reviewer confirms gaps stay visible. Checker: deterministic code
+    + evaluation-reviewer.
+  artifact: atam_report
+- id: V8-method-coverage
+  criterion: >-
+    Every scenario in analysis_order is analyzed or listed as unanalyzed with a reason, and every analysis
+    record references its scenario by id and verbatim text.
+  method: >-
+    Deterministic coverage check; reviewer assesses depth. Checker: deterministic code + evaluation-reviewer.
+  artifact: analysis
+human_gates:
+- id: H1-architect-review
+  point: After synthesize-and-review and before the report informs any decision.
+  reason: >-
+    A software architect familiar with the evaluated system must review method coverage, evidence grounding,
+    risks, tradeoffs and unknowns. Only a recorded architect review may move report_status or scenario_analysis_status
+    to reviewed.
+semantic_state:
+  profile: >-
+    sources/methodology.yaml semantic_state - context_status, driver_status and architecture_evidence_status
+    (missing | partial | sufficient), scenario_analysis_status (not_started | partial | reviewed) and
+    report_status (not_started | draft | reviewed), each with evidence; gaps with description, affected_activity,
+    missing_evidence and resolution_question. Recorded per case in ATAM_Evaluation.evaluation_results.semantic_state,
+    never derived from runtime bookkeeping.
+  assessments:
+  - id: context_status
+    status: unknown
+    evidence_refs: []
+    next_state_requirements:
+    - Assessed per case by establish-context from the supplied inputs.
+    - sufficient requires system description, business context and constraints to be present.
+  - id: driver_status
+    status: unknown
+    evidence_refs: []
+    next_state_requirements:
+    - Assessed by establish-context and refined by build-utility-tree.
+    - sufficient requires quality attribute drivers that refine into measurable scenarios.
+  - id: architecture_evidence_status
+    status: unknown
+    evidence_refs: []
+    next_state_requirements:
+    - Assessed by establish-context and refined by identify-approaches.
+    - sufficient requires evidence of structure or topology enough to ground approaches.
+  - id: scenario_analysis_status
+    status: unknown
+    evidence_refs: []
+    next_state_requirements:
+    - The harness sets not_started or partial.
+    - reviewed requires a recorded architect review (H1-architect-review).
+  - id: report_status
+    status: unknown
+    evidence_refs: []
+    next_state_requirements:
+    - The harness sets draft once the report validates.
+    - reviewed requires a recorded architect review (H1-architect-review).
+  gaps:
+  - id: GAP-no-execution-run
+    description: The harness has not yet been run on an evaluation case; task quality is unverified.
+    status: open
+    evidence_refs:
+    - harnessspec.yaml
+  - id: GAP-priority-evidence
+    description: >-
+      Case inputs may not state stakeholder priorities; the harness then leaves priority tuples null with
+      gaps rather than inventing them, which limits prioritization.
+    status: accepted
+    evidence_refs:
+    - sources/methodology.yaml
+    - sources/intent.yaml
+  completion_criteria:
+  - >-
+    Methodology completion per sources/methodology.yaml - context_status, driver_status, architecture_evidence_status
+    and atam_report are required.
+  - >-
+    partial inputs are acceptable only when every material gap and assumption is identified and no unsupported
+    claim is presented as fact.
+runtime_requirements:
+- file-artifacts
+- skills
+- sequential-stage-execution
+- json-schema-validation

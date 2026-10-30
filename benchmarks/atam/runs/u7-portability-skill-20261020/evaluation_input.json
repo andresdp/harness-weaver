@@ -1,0 +1,18 @@
+{
+  "ATAM_Evaluation": {
+    "evaluation_inputs": {
+      "system_description": "Presentation of the Architecture\nThis architecture represents a system designed to manage orders and their subsequent distribution.\nThe structure shows a clear separation of responsibilities into different modules, which promotes\nmodularity and facilitates the maintenance and scalability of the system.\n\n\n\n\n                                Figure 1: System architecture design\n\n\n\n\n                                                 1\n\f",
+      "source_provenance": {
+        "path": "case-studies/atam-evaluator/archevaluation-llms/input-artifacts/G1-anonymized-blind-eng.pdf",
+        "sha256": "8d1dedb86e9ad3b334276cd666cdcd05b1b4857d02a97e21a771812a13b3ba22",
+        "extraction": "pdftotext -f 1 -l 1 -layout; architecture-description page only",
+        "diagram_transcription": {
+          "path": "benchmarks/atam/runs/u7-portability-skill-20261020/diagram-transcription.md",
+          "method": "manual visual transcription",
+          "review_status": "unreviewed"
+        }
+      },
+      "architecture_diagram_description": "# Page 1 architecture diagram transcription\n\nSource: `case-studies/atam-evaluator/archevaluation-llms/input-artifacts/G1-anonymized-blind-eng.pdf`, page 1. This is a manual, text-only transcription from visual inspection; fine-grained member names and connector semantics that were not legible are omitted.\n\n- Client area: Mobile Client and PC Client appear behind KONG ACL 3.8.x, which connects to the business-logic area.\n- Business logic includes Cliente, CircuitBreaker, Estadística, a Módulo de Pedidos, and a Módulo de Repartos y Rutas.\n- The order module shows Pedido, a Fase interface, FasePedido, an EstadoPedido enumeration, Stripe Connect, and the ordered phases Preprocesamiento, Autorización, and Aceptación.\n- The delivery and routes module shows Reparto, Ruta, Flota, Incidencia, a Strategy_Ruta interface, and AlgorithmA/AlgorithmB implementations. A note says the algorithm is selected based on delay.\n- A separate Acceso a Datos area contains PostgreSQL 42.7.4. A nearby note says one driver has two distinct tables and is compatible with Windows and Java.\n- The drawing shows connectors among these components, but not every connector is sufficiently clear in the rendered page to transcribe as a reliable interaction contract.\n\nThis transcription is a manual substitution for image understanding. It should be reviewed against the source diagram before being used as authoritative architecture data.\n"
+    }
+  }
+}

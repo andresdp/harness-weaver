@@ -1,0 +1,95 @@
+{
+  "alternatives": [
+    {
+      "alternative_id": "A1",
+      "name": "Modular Monolith with Gateway and Internal Coordination",
+      "description": "A single deployable application organized into strict business modules, fronted by an API gateway, using internal CQRS for read-heavy views and an internal process manager for rental and payment workflows.",
+      "selected_patterns": [
+        "API Gateway",
+        "Modular Monolith",
+        "CQRS",
+        "Saga / Process Manager",
+        "Hexagonal Architecture"
+      ],
+      "addressed_drivers": [
+        "Cross-channel access for riders and administrators",
+        "User experience simplicity",
+        "Security, privacy, and regulatory compliance",
+        "Time-sensitive rider interactions",
+        "Operational reporting and history retention"
+      ],
+      "rationale": "This alternative emphasizes simpler deployment and stronger consistency while still supporting multiple client channels and distinct read/write concerns. Hexagonal boundaries keep external integrations isolated, CQRS improves discovery and reporting reads, and an internal saga-style coordinator handles rental and payment steps without distributing the system.",
+      "assumptions": [
+        "The expected load can be handled by a well-structured single application with selective scaling",
+        "Read-model complexity is justified by the need for near-real-time availability and reporting views",
+        "External integrations such as payment, SMS/email, and mapping can be isolated behind adapters"
+      ],
+      "limitations": [
+        "Less fault isolation than a distributed architecture",
+        "Scaling hotspots may require vertical scaling or later extraction of services",
+        "Internal workflow coordination can become complex if rental rules expand significantly"
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "name": "Microservices with Event-Driven Integration",
+      "description": "A distributed architecture with an API gateway, separate services for identity, bike inventory, rental, payment, notification, and reporting, each owning its data and communicating primarily through events.",
+      "selected_patterns": [
+        "API Gateway",
+        "Microservices",
+        "Database per Service",
+        "Event-Driven Architecture",
+        "Saga / Process Manager",
+        "Hexagonal Architecture"
+      ],
+      "addressed_drivers": [
+        "Security, privacy, and regulatory compliance",
+        "Real-time bike availability and location awareness",
+        "Billing and payment handling",
+        "Operational reporting and history retention",
+        "Cross-channel access for riders and administrators"
+      ],
+      "rationale": "This alternative favors independent scaling, fault isolation, and long-term evolution of separate business capabilities. Events propagate bike status and rental lifecycle changes, sagas coordinate multi-step workflows, and database-per-service keeps data ownership aligned with service boundaries. The gateway and hexagonal adapters provide controlled access to the distributed system.",
+      "assumptions": [
+        "The team can operate distributed systems, messaging infrastructure, and observability tooling",
+        "Eventual consistency is acceptable for some user-facing read models and reporting",
+        "Workflow compensation and data reconciliation can be implemented for partial failures"
+      ],
+      "limitations": [
+        "Highest architectural and operational complexity of the options",
+        "Requires stronger DevOps, monitoring, and testing capabilities",
+        "Cross-service reporting and consistency management are more difficult than in a monolith"
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "name": "Modular Monolith with Evented Projections",
+      "description": "A single deployable modular application that keeps transactional workflows centralized but uses event publication internally to update specialized read models for rider discovery, admin views, and usage reporting.",
+      "selected_patterns": [
+        "API Gateway",
+        "Modular Monolith",
+        "Event-Driven Architecture",
+        "CQRS",
+        "Hexagonal Architecture"
+      ],
+      "addressed_drivers": [
+        "Cross-channel access for riders and administrators",
+        "Real-time bike availability and location awareness",
+        "Operational reporting and history retention",
+        "User experience simplicity",
+        "Security, privacy, and regulatory compliance"
+      ],
+      "rationale": "This alternative sits between the other two by preserving the deployment simplicity and consistency of a modular monolith while adopting asynchronous internal eventing to keep read views fresh and decoupled. It is attractive when the read side must evolve independently, but the organization is not ready for full microservices.",
+      "assumptions": [
+        "Internal events can be processed reliably within the application boundary",
+        "Projection lag is acceptable within the user experience for bike discovery and reporting",
+        "The system benefits from better separation of reads and writes without requiring distributed deployment"
+      ],
+      "limitations": [
+        "Does not provide the same scaling and fault isolation as microservices",
+        "Requires additional plumbing for event publication and projection maintenance",
+        "May still need extraction into services if growth or team structure changes"
+      ]
+    }
+  ]
+}

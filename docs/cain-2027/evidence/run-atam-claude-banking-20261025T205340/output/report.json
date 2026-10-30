@@ -1,0 +1,1352 @@
+{
+  "ATAM_Evaluation": {
+    "title": "ATAM Evaluation — unnamed system — draft",
+    "metadata": {
+      "system_name": null,
+      "date": null,
+      "ref": null,
+      "evaluator_organization": null,
+      "phase_1_attendees": [],
+      "phase_2_attendees": []
+    },
+    "evaluation_inputs": {
+      "system_description": "An Event framework where the application logic and framework are highly inter-dependent. The Main module is part of the framework, and the Event Manager interacts directly with application handlers. It features an Event Queue and a base Handler component extended by standard and application-specific handlers.",
+      "phase_1_discovery": {
+        "initial_documentation_status": "Fully developed architecture with class diagrams, component descriptions, and defined component interactions.",
+        "evaluator_inquiry_questions": [
+          "Can the components of the architecture be reused for future projects?",
+          "Can the framework be expanded in the future to accommodate a new application or new components?",
+          "Will the system handle any input given by the user and handle invalid input?",
+          "Is the architecture consistent in behavior?",
+          "Can any new application-specific functionality be added to the architecture?",
+          "Can the system be modified in short time and cost-effective manner?",
+          "Do the components interact properly?",
+          "Does the architecture perform its event-processing task properly?"
+        ]
+      },
+      "phase_2_architectural_context": {
+        "hardware_view_description": [
+          "System accepts input via Command Line Interface (CLI)",
+          "Single processor execution implied (sequential event processing)"
+        ],
+        "runtime_constraints": [
+          "Events must be dispatched in a First-Come-First-Served (FIFO) pattern",
+          "System must maintain an 'idle wait' state until input is received",
+          "Application logic is embedded within framework components"
+        ]
+      },
+      "quantitative_model_parameters": {
+        "performance_proxy": "Number of components involved in a transaction",
+        "transaction_speed": "Qualitative (Slow due to high number of components involved)",
+        "architecture_limits": {
+          "event_managers": "1",
+          "event_queues": "1"
+        }
+      },
+      "investigative_prompts": {
+        "style_probes": {
+          "target_style": "Event-Driven Architecture",
+          "questions": [
+            "Does the system allow unauthorized access?",
+            "Does the architecture portray data confidentiality?",
+            "Does the architecture process any task in the fastest possible speed?"
+          ]
+        }
+      },
+      "raw_candidate_scenarios": [
+        {
+          "id": "RS-1",
+          "description": "No unauthorized access to the system"
+        },
+        {
+          "id": "RS-2",
+          "description": "All operations are processed in fastest possible speed"
+        },
+        {
+          "id": "RS-3",
+          "description": "Any failure should be followed by immediate recovery"
+        },
+        {
+          "id": "RS-4",
+          "description": "User errors in using system should be handled"
+        },
+        {
+          "id": "RS-5",
+          "description": "New demands on system functionality should be accommodated"
+        },
+        {
+          "id": "RS-6",
+          "description": "Major parts of the framework should be re-usable for future architectures"
+        },
+        {
+          "id": "RS-7",
+          "description": "Framework modification is cost-effective, fast and in minimal time"
+        },
+        {
+          "id": "RS-8",
+          "description": "Components in framework interact in a coordinated manner"
+        },
+        {
+          "id": "RS-9",
+          "description": "Framework expansion is possible to allow for more sophisticated options"
+        },
+        {
+          "id": "RS-10",
+          "description": "Implementation allows for execution in different environments"
+        },
+        {
+          "id": "RS-11",
+          "description": "Proper data encapsulation and secure data structures"
+        },
+        {
+          "id": "RS-12",
+          "description": "Flexible implementation using other programming languages"
+        },
+        {
+          "id": "RS-13",
+          "description": "Overall consistent behavior expected from the architecture"
+        },
+        {
+          "id": "RS-14",
+          "description": "Framework should be complete, clear and perform exactly as required"
+        },
+        {
+          "id": "RS-15",
+          "description": "Hook up multiple applications to the framework at same time"
+        },
+        {
+          "id": "RS-16",
+          "description": "Change interface from command-driven to window-based"
+        }
+      ],
+      "business_context": {
+        "business_goals": [
+          "Provide an Event framework to be used by an application",
+          "Handle and process events through component interaction",
+          "Allow application components to utilize the framework services"
+        ],
+        "technical_constraints": [
+          "Must handle system termination via STOP handler",
+          "Must maintain system in idle state until input is received"
+        ],
+        "architectural_drivers": [
+          "Variability",
+          "Reliability",
+          "Conceptual Integrity",
+          "Functionality",
+          "Modifiability"
+        ]
+      }
+    },
+    "evaluation_results": {
+      "utility_tree": {
+        "root": "Utility",
+        "quality_attribute_nodes": [
+          {
+            "attribute_name": "Security",
+            "children": [
+              {
+                "refinement": "Prevention of unauthorized access to the system (attribute not among the named architectural_drivers; raised by RS-1 and style probe questions[0], see G-2-18)",
+                "scenario_id": "RS-1",
+                "scenario_description": "When an attempt is made to access the system without authorization while it is running, the system does not permit the access.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Data encapsulation and security of framework data structures (original wording: 'Proper data encapsulation and secure data structures'; related to style probe questions[1] on data confidentiality)",
+                "scenario_id": "RS-11",
+                "scenario_description": "When the framework's data structures are accessed while the system is running, the data is properly encapsulated and the data structures are secure.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Performance",
+            "children": [
+              {
+                "refinement": "Processing speed of operations (original wording: 'fastest possible speed'; attribute not among the named architectural_drivers, see G-2-18)",
+                "scenario_id": "RS-2",
+                "scenario_description": "When operations are submitted to the system at runtime, all of them are processed at the fastest possible speed.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Reliability",
+            "children": [
+              {
+                "refinement": "Recovery after failure",
+                "scenario_id": "RS-3",
+                "scenario_description": "When a failure occurs while the system is running, the system recovers immediately.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Handling of user errors, including invalid input (inferred link to evaluator_inquiry_questions[2]; placement under Reliability is inferred, see G-2-19)",
+                "scenario_id": "RS-4",
+                "scenario_description": "When a user makes an error in using the system, such as giving invalid input via the CLI, the system handles the error.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Modifiability",
+            "children": [
+              {
+                "refinement": "Accommodating new functional demands (related to evaluator_inquiry_questions[4] on adding application-specific functionality)",
+                "scenario_id": "RS-5",
+                "scenario_description": "When new demands on system functionality arise during development or maintenance, the system accommodates them.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Cost and time of framework modification",
+                "scenario_id": "RS-7",
+                "scenario_description": "When a modification to the framework is required during development or maintenance, it is made cost-effectively, fast and in minimal time.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Expansion of the framework for more sophisticated options (placement under Modifiability rather than Variability is inferred, see G-2-19)",
+                "scenario_id": "RS-9",
+                "scenario_description": "When the framework needs to be expanded to allow more sophisticated options, the expansion is possible.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Changing the user interface from command-driven to window-based (current input is via CLI, AE-6)",
+                "scenario_id": "RS-16",
+                "scenario_description": "When a change of the interface from command-driven to window-based is requested during development or maintenance, the interface is changed.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Variability",
+            "children": [
+              {
+                "refinement": "Reuse of major framework parts in future architectures (original concern 're-usable'; placement under Variability is inferred, see G-2-19)",
+                "scenario_id": "RS-6",
+                "scenario_description": "When a future architecture or project is built, major parts of the framework can be reused in it.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Hooking up multiple applications to the framework at the same time (placement under Variability is inferred, see G-2-19)",
+                "scenario_id": "RS-15",
+                "scenario_description": "When multiple applications are hooked up to the framework at the same time, the framework accommodates them.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Conceptual Integrity",
+            "children": [
+              {
+                "refinement": "Coordinated interaction among framework components (related to evaluator_inquiry_questions[6])",
+                "scenario_id": "RS-8",
+                "scenario_description": "When framework components interact to process events at runtime, they interact in a coordinated manner.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Overall consistency of architectural behavior (related to evaluator_inquiry_questions[3])",
+                "scenario_id": "RS-13",
+                "scenario_description": "When the architecture operates, it exhibits overall consistent behavior.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Functionality",
+            "children": [
+              {
+                "refinement": "Completeness, clarity and correctness of the framework relative to requirements (related to evaluator_inquiry_questions[7] on event processing)",
+                "scenario_id": "RS-14",
+                "scenario_description": "When the framework is used to perform its required tasks, it is complete and clear and performs exactly as required.",
+                "priority_tuple": null
+              }
+            ]
+          },
+          {
+            "attribute_name": "Portability",
+            "children": [
+              {
+                "refinement": "Execution of the implementation in different environments (attribute not among the named architectural_drivers, see G-2-18)",
+                "scenario_id": "RS-10",
+                "scenario_description": "When the implementation is to be executed in a different environment, it can be executed there.",
+                "priority_tuple": null
+              },
+              {
+                "refinement": "Implementation of the framework in other programming languages (original wording: 'Flexible implementation using other programming languages'; placement under Portability is inferred, see G-2-19)",
+                "scenario_id": "RS-12",
+                "scenario_description": "When the framework is to be implemented using another programming language, the implementation can be done flexibly.",
+                "priority_tuple": null
+              }
+            ]
+          }
+        ]
+      },
+      "architectural_approaches": [
+        {
+          "approach_name": "Single central Event Queue with FIFO dispatch",
+          "description": "The framework holds one Event Queue (AE-4; architecture_limits.event_queues = 1, AE-10). The runtime constraints require events to be dispatched first-come-first-served (BD-11), so the queue is the single ordering point for every event in the system. (evidence: AE-4, AE-10, BD-11)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "A FIFO queue meets the required dispatch order (BD-11) and supports the goal of handling and processing events (BD-2); BD-9 names Functionality as a driver."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "A single queue with one ordering rule gives every event the same path and order, which supports uniform behaviour (BD-8)."
+            }
+          ]
+        },
+        {
+          "approach_name": "Single Event Manager dispatching directly to application handlers",
+          "description": "One Event Manager (architecture_limits.event_managers = 1, AE-10) interacts directly with application handlers (AE-3). No intermediary such as a broker or registry is described between the manager and the handlers. (evidence: AE-3, AE-10)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "All dispatch decisions are made in one component, so the coordination logic exists only once (BD-8)."
+            },
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "Direct manager-to-handler interaction is how the framework delivers events to the application (BD-2, BD-3, BD-9)."
+            }
+          ]
+        },
+        {
+          "approach_name": "Handler extension hierarchy (base Handler specialized by standard and application-specific handlers)",
+          "description": "A base Handler component is extended by standard (framework-supplied) handlers and by application-specific handlers (AE-5). Applications add behaviour by supplying new handler subtypes of the common base. (evidence: AE-5)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Variability",
+              "rationale": "Applications vary framework behaviour by adding their own handler specializations of the base Handler (BD-6)."
+            },
+            {
+              "quality_attribute": "Modifiability",
+              "rationale": "New handler subtypes can be added to extend event-handling behaviour (AE-5, BD-10); whether the Event Manager must also change depends on the undisclosed handler binding mechanism, so this is inferred and conditional, not a settled fact (G-3-6, G-4-7)."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "Every handler, standard or application-specific, conforms to one base abstraction (BD-8)."
+            }
+          ]
+        },
+        {
+          "approach_name": "Application logic embedded in framework components (tight framework-application coupling)",
+          "description": "Application logic and the framework are highly inter-dependent (AE-1), and the runtime constraints state that application logic is embedded within framework components (BD-13). The evidence presents this as a property of the design. It does not say what quality goal it serves. (evidence: AE-1, BD-13)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Unspecified (not identified in supplied evidence)",
+              "rationale": "The input describes application-framework coupling (AE-1, BD-13) but does not identify a quality attribute this approach is intended to support. No benefit is inferred; the missing rationale remains an open gap."
+            }
+          ]
+        },
+        {
+          "approach_name": "Framework-owned Main module driving control flow (inversion of control)",
+          "description": "The Main module belongs to the framework, not to the application (AE-2), and the framework's Event Manager calls into application handlers (AE-3, AE-5). Taken together, the framework seems to own the top-level control loop and call application code back through handlers. (evidence: AE-2, AE-3, AE-5) [inferred: Inferred from AE-2 (Main is part of the framework), AE-3 (the Event Manager interacts directly with application handlers) and AE-5 (application-specific handlers extend a framework base Handler). The inputs never say inversion of control or describe the main loop. Confirmation needs the Main module's responsibilities and a sequence or interaction description showing who invokes whom.]",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "If the framework owns the control loop, every application follows the same execution model (BD-8)."
+            },
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "Applications use framework services without implementing their own event loop, which supports BD-1 and BD-3."
+            }
+          ]
+        },
+        {
+          "approach_name": "Sequential event processing on a single processor",
+          "description": "Events are processed one at a time on one processor (AE-7). This matches the single Event Manager and single Event Queue (AE-10). The input itself says single-processor execution is 'implied', not specified. (evidence: AE-7, AE-10) [inferred: The source states 'Single processor execution implied (sequential event processing)' (AE-7), so the input itself hedges. AE-10 (one manager, one queue) is consistent with this. A statement of the threading/concurrency model and the deployment target would confirm it.]",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Reliability",
+              "rationale": "Processing events one at a time removes concurrent access to the queue and handlers, which supports predictable, correct handling (BD-7)."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "A single sequential execution model, together with FIFO order (BD-11), makes behaviour deterministic and consistent (BD-8)."
+            }
+          ]
+        },
+        {
+          "approach_name": "Command-line input with idle wait until input arrives",
+          "description": "The system takes input through a Command Line Interface (AE-6) and must stay in an idle-wait state until input is received (BD-5, BD-12). User input is therefore the source of events, and the framework blocks between inputs. (evidence: AE-6, BD-5, BD-12)",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Functionality",
+              "rationale": "The idle-wait-on-CLI-input behaviour is required by the technical and runtime constraints (BD-5, BD-12) and is how events enter the framework (BD-2)."
+            }
+          ]
+        },
+        {
+          "approach_name": "STOP handler for controlled termination",
+          "description": "System termination must go through a STOP handler (BD-4). Given the handler hierarchy (AE-5), STOP is presumably one of the standard framework handlers, so termination is processed like any other event. (evidence: AE-5) [inferred: BD-4 requires termination via a STOP handler, but no AE item describes it. Treating it as a standard handler in the AE-5 hierarchy, dispatched through the Event Queue and Manager, is an inference. Confirmation needs the list of standard handlers and how STOP is triggered and dispatched.]",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Reliability",
+              "rationale": "A dedicated termination handler gives the system one defined shutdown path (BD-7)."
+            },
+            {
+              "quality_attribute": "Conceptual Integrity",
+              "rationale": "Termination handled as an event through the same handler mechanism keeps one interaction model (BD-8)."
+            }
+          ]
+        },
+        {
+          "approach_name": "Event-driven architectural style (in-process event framework)",
+          "description": "The overall style combines an Event Queue (AE-4), an Event Manager that dispatches to handlers (AE-3) and a Handler hierarchy (AE-5) inside one framework, and the evaluators probe it as Event-Driven Architecture (AE-11). Whether it is event-driven in the publish-subscribe/broker sense or a local event-dispatch loop is not stated. (evidence: AE-3, AE-4, AE-5, AE-11) [inferred: AE-11 is a style probe and cannot make the style observed by itself. Together with AE-3, AE-4 and AE-5 it supports an event-driven style. The inputs never name the style for this system, and no subscription, broker or asynchronous messaging mechanism is described. The architect would need to confirm the style and its variant (in-process dispatch loop or publish-subscribe).]",
+          "addressed_attributes": [
+            {
+              "quality_attribute": "Variability",
+              "rationale": "Event dispatch to pluggable handlers lets applications vary behaviour by supplying handlers (BD-6)."
+            },
+            {
+              "quality_attribute": "Modifiability",
+              "rationale": "Event producers and handlers meet only through the queue and manager, which in principle localizes changes to handlers (BD-10)."
+            }
+          ]
+        }
+      ],
+      "analysis_records": [
+        {
+          "scenario_reference": {
+            "id": "RS-2",
+            "text": "When operations are submitted to the system at runtime, all of them are processed at the fastest possible speed.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Performance",
+          "environment": "Runtime; sequential event processing on a single processor with input via CLI (AE-6, AE-7); no load level is stated in RS-2",
+          "stimulus": "Operations submitted to the system for processing",
+          "response_measure": "unspecified (see gap G-2-2)",
+          "architectural_decisions": [
+            "All operations enter one Event Queue (architecture_limits.event_queues = 1) and are dispatched FIFO (AP-1, AE-10, BD-11).",
+            "One Event Manager (architecture_limits.event_managers = 1) dispatches every event directly to application handlers (AP-2, AE-3, AE-10).",
+            "Event handling is spread over a base Handler extended by standard and application-specific handlers (AP-3, AE-5).",
+            "Events are processed sequentially on a single processor (AP-6, inferred from AE-7, which the input itself calls 'implied')."
+          ],
+          "reasoning": "The input states the performance proxy is the number of components involved in a transaction (AE-8) and that transaction speed is 'Slow due to high number of components involved' (AE-9); this is an observed statement of the problem, not a measurement. No numeric arrival rate, service time or component count is given, so no latency or throughput arithmetic is possible (G-2-2). Structurally (inferred): with one queue, one manager and sequential processing (AP-1, AP-2, AP-6), the time an event spends in the system is its own processing time plus the processing times of every event ahead of it in the FIFO queue; throughput is bounded by a single Event Manager serving one event at a time. No prioritization, parallel dispatch or second queue/manager is described, so a slow handler delays every later event. Whether this meets 'fastest possible speed' cannot be judged because that phrase has no measurable target (G-2-2, G-4-4). The link between the number of components per transaction and the handler decomposition (AP-3) is an inference: the components that make the framework extensible are the ones a transaction passes through. (approaches: AP-1, AP-2, AP-3, AP-6; evidence: AE-5, AE-6, AE-7, AE-8, AE-9, AE-10)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-1",
+                "description": "Transactions pass through a high number of framework components, and the input itself states that transaction speed is slow for this reason.",
+                "rationale": "evaluation_inputs.quantitative_model_parameters.transaction_speed states 'Qualitative (Slow due to high number of components involved)' and performance_proxy names the number of components involved in a transaction as the performance driver; RS-2 asks for the fastest possible speed. (evidence: AE-8, AE-9; basis: observed)"
+              },
+              {
+                "id": "R-2",
+                "description": "The single Event Queue and single Event Manager with sequential FIFO processing serialize all operations, so one long-running handler delays every event queued behind it (head-of-line blocking) and no prioritization or parallel dispatch is available.",
+                "rationale": "AE-10 fixes 1 Event Manager and 1 Event Queue; BD-11 requires FIFO dispatch; AP-6 (inferred from AE-7) makes processing sequential. Under these decisions an event's waiting time is the sum of the service times of the events ahead of it. Depends on the inferred approach AP-6 (see G-4-5). (evidence: AE-10, AE-7, AP-1, AP-2, AP-6, BD-11; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "S-1",
+                "parameter": "Number of components involved in a transaction (cited as the performance proxy, AE-8; qualitatively 'Slow', AE-9; no numeric value given) (evidence: AE-8, AE-9)",
+                "correlated_attribute": "Performance"
+              },
+              {
+                "id": "S-2",
+                "parameter": "Number of Event Managers and Event Queues (cited: 1 each, AE-10) serving all events (evidence: AE-10, AP-1, AP-2)",
+                "correlated_attribute": "Performance"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "T-1",
+                "parameter": "Number of components a transaction passes through (base Handler, standard and application-specific handlers, Event Manager, Event Queue); inferred: the decomposition that lets behaviour be varied and extended by handlers is what lengthens each transaction (AE-8, AE-9, AP-3) (evidence: AE-8, AE-9, AE-5, AP-3, AP-9)",
+                "conflicting_attributes": [
+                  "Variability (+)",
+                  "Modifiability (+)",
+                  "Performance (-)"
+                ]
+              },
+              {
+                "id": "T-2",
+                "parameter": "Single Event Manager and single Event Queue (cited: 1 each, AE-10); inferred: one ordering and dispatch point gives uniform behaviour but serializes all work and has no redundancy (evidence: AE-10, AP-1, AP-2)",
+                "conflicting_attributes": [
+                  "Conceptual Integrity (+)",
+                  "Performance (-)",
+                  "Reliability (-)"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-3",
+            "text": "When a failure occurs while the system is running, the system recovers immediately.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "Runtime; no operating condition is stated in RS-3",
+          "stimulus": "A failure occurs (failure type not stated in RS-3)",
+          "response_measure": "unspecified (see gap G-2-3)",
+          "architectural_decisions": [
+            "Exactly one Event Queue and one Event Manager exist (AE-10, AP-1, AP-2); no redundant instance, restart or checkpoint mechanism is described (G-3-7).",
+            "The Event Manager calls application handlers directly (AE-3, AP-2), and application logic is embedded in framework components (AE-1, BD-13, AP-4).",
+            "Processing is sequential on one processor (AP-6, inferred from AE-7)."
+          ],
+          "reasoning": "RS-3 requires immediate recovery after a failure, which makes some detection and recovery mechanism necessary. The inputs describe none (G-3-7), and AE-10 fixes a single Event Queue and a single Event Manager, so (inferred) a failure of either component stops all event processing, with no stated component that would restart it or take over. Whether events in the queue survive such a failure is unknown because persistence is not described (G-3-9). Because the Event Manager interacts directly with application handlers (AE-3) and application logic is embedded within framework components (AE-1, BD-13), no fault-isolation boundary between application handler code and the framework is described; inferred: a fault raised in an application-specific handler reaches the Event Manager directly and, in a sequential single-processor model (AP-6), halts the only processing path. Whether 'immediate' recovery is achieved cannot be judged because no recovery time or target state is given (G-2-3, G-4-4). (approaches: AP-1, AP-2, AP-4, AP-6; evidence: AE-1, AE-3, AE-4, AE-7, AE-10)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-3",
+                "description": "The single Event Manager and single Event Queue (AE-10) have no stated redundancy, restart or recovery mechanism, so a failure of either stops all event processing, contrary to the immediate recovery RS-3 requires.",
+                "rationale": "RS-3 makes a recovery mechanism necessary; AE-10 limits the architecture to one manager and one queue and no input or AE item describes recovery (G-3-7). Survival of queued events is unknown (G-3-9, G-4-12). (evidence: AE-10, AP-1, AP-2, BD-7; basis: inferred)"
+              },
+              {
+                "id": "R-4",
+                "description": "No fault-isolation boundary is described between application-specific handlers and the Event Manager: the manager calls handlers directly (AE-3) and application logic is embedded in framework components (AE-1, BD-13), so a fault in application handler code can propagate into the framework and stop event processing.",
+                "rationale": "Direct manager-to-handler interaction plus the stated high framework-application interdependence leaves no described point where a handler failure is contained; under sequential processing (AP-6, inferred) the failed path is the only path. (evidence: AE-1, AE-3, AP-2, AP-4, AP-6; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "S-3",
+                "parameter": "Number of Event Managers and Event Queues (cited: 1 each, AE-10) (evidence: AE-10)",
+                "correlated_attribute": "Reliability"
+              },
+              {
+                "id": "S-4",
+                "parameter": "Fault-isolation boundary between application-specific handlers and the Event Manager (direct interaction, AE-3; application logic embedded in framework components, AE-1) (evidence: AE-3, AE-1)",
+                "correlated_attribute": "Reliability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-4",
+            "text": "When a user makes an error in using the system, such as giving invalid input via the CLI, the system handles the error.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Reliability",
+          "environment": "Runtime; the user interacts via CLI (AE-6); no further condition is stated in RS-4",
+          "stimulus": "A user makes an error in using the system (e.g. invalid input, per evaluator_inquiry_questions[2])",
+          "response_measure": "unspecified (see gap G-2-4)",
+          "architectural_decisions": [
+            "User input arrives through the CLI and the system idles until input is received (AP-7, AE-6, BD-5, BD-12).",
+            "Input becomes events placed on the single Event Queue and dispatched by the Event Manager to handlers (AP-1, AP-2, AE-3, AE-4).",
+            "Handlers specialize a base Handler (AP-3, AE-5); no handler or component for input validation or error reporting is named."
+          ],
+          "reasoning": "RS-4 requires that user errors such as invalid CLI input be handled, which makes an input-validation and error-handling decision necessary. The inputs describe the path CLI (AE-6) -> Event Queue (AE-4) -> Event Manager (AE-3) -> handler (AE-5) but name no validation step, error handler or error-reporting path on it (G-3-7). Inferred: unless each handler validates its own input, invalid input can be enqueued and dispatched with no defined rejection or report behaviour, and where validation happens (before enqueueing or inside every handler) determines whether the response is uniform. It is possible that validation exists inside handlers in the undisclosed class diagrams (G-1-3, G-3-10); the risk is recorded because the scenario needs the mechanism and none is stated. Whether the handling is adequate cannot be judged because 'handled' is not defined (G-2-4, G-4-4). (approaches: AP-1, AP-2, AP-3, AP-7; evidence: AE-3, AE-4, AE-5, AE-6)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-5",
+                "description": "No input-validation or error-handling decision is stated on the CLI-to-Event Queue-to-handler path, so invalid user input may be enqueued and dispatched to a handler with no defined rejection or reporting behaviour.",
+                "rationale": "RS-4 makes invalid-input handling necessary; AE-6, AE-4, AE-3 and AE-5 describe the input path but no AE item or approach describes validation or error handling (G-3-7). (evidence: AE-6, AE-4, AE-3, AP-7, AP-1, BD-7; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "S-5",
+                "parameter": "Location of invalid-input validation on the path CLI (AE-6) -> Event Queue (AE-4) -> Event Manager (AE-3) -> handler (AE-5): before enqueueing or inside each handler (not stated) (evidence: AE-6, AE-4, AE-5)",
+                "correlated_attribute": "Reliability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-5",
+            "text": "When new demands on system functionality arise during development or maintenance, the system accommodates them.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "Development/maintenance time (inferred from the change-oriented wording); no condition is stated in RS-5",
+          "stimulus": "New demands on system functionality",
+          "response_measure": "unspecified (see gap G-2-5)",
+          "architectural_decisions": [
+            "New application behaviour is added as application-specific handlers extending the base Handler (AP-3, AE-5).",
+            "The Event Manager interacts directly with application handlers (AP-2, AE-3); the binding of handlers to events is not described (G-3-6).",
+            "Application logic is embedded within framework components and is highly inter-dependent with the framework (AP-4, AE-1, BD-13)."
+          ],
+          "reasoning": "Two decisions pull in opposite directions. The handler hierarchy (AE-5) gives a defined extension point: inferred, new functionality that takes the form of handling a new or existing event can be added as a new application-specific handler subtype without changing the Event Queue. How much of the Event Manager must change depends on how handlers are bound to events, which is not described (G-3-6): with a registration or lookup mechanism the manager is untouched; with hard-coded dispatch it must be edited for each new handler. Against this, the input states that application logic is embedded within framework components and that application and framework are highly inter-dependent (AE-1, BD-13); inferred, functional demands that change that embedded logic, or that do not fit a handler subtype, require editing framework components. The event-driven style reading of AP-9 that would localize changes to handlers is itself inferred (G-3-4). The size of change that is acceptable is not stated (G-2-5, G-4-4). (approaches: AP-2, AP-3, AP-4, AP-9; evidence: AE-1, AE-3, AE-5)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-6",
+                "description": "Because application logic is embedded within framework components (BD-13) and application and framework are highly inter-dependent (AE-1), new functional demands that touch that embedded logic require changes inside framework components rather than only new handlers.",
+                "rationale": "The input states the embedding and inter-dependence directly; that this widens the scope of functional change is reasoned from it. No rationale for the embedding is given (G-3-5). (evidence: AE-1, AP-4, BD-13; basis: inferred)"
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR-1",
+                "description": "Functionality that can be expressed as handling an event can be added as a new application-specific handler extending the base Handler, without changing the Event Queue.",
+                "rationale": "AE-5 states that the base Handler is extended by application-specific handlers, which is a defined extension point. Whether the Event Manager also needs changes depends on the undisclosed handler binding mechanism (G-3-6, G-4-7). (evidence: AE-5, AP-3; basis: inferred)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-6",
+                "parameter": "Handler-to-event binding mechanism of the Event Manager (static dispatch, registration or lookup table; not described, G-3-6) (evidence: AE-3, AE-5)",
+                "correlated_attribute": "Modifiability"
+              },
+              {
+                "id": "S-7",
+                "parameter": "Extent to which application logic is embedded within framework components (AE-1, BD-13) (evidence: AE-1, BD-13)",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-6",
+            "text": "When a future architecture or project is built, major parts of the framework can be reused in it.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Variability",
+          "environment": "Development of a future architecture (inferred from RS-6 and evaluator_inquiry_questions[0]); no further condition is stated",
+          "stimulus": "A future architecture or project needs framework capabilities",
+          "response_measure": "unspecified (see gap G-2-6)",
+          "architectural_decisions": [
+            "The framework parts are the Event Queue, the Event Manager, the base Handler and standard handlers (AE-3, AE-4, AE-5).",
+            "Application logic is embedded within those framework components (AP-4, AE-1, BD-13)."
+          ],
+          "reasoning": "The candidates for reuse are the framework's Event Queue, Event Manager, base Handler and standard handlers (AE-3, AE-4, AE-5). The input states that application logic is embedded within framework components and that application and framework are highly inter-dependent (AE-1, BD-13). Inferred: components that contain one application's logic cannot be reused in a different architecture as they are; the application-specific parts must first be separated out or removed. The base Handler abstraction is the part least likely to carry application logic, but the inputs do not say which components hold the embedded logic, so no non-risk is recorded. Which parts are 'major' and what counts as reuse are not stated (G-2-6, G-4-4). (approaches: AP-1, AP-2, AP-3, AP-4; evidence: AE-1, AE-3, AE-4, AE-5)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-7",
+                "description": "Application logic embedded within framework components (BD-13, AE-1) ties those components to the current application, so major framework parts cannot be reused in a future architecture without first separating out the application-specific logic.",
+                "rationale": "Reuse in a different architecture requires components free of the original application's logic; the input states the logic is embedded in framework components. (evidence: AE-1, AP-4, BD-13; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "S-8",
+                "parameter": "Extent to which application logic is embedded within framework components (AE-1, BD-13) (evidence: AE-1, BD-13)",
+                "correlated_attribute": "Variability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-7",
+            "text": "When a modification to the framework is required during development or maintenance, it is made cost-effectively, fast and in minimal time.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "Development/maintenance time (inferred from the change-oriented wording); no condition is stated in RS-7",
+          "stimulus": "A modification to the framework is required (nature of the change not stated in RS-7)",
+          "response_measure": "unspecified (see gap G-2-7)",
+          "architectural_decisions": [
+            "The Event Manager interacts directly with application handlers, with no intermediary described (AP-2, AE-3).",
+            "All handlers extend one base Handler (AP-3, AE-5).",
+            "Application logic is embedded within framework components (AP-4, AE-1, BD-13)."
+          ],
+          "reasoning": "RS-7 is about changes to the framework itself. Inferred: because the Event Manager interacts directly with application handlers (AE-3) and every handler extends the base Handler (AE-5), the Event Manager-to-Handler interface is shared by all application handlers; a change to that interface or to the base Handler propagates to every application-specific handler. Because application logic is embedded within framework components (AE-1, BD-13), modifying a framework component also means touching application logic held inside it. Both widen the set of components affected by a framework change and so raise its cost and time. No cost or time figure is given, so whether the modification is 'cost-effective, fast and in minimal time' cannot be judged (G-2-7, G-4-4). The embedding decision has no stated benefit (G-3-5), so no tradeoff point can be named for it (G-4-11). (approaches: AP-2, AP-3, AP-4; evidence: AE-1, AE-3, AE-5)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-8",
+                "description": "Framework modifications to the Event Manager or base Handler interface propagate to every application-specific handler, and modifications to framework components touch the application logic embedded in them, raising the cost and time of framework change.",
+                "rationale": "Direct Event Manager-to-handler interaction (AE-3) with all handlers sharing the base Handler (AE-5), combined with stated high framework-application inter-dependence (AE-1, BD-13), widens change impact. (evidence: AE-1, AE-3, AE-5, AP-2, AP-4; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "S-9",
+                "parameter": "Interface between the Event Manager and the base Handler (direct interaction, AE-3; shared by all handlers, AE-5) (evidence: AE-3, AE-5)",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-8",
+            "text": "When framework components interact to process events at runtime, they interact in a coordinated manner.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Conceptual Integrity",
+          "environment": "Runtime; no operating condition is stated in RS-8",
+          "stimulus": "Framework components interact to handle and process events (business goal BD-2)",
+          "response_measure": "unspecified (see gap G-2-8)",
+          "architectural_decisions": [
+            "One Event Queue with FIFO dispatch is the single ordering point for all events (AP-1, AE-4, AE-10, BD-11).",
+            "One Event Manager is the sole dispatcher to handlers (AP-2, AE-3, AE-10).",
+            "The framework-owned Main drives control flow (AP-5, inferred from AE-2, AE-3, AE-5).",
+            "Events are processed sequentially (AP-6, inferred from AE-7)."
+          ],
+          "reasoning": "Coordination among components is concentrated in two single instances: every event passes through one FIFO Event Queue and is dispatched by one Event Manager (AE-10, BD-11). Inferred: the dispatch logic therefore exists in one place and every event follows the same Queue -> Manager -> Handler path, so components do not need to coordinate with each other directly. If Main owns the control loop (AP-5, inferred, G-3-1) and processing is sequential (AP-6, inferred, G-3-2), there is also a single execution model. The same FIFO-only ordering means an urgent event cannot overtake earlier ones, which is the opposing performance effect. 'Coordinated' is not defined, so the response cannot be judged against a criterion (G-2-8, G-4-4). (approaches: AP-1, AP-2, AP-5, AP-6; evidence: AE-2, AE-3, AE-4, AE-7, AE-10)",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-2",
+                "description": "Dispatch coordination is centralized in one Event Manager reading one FIFO Event Queue, so every event follows the same path and the coordination logic is defined once.",
+                "rationale": "AE-10 limits the architecture to one manager and one queue, BD-11 fixes FIFO dispatch, and AE-3 says the manager interacts directly with handlers; this leaves no second dispatch path that could be inconsistent. The claim that execution is also sequential rests on inferred AP-6 (G-4-5). (evidence: AE-10, AE-3, AP-1, AP-2, BD-11; basis: inferred)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-10",
+                "parameter": "Dispatch ordering policy of the Event Queue (cited: FIFO, BD-11) (evidence: BD-11, AE-4, AP-1)",
+                "correlated_attribute": "Conceptual Integrity"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "T-3",
+                "parameter": "FIFO-only dispatch policy with no prioritization (BD-11, AP-1); inferred: one ordering rule keeps interaction uniform, but urgent events wait behind all earlier events (evidence: BD-11, AE-10, AP-1)",
+                "conflicting_attributes": [
+                  "Conceptual Integrity (+)",
+                  "Performance (-)"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-9",
+            "text": "When the framework needs to be expanded to allow more sophisticated options, the expansion is possible.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "Development/maintenance time (inferred from the change-oriented wording); no condition is stated in RS-9",
+          "stimulus": "A need to expand the framework to allow more sophisticated options",
+          "response_measure": "unspecified (see gap G-2-9)",
+          "architectural_decisions": [
+            "Expansion through new handler subtypes of the base Handler (AP-3, AE-5).",
+            "Fixed architecture limits of one Event Manager and one Event Queue (AP-1, AP-2, AE-10).",
+            "Application logic embedded within framework components (AP-4, AE-1, BD-13)."
+          ],
+          "reasoning": "The 'more sophisticated options' are not named (G-2-9), so only the structural bounds on expansion can be stated. Expansions that take the form of new handlers use the base Handler extension point (see NR-1 in AR-4, same conditions on G-3-6). Inferred: expansions that need more than one queue (for example prioritized queues) or more than one manager change the fixed limits stated in AE-10 and therefore change the framework's core structure rather than adding to it. Expansions that touch application logic embedded in framework components carry the change-scope concern already recorded as R-6. No new risk is recorded because the target options are unknown; recording one would be speculation. (approaches: AP-1, AP-2, AP-3, AP-4, AP-9; evidence: AE-1, AE-5, AE-10)",
+          "findings": {
+            "risks": [],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "S-11",
+                "parameter": "Fixed architecture limits of one Event Manager and one Event Queue (cited: AE-10); expansions needing more queues or managers change these core elements (evidence: AE-10, AP-1, AP-2)",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-11",
+            "text": "When the framework's data structures are accessed while the system is running, the data is properly encapsulated and the data structures are secure.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Security",
+          "environment": "Runtime; no operating condition is stated in RS-11",
+          "stimulus": "Access to data held in the framework's data structures",
+          "response_measure": "unspecified (see gap G-2-11)",
+          "architectural_decisions": [
+            "Application logic is embedded within framework components and is highly inter-dependent with the framework (AP-4, AE-1, BD-13).",
+            "Handlers share the base Handler abstraction (AP-3, AE-5)."
+          ],
+          "reasoning": "Only the encapsulation half of RS-11 can be analyzed. The input states that application logic is embedded within framework components and that application and framework are highly inter-dependent (AE-1, BD-13). Inferred: no encapsulation boundary between application data and framework data is described; application code living inside framework components can reach the framework's internal data structures. The 'secure data structures' half cannot be analyzed: the inputs describe no data structures, shared state, threats or access-control mechanism (G-3-8, G-3-9, G-4-8). Security is also not among the named architectural drivers (G-2-18). (approaches: AP-3, AP-4; evidence: AE-1, AE-5)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-9",
+                "description": "Embedding application logic within framework components (BD-13, AE-1) leaves no described encapsulation boundary between application code and the framework's data structures, contrary to the proper encapsulation RS-11 requires.",
+                "rationale": "RS-11 requires encapsulation of framework data; the stated embedding and high inter-dependence place application code inside the framework components that hold that data. (evidence: AE-1, AP-4, BD-13; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-13",
+            "text": "When the architecture operates, it exhibits overall consistent behavior.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Conceptual Integrity",
+          "environment": "Not stated in RS-13",
+          "stimulus": "The architecture operates (processes events)",
+          "response_measure": "unspecified (see gap G-2-13)",
+          "architectural_decisions": [
+            "One FIFO Event Queue (AP-1, AE-4, AE-10, BD-11).",
+            "Sequential processing on one processor (AP-6, inferred from AE-7).",
+            "All handlers conform to one base Handler abstraction (AP-3, AE-5).",
+            "Framework-owned Main and STOP handler as uniform control and termination paths (AP-5, AP-8, both inferred)."
+          ],
+          "reasoning": "Inferred: with one FIFO queue (AE-10, BD-11) processed sequentially (AP-6, from AE-7), the same input sequence is processed in the same order every time, and because every handler extends the base Handler (AE-5) all handlers are invoked through one abstraction. Together these support consistent behaviour. The sequential model is what removes interleaving; the same choice limits throughput (AE-9 states transactions are slow), so the concurrency model is a tradeoff point. The determinism claim depends on AP-6, which the input calls 'implied' (G-3-2, G-4-5). Uniform control and termination paths would further support consistency, but AP-5 and AP-8 are inferred (G-3-1, G-3-3) and no finding is based on them. 'Consistent behavior' is not defined (G-2-13, G-4-4). (approaches: AP-1, AP-3, AP-5, AP-6, AP-8; evidence: AE-2, AE-4, AE-5, AE-7, AE-9, AE-10)",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-3",
+                "description": "Sequential processing of a single FIFO Event Queue gives a deterministic processing order for a given input sequence, and all handlers are invoked through one base Handler abstraction, which supports consistent behaviour.",
+                "rationale": "AE-10 and BD-11 give one FIFO queue; AE-7 implies sequential processing; AE-5 gives the common base Handler. Depends on the inferred approach AP-6 (G-4-5). (evidence: AE-7, AE-10, AE-5, AP-1, AP-3, AP-6, BD-11; basis: inferred)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-12",
+                "parameter": "Concurrency model of event processing (cited: single processor, sequential processing 'implied', AE-7) (evidence: AE-7, AP-6)",
+                "correlated_attribute": "Conceptual Integrity"
+              }
+            ],
+            "tradeoff_points": [
+              {
+                "id": "T-4",
+                "parameter": "Concurrency model of event processing: sequential on one processor (AE-7) versus concurrent handler execution; inferred: sequential processing gives deterministic order and no concurrent access to the queue and handlers, but bounds throughput (evidence: AE-7, AE-9, AE-10, AP-6)",
+                "conflicting_attributes": [
+                  "Conceptual Integrity (+)",
+                  "Reliability (+)",
+                  "Performance (-)"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-14",
+            "text": "When the framework is used to perform its required tasks, it is complete and clear and performs exactly as required.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Functionality",
+          "environment": "Not stated in RS-14",
+          "stimulus": "The framework is used to perform its required tasks, such as event processing",
+          "response_measure": "unspecified (see gap G-2-14)",
+          "architectural_decisions": [
+            "A single Event Queue dispatching FIFO (AP-1) for the FIFO dispatch constraint (BD-11).",
+            "An Event Manager delivering events to handlers (AP-2, AE-3) for the goal of handling and processing events (BD-2).",
+            "CLI input with idle wait until input arrives (AP-7, AE-6) for the idle-state constraints (BD-5, BD-12).",
+            "A STOP handler for termination (AP-8, inferred) for the termination constraint (BD-4)."
+          ],
+          "reasoning": "The full functional requirements behind 'exactly as required' are not supplied (G-2-14), so only the stated constraints can be checked. Inferred: the FIFO dispatch constraint (BD-11) is matched by the single Event Queue (AP-1), the idle-wait-until-input constraints (BD-5, BD-12) by the CLI idle-wait approach (AP-7), and the event-handling goal (BD-2) by the Event Manager delivering events to handlers (AE-3). These are matches between stated constraints and described components, not verified behaviour; the class diagrams and interaction descriptions that would confirm them were not supplied (AE-12, G-1-3). The STOP-handler constraint (BD-4) cannot be checked because AP-8 is inferred and no AE item describes the STOP handler (G-3-3, G-4-9). Completeness and clarity cannot be judged without the requirements (G-4-4). (approaches: AP-1, AP-2, AP-7, AP-8; evidence: AE-3, AE-4, AE-5, AE-6, AE-12)",
+          "findings": {
+            "risks": [],
+            "non_risks": [
+              {
+                "id": "NR-4",
+                "description": "The single FIFO Event Queue (AP-1) and the CLI idle-wait input approach (AP-7) correspond to the stated FIFO dispatch constraint (BD-11) and idle-state constraints (BD-5, BD-12).",
+                "rationale": "Each stated constraint has a described component that realizes it; marked inferred because the inputs state these as constraints and the documentation that would confirm the implementation was not supplied (AE-12, G-1-3). AP-1's FIFO dispatch is itself derived from constraint BD-11 rather than from a described queue implementation, so this non-risk partly restates the constraint as its own realization and holds only if BD-11 is implemented as stated (G-1-3, G-3-10). (evidence: AE-4, AE-6, AP-1, AP-7, BD-5, BD-11, BD-12; basis: inferred)"
+              }
+            ],
+            "sensitivity_points": [],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-15",
+            "text": "When multiple applications are hooked up to the framework at the same time, the framework accommodates them.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Variability",
+          "environment": "Not stated in RS-15 whether this is at development, deployment or runtime",
+          "stimulus": "Multiple applications are hooked up to the framework at the same time",
+          "response_measure": "unspecified (see gap G-2-15)",
+          "architectural_decisions": [
+            "One Event Manager and one Event Queue (AP-1, AP-2, AE-10).",
+            "The Main module is part of the framework (AP-5, AE-2).",
+            "Application logic is embedded within framework components (AP-4, AE-1, BD-13)."
+          ],
+          "reasoning": "AE-10 limits the framework to one Event Manager and one Event Queue, Main belongs to the framework (AE-2), and application logic is embedded within framework components (AE-1, BD-13). Inferred: within one framework instance, several applications hooked up at once would share one queue, one manager and one Main, and the inputs describe no mechanism to separate their events or route them to the right application's handlers (G-3-6); because each application's logic is embedded in the framework components, running several applications appears to require either mixing their logic in the same components or running separate framework instances. If RS-15 means build-time support of several applications rather than simultaneous runtime hook-up, the concern is weaker; the phase is not stated (G-2-15). The ownership of the control loop by Main is part of inferred AP-5 (G-3-1, G-4-6). (approaches: AP-1, AP-2, AP-4, AP-5; evidence: AE-1, AE-2, AE-3, AE-10)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-10",
+                "description": "With one Event Manager, one Event Queue and one framework-owned Main (AE-10, AE-2), and application logic embedded in framework components (BD-13), no mechanism is described for separating the events and handlers of several applications hooked up at the same time.",
+                "rationale": "RS-15 requires accommodating multiple simultaneous applications, which needs some separation or routing mechanism; the fixed single instances and the embedding leave none described (G-3-6). (evidence: AE-1, AE-2, AE-10, AP-1, AP-2, AP-4, AP-5; basis: inferred)"
+              }
+            ],
+            "non_risks": [],
+            "sensitivity_points": [
+              {
+                "id": "S-13",
+                "parameter": "Number of Event Managers and Event Queues per framework instance (cited: 1 each, AE-10) (evidence: AE-10)",
+                "correlated_attribute": "Variability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        },
+        {
+          "scenario_reference": {
+            "id": "RS-16",
+            "text": "When a change of the interface from command-driven to window-based is requested during development or maintenance, the interface is changed.",
+            "type": "utility-tree"
+          },
+          "quality_attribute": "Modifiability",
+          "environment": "Development/maintenance time (inferred); the system currently accepts input via CLI (AE-6)",
+          "stimulus": "A request to change the interface from command-driven to window-based",
+          "response_measure": "unspecified (see gap G-2-16)",
+          "architectural_decisions": [
+            "Input is taken via the CLI and the system idles until input is received (AP-7, AE-6, BD-5, BD-12).",
+            "The Main module, which presumably owns the control loop, is part of the framework (AP-5, AE-2; control-loop ownership inferred).",
+            "Events reach handlers through the Event Queue and Event Manager (AP-1, AE-3, AE-4)."
+          ],
+          "reasoning": "Inferred: handlers receive events from the Event Manager (AE-3) reading the Event Queue (AE-4), not from the CLI directly, so handler code need not change if a window-based front end produces the same events; this rests on the event-dispatch reading of AP-9 and on the undisclosed binding mechanism (G-3-4, G-3-6). However, the idle-wait-until-input behaviour is stated as a framework constraint (BD-5, BD-12), Main belongs to the framework (AE-2), and no input component or abstraction separating the input source from the Event Queue is named. Inferred: the CLI-specific waiting and reading appear to sit in framework-owned control flow, so moving to a window-based interface may require changing Main and the idle-wait logic rather than only adding an input component. This depends on inferred AP-5 (G-3-1, G-4-6). No effort or scope limit is stated (G-2-16, G-4-4). (approaches: AP-1, AP-5, AP-7, AP-9; evidence: AE-2, AE-3, AE-4, AE-6)",
+          "findings": {
+            "risks": [
+              {
+                "id": "R-11",
+                "description": "No input abstraction is described between the CLI and the Event Queue, and the idle-wait-until-input behaviour (BD-5, BD-12) belongs to framework-owned control flow (Main, AE-2), so replacing the CLI with a window-based interface may require changing the framework's Main and idle-wait logic.",
+                "rationale": "AE-6 fixes CLI input, BD-5/BD-12 require idle wait in the framework, AE-2 places Main in the framework; no AE item names a replaceable input component. Depends on inferred AP-5 (G-4-6). (evidence: AE-2, AE-6, AP-5, AP-7, BD-5, BD-12; basis: inferred)"
+              }
+            ],
+            "non_risks": [
+              {
+                "id": "NR-5",
+                "description": "Application handlers receive events through the Event Queue and Event Manager rather than reading the CLI directly, so handler code need not change if a window-based front end produces the same events.",
+                "rationale": "AE-3 and AE-4 place the Event Manager and Queue between input and handlers. Conditional on the event-dispatch reading of AP-9 and the undisclosed handler binding (G-3-4, G-3-6, G-4-7). (evidence: AE-3, AE-4, AP-1, AP-9; basis: inferred)"
+              }
+            ],
+            "sensitivity_points": [
+              {
+                "id": "S-14",
+                "parameter": "Coupling between the input source (CLI, AE-6) and the framework-owned Main/idle-wait control loop (AE-2, BD-12) (evidence: AE-2, AE-6, BD-12)",
+                "correlated_attribute": "Modifiability"
+              }
+            ],
+            "tradeoff_points": []
+          }
+        }
+      ],
+      "scenarios": [
+        {
+          "scenario_text": "When an attempt is made to access the system without authorization while it is running, the system does not permit the access.",
+          "primary_quality_attribute": [
+            "Security"
+          ]
+        },
+        {
+          "scenario_text": "When operations are submitted to the system at runtime, all of them are processed at the fastest possible speed.",
+          "primary_quality_attribute": [
+            "Performance"
+          ]
+        },
+        {
+          "scenario_text": "When a failure occurs while the system is running, the system recovers immediately.",
+          "primary_quality_attribute": [
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "When a user makes an error in using the system, such as giving invalid input via the CLI, the system handles the error.",
+          "primary_quality_attribute": [
+            "Reliability"
+          ]
+        },
+        {
+          "scenario_text": "When new demands on system functionality arise during development or maintenance, the system accommodates them.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When a future architecture or project is built, major parts of the framework can be reused in it.",
+          "primary_quality_attribute": [
+            "Variability"
+          ]
+        },
+        {
+          "scenario_text": "When a modification to the framework is required during development or maintenance, it is made cost-effectively, fast and in minimal time.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When framework components interact to process events at runtime, they interact in a coordinated manner.",
+          "primary_quality_attribute": [
+            "Conceptual Integrity"
+          ]
+        },
+        {
+          "scenario_text": "When the framework needs to be expanded to allow more sophisticated options, the expansion is possible.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        },
+        {
+          "scenario_text": "When the implementation is to be executed in a different environment, it can be executed there.",
+          "primary_quality_attribute": [
+            "Portability"
+          ]
+        },
+        {
+          "scenario_text": "When the framework's data structures are accessed while the system is running, the data is properly encapsulated and the data structures are secure.",
+          "primary_quality_attribute": [
+            "Security"
+          ]
+        },
+        {
+          "scenario_text": "When the framework is to be implemented using another programming language, the implementation can be done flexibly.",
+          "primary_quality_attribute": [
+            "Portability"
+          ]
+        },
+        {
+          "scenario_text": "When the architecture operates, it exhibits overall consistent behavior.",
+          "primary_quality_attribute": [
+            "Conceptual Integrity"
+          ]
+        },
+        {
+          "scenario_text": "When the framework is used to perform its required tasks, it is complete and clear and performs exactly as required.",
+          "primary_quality_attribute": [
+            "Functionality"
+          ]
+        },
+        {
+          "scenario_text": "When multiple applications are hooked up to the framework at the same time, the framework accommodates them.",
+          "primary_quality_attribute": [
+            "Variability"
+          ]
+        },
+        {
+          "scenario_text": "When a change of the interface from command-driven to window-based is requested during development or maintenance, the interface is changed.",
+          "primary_quality_attribute": [
+            "Modifiability"
+          ]
+        }
+      ],
+      "semantic_state": {
+        "context_status": {
+          "value": "sufficient",
+          "evidence": [
+            "evaluation_inputs.system_description names concrete components (Main, Event Manager, Event Queue, Handler) and states a relation between them",
+            "evaluation_inputs.business_context.business_goals has 3 entries stating the framework's purpose",
+            "evaluation_inputs.business_context.technical_constraints has 2 entries (STOP handler, idle-state requirement)"
+          ]
+        },
+        "driver_status": {
+          "value": "partial",
+          "evidence": [
+            "evaluation_inputs.business_context.architectural_drivers has 5 named entries (BD-6..BD-10); each has at least one refined raw candidate scenario in the tree",
+            "evaluation_inputs.raw_candidate_scenarios has 16 entries; all 16 are refined into the tree under 8 quality attribute nodes, 3 of which (Security, Performance, Portability) have no named architectural driver",
+            "0 of 16 tree scenarios have a response measure: no raw scenario states a threshold and evaluation_inputs.quantitative_model_parameters.transaction_speed is qualitative ('Slow')",
+            "0 of 16 tree scenarios have a priority tuple: evaluation_inputs contains no stakeholder ranking of drivers or scenarios",
+            "evaluation_inputs.business_context.business_goals has 3 entries describing the framework's purpose but none ranks or states the relative importance of the named drivers (01_context.json driver_status)"
+          ]
+        },
+        "architecture_evidence_status": {
+          "value": "partial",
+          "evidence": [
+            "03_approaches.json names 9 approaches: 5 observed (AP-1, AP-2, AP-3, AP-4, AP-7) and 4 inferred (AP-5, AP-6, AP-8, AP-9)",
+            "01_context.json architecture_evidence has 12 AE items; none describes connector types, handler registration/binding, error handling, persistence or security mechanisms",
+            "evaluation_inputs.phase_1_discovery.initial_documentation_status claims class diagrams and defined component interactions, but none is included in 00_evaluation_inputs.json (G-1-3)",
+            "evaluation_inputs.system_description gives description-level statements naming components (Main, Event Manager, Event Queue, Handler) and one interaction, without connector types or a full topology (01_context.json architecture_evidence_status)",
+            "evaluation_inputs.phase_2_architectural_context.hardware_view_description has 2 entries (CLI input, single processor) describing deployment only at a high level (01_context.json architecture_evidence_status)"
+          ]
+        },
+        "scenario_analysis_status": {
+          "value": "partial",
+          "evidence": [
+            "AR-1..AR-13 analyze 13 of 16 scenarios in 02_utility_tree.json analysis_order; RS-1, RS-10 and RS-12 are unanalyzed (G-4-1, G-4-2, G-4-3)",
+            "0 of 13 analyzed scenarios have a response measure in 02_utility_tree.json (all response_measure null), so no record can judge whether the response is met (G-4-4)",
+            "Findings recorded: 11 risks (R-1 observed from evaluation_inputs.quantitative_model_parameters.transaction_speed; R-2..R-11 inferred), 5 non-risks (all inferred), 14 sensitivity points, 4 tradeoff points",
+            "03_approaches.json marks AP-5, AP-6, AP-8 and AP-9 as inferred; findings R-2, R-4, R-10, R-11, NR-1, NR-2, NR-3, NR-5, S-6, S-12, S-14 and T-4 depend on them (G-4-5, G-4-6, G-4-7)"
+          ]
+        },
+        "report_status": {
+          "value": "draft",
+          "evidence": [
+            "05_atam_report.json assembled from 01–04; no architect review is recorded"
+          ]
+        },
+        "gaps": [
+          {
+            "description": "[incomplete] No metadata object (system_name, date, ref, evaluator_organization, phase_1_attendees, phase_2_attendees) is present anywhere in 00_evaluation_inputs.json. (G-1-1)",
+            "affected_activity": "establish-context",
+            "missing_evidence": "A metadata key under evaluation_inputs or at the top level",
+            "resolution_question": "What is the system name, evaluation date, reference id, evaluating organization, and attendee lists for phase 1 and phase 2?"
+          },
+          {
+            "description": "[incomplete] evaluation_inputs.raw_candidate_scenarios has 16 entries and none state a measurable response (a quantified threshold, time limit or unit); evaluation_inputs.quantitative_model_parameters.transaction_speed is qualitative ('Slow') with no target value. (G-1-2)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Stimulus/response/measure triples for the candidate scenarios",
+            "resolution_question": "What measurable thresholds apply to each raw candidate scenario (e.g., RS-2 'fastest possible speed', RS-3 'immediate recovery')?"
+          },
+          {
+            "description": "[conflict] evaluation_inputs.phase_1_discovery.initial_documentation_status states the architecture documentation includes class diagrams, component descriptions and defined component interactions, but 00_evaluation_inputs.json supplies only a narrative system_description and brief hardware_view_description/runtime_constraints lists; no diagrams or full component/connector inventory are included in the input. (G-1-3)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Class diagrams, full component/connector inventory, interaction specifications",
+            "resolution_question": "Can the referenced class diagrams and component descriptions be supplied as evaluation inputs?"
+          },
+          {
+            "description": "[conflict] evaluation_inputs.business_context.architectural_drivers names Variability, Reliability, Conceptual Integrity, Functionality and Modifiability as quality attribute drivers, but evaluation_inputs.raw_candidate_scenarios (e.g., RS-1, RS-2, RS-11, RS-16) and evaluation_inputs.investigative_prompts.style_probes.questions raise security, performance/speed and portability concerns that are not named among the stated architectural_drivers. (G-1-4)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "An explicit statement of whether security, performance and portability are in-scope quality attribute drivers",
+            "resolution_question": "Are security, performance and portability in-scope architectural drivers for this evaluation, alongside the five named in business_context.architectural_drivers?"
+          },
+          {
+            "description": "[incomplete] evaluation_inputs.business_context.business_goals (3 items) describe the framework's general purpose but do not state the relative importance or priority of each named architectural driver. (G-1-5)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "A stated importance/priority ranking of each architectural driver relative to the business goals",
+            "resolution_question": "Which of the five named architectural drivers (Variability, Reliability, Conceptual Integrity, Functionality, Modifiability) is most important to the business goals, and why?"
+          },
+          {
+            "description": "[incomplete] RS-1 ('No unauthorized access to the system') states no response measure and no operating environment; the inputs name no actors, access paths or authorization mechanism. (G-2-1)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Who may access the system, through which interfaces, and how successful prevention or detection of unauthorized access is measured",
+            "resolution_question": "For RS-1, which access attempts must be prevented and how is success measured (e.g. detection or rejection criteria)?"
+          },
+          {
+            "description": "[incomplete] RS-2 ('fastest possible speed') states no load and no measurable target; evaluation_inputs.quantitative_model_parameters.performance_proxy names a proxy (number of components involved in a transaction) but gives no target value, and transaction_speed is only qualitative ('Slow'). (G-2-2)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Event arrival rate or load level and an acceptable latency, throughput or component-count target",
+            "resolution_question": "For RS-2, what event load applies and what latency, throughput or maximum number of components per transaction is acceptable?"
+          },
+          {
+            "description": "[incomplete] RS-3 ('immediate recovery') names neither the failure types nor a recovery time or state to recover to. (G-2-3)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Failure types in scope, required recovery time and the state the system must recover to",
+            "resolution_question": "For RS-3, which failures must be recovered from, within what time, and to what state?"
+          },
+          {
+            "description": "[incomplete] RS-4 ('User errors in using system should be handled') does not state which user errors are in scope or what handling means (reject, report, recover). (G-2-4)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Classes of user error or invalid input and the required handling behavior and measure",
+            "resolution_question": "For RS-4, which user errors or invalid inputs must be handled, and what observable response counts as handled?"
+          },
+          {
+            "description": "[incomplete] RS-5 ('New demands on system functionality should be accommodated') states no concrete change, no effort or time bound, and no limit on affected components. (G-2-5)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "An example functional change and an acceptable effort, time or number of components affected",
+            "resolution_question": "For RS-5, what kind of new functionality is expected and what effort or scope of change is acceptable?"
+          },
+          {
+            "description": "[incomplete] RS-6 ('Major parts of the framework should be re-usable') does not identify which parts are 'major' or how reuse is measured. (G-2-6)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "The framework parts expected to be reused and a reuse criterion (e.g. reused without modification)",
+            "resolution_question": "For RS-6, which framework parts must be reusable and what counts as successful reuse?"
+          },
+          {
+            "description": "[incomplete] RS-7 ('cost-effective, fast and in minimal time') states no cost or time figure and no example modification. (G-2-7)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "A representative modification and acceptable cost/effort and calendar time",
+            "resolution_question": "For RS-7, which modification is representative and what cost and time limits apply?"
+          },
+          {
+            "description": "[incomplete] RS-8 ('interact in a coordinated manner') does not define coordination or how it is checked. (G-2-8)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "A definition of coordinated interaction (e.g. ordering or protocol rules) and an observable criterion",
+            "resolution_question": "For RS-8, what observable property of component interaction counts as coordinated?"
+          },
+          {
+            "description": "[incomplete] RS-9 ('more sophisticated options') does not name the options or a measure of expansion effort. (G-2-9)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Examples of the sophisticated options and acceptable expansion effort or impact",
+            "resolution_question": "For RS-9, which options must the framework be expandable to support, and with what effort?"
+          },
+          {
+            "description": "[incomplete] RS-10 ('execution in different environments') does not name the target environments or a porting measure. (G-2-10)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Target platforms or environments and acceptable porting effort",
+            "resolution_question": "For RS-10, which environments must the implementation run in, and what porting effort is acceptable?"
+          },
+          {
+            "description": "[incomplete] RS-11 ('Proper data encapsulation and secure data structures') names no data, threat or measurable criterion. (G-2-11)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "The data to be protected, the threats or access paths, and a criterion for proper encapsulation",
+            "resolution_question": "For RS-11, which data must be protected, from whom, and how is proper encapsulation judged?"
+          },
+          {
+            "description": "[incomplete] RS-12 ('Flexible implementation using other programming languages') names no target languages or measure of flexibility. (G-2-12)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Target languages and an acceptable re-implementation effort or degree of design reuse",
+            "resolution_question": "For RS-12, which other languages are expected and what counts as a flexible implementation?"
+          },
+          {
+            "description": "[incomplete] RS-13 ('Overall consistent behavior') does not define consistency or the conditions under which it is assessed. (G-2-13)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "A definition of consistent behavior and an observable criterion",
+            "resolution_question": "For RS-13, what observable behavior must be consistent and under which conditions?"
+          },
+          {
+            "description": "[incomplete] RS-14 ('complete, clear and perform exactly as required') refers to requirements that are not supplied in the inputs. (G-2-14)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "The functional requirements of the framework and an acceptance criterion",
+            "resolution_question": "For RS-14, which requirements define 'exactly as required', and how is completeness checked?"
+          },
+          {
+            "description": "[incomplete] RS-15 ('Hook up multiple applications at same time') states neither how many applications nor whether this is a runtime or development-time concern, and gives no measure. (G-2-15)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Number of simultaneous applications, the phase (runtime or build) and an acceptance criterion",
+            "resolution_question": "For RS-15, how many applications must be hooked up at once, at runtime or at build time, and what must hold when they are?"
+          },
+          {
+            "description": "[incomplete] RS-16 ('Change interface from command-driven to window-based') gives no effort, time or scope limit for the change. (G-2-16)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Acceptable effort or time and the components allowed to change",
+            "resolution_question": "For RS-16, what effort and which component changes are acceptable for moving from the CLI to a window-based interface?"
+          },
+          {
+            "description": "[unknown] Stakeholder prioritization is unavailable for RS-1, RS-2, RS-3, RS-4, RS-5, RS-6, RS-7, RS-8, RS-9, RS-10, RS-11, RS-12, RS-13, RS-14, RS-15 and RS-16: the inputs neither rank business goals or drivers (see G-1-5) nor rate scenario difficulty, so all priority tuples are null and analysis_order keeps input order (RS-1 to RS-16). (G-2-17)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Stakeholder importance ratings and architect difficulty ratings (High/Medium/Low) per scenario",
+            "resolution_question": "What importance and difficulty (High/Medium/Low) do stakeholders and the architect assign to each of RS-1 to RS-16?"
+          },
+          {
+            "description": "[conflict] The Security (RS-1, RS-11), Performance (RS-2) and Portability (RS-10, RS-12) nodes are created because raw candidate scenarios and style probe questions exercise them, but none is among evaluation_inputs.business_context.architectural_drivers, so their driver_ids are empty (carries forward G-1-4). (G-2-18)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Confirmation of whether security, performance and portability are in-scope drivers",
+            "resolution_question": "Should Security, Performance and Portability stay in the utility tree as in-scope quality attributes, or be dropped or marked out of scope?"
+          },
+          {
+            "description": "[incomplete] Attribute placement is inferred for scenarios whose wording fits several attributes: RS-4 (Reliability or Usability), RS-6 (Variability or Reusability), RS-9 and RS-16 (Modifiability or Variability), RS-15 (Variability or Modifiability), RS-12 (Portability or Variability). The inputs do not define Variability or Conceptual Integrity, so placements of RS-6, RS-15, RS-8 and RS-13 rely on the evaluator's reading of those terms. (G-2-19)",
+            "affected_activity": "build-utility-tree",
+            "missing_evidence": "Stakeholder definitions of Variability and Conceptual Integrity and confirmation of each scenario's primary attribute",
+            "resolution_question": "How do stakeholders define Variability and Conceptual Integrity for this framework, and are the attribute placements of RS-4, RS-6, RS-8, RS-9, RS-12, RS-13, RS-15 and RS-16 correct?"
+          },
+          {
+            "description": "[unknown] AP-5 (framework-owned Main driving control flow / inversion of control) is inferred from AE-2, AE-3 and AE-5. The inputs do not describe the Main module's responsibilities or the control loop. (G-3-1)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Main module responsibilities and a sequence/interaction description showing which component invokes which",
+            "resolution_question": "Does the framework's Main module own the event loop and call application handlers back (inversion of control), and what does Main do exactly?"
+          },
+          {
+            "description": "[unknown] AP-6 (sequential single-processor event processing) rests on AE-7, which the input itself describes as 'implied'. No threading or concurrency model is given. (G-3-2)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Threading/concurrency model and deployment target specification",
+            "resolution_question": "Is event processing strictly single-threaded and sequential on one processor, or can handlers run concurrently?"
+          },
+          {
+            "description": "[unknown] AP-8 (STOP handler for controlled termination) is required by BD-4, but no architecture evidence describes the STOP handler, where it sits in the handler hierarchy or how it is triggered. (G-3-3)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "List of standard handlers and the STOP handler's trigger and dispatch path",
+            "resolution_question": "Is the STOP handler one of the standard handlers extending the base Handler, dispatched through the Event Queue and Event Manager like other events, and what triggers it?"
+          },
+          {
+            "description": "[unknown] AP-9 (event-driven style) is supported by the style probe AE-11 plus AE-3, AE-4 and AE-5. The inputs never name the style for this system or say which variant applies. (G-3-4)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Architect's statement of the architectural style and its variant (in-process event-dispatch loop, publish-subscribe, broker-based)",
+            "resolution_question": "Is Event-Driven Architecture the intended style, and is it an in-process dispatch loop or a publish-subscribe mechanism with handler subscription?"
+          },
+          {
+            "description": "[unknown] AP-4 (application logic embedded in framework components) is stated as a property of the design (AE-1, BD-13), but no rationale or intended quality benefit is given, so addressed_attributes is left empty. (G-3-5)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Design rationale for embedding application logic in framework components",
+            "resolution_question": "Was embedding application logic in framework components a deliberate decision, and if so, which quality goal (e.g. simplicity, performance) was it meant to serve?"
+          },
+          {
+            "description": "[incomplete] The way application-specific handlers are bound to the Event Manager (static inheritance only, registration at start-up, or a lookup table mapping event types to handlers) is not described, and neither are the event types or the connector between the Queue and the Manager. (G-3-6)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Handler registration/binding mechanism, event type catalogue, connector types between Event Queue, Event Manager and handlers",
+            "resolution_question": "How does the Event Manager choose the handler for an event, and how is a new application-specific handler registered with the framework?"
+          },
+          {
+            "description": "[incomplete] No architecture evidence describes error handling, invalid-input handling or failure recovery, although Reliability (BD-7) is a named driver and Q-6, RS-3 and RS-4 raise these concerns. (G-3-7)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Description of input validation, exception/error handling and recovery mechanisms",
+            "resolution_question": "What mechanisms does the framework use to detect and handle invalid user input and handler failures, and how does it recover?"
+          },
+          {
+            "description": "[incomplete] No architecture evidence describes security mechanisms (access control, data encapsulation, confidentiality), although Q-1, Q-2, RS-1 and RS-11 raise them. (G-3-8)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Description of any authentication, authorization or data-protection mechanisms",
+            "resolution_question": "Does the framework include any access-control or data-protection mechanisms, or is security out of scope for this CLI framework?"
+          },
+          {
+            "description": "[incomplete] Persistence and data management are not described: no evidence on whether the framework stores state, and which data structures the queue and handlers share. (G-3-9)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Description of data storage, shared state and data structures",
+            "resolution_question": "Does the framework persist any state or share data structures between handlers, and how is that data encapsulated?"
+          },
+          {
+            "description": "[incomplete] The class diagrams and component interaction descriptions referred to in evaluation_inputs.phase_1_discovery.initial_documentation_status (AE-12, G-1-3) were not supplied. Without them the approaches above cannot be checked against the documented structure. (G-3-10)",
+            "affected_activity": "identify-approaches",
+            "missing_evidence": "Class diagrams and component interaction specifications",
+            "resolution_question": "Can the class diagrams and component interaction descriptions be supplied so that the identified approaches can be confirmed or corrected?"
+          },
+          {
+            "description": "[unknown] RS-1 (no unauthorized access) could not be analyzed: no approach or AE item describes access control, actors or access paths, and Security is not among the named architectural drivers. (G-4-1)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Description of who may access the system, through which interfaces (beyond CLI, AE-6), and any authentication or authorization mechanism; confirmation that Security is in scope (G-2-18, G-3-8)",
+            "resolution_question": "Does the framework have any access-control mechanism for its CLI or other entry points, and is preventing unauthorized access in scope for this evaluation?"
+          },
+          {
+            "description": "[unknown] RS-10 (execution in different environments) could not be analyzed: target environments, implementation language and platform dependencies are not stated. (G-4-2)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Target environments (G-2-10), implementation language/runtime, and platform-specific dependencies such as the CLI input mechanism and single-processor assumption",
+            "resolution_question": "Which environments must the framework run in, and which of its components depend on the current platform (CLI, OS, runtime)?"
+          },
+          {
+            "description": "[unknown] RS-12 (implementation using other programming languages) could not be analyzed: the current language, target languages and the language features the design relies on (e.g. whether handler extension of the base Handler, AE-5, is class inheritance) are not stated. (G-4-3)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Current implementation language, target languages (G-2-12) and the mechanism by which handlers extend the base Handler",
+            "resolution_question": "In which language is the framework implemented, which languages must it be re-implementable in, and does handler extension depend on class inheritance?"
+          },
+          {
+            "description": "[incomplete] No analyzed scenario has a response measure, so no record can judge whether its response is achieved; findings state direction of effect only. Affected: AR-1/RS-2 (G-2-2), AR-2/RS-3 (G-2-3), AR-3/RS-4 (G-2-4), AR-4/RS-5 (G-2-5), AR-5/RS-6 (G-2-6), AR-6/RS-7 (G-2-7), AR-7/RS-8 (G-2-8), AR-8/RS-9 (G-2-9), AR-9/RS-11 (G-2-11), AR-10/RS-13 (G-2-13), AR-11/RS-14 (G-2-14), AR-12/RS-15 (G-2-15), AR-13/RS-16 (G-2-16). (G-4-4)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Measurable response measures for each scenario (e.g. latency or component-count target for RS-2, recovery time for RS-3, change effort for RS-5/RS-7/RS-16)",
+            "resolution_question": "What measurable response does each of these scenarios require, so the findings can be judged as met or not met?"
+          },
+          {
+            "description": "[unknown] Findings R-2, NR-2 (in part), NR-3 and T-4 depend on AP-6 (sequential single-processor processing), which 03_approaches.json marks inferred because the input calls it 'implied' (AE-7, G-3-2). (G-4-5)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Statement of the threading/concurrency model of event processing",
+            "resolution_question": "Are events strictly processed one at a time on one thread, or can handlers run concurrently? If concurrent, R-2, NR-3 and T-4 must be revised."
+          },
+          {
+            "description": "[unknown] Findings R-10 (in part), R-11 and S-14 depend on AP-5 (framework-owned Main driving the control loop), which is inferred from AE-2, AE-3 and AE-5 (G-3-1). (G-4-6)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Main module responsibilities, location of the idle-wait/CLI read loop, and whether an input component separates the input source from the Event Queue",
+            "resolution_question": "Where is the CLI read and idle-wait logic located, in Main or in a separate input component, and does Main own the event loop?"
+          },
+          {
+            "description": "[unknown] NR-1, NR-5 and S-6 depend on how handlers are bound to events (G-3-6) and on the event-dispatch reading of AP-9 (inferred, G-3-4). If dispatch is hard-coded in the Event Manager, adding a handler also changes the manager and NR-1 weakens. (G-4-7)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Handler registration/binding mechanism and the event-type catalogue",
+            "resolution_question": "How does the Event Manager select the handler for an event, and does adding a new application-specific handler require editing the Event Manager?"
+          },
+          {
+            "description": "[incomplete] Only the encapsulation part of RS-11 was analyzed (R-9); the 'secure data structures' part could not be analyzed because no data structures, shared state, threats or data-protection mechanisms are described (G-3-8, G-3-9). (G-4-8)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Inventory of framework data structures, which components share them, and any protection mechanism",
+            "resolution_question": "Which data structures does the framework hold or share between handlers, and how are they protected from application code?"
+          },
+          {
+            "description": "[incomplete] AR-11 (RS-14) could check only the stated constraints BD-5, BD-11 and BD-12; the STOP-handler termination constraint (BD-4) could not be checked because AP-8 is inferred and no AE item describes the STOP handler (G-3-3), and the full functional requirements are absent (G-2-14). (G-4-9)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "STOP handler description (trigger, dispatch path) and the framework's functional requirements",
+            "resolution_question": "How is the STOP handler triggered and dispatched, and which functional requirements define 'performs exactly as required'?"
+          },
+          {
+            "description": "[incomplete] T-1 attributes the high number of components per transaction (AE-9) to the handler decomposition that supports variability and modifiability (AP-3); the input names the proxy but not which components a transaction passes through or how many. (G-4-10)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "The component path of a typical transaction and its component count",
+            "resolution_question": "Which components does a typical event pass through from CLI input to handler completion, and could that number be reduced without losing the handler extension point?"
+          },
+          {
+            "description": "[unknown] AP-4 (application logic embedded in framework components) is implicated in R-4, R-6, R-7, R-8, R-9 and R-10, but no tradeoff point could be recorded for it because the inputs state no quality benefit of the embedding (G-3-5). (G-4-11)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Design rationale for embedding application logic in framework components",
+            "resolution_question": "What quality goal, if any (e.g. simplicity or speed of development), did embedding application logic in framework components serve?"
+          },
+          {
+            "description": "[unknown] The severity of R-3 depends on whether events in the single Event Queue survive a failure; persistence of queue contents and framework state is not described (G-3-9). (G-4-12)",
+            "affected_activity": "analyze-scenarios",
+            "missing_evidence": "Whether the Event Queue and framework state are persisted, and what state the system restarts in",
+            "resolution_question": "Is the Event Queue held only in memory, and what happens to queued events and handler state when the system fails?"
+          },
+          {
+            "description": "[incomplete] While assembling the report, R-4 (risk, AR-2/RS-3) and S-12 (sensitivity point, AR-10/RS-13) were found to also depend on AP-6 (sequential single-processor processing), the same inferred approach already covered by G-4-5, but 04_analysis.json's G-4-5 description and resolution_question name only R-2, NR-3 and T-4. (G-5-1)",
+            "affected_activity": "synthesize-and-review",
+            "missing_evidence": "Statement of the threading/concurrency model of event processing (the same evidence that would resolve G-4-5)",
+            "resolution_question": "Are events strictly processed one at a time on one thread, or can handlers run concurrently? If concurrent, R-4 and S-12, in addition to R-2, NR-3 and T-4 named in G-4-5, must also be revised."
+          }
+        ]
+      }
+    }
+  }
+}

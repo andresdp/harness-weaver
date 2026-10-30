@@ -1,0 +1,99 @@
+{
+  "trade_offs": [
+    {
+      "alternative_id": "A1",
+      "strengths": [
+        "Immediate removal of a registered bike from the available list, and protection against two bikers registering the same bike, both through one local transaction (alternative_evaluation.json A1/S7 satisfied).",
+        "Rentals, expiry jobs and Payments work in one process, so no distributed coordination is needed whichever payment timing is decided (A1 driver 'Rental lifecycle and time-based charging' satisfied).",
+        "Smallest runtime and operational footprint of the three; the only alternative rated satisfied on 'Low carbon footprint' (qualitative).",
+        "Simplest privacy posture: personal and usage data live in one store without replicated read models (QA Privacy positive).",
+        "Payment and SMS/email providers are isolated behind adapters with circuit breakers (Interoperability and Modifiability positive)."
+      ],
+      "weaknesses": [
+        "S6 is only partially satisfied: no element is identified for navigation to the selected bike.",
+        "S1 is only partially satisfied: TLS terminates at the gateway, and encryption from there to the database is not described.",
+        "No architectural support for 'Ease of use for all riders' (unclear), and no client-specific shaping for web versus mobile (Portability neutral).",
+        "Reporting and history queries run against the transactional database, relying on assumption S2-G5."
+      ],
+      "qa_tensions": [
+        "Performance versus Sustainability: one shared database keeps the footprint low and availability immediate, but bulk location updates and reporting queries compete for it (qualitative; no load data).",
+        "Availability versus Sustainability and simplicity: one deployable unit minimises components but means all capabilities fail and redeploy together.",
+        "Modifiability now versus later: in-process scheduling is simple today, but adding asynchronous behaviour later needs refactoring."
+      ],
+      "arch_tradeoff": [
+        "Trades fault isolation and independent scaling for strong consistency and minimal infrastructure.",
+        "Trades client-tailored APIs (no BFF) for a single, thin security boundary."
+      ],
+      "risks": [
+        "If fleet size or the rate of location updates is larger than expected, the shared database may become a bottleneck (unmeasured; depends on S2-G1, S1-G49).",
+        "Overload or a defect in Reporting can degrade bike search and rental (A1 limitation).",
+        "Whole-unit redeploys may conflict with an availability target that has not been stated (S2-G2, S1-G50)."
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "strengths": [
+        "Strongest fault isolation: a payment-provider or service outage need not stop bike search (QA Availability positive; driver 'Service availability to riders' satisfied).",
+        "The Fleet & Availability service scales independently with location traffic.",
+        "CQRS read models keep history and hourly/daily aggregates off the transactional path (S11, S13 satisfied).",
+        "Matches the infrastructure the project description lists as available (container orchestration, registry, broker, tracing; S1-G53 marks this as permissive, not mandatory)."
+      ],
+      "weaknesses": [
+        "S7 is unclear: removal from the available list is eventually consistent, which relies on assumption S2-G7 because 'as soon as' is not quantified.",
+        "Driver 'Timely bike availability and location tracking' (high priority) is only partially satisfied, the worst result on that driver among the three alternatives.",
+        "Driver 'Rental lifecycle and time-based charging' is partially satisfied: saga compensations cannot be defined until payment timing is decided (S2-G15).",
+        "Driver 'Low carbon footprint' is not satisfied (stated by A2 itself); QA Sustainability is negative.",
+        "S1 and S6 are only partially satisfied (no device-to-database encryption described; no navigation element)."
+      ],
+      "qa_tensions": [
+        "Availability and scalability versus Sustainability: fault isolation comes with the highest infrastructure footprint.",
+        "Availability versus Performance (timeliness) and Usability: asynchronous events isolate services but make availability eventually consistent, so riders may briefly see bikes that are already taken.",
+        "Security and Privacy scoping versus attack surface: data is confined per service, but more channels and replicated read models widen what must be protected and erased."
+      ],
+      "arch_tradeoff": [
+        "Trades consistency and simplicity for independent deployability, scaling and fault isolation.",
+        "Requires Saga, Service Registry and CQRS as consequences of distribution, adding design work that depends on unresolved requirements (payment timing)."
+      ],
+      "risks": [
+        "The organisation may not be able to operate orchestration, broker, registry and tracing (S2-G6).",
+        "The higher footprint may not be justified by actual scale or availability needs, which are unknown (S2-G9).",
+        "Saga design may need rework once the timing of payment relative to unlock is decided (S2-G15).",
+        "GDPR erasure must be propagated across services and read models (S2-G17)."
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "strengths": [
+        "Best coverage of the requirements: 12 of 13 satisfied. S6 is satisfied because the mobile BFF explicitly covers code scanning and navigation; S1 is partial, as in all alternatives (alternative_evaluation.json A3).",
+        "Keeps A1's transactional guarantee for S6/S7 (immediate removal from availability, protection against concurrent registration) while moving notifications and reporting to events.",
+        "Reporting uses CQRS read models, removing A1's dependency on assumption S2-G5 and its contention between reporting and rider flows; aggregated read models also allow minimised administrator data (S1-G35).",
+        "The only alternative with an architectural element for 'Ease of use for all riders' (partially satisfied) and positive Portability, through client-specific BFFs.",
+        "The transactional outbox makes delivery of verification and expiry notifications reliable after the core transaction commits."
+      ],
+      "weaknesses": [
+        "S1 is only partially satisfied: the BFFs are the security boundary, and encryption from them to the database is not described.",
+        "Edge security must be implemented consistently in two BFFs (QA Security mixed).",
+        "Read models replicate usage data, so retention and erasure rules must also cover them (QA Privacy mixed; S2-G17).",
+        "More components than A1 (two BFFs plus a broker): 'Low carbon footprint' is only partially satisfied, and QA Sustainability is mixed.",
+        "The core still scales and fails as one unit ('Service availability to riders' partially satisfied).",
+        "Mobile access to history downloads is not described; the web BFF holds them (A3/S11 rationale)."
+      ],
+      "qa_tensions": [
+        "Portability and Usability versus Security: tailoring each client means two edge boundaries to secure and keep consistent.",
+        "Performance (decoupled reporting) versus Privacy: read models remove load from the transactional store but replicate usage data.",
+        "Reliability of side effects versus Sustainability and simplicity: the broker and outbox add components and implementation complexity (idempotent consumers).",
+        "Timeliness of side effects: verification and expiry notifications and the administrator status refresh lag by the event propagation delay. This matters for the verification code only under the 30-second reading of S2 (S1-G4); qualitative, unmeasured."
+      ],
+      "arch_tradeoff": [
+        "Trades A1's minimal footprint for client-specific APIs and asynchronous side effects, while keeping the critical rental transaction local.",
+        "Trades A2's fault isolation and independent scaling of the core for strong consistency and a single deployable core."
+      ],
+      "risks": [
+        "Two BFFs may not be justified if web and mobile flows turn out not to differ much (S2-G10).",
+        "Running a message broker may not be acceptable for the deployment (S2-G11).",
+        "Outbox and consumer implementation errors could cause notifications or usage records to be duplicated or missing (implementation complexity noted by A3; no measured evidence).",
+        "Location updates still go to the single core database; the scale is unknown (S2-G1, S1-G49)."
+      ]
+    }
+  ]
+}

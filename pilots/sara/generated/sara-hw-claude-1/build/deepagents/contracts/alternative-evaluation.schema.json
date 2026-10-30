@@ -1,0 +1,137 @@
+{
+  "type": "object",
+  "required": [
+    "evaluations"
+  ],
+  "properties": {
+    "evaluations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alternative_id",
+          "requirement_evaluations",
+          "quality_attribute_evaluations",
+          "driver_evaluations"
+        ],
+        "properties": {
+          "alternative_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requirement_evaluations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "requirement_id",
+                "status",
+                "rationale",
+                "evidence"
+              ],
+              "properties": {
+                "requirement_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "satisfied",
+                    "partially_satisfied",
+                    "not_satisfied",
+                    "unclear"
+                  ]
+                },
+                "rationale": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "quality_attribute_evaluations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "quality_attribute",
+                "impact",
+                "rationale",
+                "evidence"
+              ],
+              "properties": {
+                "quality_attribute": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "impact": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "rationale": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "driver_evaluations": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "driver",
+                "status",
+                "rationale",
+                "evidence"
+              ],
+              "properties": {
+                "driver": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "satisfied",
+                    "partially_satisfied",
+                    "not_satisfied",
+                    "unclear"
+                  ]
+                },
+                "rationale": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "minItems": 1
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/alternative-evaluation.schema.json",
+  "title": "Alternative evaluation",
+  "description": "Derived from the JSON structure block in the SARA skill 'alternative-evaluation' (NicolasMP51/software-architecture-agent@528ae7ce). Required keys mirror the block; extra keys are allowed. HarnessWeaver pilot contract, not an original SARA schema."
+}

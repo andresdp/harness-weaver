@@ -1,0 +1,21 @@
+{
+  "record_version": "0.2",
+  "arm": "spec-guided",
+  "runtime": "deepagents",
+  "model": "openai:gpt-5.4-mini",
+  "settings": {
+    "streaming": false,
+    "verbose": false,
+    "harness_spec": "0.2",
+    "deterministic_check": "failed: two analysis scenario references did not match source scenario IDs/text"
+  },
+  "workflow_strategy": "sequential_pipeline",
+  "agent_interaction": "typed_artifact_handoffs",
+  "harness_assets_sha256": "7fb7ef1b78e6101a272ce7836aba5687e3e99526a633b51c69b2ceb1ccc1c8e7",
+  "status": "partial",
+  "prediction": "prediction-<redacted-uuid>.json",
+  "prediction_sha256": "43c8a6b8f08b07d65b677c25d343d45b5d669450b64194d30a4b1795835337bd",
+  "output_path": "prediction-<redacted-uuid>.json",
+  "latency_seconds": 48.32,
+  "cost": null
+}

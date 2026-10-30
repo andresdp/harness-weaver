@@ -1,0 +1,26 @@
+{
+  "manifest_version": "0.1",
+  "run_id": "protocol-smoke-20261018",
+  "created_at": "2026-10-18T03:28:58.487775+00:00",
+  "case_id": "archeval-atam-banking",
+  "arm": "unassigned",
+  "status": "prepared",
+  "source_case": "../../case-studies/architecture-eval/ATAM/data/banking.json",
+  "source_case_sha256": "14684554500809cc5fcd006aa906df7a6e5e29b19434eba4035e2a934fe224b6",
+  "evaluation_input": "evaluation_input.json",
+  "evaluation_input_sha256": "ce7765fc52ac69bf39d9c6386ad8c8200a47a01510497b4124dda55a663941d3",
+  "harness_spec": "../../examples/atam/harnessspec.yaml",
+  "harness_spec_version": "0.1",
+  "harness_spec_sha256": "707e3b0fb36d0c2da056de32ff920c925e6c4716074ce1f9a70dbae30f798bac",
+  "runtime": null,
+  "model": null,
+  "settings": null,
+  "prediction": null,
+  "latency_seconds": null,
+  "cost": null,
+  "review": {
+    "blind_label": null,
+    "status": "pending"
+  },
+  "notes": "Set arm/runtime/model/settings before execution. Never add ground truth to this run directory."
+}

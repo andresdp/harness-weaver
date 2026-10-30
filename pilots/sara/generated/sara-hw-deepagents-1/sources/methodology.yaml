@@ -1,0 +1,130 @@
+# Draft methodology harvested from the SARA stage instructions (see ../harvest-report.md).
+# Task procedures are NOT restated here; they live verbatim in domain/skills/*/SKILL.md.
+# Status: draft for review. Labels: `copied` (verbatim meaning), `summarized`, `inferred`, `adaptation`.
+id: sara-architecture-design-method
+version: 0.1.0
+authority: >-
+  SARA case-study workflow, NicolasMP51/software-architecture-agent@528ae7ce0b054ee1631bd091fe6b759208bbbb6c
+  (four stage AGENTS.md + eleven SKILL.md). Adaptations are labeled and owned by the HarnessWeaver SARA pilot.
+purpose: >-
+  Derive one evidence-backed architecture recommendation from a project description and functional
+  requirements through four serial stages: requirements & drivers analysis, solution design,
+  alternative evaluation, and architecture decision & modeling.
+
+stages:
+  - id: requirements_drivers
+    order: 1
+    source: domain/stage-instructions/stage1-requirements_drivers.AGENTS.md
+    purpose: Establish requirements, their relationships, quality concerns and architectural drivers. Analysis only.
+    inputs: [project_description, functional_requirements]
+    tasks:   # strictly serial, one at a time (copied)
+      - {id: requirements-cross-analysis, skill: domain/skills/requirements-cross-analysis/SKILL.md, reads: [project_description, functional_requirements], writes: requirements_analysis}
+      - {id: quality-attribute-identification, skill: domain/skills/quality-attribute-identification/SKILL.md, reads: [requirements_analysis], writes: quality_attributes}
+      - {id: driver-identification, skill: domain/skills/driver-identification/SKILL.md, reads: [requirements_analysis, quality_attributes], writes: drivers}
+    scope_boundary: >-
+      Do not propose architectural styles, design patterns, tactics, technologies, components,
+      deployment architectures, alternatives or final decisions. (copied)
+    completion: requirements_analysis, quality_attributes and drivers exist and were read back as valid JSON. (copied)
+
+  - id: solution_design
+    order: 2
+    depends_on: [requirements_drivers]
+    source: domain/stage-instructions/stage2-solution_design.AGENTS.md
+    purpose: Explore pattern candidates and construct coherent, meaningfully different alternatives.
+    inputs: [requirements_analysis, quality_attributes, drivers]
+    tasks:
+      - {id: pattern-candidate-identification, skill: domain/skills/pattern-candidate-identification/SKILL.md, reads: [requirements_analysis, quality_attributes, drivers], writes: pattern_candidates}
+      - {id: patterns-compatibility, skill: domain/skills/patterns-compatibility/SKILL.md, reads: [pattern_candidates, requirements_analysis, quality_attributes, drivers], writes: pattern_compatibility}
+      - {id: alternative-generation, skill: domain/skills/alternative-generation/SKILL.md, reads: [requirements_analysis, quality_attributes, drivers, pattern_candidates, pattern_compatibility], writes: alternatives}
+    scope_boundary: >-
+      Do not evaluate, rank or select alternatives; no trade-off analysis, ADR or diagram;
+      no arbitrary combinations to inflate the alternative count. (copied/summarized)
+    completion: pattern_candidates, pattern_compatibility and alternatives exist and were read back as valid JSON. (copied)
+
+  - id: alternative_evaluation
+    order: 3
+    depends_on: [requirements_drivers, solution_design]
+    source: domain/stage-instructions/stage3-alternative_evaluation.AGENTS.md
+    purpose: Evaluate alternatives against requirements, drivers and quality attributes; analyze trade-offs; select exactly one.
+    inputs: [requirements_analysis, quality_attributes, drivers, alternatives]
+    tasks:
+      - {id: alternative-evaluation, skill: domain/skills/alternative-evaluation/SKILL.md, reads: [requirements_analysis, quality_attributes, drivers, alternatives], writes: alternative_evaluation}
+      - {id: trade-off-analysis, skill: domain/skills/trade-off-analysis/SKILL.md, reads: [requirements_analysis, quality_attributes, drivers, alternatives, alternative_evaluation], writes: trade_off_analysis}
+      - {id: alternative-selection, skill: domain/skills/alternative-selection/SKILL.md, reads: [alternatives, alternative_evaluation, trade_off_analysis], writes: alternative_selection}
+    scope_boundary: >-
+      Do not select before trade-off analysis; do not introduce or modify alternatives; do not claim
+      empirical superiority; do not generate the ADR or diagram. (copied/summarized)
+    completion: alternative_evaluation, trade_off_analysis and alternative_selection exist and were read back as valid JSON. (copied)
+
+  - id: architecture_decision
+    order: 4
+    depends_on: [alternative_evaluation]
+    source: domain/stage-instructions/stage4-architecture_decision.AGENTS.md
+    purpose: Document the Stage 3 selection as an ADR and a high-level component diagram. Documentation only.
+    inputs: [alternative_evaluation, trade_off_analysis, alternative_selection]
+    tasks:
+      - {id: adr-generation, skill: domain/skills/adr-generation/SKILL.md, reads: [alternative_evaluation, trade_off_analysis, alternative_selection], writes: adr}
+      - {id: architecture-diagram, skill: domain/skills/architecture-diagram/SKILL.md, reads: [alternative_evaluation, trade_off_analysis, alternative_selection, adr], writes: architecture_diagram}
+    scope_boundary: >-
+      Do not re-evaluate or re-select; do not introduce a different architecture; stay high level
+      (no classes, schemas, source code, deployment details, low-level APIs, framework details). (copied)
+    completion: adr and architecture_diagram exist and were read back. (copied; see defects D2, D4, D5)
+
+execution_discipline:   # copied from every stage AGENTS.md
+  - Execute only one task at a time, in the pinned order; never skip; never run two tasks simultaneously.
+  - Read the task's SKILL.md before executing it.
+  - Write the task artifact, read it back, verify it exists and is valid, then continue.
+  - Intermediate artifacts are the official communication mechanism between tasks and stages.
+  - After each task, verify artifact → read it → update workflow status → determine next incomplete task → continue.
+  - The stage must not produce a final answer while any of its artifacts is missing.
+
+evidence_rules:
+  - Preserve the original intent of requirements; do not invent business rules. (copied, requirements-cross-analysis)
+  - Distinguish explicit information from inference; record ambiguities rather than resolving them by assumption. (copied)
+  - Quality attributes, drivers, pattern candidates, alternatives and evaluations must cite supporting evidence and source requirement ids or driver names. (summarized)
+  - Prefer explicit evidence; strongly implied attributes only when justified. (copied)
+  - Do not assume satisfaction when evidence is insufficient; use `unclear`. (copied, alternative-evaluation)
+  - Distinguish qualitative reasoning from measured evidence; no invented performance numbers. (copied, trade-off-analysis)
+  - Distinguish a concern (WHAT) from a solution (HOW) in stages 1; Correct/Incorrect examples in skills. (copied)
+
+semantic_state:   # inferred: SARA tracks only file existence; these are domain checkpoints derived from its artifacts
+  origin: inferred
+  checkpoints:
+    - {id: requirements_understood, evidence: requirements_analysis, meaning: every input requirement analyzed; relationships cite evidence}
+    - {id: drivers_established, evidence: [quality_attributes, drivers], meaning: drivers cite source requirement ids and evidence}
+    - {id: alternatives_explored, evidence: [pattern_candidates, pattern_compatibility, alternatives], meaning: alternatives use compatible patterns and address named drivers}
+    - {id: alternative_selected, evidence: [alternative_evaluation, trade_off_analysis, alternative_selection], meaning: exactly one alternative selected, supported by evaluation and trade-offs}
+    - {id: decision_documented, evidence: [adr, architecture_diagram], meaning: ADR and diagram represent the selected alternative only}
+  rule: Runtime task completion never sets a checkpoint; each requires its evidence artifacts and cross-references.
+
+completion:
+  required: [requirements_understood, drivers_established, alternatives_explored, alternative_selected, decision_documented]
+  rule: >-
+    The result is a draft recommendation until an architect reviews it. Missing information is carried
+    as ambiguities/assumptions/limitations in the artifacts, not resolved by invention.
+
+human_review:
+  - id: architect-review
+    when: after stage 4
+    who: software architect
+    checks: selection rationale is supported; weaknesses are not hidden; ADR and diagram match the selected alternative
+    origin: inferred (no mid-run gate in source; see sources/host-adaptation.md)
+
+reference_boundary: >-
+  Example cases and any reference outputs are not methodology inputs. Case data enters only through the
+  `project_description` and `functional_requirements` ports at execution time.
+
+report_contract:
+  final_artifact: architecture_decision
+  schema: domain/contracts/architecture-decision.schema.json
+  label: adaptation — HarnessWeaver pilot envelope; SARA originally writes /adr.md and /architecture_diagram.mmd
+
+adaptations:
+  - Intermediate and final artifacts are exchanged as schema-validated JSON files on the host artifact store (sources/host-adaptation.md).
+  - ADR Markdown and Mermaid source are emitted as string fields of the final JSON package (sources/host-adaptation.md).
+  - Stage 4 ADR handoff uses one consistent artifact for both tasks (corrects defect D2 on the HarnessWeaver side only).
+
+sources:
+  - {title: SARA stage AGENTS.md (4), reference: domain/stage-instructions/, revision: 528ae7ce0b054ee1631bd091fe6b759208bbbb6c, use: stage order, inputs, rules, scope boundaries, completion}
+  - {title: SARA task SKILL.md (11), reference: domain/skills/, revision: 528ae7ce0b054ee1631bd091fe6b759208bbbb6c, use: task procedures, rules, JSON structure blocks}
+  - {title: Host adaptation, reference: ../../sources/host-adaptation.md, revision: sha256 a9e684ba…, use: standalone host and output envelope}

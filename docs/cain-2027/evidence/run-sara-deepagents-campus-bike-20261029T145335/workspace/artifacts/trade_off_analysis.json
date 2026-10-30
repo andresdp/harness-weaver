@@ -1,0 +1,108 @@
+{
+  "trade_offs": [
+    {
+      "alternative_id": "A1",
+      "strengths": [
+        "Strong alignment with security, privacy, and regulatory compliance through hexagonal boundaries and isolated adapters.",
+        "Supports user experience simplicity by keeping the system as a single deployable application with a unified gateway.",
+        "Provides strong internal data consistency for rental state, availability updates, and reporting through centralized workflow coordination.",
+        "CQRS improves discovery and reporting reads for rider listings and administrator reporting.",
+        "Well suited to cross-channel access and integration with payment, SMS/email, and mapping services via gateway and adapters."
+      ],
+      "weaknesses": [
+        "Less fault isolation than a distributed architecture, so a failure in the monolith can affect broader functionality.",
+        "Scaling hotspots may require vertical scaling or later extraction of services.",
+        "Internal workflow coordination can become complex as rental and billing rules expand.",
+        "Does not provide the same operational resilience or independent scaling as microservices."
+      ],
+      "qa_tensions": [
+        "Improved consistency and simpler operations come at the expense of availability isolation.",
+        "CQRS boosts responsiveness for reads, but adds write/read model complexity.",
+        "Security-driven isolation is strong, but the single deployable boundary can concentrate risk if runtime failures occur.",
+        "Selective scaling helps performance, but may be insufficient for future load growth."
+      ],
+      "arch_tradeoff": [
+        "Chooses deployment simplicity and consistency over fault isolation and horizontal scalability.",
+        "Keeps business logic centralized to reduce distributed-system complexity while accepting tighter coupling inside one runtime.",
+        "Uses CQRS internally to improve read performance without paying the full cost of event-driven distribution.",
+        "Balances secure integration and user-facing simplicity against weaker long-term elasticity."
+      ],
+      "risks": [
+        "A growth spike or hotspot may force emergency vertical scaling or service extraction.",
+        "If rental rules expand significantly, internal coordination logic may become harder to maintain and test.",
+        "A monolith-wide outage would impact more user flows than a distributed architecture.",
+        "Read-model complexity can introduce synchronization defects if not carefully maintained."
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "strengths": [
+        "Best fit for independent scaling and fault isolation across identity, inventory, rental, payment, notification, and reporting services.",
+        "Strongly addresses real-time bike availability and location awareness with event propagation.",
+        "Dedicated payment and reporting services map cleanly to billing and operational reporting needs.",
+        "Database per service and hexagonal adapters reinforce service ownership and integration boundaries.",
+        "Supports resilient evolution of business capabilities over time with explicit service decomposition."
+      ],
+      "weaknesses": [
+        "Highest architectural and operational complexity of the options.",
+        "Requires stronger DevOps, monitoring, and testing capabilities.",
+        "Cross-service reporting and consistency management are more difficult than in a monolith.",
+        "User experience simplicity is only partially satisfied because distributed complexity increases operational and troubleshooting burden.",
+        "Eventual consistency can delay visibility of some state changes."
+      ],
+      "qa_tensions": [
+        "Scalability and fault isolation improve, but data consistency becomes weaker and harder to reason about.",
+        "Performance gains from independent scaling are offset by latency and propagation delay across services.",
+        "Security and compliance are supported by boundaries, yet the larger attack and configuration surface increases governance burden.",
+        "Administrative reporting benefits from specialization, but cross-service aggregation introduces coordination overhead."
+      ],
+      "arch_tradeoff": [
+        "Optimizes for evolution, scale, and failure containment at the cost of system and team complexity.",
+        "Accepts eventual consistency and asynchronous workflow handling to gain elasticity and service autonomy.",
+        "Splits responsibilities into separate bounded services, trading simpler internal coordination for clearer ownership.",
+        "Uses gateway and sagas to tame distribution, but those mechanisms add latency and operational overhead."
+      ],
+      "risks": [
+        "Messaging, reconciliation, or compensation defects could leave bike availability or billing in inconsistent states.",
+        "Operational maturity shortfalls may undermine the benefits of the architecture.",
+        "Cross-service reporting pipelines may lag or fail under load, affecting administrative views.",
+        "The complexity of distributed tracing, deployment, and testing may slow delivery and increase defect risk."
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "strengths": [
+        "Preserves the simplicity of a single deployable application while improving read-side responsiveness through internal evented projections.",
+        "Maintains strong centralized transactional consistency for rental workflows and billing.",
+        "Supports real-time bike availability and reporting better than a plain monolith by decoupling reads from writes.",
+        "Provides strong alignment with security and compliance through hexagonal boundaries and a single application boundary.",
+        "Offers a pragmatic middle ground for teams not ready for microservices but needing fresher views and reporting."
+      ],
+      "weaknesses": [
+        "Does not provide the same scaling and fault isolation as microservices.",
+        "Requires additional plumbing for event publication and projection maintenance.",
+        "May still need extraction into services if growth or team structure changes.",
+        "Internal eventing adds complexity compared with a simple monolith and can be harder to debug than direct synchronous reads.",
+        "Projection lag can still affect freshness of discovery and reporting views."
+      ],
+      "qa_tensions": [
+        "Improved responsiveness for discovery and reporting is balanced against added read-model complexity.",
+        "Centralized consistency supports correctness, but internal asynchronous projections can introduce temporary staleness.",
+        "Usability and deployment simplicity improve, but scalability remains constrained relative to microservices.",
+        "Better separation of reads and writes increases maintainability, but event-driven internals add operational and design overhead."
+      ],
+      "arch_tradeoff": [
+        "Combines monolith simplicity with selective event-driven decoupling to improve read-side quality without full distribution.",
+        "Prefers internal architectural sophistication over distributed infrastructure complexity.",
+        "Targets near-real-time views and strong consistency within one boundary, trading off elastic scale and fault isolation.",
+        "Acts as an evolutionary stepping stone that can later be split if demand or team structure requires it."
+      ],
+      "risks": [
+        "If event processing or projection rebuilding fails, rider and admin views may become stale or incorrect.",
+        "Growth could eventually force service extraction, creating migration cost later.",
+        "Complex internal event flows may complicate troubleshooting and regression testing.",
+        "The architecture may mask scaling limits until demand increases beyond what the monolith can comfortably support."
+      ]
+    }
+  ]
+}

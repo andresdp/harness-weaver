@@ -1,0 +1,65 @@
+# Draft intent harvested from the SARA stage instructions (see ../harvest-report.md).
+# Status: draft for review. Inferred statements are marked `origin: inferred`.
+id: sara-architecture-design-intent
+version: 0.1.0
+harvested_from: NicolasMP51/software-architecture-agent@528ae7ce0b054ee1631bd091fe6b759208bbbb6c
+
+goal: >-
+  Support a software architect in moving from a project description and its functional
+  requirements to one recommended architecture, documented as an Architectural Decision
+  Record (ADR) and a high-level component diagram, with traceability from the decision
+  back to requirements, quality attributes, architectural drivers, evaluations and trade-offs.
+origin: summarized from the four stage AGENTS.md files
+
+decision_supported: >-
+  Which architectural alternative to adopt for the described system, and why.
+origin_decision_supported: summarized from stage3 AGENTS.md and stage4 AGENTS.md
+
+users:
+  - role: software architect
+    use: reads the ADR and diagram to understand why the decision was necessary, what was decided,
+      why it was preferred, which alternatives were considered, and its consequences
+    origin: copied in substance from skills/adr-generation (Objective)
+
+scope:
+  in:
+    - analysis of individual requirements and cross-requirement relationships
+    - identification of evidence-supported quality attributes and architectural drivers
+    - identification of architectural pattern candidates and their compatibility
+    - generation of coherent, meaningfully different architecture alternatives
+    - evidence-based evaluation, trade-off analysis and selection of exactly one alternative
+    - documentation of the selected alternative as an ADR and a high-level Mermaid component diagram
+  out:
+    - implementation classes, database schemas, source code, deployment details, low-level APIs,
+      framework-specific details (stage4 Modeling Scope)
+    - empirical or quantitative superiority claims without measured evidence (trade-off-analysis, alternative-selection)
+    - inventing business rules, requirements or quality attributes not supported by the inputs
+    - re-evaluating or changing the selection while documenting it (stage4)
+
+exclusions_runtime:
+  note: >-
+    SARA's application host (PipelineService, Firestore project store, frontend, API routing,
+    authentication, model factory) is a runtime binding, not part of the intent. It is recorded
+    in ../harvest-report.md as a host requirement of the original application and is not targeted.
+
+inputs:
+  - port: project_description
+    meaning: free-text description of the system to be architected
+  - port: functional_requirements
+    meaning: the list of functional requirements, each with an identifier (e.g. RF1) and description
+origin_inputs: stage1 AGENTS.md "Input"; port names from sources/host-adaptation.md
+
+human_review:
+  required: true
+  when: after the run, before the ADR and diagram are used for a consequential decision
+  who: a software architect
+  note: >-
+    The source workflow has no mid-run human gate. The selection is a recommendation based on
+    available evidence (alternative-selection), so a qualified architect must review it before use.
+  origin: inferred from alternative-selection ("recommendation", no empirical superiority) and sources/host-adaptation.md
+
+output:
+  final: architecture decision package (selected alternative id, selection rationale, ADR Markdown, Mermaid diagram source)
+  note: >-
+    SARA originally emits /adr.md and /architecture_diagram.mmd. Packaging both as string fields of
+    one JSON object is a standalone-host adaptation (sources/host-adaptation.md), not SARA's format.

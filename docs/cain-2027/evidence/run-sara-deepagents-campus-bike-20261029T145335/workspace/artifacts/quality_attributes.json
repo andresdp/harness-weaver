@@ -1,0 +1,152 @@
+{
+  "quality_attributes": [
+    {
+      "name": "Security and privacy",
+      "description": "The system must protect user identity data, authentication factors, biometric information, and payment-related information from unauthorized access or disclosure.",
+      "rationale": "The requirements explicitly call for encryption of user information, biometric login handling, and secure payment processing, and the project description requires compliance with GDPR, the Privacy Directive, and ISO 27001.",
+      "source_requirement_ids": [
+        "S1",
+        "S3",
+        "S8"
+      ],
+      "evidence": [
+        "S1 requires user information to be secured with end-to-end encryption.",
+        "S3 requires login via email/password or biometric thumb-impression and states the thumb impression must be flushed out after login.",
+        "S8 requires payment via bank account or debit/credit card.",
+        "Project description requires GDPR, Privacy Directive, and ISO 27001 compliance."
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Usability",
+      "description": "The system must be easy to understand and operate for riders on both web and mobile devices.",
+      "rationale": "The project description explicitly states that the software should be user-friendly and easy to use for all potential riders, and several functional requirements involve user-facing flows such as registration, login, nearby bike discovery, navigation, payment, and history access.",
+      "source_requirement_ids": [
+        "S1",
+        "S2",
+        "S3",
+        "S5",
+        "S6",
+        "S8",
+        "S11"
+      ],
+      "evidence": [
+        "Project description states the software should be user-friendly and easy to use for all potential riders.",
+        "S1-S3 describe registration and login interactions.",
+        "S5-S6 describe locating and registering a bike.",
+        "S8 describes payment selection.",
+        "S11 describes access to usage history."
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Availability",
+      "description": "The service must remain accessible when riders need to register, locate bikes, rent bikes, and complete payments through both web and mobile access.",
+      "rationale": "The system is intended for operational use by riders and administrators, and the project description emphasizes access through both web and mobile devices to maximize service availability.",
+      "source_requirement_ids": [
+        "S4",
+        "S5",
+        "S6",
+        "S8",
+        "S12"
+      ],
+      "evidence": [
+        "Project description states the software should be accessible through both web and mobile devices to maximize availability of the service.",
+        "S5-S6 depend on users being able to access available bikes and register them.",
+        "S8 requires payment processing.",
+        "S12 requires administrator visibility of bikes."
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "Performance and responsiveness",
+      "description": "The system should respond quickly enough to support time-sensitive actions such as verification code handling, location-based bike discovery, bike registration, session timeout enforcement, and expiry notifications.",
+      "rationale": "Several requirements impose explicit or implicit time constraints, and location-based and rental-time flows depend on timely system response.",
+      "source_requirement_ids": [
+        "S2",
+        "S4",
+        "S5",
+        "S6",
+        "S7",
+        "S9",
+        "S10"
+      ],
+      "evidence": [
+        "S2 defines verification-code timing constraints.",
+        "S4 defines a 15-minute inactivity logout.",
+        "S5 involves finding nearby bikes within a proximity threshold.",
+        "S6 and S7 require timely bike selection and availability updates.",
+        "S9 requires notification before rental expiry.",
+        "S10 defines rental duration limits."
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Data consistency",
+      "description": "Bike availability, rental state, usage history, and administrative status views must remain consistent as users rent bikes and administrators inspect operational data.",
+      "rationale": "The functional requirements depend on accurate updates to bike availability and reporting data, and inconsistencies would directly affect rentals and reporting accuracy.",
+      "source_requirement_ids": [
+        "S5",
+        "S6",
+        "S7",
+        "S11",
+        "S12",
+        "S13"
+      ],
+      "evidence": [
+        "S7 requires a bike to be removed from availability after registration.",
+        "S11 requires history for the last 3 months.",
+        "S12 requires viewing bikes as available or under utilization.",
+        "S13 requires hourly and daily usage statistics."
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Interoperability",
+      "description": "The system must work with external communication and payment services and operate across web and mobile client channels.",
+      "rationale": "The project description requires compatibility with third-party payment platforms and access through web and mobile devices, which implies the system must exchange data with external services and support multiple client types.",
+      "source_requirement_ids": [
+        "S2",
+        "S8"
+      ],
+      "evidence": [
+        "Project description requires compatibility with a variety of third-party payment platforms.",
+        "S2 allows verification by SMS or email.",
+        "S8 requires payment via bank account or debit/credit card."
+      ],
+      "priority": "medium"
+    },
+    {
+      "name": "Localization and regulatory compliance",
+      "description": "The system must comply with applicable regional regulations and standards depending on deployment location.",
+      "rationale": "The project description explicitly requires compliance with EU or China standards depending on the university location, in addition to GDPR, the Privacy Directive, and ISO 27001.",
+      "source_requirement_ids": [
+        "S1",
+        "S3",
+        "S8"
+      ],
+      "evidence": [
+        "Project description requires GDPR and Privacy Directive compliance.",
+        "Project description requires ISO 27001 compliance.",
+        "Project description requires compliance with local regulations and standards, including EU or China standards, depending on location."
+      ],
+      "priority": "high"
+    },
+    {
+      "name": "Scalability",
+      "description": "The system should be able to handle growth in riders, bikes, and administrative reporting demand without degrading core service behavior.",
+      "rationale": "The project description targets city-wide bike sharing with location discovery and multi-channel access, and the functional requirements include rider and administrator operations that may need to scale with usage volume.",
+      "source_requirement_ids": [
+        "S5",
+        "S12",
+        "S13"
+      ],
+      "evidence": [
+        "Project description describes a city bike service for riders in and around the city.",
+        "S5 requires location-based listing of available bikes.",
+        "S12 and S13 require city-wide administrative views and usage reporting."
+      ],
+      "priority": "medium"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamUtilityTreeArtifact",
+  "description": "Stage 2 (build-utility-tree) output: 02_utility_tree.json. A response measure or priority tuple is recorded only when the supplied inputs state it; otherwise it is null and a G-2-n gap names the scenario id.",
+  "$defs": {
+    "SourceRefs": {
+      "type": "array",
+      "items": {"type": "string", "pattern": "^(evaluation_inputs|metadata|title)(\\.|\\[|$)"}
+    },
+    "Gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^G-2-[0-9]+$"},
+        "gap_type": {"type": "string", "enum": ["unknown", "conflict", "incomplete", "assumption"]},
+        "description": {"type": "string", "minLength": 1},
+        "affected_activity": {"type": "string", "enum": ["establish-context", "build-utility-tree", "identify-approaches", "analyze-scenarios", "synthesize-and-review"]},
+        "missing_evidence": {"type": "string", "minLength": 1},
+        "resolution_question": {"type": "string", "minLength": 1}
+      },
+      "required": ["id", "gap_type", "description", "affected_activity", "missing_evidence", "resolution_question"]
+    },
+    "Level": {"type": "string", "enum": ["High", "Medium", "Low"]},
+    "Scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scenario_id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.-]*$"},
+        "refinement": {"type": "string", "minLength": 1},
+        "scenario_description": {"type": "string", "minLength": 1, "description": "Stimulus, environment, response and response measure (or 'response measure unspecified') in one sentence or two. Copied verbatim into 04 scenario_reference.text."},
+        "scenario_type": {"type": "string", "enum": ["Use Case", "Growth", "Exploratory"]},
+        "origin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {"type": "string", "enum": ["raw_candidate_scenario", "derived_from_driver", "derived_from_evidence"]},
+            "source_scenario_id": {"type": ["string", "null"], "description": "RS-xx id when kind is raw_candidate_scenario"},
+            "basis": {"type": "string", "enum": ["observed", "inferred"]},
+            "source_refs": {"allOf": [{"$ref": "#/$defs/SourceRefs"}, {"minItems": 1}]}
+          },
+          "required": ["kind", "source_scenario_id", "basis", "source_refs"]
+        },
+        "stimulus": {"type": "string", "minLength": 1},
+        "environment": {"type": "string", "minLength": 1},
+        "response": {"type": "string", "minLength": 1},
+        "response_measure": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "value": {"type": ["string", "null"]},
+            "basis": {"type": "string", "enum": ["observed", "unspecified"]},
+            "source_refs": {"$ref": "#/$defs/SourceRefs"}
+          },
+          "required": ["value", "basis", "source_refs"]
+        },
+        "priority_tuple": {
+          "anyOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "importance": {"$ref": "#/$defs/Level"},
+                "difficulty": {"$ref": "#/$defs/Level"},
+                "basis": {"const": "observed"},
+                "source_refs": {"allOf": [{"$ref": "#/$defs/SourceRefs"}, {"minItems": 1}]}
+              },
+              "required": ["importance", "difficulty", "basis", "source_refs"]
+            }
+          ]
+        },
+        "driver_ids": {"type": "array", "items": {"type": "string", "pattern": "^BD-[0-9]+$"}},
+        "evidence_ids": {"type": "array", "items": {"type": "string", "pattern": "^AE-[0-9]+$"}}
+      },
+      "required": ["scenario_id", "refinement", "scenario_description", "scenario_type", "origin", "stimulus", "environment", "response", "response_measure", "priority_tuple", "driver_ids", "evidence_ids"]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "root": {"const": "Utility"},
+    "quality_attribute_nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "attribute_name": {"type": "string", "minLength": 1},
+          "driver_ids": {"type": "array", "items": {"type": "string", "pattern": "^BD-[0-9]+$"}},
+          "children": {"type": "array", "items": {"$ref": "#/$defs/Scenario"}}
+        },
+        "required": ["attribute_name", "driver_ids", "children"]
+      }
+    },
+    "gaps": {"type": "array", "items": {"$ref": "#/$defs/Gap"}}
+  },
+  "required": ["root", "quality_attribute_nodes", "gaps"]
+}

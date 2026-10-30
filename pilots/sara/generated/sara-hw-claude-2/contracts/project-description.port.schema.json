@@ -1,0 +1,10 @@
+{
+  "type": [
+    "string",
+    "object"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/project-description.port.schema.json",
+  "title": "project-description",
+  "description": "Input port project_description: the free-text project description supplied at run time."
+}

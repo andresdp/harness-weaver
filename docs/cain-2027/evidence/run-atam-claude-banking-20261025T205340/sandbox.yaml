@@ -1,0 +1,12 @@
+kind: execution
+name: run-atam-claude-banking-20261025T205340
+pilot: atam
+pilot_dir: ${REPO_ROOT}/pilots/atam
+target: claude
+case: banking
+case_binding: ${REPO_ROOT}/pilots/atam/cases/banking.yaml
+bundle_source: ${REPO_ROOT}/pilots/atam/generated/atam-hw-oauth-1/build/claude
+created_at: '2026-10-25T20:53:40+00:00'
+repository_commit: 2cc2ae9430d3321e062956dff3645134a4c8827f
+session_id: "<redacted>"
+model_requested: null

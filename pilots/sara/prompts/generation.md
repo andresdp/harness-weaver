@@ -1,0 +1,11 @@
+Harvest the SARA architecture-design workflow in `sources/harvest-input/`, then design the runtime-neutral HarnessSpec and materialize the HarnessWeaver runtime target(s) selected at G4. The default pilot answer selects DeepAgents; an explicit `hw sandbox create-generation --target ...` selection takes precedence and may select Claude Code, DeepAgents, or both.
+
+Keep generation inputs separate from the CampusBike execution case. Do not copy case facts into the intent, methodology, domain sources, HarnessSpec, design notes, or generated runtime. Treat only the copied SARA stage instructions and skills, together with `sources/host-adaptation.md` and the declared final-output contract, as design inputs.
+
+Preserve SARA's four stage boundaries, their serial task order, stage dependencies, artifact meaning, and read-back checks wherever the selected HarnessWeaver runtime supports them. Do not target or integrate the existing SARA `PipelineService`, Firestore, frontend, API, authentication, or model factory in this experiment. Record runtime-specific host choices and limitations in each target's materialization report; keep the shared HarnessSpec runtime-neutral.
+
+Apply the output adaptation in `sources/host-adaptation.md` where supported by the selected runtime: exchange intermediate artifacts as schema-validated JSON files, and emit the final ADR Markdown and Mermaid diagram source as fields in `architecture_decision.json`. Treat this packaging as a documented HarnessWeaver runtime adaptation, not as SARA's original output format. If a selected target needs a different representation, document the difference without changing the shared methodology or final decision semantics.
+
+Preserve the original SARA files in the source packet. Record the known Stage 1 call-contract mismatch and Stage 4 ADR-path mismatch in the harvest report as source defects. Do not fix or rewrite the source packet. If a defect requires a HarnessWeaver-side adaptation, describe the adaptation in the materialization report.
+
+Write every generated source, HarnessSpec, design note, contract, build artifact, and report under `generated/`. Ask the remaining gate questions, show the proposed outputs and known differences, and wait for the write-confirmation gate before materializing the target.

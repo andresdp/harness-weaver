@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.dev/specs/harnessspec/v0.2.schema.json",
+  "title": "HarnessSpec v0.2",
+  "description": "Runtime-neutral description of an agent harness workflow.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["spec_version", "id", "domain", "intent", "methodology", "semantic_state", "workflow", "sources", "roles", "stages", "artifacts", "verification", "human_gates", "runtime_requirements"],
+  "properties": {
+    "spec_version": {"const": "0.2"},
+    "id": {"type": "string", "minLength": 1, "pattern": "^[a-z0-9][a-z0-9._-]*$"},
+    "domain": {"type": "string", "minLength": 1},
+    "intent": {"type": "object", "additionalProperties": false, "required": ["goal"], "properties": {"goal": {"type": "string", "minLength": 1}, "scope": {"type": "array", "items": {"type": "string", "minLength": 1}}, "exclusions": {"type": "array", "items": {"type": "string", "minLength": 1}}}},
+    "methodology": {"type": "object", "additionalProperties": false, "required": ["id", "name", "source_refs"], "properties": {"id": {"type": "string", "minLength": 1}, "name": {"type": "string", "minLength": 1}, "source_refs": {"type": "array", "items": {"$ref": "#/$defs/reference"}}, "adaptations": {"type": "array", "items": {"type": "string", "minLength": 1}}}},
+    "semantic_state": {"type": "object", "additionalProperties": false, "required": ["profile", "assessments", "gaps"], "properties": {"profile": {"type": "string", "minLength": 1}, "assessments": {"type": "array", "items": {"$ref": "#/$defs/state_assessment"}}, "gaps": {"type": "array", "items": {"$ref": "#/$defs/gap"}}, "completion_criteria": {"type": "array", "items": {"type": "string", "minLength": 1}}}},
+    "workflow": {
+      "type": "object", "additionalProperties": false, "required": ["id", "purpose"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "purpose": {"type": "string", "minLength": 1}, "completion_criteria": {"type": "array", "items": {"type": "string", "minLength": 1}}}
+    },
+    "orchestration": {
+      "type": "object", "additionalProperties": false, "required": ["workflow_strategy", "agent_interaction"],
+      "description": "Optional realization preference; workflow control and agent interaction are declared separately.",
+      "properties": {
+        "workflow_strategy": {"enum": ["supervisor", "sequential_pipeline", "fan_out_fan_in"]},
+        "agent_interaction": {"enum": ["one_shot_specialist_delegation", "typed_artifact_handoffs", "parallel_specialist_delegation"]}
+      }
+    },
+    "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+    "roles": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/role"}},
+    "stages": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/stage"}},
+    "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+    "verification": {"type": "array", "items": {"$ref": "#/$defs/verification"}},
+    "human_gates": {"type": "array", "items": {"$ref": "#/$defs/human_gate"}},
+    "runtime_requirements": {"type": "array", "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "reference": {"type": "string", "minLength": 1, "description": "Repository-relative path or URI."},
+    "source": {
+      "type": "object", "additionalProperties": false, "required": ["id", "ref", "kind", "authority"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "ref": {"$ref": "#/$defs/reference"}, "kind": {"type": "string", "minLength": 1}, "authority": {"type": "string", "minLength": 1}, "revision": {"type": "string"}, "notes": {"type": "string"}}
+    },
+    "role": {
+      "type": "object", "additionalProperties": false, "required": ["id", "purpose"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "purpose": {"type": "string", "minLength": 1}, "skill_refs": {"type": "array", "items": {"$ref": "#/$defs/reference"}}}
+    },
+    "stage": {
+      "type": "object", "additionalProperties": false, "required": ["id", "role", "purpose", "inputs", "outputs"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "role": {"type": "string", "minLength": 1}, "purpose": {"type": "string", "minLength": 1}, "inputs": {"type": "array", "items": {"$ref": "#/$defs/reference"}}, "outputs": {"type": "array", "items": {"$ref": "#/$defs/reference"}}, "human_gate": {"type": "string"}, "readiness": {"type": "array", "items": {"type": "string", "minLength": 1}}, "completion_criteria": {"type": "array", "items": {"type": "string", "minLength": 1}}}
+    },
+    "artifact": {
+      "type": "object", "additionalProperties": false, "required": ["id", "kind", "direction", "ref", "description"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "kind": {"type": "string", "minLength": 1}, "direction": {"enum": ["input", "output", "intermediate"]}, "ref": {"$ref": "#/$defs/reference"}, "description": {"type": "string", "minLength": 1}, "schema_ref": {"$ref": "#/$defs/reference"}}
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false, "required": ["id", "criterion", "method"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "criterion": {"type": "string", "minLength": 1}, "method": {"type": "string", "minLength": 1}, "artifact": {"type": "string"}}
+    },
+    "state_assessment": {"type": "object", "additionalProperties": false, "required": ["id", "status", "evidence_refs"], "properties": {"id": {"type": "string", "minLength": 1}, "status": {"enum": ["achieved", "in_progress", "unmet", "unknown", "not_applicable"]}, "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/reference"}}, "rationale": {"type": "string"}, "next_state_requirements": {"type": "array", "items": {"type": "string"}}}},
+    "gap": {"type": "object", "additionalProperties": false, "required": ["id", "description", "status"], "properties": {"id": {"type": "string", "minLength": 1}, "description": {"type": "string", "minLength": 1}, "status": {"enum": ["open", "resolved", "accepted"]}, "evidence_refs": {"type": "array", "items": {"$ref": "#/$defs/reference"}}}},
+    "human_gate": {
+      "type": "object", "additionalProperties": false, "required": ["id", "point", "reason"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "point": {"type": "string", "minLength": 1}, "reason": {"type": "string", "minLength": 1}, "required_artifacts": {"type": "array", "items": {"type": "string"}}}
+    }
+  }
+}

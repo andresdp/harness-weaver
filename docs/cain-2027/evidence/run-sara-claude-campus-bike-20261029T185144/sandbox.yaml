@@ -1,0 +1,12 @@
+kind: execution
+name: run-sara-claude-campus-bike-20261029T185144
+pilot: sara
+pilot_dir: $REPOSITORY_ROOT/pilots/sara
+target: claude
+case: campus-bike
+case_binding: $REPOSITORY_ROOT/pilots/sara/cases/campus-bike.yaml
+bundle_source: $REPOSITORY_ROOT/pilots/sara/generated/sara-revfactory-en-claude-1/build/claude
+created_at: '2026-10-29T18:51:44+00:00'
+repository_commit: 276a25f690943f9f7f26334b39089fa2de14d247
+session_id: <redacted>
+model_requested: null

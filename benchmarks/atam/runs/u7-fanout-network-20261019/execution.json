@@ -1,0 +1,21 @@
+{
+  "record_version": "0.2",
+  "arm": "spec-guided",
+  "runtime": "deepagents",
+  "model": "openai:gpt-5.4-mini",
+  "settings": {
+    "streaming": false,
+    "verbose": false,
+    "harness_spec": "examples/atam/harnessspec-v0.2.yaml",
+    "failure_reason": "interrupted after roughly nine minutes with no report output"
+  },
+  "workflow_strategy": "fan_out_fan_in",
+  "agent_interaction": "parallel_specialist_delegation",
+  "harness_assets_sha256": "29100beb580a6b218cb55415a15adf06400f8ae1ddcf1717a42fe069aafeb889",
+  "status": "failed",
+  "prediction": null,
+  "prediction_sha256": null,
+  "output_path": null,
+  "latency_seconds": null,
+  "cost": null
+}

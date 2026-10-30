@@ -1,0 +1,20 @@
+{
+  "record_version": "0.2",
+  "arm": "spec-guided",
+  "runtime": "deepagents",
+  "model": "openai:gpt-5.4-mini",
+  "settings": {
+    "streaming": false,
+    "verbose": false,
+    "harness_spec": "examples/atam/harnessspec-v0.2.yaml"
+  },
+  "workflow_strategy": "sequential_pipeline",
+  "agent_interaction": "typed_artifact_handoffs",
+  "harness_assets_sha256": "29100beb580a6b218cb55415a15adf06400f8ae1ddcf1717a42fe069aafeb889",
+  "status": "succeeded",
+  "prediction": "prediction-<redacted-uuid>.json",
+  "prediction_sha256": "d593a71725dccbce64d6ecaba522aed7b04ae467447c19a598ad5ceae2a01be3",
+  "output_path": "prediction-<redacted-uuid>.json",
+  "latency_seconds": 63.76,
+  "cost": null
+}

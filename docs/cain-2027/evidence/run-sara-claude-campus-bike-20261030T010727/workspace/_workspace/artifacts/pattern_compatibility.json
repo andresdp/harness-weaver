@@ -1,0 +1,384 @@
+{
+  "compatibility_analysis": [
+    {
+      "patterns": ["Modular Monolith", "Microservices"],
+      "relationship": "conflicting",
+      "rationale": "Both are the primary decomposition style for the same system: one deployable unit with in-process modules versus independently deployable services. Choosing one for the overall system excludes the other. They trade strong local consistency (S7, S9) against independent deployment of changeable capabilities (S8 payment, regional regulations).",
+      "conditions": [
+        "They can coexist only as a transition (a modular monolith from which individual modules are later extracted as services) or as a hybrid with a few extracted services; the inputs give no reason (load, team structure) that requires such a hybrid."
+      ],
+      "affected_drivers": [
+        "Consistent bike and rental state",
+        "Changeability of payment options and regulations",
+        "Permitted technology context"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith", "Layered Architecture"],
+      "relationship": "complementary",
+      "rationale": "The modular monolith decides the vertical split into modules (identity, fleet, rental, payment, notification, reporting); layering structures each module internally into presentation/API, application and data access. Together they separate both functional areas and technical concerns, supporting shared business rules for web and mobile clients.",
+      "conditions": [],
+      "affected_drivers": [
+        "Web and mobile client access",
+        "Security of user and payment data",
+        "Biker authentication and session management"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Layered Architecture"],
+      "relationship": "compatible",
+      "rationale": "Each microservice can be layered internally. Layering does not interfere with the service decomposition, but adds little at system level because the service boundaries already provide the main separation.",
+      "conditions": [],
+      "affected_drivers": [
+        "Web and mobile client access"
+      ]
+    },
+    {
+      "patterns": ["Layered Architecture", "Ports and Adapters"],
+      "relationship": "conditionally_compatible",
+      "rationale": "Classic layering makes business logic depend on the data access layer below it, whereas Ports and Adapters inverts that dependency so business logic depends only on its own ports. They can be combined if the lower layer is treated as adapters behind ports defined by the application layer, which is what isolates the payment, SMS/email and bike-lock integrations.",
+      "conditions": [
+        "The application/business layer defines the interfaces (ports) for persistence and external systems, and the infrastructure layer implements them (dependency inversion), rather than business logic depending directly on infrastructure."
+      ],
+      "affected_drivers": [
+        "Third-party payment platform integration",
+        "External SMS and email delivery",
+        "Changeability of payment options and regulations"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith", "Ports and Adapters"],
+      "relationship": "complementary",
+      "rationale": "Inside a single deployable unit, ports keep payment platforms, SMS/email providers and the bike/lock interface replaceable, so changing payment options (S8 'Currently') or region-specific providers does not ripple through modules. This compensates for the monolith's lack of independent deployment for the payment capability.",
+      "conditions": [],
+      "affected_drivers": [
+        "Third-party payment platform integration",
+        "External SMS and email delivery",
+        "Changeability of payment options and regulations",
+        "Bike registration and unlocking"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Ports and Adapters"],
+      "relationship": "complementary",
+      "rationale": "Services that integrate with external parties (payment service, notification service, fleet/lock service) can use ports and adapters internally, so adding a payment platform is a new adapter within one service rather than a change across services.",
+      "conditions": [],
+      "affected_drivers": [
+        "Third-party payment platform integration",
+        "External SMS and email delivery",
+        "Changeability of payment options and regulations"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith", "Shared Database"],
+      "relationship": "complementary",
+      "rationale": "A single deployable unit with one transactional database allows bike registration (S6), availability removal (S7) and rental creation to occur in one local ACID transaction, which directly prevents double registration (S1-G58). Personal data is in one store, simplifying encryption at rest, retention and erasure.",
+      "conditions": [
+        "Each module owns its own tables or schema and other modules access them only through the owning module's interface, so the shared store does not erode module boundaries."
+      ],
+      "affected_drivers": [
+        "Consistent bike and rental state",
+        "GDPR and regional regulatory compliance",
+        "Security of user and payment data"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Shared Database"],
+      "relationship": "conflicting",
+      "rationale": "A database shared by all services couples them through the schema and removes the independent deployment and data isolation that justify microservices for payment changeability and sensitive-data isolation.",
+      "conditions": [],
+      "affected_drivers": [
+        "Changeability of payment options and regulations",
+        "Security of user and payment data"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Database per Service"],
+      "relationship": "dependent",
+      "rationale": "Microservices rely on each service owning its data to achieve independent deployment and to isolate credential, payment and personal data. Without it the services remain coupled through data (see the Shared Database conflict).",
+      "conditions": [],
+      "affected_drivers": [
+        "Security of user and payment data",
+        "GDPR and regional regulatory compliance",
+        "Changeability of payment options and regulations"
+      ]
+    },
+    {
+      "patterns": ["Shared Database", "Database per Service"],
+      "relationship": "conflicting",
+      "rationale": "These are mutually exclusive data ownership strategies for the same data: one logical store accessed by all components versus private stores per service.",
+      "conditions": [],
+      "affected_drivers": [
+        "Consistent bike and rental state",
+        "Security of user and payment data"
+      ]
+    },
+    {
+      "patterns": ["Database per Service", "Saga"],
+      "relationship": "dependent",
+      "rationale": "When rental, fleet and payment data are owned by different services, starting a rental (S6), removing the bike from availability (S7) and charging (S8, S9) can no longer be one ACID transaction. A Saga, with compensation for failed unlock or payment, is needed to keep bike and rental state consistent.",
+      "conditions": [
+        "Compensating actions must be defined for failed unlock and failed payment; the expected behaviour in those cases is not stated in the inputs (S1-G23, S1-G27)."
+      ],
+      "affected_drivers": [
+        "Consistent bike and rental state",
+        "Bike registration and unlocking",
+        "Third-party payment platform integration"
+      ]
+    },
+    {
+      "patterns": ["Shared Database", "Saga"],
+      "relationship": "redundant",
+      "rationale": "When all internal rental, fleet and payment-record data are in one transactional store, local transactions already keep them consistent, so a Saga across internal components duplicates that guarantee and adds complexity. The interaction with the external payment platform still cannot be part of a local transaction, but that single external step is handled at the payment adapter (retry/reconciliation) rather than by a multi-step Saga.",
+      "conditions": [],
+      "affected_drivers": [
+        "Consistent bike and rental state"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "API Gateway"],
+      "relationship": "complementary",
+      "rationale": "With many services, a gateway gives web and mobile clients a single entry point, hides the service decomposition, and centralizes authentication and TLS termination. The project description permits an API gateway.",
+      "conditions": [],
+      "affected_drivers": [
+        "Web and mobile client access",
+        "Security of user and payment data",
+        "Biker authentication and session management",
+        "Permitted technology context"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith", "API Gateway"],
+      "relationship": "conditionally_compatible",
+      "rationale": "A gateway in front of a single application adds little routing value, but can still centralize edge security (TLS termination, token validation, rate limiting) for web and mobile clients and keep a stable client-facing API if modules are later extracted.",
+      "conditions": [
+        "The gateway is justified only for edge concerns (security, client-facing API stability); it must not hold business logic and must be deployed redundantly so it is not a single point of failure."
+      ],
+      "affected_drivers": [
+        "Web and mobile client access",
+        "Security of user and payment data",
+        "Permitted technology context"
+      ]
+    },
+    {
+      "patterns": ["API Gateway", "Backend for Frontend"],
+      "relationship": "conditionally_compatible",
+      "rationale": "A BFF is a client-specific gateway. A general gateway for edge security can sit in front of per-client BFFs (mobile, web, administrator). They become redundant if a single gateway is enough because web and mobile flows hardly differ, which the inputs do not settle (S1-G11).",
+      "conditions": [
+        "Use both only if web, mobile and administrator clients need materially different APIs (for example biometric login and scanning on mobile only); responsibilities must be split so the gateway handles edge security and the BFFs handle client-specific composition."
+      ],
+      "affected_drivers": [
+        "Web and mobile client access",
+        "Usability for all riders",
+        "Usage history and administrative reporting"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Backend for Frontend"],
+      "relationship": "complementary",
+      "rationale": "When data comes from several services, a per-client BFF can compose service calls into client-specific responses (for example the mobile map view of nearby bikes, the administrator fleet view), reducing chattiness for mobile clients.",
+      "conditions": [],
+      "affected_drivers": [
+        "Web and mobile client access",
+        "Usability for all riders",
+        "Usage history and administrative reporting"
+      ]
+    },
+    {
+      "patterns": ["Microservices", "Publish-Subscribe"],
+      "relationship": "complementary",
+      "rationale": "Events such as BikeRegistered, RentalExpiring and RentalEnded let the fleet, notification, payment and reporting services react without direct coupling. This keeps expiry notification and overtime charging independent of the user session (S4, S9) and propagates availability changes (S7) to biker and administrator views. A message broker is permitted.",
+      "conditions": [
+        "The acceptable delay between registration and disappearance from the available list must be bounded; the inputs only say 'as soon as' (S1-G24)."
+      ],
+      "affected_drivers": [
+        "Bike location and availability tracking",
+        "Rental lifecycle timing",
+        "Usage history and administrative reporting",
+        "Permitted technology context"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith", "Publish-Subscribe"],
+      "relationship": "conditionally_compatible",
+      "rationale": "Modules can communicate via events (in-process event bus or an external broker) to decouple notification, reporting and availability-view updates from the rental module. This preserves module boundaries but introduces asynchronous behaviour into an otherwise synchronous application.",
+      "conditions": [
+        "Operations that must be atomic (bike registration together with availability removal and rental creation) remain inside a local transaction; events are used only for consequences that tolerate delay (notifications, read-model updates, reporting).",
+        "Events must be published reliably relative to the database commit (for example by recording them in the same transaction before publishing)."
+      ],
+      "affected_drivers": [
+        "Rental lifecycle timing",
+        "Bike location and availability tracking",
+        "Usage history and administrative reporting",
+        "Consistent bike and rental state"
+      ]
+    },
+    {
+      "patterns": ["Publish-Subscribe", "Shared Database"],
+      "relationship": "conditionally_compatible",
+      "rationale": "Writing state to the shared database and publishing an event are two separate operations; if one succeeds and the other fails, views and notifications diverge from the rental state (for example a rental starts but no expiry notification is scheduled).",
+      "conditions": [
+        "State changes and the events describing them are recorded atomically (the event is stored in the same transaction and published afterwards), and subscribers are idempotent."
+      ],
+      "affected_drivers": [
+        "Consistent bike and rental state",
+        "Rental lifecycle timing"
+      ]
+    },
+    {
+      "patterns": ["Saga", "Publish-Subscribe"],
+      "relationship": "complementary",
+      "rationale": "A choreographed Saga uses published events to trigger each local step (rental started, bike unlocked, payment authorized) and compensations on failure. Publish-subscribe provides the communication mechanism the Saga needs across services.",
+      "conditions": [
+        "Events must be delivered at least once and handlers must be idempotent so that retries do not double-charge (S8, S9)."
+      ],
+      "affected_drivers": [
+        "Consistent bike and rental state",
+        "Third-party payment platform integration",
+        "Bike registration and unlocking"
+      ]
+    },
+    {
+      "patterns": ["Ports and Adapters", "Publish-Subscribe"],
+      "relationship": "compatible",
+      "rationale": "The broker or event bus can be treated as one more external dependency behind a port, so business logic publishes domain events without depending on a particular broker technology.",
+      "conditions": [],
+      "affected_drivers": [
+        "Changeability of payment options and regulations",
+        "Permitted technology context"
+      ]
+    },
+    {
+      "patterns": ["CQRS", "Publish-Subscribe"],
+      "relationship": "complementary",
+      "rationale": "Read models for nearby available bikes (S5), fleet status (S12), usage history (S11) and hourly/daily aggregates (S13) can be kept up to date by subscribing to rental and bike events.",
+      "conditions": [
+        "Read models are eventually consistent; the proximity view must not offer a bike for registration based on stale data unless registration itself re-checks availability on the command side."
+      ],
+      "affected_drivers": [
+        "Usage history and administrative reporting",
+        "Bike location and availability tracking",
+        "Consistent bike and rental state"
+      ]
+    },
+    {
+      "patterns": ["CQRS", "Database per Service"],
+      "relationship": "complementary",
+      "rationale": "When data is spread over service-private stores, queries across services (S13 hourly/daily usage combining rentals and bikes, S12 fleet status) cannot be answered by joining databases; a CQRS read model that combines data from several services resolves this.",
+      "conditions": [
+        "Replicated personal data in read models must be included in GDPR retention and erasure handling (S1-G40)."
+      ],
+      "affected_drivers": [
+        "Usage history and administrative reporting",
+        "GDPR and regional regulatory compliance"
+      ]
+    },
+    {
+      "patterns": ["CQRS", "Shared Database"],
+      "relationship": "compatible",
+      "rationale": "Read models can be separate tables or views in the same database, updated in the same transaction or shortly after. This keeps reporting queries separate from the transactional model without adding another store.",
+      "conditions": [],
+      "affected_drivers": [
+        "Usage history and administrative reporting",
+        "Consistent bike and rental state"
+      ]
+    },
+    {
+      "patterns": ["Modular Monolith", "CQRS"],
+      "relationship": "conditionally_compatible",
+      "rationale": "CQRS can be applied inside the reporting and fleet modules of a monolith to separate query models (proximity, fleet status, history, aggregates) from the rental command model. Applied across the whole application it adds complexity that the unstated data volumes do not justify.",
+      "conditions": [
+        "CQRS is applied selectively to read-heavy concerns (S5, S11, S12, S13) rather than to every module."
+      ],
+      "affected_drivers": [
+        "Usage history and administrative reporting",
+        "Bike location and availability tracking"
+      ]
+    },
+    {
+      "patterns": ["Access Token", "API Gateway"],
+      "relationship": "complementary",
+      "rationale": "The gateway validates the access token once at the edge for every web and mobile request and rejects expired or revoked tokens (S4 logout and inactivity timeout), so back-end components receive only authenticated requests with the user's role (biker or administrator).",
+      "conditions": [
+        "Token revocation on logout and inactivity must be checkable at the gateway (for example short-lived tokens plus a revocation or session store)."
+      ],
+      "affected_drivers": [
+        "Biker authentication and session management",
+        "Security of user and payment data",
+        "Web and mobile client access"
+      ]
+    },
+    {
+      "patterns": ["Access Token", "Microservices"],
+      "relationship": "complementary",
+      "rationale": "A token carrying identity and role lets each service authorize requests without calling the identity service on every request, which is needed when many services handle biker and administrator requests.",
+      "conditions": [
+        "Services must also validate tokens (or trust only gateway-forwarded traffic over encrypted channels) so that internal calls do not bypass authorization."
+      ],
+      "affected_drivers": [
+        "Biker authentication and session management",
+        "Security of user and payment data"
+      ]
+    },
+    {
+      "patterns": ["Access Token", "Modular Monolith"],
+      "relationship": "compatible",
+      "rationale": "Within a single application, tokens give web and mobile clients the same authentication mechanism after email/password or biometric login, and carry the role used for administrator access. A server-side session would also work, so the token is a choice rather than a necessity here.",
+      "conditions": [
+        "Logout and the 15-minute inactivity timeout (S4) must be enforced server-side, not only by token expiry on the client."
+      ],
+      "affected_drivers": [
+        "Biker authentication and session management",
+        "Web and mobile client access"
+      ]
+    },
+    {
+      "patterns": ["Layered Architecture", "Shared Database"],
+      "relationship": "compatible",
+      "rationale": "The data access layer of each module maps to its tables or schema in the shared store. The combination is common and introduces no conflict.",
+      "conditions": [],
+      "affected_drivers": [
+        "Consistent bike and rental state"
+      ]
+    },
+    {
+      "patterns": ["Ports and Adapters", "Shared Database"],
+      "relationship": "compatible",
+      "rationale": "The shared database is accessed through persistence adapters behind repository ports, so business logic does not depend on the storage technology.",
+      "conditions": [],
+      "affected_drivers": [
+        "Consistent bike and rental state",
+        "Changeability of payment options and regulations"
+      ]
+    },
+    {
+      "patterns": ["Ports and Adapters", "Database per Service"],
+      "relationship": "compatible",
+      "rationale": "Each service accesses its private store through its own persistence adapter; the patterns address different concerns and do not interfere.",
+      "conditions": [],
+      "affected_drivers": [
+        "Security of user and payment data"
+      ]
+    },
+    {
+      "patterns": ["Access Token", "Backend for Frontend"],
+      "relationship": "compatible",
+      "rationale": "Each BFF forwards the client's access token (or validates it) so the biker or administrator identity reaches back-end services; the BFF can adapt the login flow per client (biometric on mobile, password on web) while issuing the same token type.",
+      "conditions": [],
+      "affected_drivers": [
+        "Biker authentication and session management",
+        "Web and mobile client access"
+      ]
+    },
+    {
+      "patterns": ["Saga", "Microservices"],
+      "relationship": "complementary",
+      "rationale": "Saga is the established mechanism for business transactions that span microservices, here the rental start/unlock/charge and rental end/overtime-charge flows (S6-S10).",
+      "conditions": [],
+      "affected_drivers": [
+        "Consistent bike and rental state",
+        "Rental lifecycle timing"
+      ]
+    }
+  ]
+}

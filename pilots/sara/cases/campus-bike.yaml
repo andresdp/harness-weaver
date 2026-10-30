@@ -1,0 +1,111 @@
+case: campus-bike
+description: CampusBike architecture-design case from the ReArch case study. Only
+  the project description and functional requirements are runtime inputs.
+generation_inputs:
+- id: project-description
+  port: project_description
+  value: "With rising traffic congestion and attempt towards minimizing the carbon\
+    \ footprint of vehicles, trams, and public transport, the city administration\
+    \ have introduced CityBike service where riders\ncan opt to use bikes available\
+    \ via pay-per-use renting for enhanced mobility and eco-friendly transportation\
+    \ in and around the city. City administration needs an software application CityBike,\n\
+    available on web and mobile devices that can offer the potential bikers to utilize\
+    \ the bikes.\n\nThe system must take into account the following constraints and\
+    \ EU standards:\n- The software should comply with the General Data Protection\
+    \ Regulation (GDPR) and the Privacy Directive.\n- The software should comply with\
+    \ the relevant security and data protection standards, such as ISO 27001.\n- The\
+    \ software should be designed to minimize the carbon footprint and promote sustainable\
+    \ mobility.\n- The software should be user-friendly and easy to use for all potential\
+    \ riders.\n- The software should be designed to ensure the security and privacy\
+    \ of user data, including payment information.\n- The software should be compatible\
+    \ with a variety of third-party payment platforms to allow users to pay for the\
+    \ bike rental fee\nseamlessly.\n- The software should be capable of tracking and\
+    \ displaying the location of available bikes within a 1000-meter radius and unlocking\n\
+    them using a QR code.\n- The software should be accessible through both web and\
+    \ mobile devices to maximize the availability of the service.\n- The software\
+    \ should be designed to comply with local regulations and standards, including\
+    \ EU or China standards, depending on the\nlocation of the university. \n\nThe\
+    \ design of the system can rely on the following tools and technologies: container\
+    \ orchestration platform, service registry and discovery, API gateway, message\
+    \ broker, and distributed tracing."
+- id: functional-requirements
+  port: functional_requirements
+  value:
+    system_name: campus-bike
+    functional_requirements:
+    - id: S1
+      description: The biker must be able to register with the app by providing their
+        name, email address, phone number, and selecting a password, and provide Zip
+        code of residential address (optional information). The app must ensure that
+        user information is secured with an end-to-end encryption of information between
+        user device and app database.
+      patterns: []
+      priority: 1.0
+    - id: S2
+      description: The app must sent a verification code via an SMS or email that
+        is valid for 30 minutes. If the code is not entered within 30 seconds it is
+        expired.
+      patterns: []
+      priority: 2.0
+    - id: S3
+      description: The biker must be able to login to the app via their email and
+        password or by using their biometric thumb-impression. The login module must
+        flush out user thumb impression as soon as the user has been able to login.
+      patterns: []
+      priority: 2.0
+    - id: S4
+      description: Biker must be logged out of the app by clicking on logout button
+        or after an inactivity of 15 minutes to avoid unnecessary (idle) users on
+        the app in a session.
+      patterns: []
+      priority: 3.0
+    - id: S5
+      description: Biker can view all of available bikes in close proximity defined
+        by him/her such as specifying that they only want to see bikes that are available
+        in a proximity of 100 meters.
+      patterns: []
+      priority: 4.0
+    - id: S6
+      description: App must help the biker to navigate to the available bike that
+        they have selected. Upon reaching bike, biker should scan the code on bike
+        scanner or by inputting the four digit code to register the bike for 90 minutes.
+      patterns: []
+      priority: 3.0
+    - id: S7
+      description: As soon as the bike is registered it must be removed from the list
+        of available bikes.
+      patterns: []
+      priority: 3.0
+    - id: S8
+      description: The biker must be able to pay via their bank account or by their
+        debit/credit card. Currently cash payments are not supported.
+      patterns: []
+      priority: 2.0
+    - id: S9
+      description: The app must notify the biker X minutes prior to the expiry of
+        their rental time. Any overtime rides are subject to additional charges.
+      patterns: []
+      priority: 4.0
+    - id: S10
+      description: The biker must be able to rent a bike for specific minutes, a day
+        or for a week at maximum.
+      patterns: []
+      priority: 4.0
+    - id: S11
+      description: The app allows the biker to view and download their bike usage
+        history up to last 3 months in the form.
+      patterns: []
+      priority: 5.0
+    - id: S12
+      description: The bike administrator is able to view all of the bikes in the
+        city as available or under utilization.
+      patterns: []
+      priority: 6.0
+    - id: S13
+      description: The administrator must be able to do an hourly and daily usage
+        of the bikes.
+      patterns: []
+      priority: 6.0
+evaluator_only: []
+checks:
+- schema

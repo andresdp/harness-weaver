@@ -1,0 +1,23 @@
+{
+  "record_version": "0.2",
+  "arm": "spec-guided",
+  "runtime": "deepagents",
+  "model": "openai:gpt-5.4-mini",
+  "settings": {
+    "case_study": "case-studies/architecture-eval/ATAM",
+    "request_timeout_seconds": 180,
+    "streaming": false,
+    "verbose": false,
+    "interrupted_after_seconds": 300,
+    "manifest_captured_after_attempt": true
+  },
+  "workflow_strategy": "fan_out_fan_in",
+  "agent_interaction": "parallel_specialist_delegation",
+  "harness_assets_sha256": "729114dc46a014524dd1a14024727688c854d94ed7ef2f0fda3bae65e77804dd",
+  "status": "failed",
+  "prediction": null,
+  "prediction_sha256": null,
+  "output_path": null,
+  "latency_seconds": null,
+  "cost": null
+}

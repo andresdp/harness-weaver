@@ -1,0 +1,49 @@
+# Local source catalog. Source-derived guidance is copied into this file and the methodology profile.
+sources:
+- id: atam-methodology
+  ref: ../methodology.yaml
+  kind: methodology-and-semantic-state
+  authority: HarnessWeaver adaptation profile derived from the ArchEval ATAM materials below
+  notes: Bounded prototype; does not replace a facilitated ATAM workshop.
+- id: atam-report-contract
+  ref: contracts/atam-report.schema.json
+  kind: output-contract
+  authority: Generated from the HarnessWeaver ATAM report model (pilots/atam/deepagents/atam_harness/models.py)
+  notes: Regenerate with `python -m pilots.atam.deepagents.atam_harness.schema_export`; a test guards
+    drift.
+- id: atam-analysis-artifact-contract
+  ref: contracts/analysis.schema.json
+  kind: intermediate-artifact-contract
+  authority: HarnessWeaver ATAM pilot intermediate artifact contract.
+  notes: >-
+    Constrains the stage 4 analysis artifact. Findings may cite only schema-approved evidence identifiers;
+    G-stage-n identifiers are reserved for gap records.
+- id: atam-report-template
+  ref: references/atam-report-template.json
+  kind: output-template
+  authority: Derived from the ArchEval ATAM template; renames ground_truth_outputs to evaluation_results
+- id: evaluate-architecture
+  ref: skills/evaluate-architecture/SKILL.md
+  kind: domain-skill
+  authority: HarnessWeaver; consolidated from the two reference realizations' evaluate-architecture skills
+- id: check-evaluation
+  ref: skills/check-evaluation/SKILL.md
+  kind: domain-skill
+  authority: HarnessWeaver; consolidated from the two reference realizations' check-evaluation skills
+- id: revise-report
+  ref: skills/revise-report/SKILL.md
+  kind: report-revision-protocol
+  authority: HarnessWeaver ATAM pilot; one evidence-preserving correction pass before readiness is reported
+- id: archeval-atam-reference-basis
+  kind: copied-domain-guidance-and-report-contract
+  authority: Copied into this pilot from the ArchEval ATAM workflow, prompt protocol, and report template.
+  notes:
+  - 'Workflow: extract architectural approaches; construct a quality-attribute utility tree; generate
+    scenarios; analyze risks, non-risks, sensitivity points, and tradeoffs; serialize structured results.'
+  - 'Roles: Customer supplies evaluation inputs; Architect provides technical analysis and reviews the
+    utility tree; Manager coordinates utility-tree and scenario work; EvaluationTeam performs technical
+    analysis and risk assessment.'
+  - 'Prompt protocol: agents may request information or review from named peers and return JSON conforming
+    to the shared report template.'
+  - 'Report sections: architectural approaches, utility tree, scenarios, and analysis records. The local
+    report contract renames generated results and never includes evaluator-only reference answers.'

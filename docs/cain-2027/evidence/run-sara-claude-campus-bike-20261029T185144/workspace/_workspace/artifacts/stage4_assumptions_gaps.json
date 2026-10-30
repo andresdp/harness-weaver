@@ -1,0 +1,45 @@
+{
+  "stage": 4,
+  "entries": [
+    {
+      "id": "S4-G1",
+      "kind": "unresolved_gap",
+      "statement": "A3's description does not state the communication mechanism between web/mobile client applications and their BFFs. The architecture diagram labels these edges 'HTTP/REST' as a conventional choice for client-to-BFF calls; no input confirms this protocol.",
+      "origin": "architecture_diagram.mmd#/edges/webClient-webBFF",
+      "source_refs": ["A3", "Web and mobile client accessibility"],
+      "related_ids": [],
+      "status": "noted",
+      "resolution_needed": "Confirm the client-to-BFF transport (HTTP/REST, or another protocol) if it must be documented precisely."
+    },
+    {
+      "id": "S4-G2",
+      "kind": "unresolved_gap",
+      "statement": "A3's description lists 'administrator status refresh' among the events published through the outbox but does not state which core module (Fleet & Availability or Rentals) emits it. The diagram attributes it to the Fleet & Availability module as the most direct owner of fleet status, which is an inference beyond what the alternative states.",
+      "origin": "adr.md#Decision; architecture_diagram.mmd#/edges/fleet-broker",
+      "source_refs": ["A3", "S12", "Timely bike availability and location tracking"],
+      "related_ids": [],
+      "status": "noted",
+      "resolution_needed": "Confirm which module is responsible for publishing the administrator status-refresh event."
+    },
+    {
+      "id": "S4-G3",
+      "kind": "unresolved_gap",
+      "statement": "Delivery of the physical unlock signal (Rentals module to the bike lock/telematics interface) is drawn as a direct edge in the diagram for clarity, but the alternative only assumes an adapter-wrapped interface exists (S2-G4) without describing which core module calls it or the protocol used.",
+      "origin": "architecture_diagram.mmd#/edges/rentals-lockInterface",
+      "source_refs": ["A3", "S6", "Physical bike unlock by code"],
+      "related_ids": ["S1-G16", "S1-G44", "S2-G4", "S3-G3"],
+      "status": "relied_upon",
+      "resolution_needed": "Confirm which module calls the lock/telematics adapter and what interface it exposes."
+    },
+    {
+      "id": "S4-G4",
+      "kind": "process_note",
+      "statement": "All open assumptions and unresolved gaps carried into the ADR's 'Assumptions and Unresolved Gaps' section (S1-G1, S1-G16, S1-G18, S1-G43, S1-G44, S1-G50, S1-G52, S1-G4, S2-G2, S2-G4, S2-G10, S2-G11, S2-G12, S2-G16, S2-G17, S3-G1 through S3-G11) remain as recorded in their originating stage registers; this stage register does not duplicate them, only references them from the ADR.",
+      "origin": "adr.md#Assumptions-and-Unresolved-Gaps",
+      "source_refs": ["A3"],
+      "related_ids": ["S1-G1", "S1-G16", "S1-G18", "S1-G43", "S1-G44", "S1-G50", "S1-G52", "S1-G4", "S2-G2", "S2-G4", "S2-G10", "S2-G11", "S2-G12", "S2-G16", "S2-G17", "S3-G1", "S3-G2", "S3-G3", "S3-G4", "S3-G5", "S3-G6", "S3-G7", "S3-G8", "S3-G9", "S3-G10", "S3-G11"],
+      "status": "noted",
+      "resolution_needed": ""
+    }
+  ]
+}

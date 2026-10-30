@@ -1,0 +1,21 @@
+{
+  "sandbox": "run-atam-claude-banking-20261025T205340",
+  "checked_at": "2026-10-26T01:37:49+00:00",
+  "report": "output/report.json",
+  "report_sha256": "c60c79721a37737e54474f04b379bb222ca23c1c8fd04f167b7f341f3e6663c4",
+  "passed": true,
+  "checks": {
+    "no-reference-leakage": {
+      "passed": true,
+      "problems": []
+    },
+    "schema": {
+      "passed": true,
+      "problems": []
+    },
+    "atam-pilot": {
+      "passed": true,
+      "problems": []
+    }
+  }
+}

@@ -1,0 +1,359 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamContextArtifact",
+  "description": "Stage 1 (establish-context) output: 01_context.json",
+  "$defs": {
+    "SourceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(evaluation_inputs|metadata|title)(\\.|\\[|$)"
+      },
+      "description": "JSON paths into 00_evaluation_inputs.json, e.g. evaluation_inputs.business_context.business_goals[0]. Required (non-empty) when basis is observed."
+    },
+    "Basis": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "inferred",
+        "assumption"
+      ],
+      "description": "observed = stated in the inputs; inferred = reasoned from cited inputs (state the reasoning); assumption = not supported by the inputs and must also appear as a gap"
+    },
+    "Gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^G-[0-9]+-[0-9]+$",
+          "description": "G-<stage>-<n>"
+        },
+        "gap_type": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "conflict",
+            "incomplete",
+            "assumption"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What is unknown, conflicting, incomplete or assumed"
+        },
+        "affected_activity": {
+          "type": "string",
+          "enum": [
+            "establish-context",
+            "build-utility-tree",
+            "identify-approaches",
+            "analyze-scenarios",
+            "synthesize-and-review"
+          ]
+        },
+        "missing_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Evidence needed to resolve or reduce the gap"
+        },
+        "resolution_question": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Question for the architect or a stakeholder"
+        }
+      },
+      "required": [
+        "id",
+        "gap_type",
+        "description",
+        "affected_activity",
+        "missing_evidence",
+        "resolution_question"
+      ]
+    },
+    "AvailabilityAssessment": {
+      "additionalProperties": false,
+      "description": "Status for context, drivers, or architecture evidence availability.",
+      "properties": {
+        "evidence": {
+          "description": "At least one observed input or artifact fact supporting this status, including evidence of absence",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "value": {
+          "description": "Availability status",
+          "enum": [
+            "missing",
+            "partial",
+            "sufficient"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ],
+      "title": "AtamAvailabilityAssessment",
+      "type": "object"
+    },
+    "Metadata": {
+      "additionalProperties": false,
+      "description": "Known evaluation context; nullable values mark metadata absent from the case.",
+      "properties": {
+        "system_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evidence-based system name, or null if unavailable",
+          "title": "System Name"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evaluation date, or null if unavailable",
+          "title": "Date"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Source reference, or null if unavailable",
+          "title": "Ref"
+        },
+        "evaluator_organization": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evaluator organization, or null if unavailable",
+          "title": "Evaluator Organization"
+        },
+        "phase_1_attendees": {
+          "description": "Known phase 1 attendee roles; use an empty list if unavailable",
+          "items": {
+            "type": "string"
+          },
+          "title": "Phase 1 Attendees",
+          "type": "array"
+        },
+        "phase_2_attendees": {
+          "description": "Known phase 2 attendee roles; use an empty list if unavailable",
+          "items": {
+            "type": "string"
+          },
+          "title": "Phase 2 Attendees",
+          "type": "array"
+        }
+      },
+      "required": [
+        "system_name",
+        "date",
+        "ref",
+        "evaluator_organization",
+        "phase_1_attendees",
+        "phase_2_attendees"
+      ],
+      "title": "AtamMetadata",
+      "type": "object"
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    },
+    "system_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "$ref": "#/$defs/Basis"
+        },
+        "source_refs": {
+          "$ref": "#/$defs/SourceRefs"
+        }
+      },
+      "required": [
+        "summary",
+        "basis",
+        "source_refs"
+      ]
+    },
+    "business_drivers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^BD-[0-9]+$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "business_goal",
+              "technical_constraint",
+              "architectural_driver",
+              "runtime_constraint",
+              "other"
+            ]
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "basis": {
+            "$ref": "#/$defs/Basis"
+          },
+          "source_refs": {
+            "$ref": "#/$defs/SourceRefs"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "statement",
+          "basis",
+          "source_refs"
+        ]
+      }
+    },
+    "architecture_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^AE-[0-9]+$"
+          },
+          "evidence_kind": {
+            "type": "string",
+            "enum": [
+              "system_description",
+              "structure",
+              "deployment_topology",
+              "runtime_constraint",
+              "quantitative_parameter",
+              "style_probe",
+              "documentation_status",
+              "other"
+            ]
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "basis": {
+            "$ref": "#/$defs/Basis"
+          },
+          "source_refs": {
+            "$ref": "#/$defs/SourceRefs"
+          }
+        },
+        "required": [
+          "id",
+          "evidence_kind",
+          "statement",
+          "basis",
+          "source_refs"
+        ]
+      }
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^Q-[0-9]+$"
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "input_inquiry_question",
+              "investigative_prompt",
+              "evaluator_gap"
+            ]
+          },
+          "source_refs": {
+            "$ref": "#/$defs/SourceRefs"
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "origin",
+          "source_refs"
+        ]
+      }
+    },
+    "context_status": {
+      "$ref": "#/$defs/AvailabilityAssessment"
+    },
+    "driver_status": {
+      "$ref": "#/$defs/AvailabilityAssessment"
+    },
+    "architecture_evidence_status": {
+      "$ref": "#/$defs/AvailabilityAssessment"
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Gap"
+      }
+    }
+  },
+  "required": [
+    "metadata",
+    "system_scope",
+    "business_drivers",
+    "architecture_evidence",
+    "open_questions",
+    "context_status",
+    "driver_status",
+    "architecture_evidence_status",
+    "gaps"
+  ]
+}

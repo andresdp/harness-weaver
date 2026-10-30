@@ -1,0 +1,491 @@
+{
+  "review_stage": "final",
+  "run_id": "atam-20261026T021243Z-ce7765fc",
+  "reviewed_report": "05_atam_report.json",
+  "checks": [
+    {
+      "check_id": "STRUCT-SCHEMA",
+      "category": "structure",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "STRUCT-SECTIONS",
+      "category": "structure",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "SEM-REPORT-STATUS",
+      "category": "semantic_state",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "SEM-ANALYSIS-STATUS",
+      "category": "semantic_state",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "SEM-STATUS-TRACE",
+      "category": "semantic_state",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "SEM-GAP-ACTIVITY",
+      "category": "semantic_state",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "SEM-GAPS-PRESERVED",
+      "category": "semantic_state",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "EVID-RATIONALE-SUFFIX",
+      "category": "evidence_traceability",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "EVID-NO-GAP-IDS",
+      "category": "evidence_traceability",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "EVID-IDS-EXIST",
+      "category": "evidence_traceability",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "EVID-FINDING-TRACE",
+      "category": "evidence_traceability",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "EVID-SCENARIO-REF",
+      "category": "evidence_traceability",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "EVID-DECISION-CITES",
+      "category": "evidence_traceability",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "EVID-POINT-CITES",
+      "category": "evidence_traceability",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "EVID-APPROACH-CITES",
+      "category": "evidence_traceability",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "UNC-ABSENCE-BASIS",
+      "category": "uncertainty",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "UNC-PERF-ATTAINMENT",
+      "category": "uncertainty",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "UNC-RESPONSE-MEASURE",
+      "category": "uncertainty",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "UNC-PRIORITY",
+      "category": "uncertainty",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "COV-ACTIVITIES",
+      "category": "method_coverage",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "COV-SCENARIOS",
+      "category": "method_coverage",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "REF-NO-REFERENCE-OUTPUTS",
+      "category": "reference_boundary",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "REF-INPUTS-PRESERVED",
+      "category": "reference_boundary",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "REF-METADATA",
+      "category": "reference_boundary",
+      "source": "automated",
+      "result": "pass",
+      "location": "",
+      "finding": "No violations found.",
+      "correction": null,
+      "resolution": null
+    },
+    {
+      "check_id": "STRUCT-R1",
+      "category": "structure",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "",
+      "finding": "Report structure unchanged by revision: title, metadata, evaluation_inputs (verbatim), and evaluation_results with utility_tree, architectural_approaches, 19 analysis_records in scenario order, scenarios and semantic_state.",
+      "correction": null,
+      "resolution": "No change needed; passed in the initial review, and the revision edited only text values inside existing records."
+    },
+    {
+      "check_id": "SEM-R1",
+      "category": "semantic_state",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/semantic_state",
+      "finding": "Status values still match their evidence: context/driver/architecture evidence 'partial', scenario_analysis_status 'partial', report_status 'draft'.",
+      "correction": null,
+      "resolution": "No change needed; semantic_state was not edited."
+    },
+    {
+      "check_id": "SEM-R2",
+      "category": "semantic_state",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/semantic_state/gaps",
+      "finding": "All merged gaps G-1-1..G-4-7 remain, each with activity, missing evidence and resolution question.",
+      "correction": null,
+      "resolution": "No change needed; no gap was dropped or edited. The revisions only qualified claims, so they leave no new unresolved item that needs a new gap. Existing gaps G-3-5, G-3-6, G-4-3, G-4-6, G-4-7, G-2-6 and G-3-1 still cover the qualified points."
+    },
+    {
+      "check_id": "EVID-R1",
+      "category": "evidence_traceability",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records",
+      "finding": "Findings still trace to cited AE/BD/AP ids. No evidence id was added, and all citations remain subsets of 04_analysis.json.",
+      "correction": null,
+      "resolution": "No change needed; the revisions did not alter any evidence citation."
+    },
+    {
+      "check_id": "EVID-R2",
+      "category": "evidence_traceability",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/6/findings/non_risks/0/rationale",
+      "finding": "NR-2's rationale relied on the uninspected interaction definitions referred to by AE-1.",
+      "correction": "Rest the rationale on AE-3, AE-4 and AE-6 and keep AE-1 only as the source of the caveat.",
+      "resolution": "Rephrased the rationale. The single interaction pattern is now 'suggested' by the base Handler (AE-6) and the framework-owned Main module (AE-3). It states that the documented interactions referred to by the documentation status (AE-1) are not supplied, so the pattern cannot be checked against them. Citations and basis 'inferred' are unchanged, and gap G-4-3 remains visible."
+    },
+    {
+      "check_id": "UNC-R1",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/6/findings/non_risks/0/description",
+      "finding": "NR-2 claimed as settled that interaction 'follows one uniform contract'.",
+      "correction": "Qualify as a candidate uniform contract whose exclusive use is not described.",
+      "resolution": "Description now reads: 'The shared base Handler provides a candidate uniform contract between the Event Manager and handlers; whether the Event Manager invokes application handlers only through that base interface is not described.' The matching sentence in AR-7's reasoning was qualified the same way. Basis stays 'inferred', and R-7 and gap G-3-5 still carry the open question."
+    },
+    {
+      "check_id": "UNC-R2",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/7/findings/non_risks/0/description",
+      "finding": "NR-3 claimed a deterministic 'execution path', which is not established.",
+      "correction": "Limit the description to processing order.",
+      "resolution": "Removed 'and execution path'. The description now limits determinism to processing order, 'with sequential execution implied'. AR-8's reasoning was also qualified: it no longer says events 'always pass through the same path' and states that handler selection is not described. R-8 and gaps G-3-5/G-4-7 keep the path question open."
+    },
+    {
+      "check_id": "UNC-R3",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/1/findings/non_risks/0/rationale",
+      "finding": "NR-1's rationale lost the source's 'implied' hedge on single-processor sequential execution.",
+      "correction": "State that single-processor, sequential execution is stated as implied.",
+      "resolution": "The rationale now says the FIFO constraint and the one-queue/one-manager limit are stated, and single-processor, sequential execution is stated as implied. The description was qualified with 'given the implied sequential execution'. Basis stays 'inferred' and the evidence suffix is unchanged."
+    },
+    {
+      "check_id": "UNC-R4",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/1/architectural_decisions/2",
+      "finding": "AR-2 decision stated implied single-processor execution as definite.",
+      "correction": "Keep the source qualifier 'implied'.",
+      "resolution": "Rephrased to 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'."
+    },
+    {
+      "check_id": "UNC-R5",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/4/architectural_decisions/1",
+      "finding": "AR-5 decision stated implied single-processor execution as definite.",
+      "correction": "Keep the source qualifier 'implied'.",
+      "resolution": "Rephrased to 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'."
+    },
+    {
+      "check_id": "UNC-R6",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/7/architectural_decisions/1",
+      "finding": "AR-8 decision stated implied single-processor execution as definite.",
+      "correction": "Keep the source qualifier 'implied'.",
+      "resolution": "Rephrased to 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'."
+    },
+    {
+      "check_id": "UNC-R7",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/13/architectural_decisions/1",
+      "finding": "AR-14 decision stated implied single-processor execution as definite.",
+      "correction": "Keep the source qualifier 'implied'.",
+      "resolution": "Rephrased to 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'."
+    },
+    {
+      "check_id": "UNC-R8",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/14/architectural_decisions/1",
+      "finding": "AR-15 decision stated implied single-processor execution as definite.",
+      "correction": "Keep the source qualifier 'implied'.",
+      "resolution": "Rephrased to 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'."
+    },
+    {
+      "check_id": "UNC-R9",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/17/architectural_decisions/1",
+      "finding": "AR-18 decision stated implied single-processor execution as definite.",
+      "correction": "Keep the source qualifier 'implied'.",
+      "resolution": "Rephrased to 'Single-processor execution with sequential event processing is implied (evidence: AE-8)'."
+    },
+    {
+      "check_id": "UNC-R10",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/16/findings/risks/0/description",
+      "finding": "R-18 asserted a confidentiality risk that the evidence supports only as an unresolved question.",
+      "correction": "Separate the weakened-encapsulation claim from the unresolved confidentiality question.",
+      "resolution": "Description now reads: 'Encapsulation of framework data structures may be weakened because application logic is embedded inside framework components; whether data confidentiality is preserved is unresolved.' Rationale, citations and basis 'inferred' are unchanged, and gaps G-1-3, G-3-1 and G-2-6 remain."
+    },
+    {
+      "check_id": "UNC-R11",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/13/reasoning",
+      "finding": "AR-14's reasoning claimed design intent ('not designed for that') from absence.",
+      "correction": "Remove or rephrase the design-intent clause.",
+      "resolution": "Replaced the clause with 'the stated limits of one Event Manager and one Event Queue and the direct coupling to application handlers constrain multi-application use'. Feasibility stays unresolved, and gap G-4-6 remains."
+    },
+    {
+      "check_id": "UNC-R12",
+      "category": "uncertainty",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "",
+      "finding": "No performance-attainment claims, invented priorities or thresholds. The revision added none: the T-3 Performance pole is now explicitly undetermined.",
+      "correction": null,
+      "resolution": "No change needed; passed in the initial review and still holds after the revision."
+    },
+    {
+      "check_id": "COV-R1",
+      "category": "method_coverage",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records",
+      "finding": "All 19 scenarios still have analysis records, and no approach, scenario or tradeoff was added or removed.",
+      "correction": null,
+      "resolution": "No change needed; coverage is unchanged by the revision."
+    },
+    {
+      "check_id": "COV-R2",
+      "category": "method_coverage",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "/ATAM_Evaluation/evaluation_results/analysis_records/8/findings/tradeoff_points/0/conflicting_attributes/0",
+      "finding": "T-3's Performance pole presented a hypothesized benefit as established.",
+      "correction": "Qualify the Performance attribute entry, or convert T-3 to a sensitivity point.",
+      "resolution": "Qualified the entry to 'Performance (potentially fewer components per transaction, the stated performance proxy; net effect undetermined because the inputs characterize transaction speed as slow and give no component count)'. T-3 was kept as a tradeoff: the Modifiability and Variability poles still conflict with the potential performance effect, and the pole is now explicitly a hypothesis. Gap G-3-6 remains visible. The architect may still decide to downgrade T-3 to a sensitivity point."
+    },
+    {
+      "check_id": "REF-R1",
+      "category": "reference_boundary",
+      "source": "reviewer",
+      "result": "pass",
+      "location": "",
+      "finding": "No ground_truth_outputs or reference-answer content was read or appears in the final report. evaluation_inputs and metadata are unchanged.",
+      "correction": null,
+      "resolution": "No change needed; the reference boundary was respected during revision."
+    }
+  ],
+  "summary": {
+    "pass": 44,
+    "warn": 0,
+    "fail": 0
+  },
+  "revision": {
+    "applied": true,
+    "changed_locations": [
+      "/ATAM_Evaluation/evaluation_results/analysis_records/1/architectural_decisions/2",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/1/findings/non_risks/0/description",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/1/findings/non_risks/0/rationale",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/4/architectural_decisions/1",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/6/reasoning",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/6/findings/non_risks/0/description",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/6/findings/non_risks/0/rationale",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/7/architectural_decisions/1",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/7/reasoning",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/7/findings/non_risks/0/description",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/8/findings/tradeoff_points/0/conflicting_attributes/0",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/13/architectural_decisions/1",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/13/reasoning",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/14/architectural_decisions/1",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/16/findings/risks/0/description",
+      "/ATAM_Evaluation/evaluation_results/analysis_records/17/architectural_decisions/1"
+    ],
+    "remaining_failures": []
+  },
+  "ready_for_architect_review": true,
+  "readiness_basis": {
+    "computed_by": "atam_harness/atam.py finalize (stage7-revise_report)",
+    "blocking_categories": [
+      "structure",
+      "semantic_state",
+      "evidence_traceability",
+      "uncertainty",
+      "method_coverage",
+      "reference_boundary"
+    ],
+    "blocking_findings_remaining": 0,
+    "stage_order_verified": true,
+    "stage_order_detail": "run ledger shows stage0..stage6 completed in order and stage7-revise_report begun after stage6-check_evaluation completed (seq 29 < 30)",
+    "report_status": "draft",
+    "note": "Readiness means the draft may be handed to a software architect for review. The report remains a draft and must not inform a decision until that review is recorded."
+  }
+}

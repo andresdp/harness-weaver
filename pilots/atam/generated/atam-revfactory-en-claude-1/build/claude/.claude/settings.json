@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Edit(/_workspace/**)",
+      "Write(/_workspace/**)",
+      "Bash(python3 atam_harness/atam.py:*)",
+      "Bash(python3 atam_harness/run.py:*)"
+    ],
+    "deny": [
+      "WebFetch",
+      "WebSearch",
+      "Read(**/*ground_truth*)"
+    ]
+  }
+}

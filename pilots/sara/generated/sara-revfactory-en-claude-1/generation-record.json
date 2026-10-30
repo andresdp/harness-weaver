@@ -1,0 +1,121 @@
+{
+  "label": "sara-revfactory-en-claude-1",
+  "collected_at": "2026-10-29T18:49:18+00:00",
+  "sandbox": {
+    "kind": "generation",
+    "name": "gen-sara-revfactory-en-20261029T183637",
+    "pilot": "sara",
+    "pilot_dir": "$REPOSITORY_ROOT/pilots/sara",
+    "arm": "revfactory-en",
+    "created_at": "2026-10-29T18:36:37+00:00",
+    "repository_commit": "<redacted>",
+    "sources_dirty": false,
+    "session_id": "<redacted>",
+    "model_requested": null,
+    "skills": {
+      "arm": "revfactory-en",
+      "langchain_skills": [],
+      "source": "baselines/revfactory-harness-v2.1.0-en",
+      "guide": "BUNDLE-GUIDE.md",
+      "archive": "skills-plugin.zip"
+    },
+    "answers_file": false,
+    "targets": null,
+    "spec_package": null
+  },
+  "record_files": {
+    "claude-version.txt": "2.1.283 (Claude Code)",
+    "exit-code.txt": "0",
+    "finished-at.txt": "2026-10-29T18:48:23Z",
+    "isolation.txt": "settings",
+    "model-requested.txt": "<claude default>",
+    "started-at.txt": "2026-10-29T18:37:27Z",
+    "status.txt": "completed"
+  },
+  "transcript": "record/transcript.jsonl",
+  "inputs": {
+    "sources/PROVENANCE.md": "1f533c2bad5e2b3630061e37a343726bc3e50cf2353b213a48a0dbc28ad4d580",
+    "sources/README.md": "fec944ef2299ff9e083f91bef8edbf9e228b42d591198f7df2ad87f84dfdff35",
+    "sources/domain/contracts/architecture-decision.schema.json": "f92dce4acf005cbcf9d16270c9829299583e9fcdc765a34e35e1e129fdbbea19",
+    "sources/domain/sources.yaml": "0d617ef3084b355f25b59d1910361dff4e1c0f29962f240e440b5eae9101ce37",
+    "sources/harvest-input/PROVENANCE.md": "0c60e737eb8afef5cb522955c57f9e74dc709ea6fdabb1f2418da21698e81ebf",
+    "sources/harvest-input/backend/app/agents/stage1-requirements_drivers/AGENTS.md": "10e1383389426e0166c3ff60cd10977438fcf936cbb10bf0f68d1cffe0ccf498",
+    "sources/harvest-input/backend/app/agents/stage1-requirements_drivers/skills/driver-identification/SKILL.md": "1d1f710a9d7b695f60e6ac6c3788e8cf72b86515d5123b32c946adf72274c6f1",
+    "sources/harvest-input/backend/app/agents/stage1-requirements_drivers/skills/quality-attribute-identification/SKILL.md": "db5c1c8dfed5a6a9b5b459b6e828ced628bed6d191db9163c6adaacf65b1b0a9",
+    "sources/harvest-input/backend/app/agents/stage1-requirements_drivers/skills/requirements-cross-analysis/SKILL.md": "1a05c0776a81cb63d0216ed4b73627384917300a31bdca8c81cbf135bf95d983",
+    "sources/harvest-input/backend/app/agents/stage2-solution_design/AGENTS.md": "ed9e866cd6ffe71206faba204da1571e50e3d92daba34a614ae99feb637b4de5",
+    "sources/harvest-input/backend/app/agents/stage2-solution_design/skills/alternative-generation/SKILL.md": "bb462603a08b5f70002672c68fcf245295ca700379f3988fe355f1cf3fda65e3",
+    "sources/harvest-input/backend/app/agents/stage2-solution_design/skills/pattern-candidate-identification/SKILL.md": "0a57b8daf9591a69e870ca3687227cce6dd2b828505483fb6529a05c214d1d58",
+    "sources/harvest-input/backend/app/agents/stage2-solution_design/skills/patterns-compatibility/SKILL.md": "8e68b3f2b7cb0638300f4476fe47f310fd97024ac88bf112cafe5b64c19fefe2",
+    "sources/harvest-input/backend/app/agents/stage3-alternative_evaluation/AGENTS.md": "3b1fc7baa2ede0ed41c6b55ee2a86ea1391a54b6832cf331b52065264d242a23",
+    "sources/harvest-input/backend/app/agents/stage3-alternative_evaluation/skills/alternative-evaluation/SKILL.md": "9602b37866aae2263f60bf03c1e5b43910ec0f3191a1dc46d83771dabc0a8d16",
+    "sources/harvest-input/backend/app/agents/stage3-alternative_evaluation/skills/alternative-selection/SKILL.md": "65f9996eb602bd1bbc160f30489cdf598f9a43e286c61b91fd02f30e6f0b78c8",
+    "sources/harvest-input/backend/app/agents/stage3-alternative_evaluation/skills/trade-off-analysis/SKILL.md": "d26d4ab57e55f8c8b01723edf5ed9dd41758b65cf1d66ce73ebb73b572255b80",
+    "sources/harvest-input/backend/app/agents/stage4-architecture_decision/AGENTS.md": "a24a763a1d1ac024923d5ea77381d6839ba93f0b4a8fba9ca92f2089b45dcee2",
+    "sources/harvest-input/backend/app/agents/stage4-architecture_decision/skills/adr-generation/SKILL.md": "6a9c1e45a78b9585f659cd7bd774b98ac198f2e9f9d0f2ff309b0b765468d47a",
+    "sources/harvest-input/backend/app/agents/stage4-architecture_decision/skills/architecture-diagram/SKILL.md": "1d967396a7efe4176fb5ffd0e5f5bddac2e00fb64affff3453f014d840476df5",
+    "sources/host-adaptation.md": "a9e684baa15addc05bfd369c4889405b1670ffe600af8ad27069d524bbe03904",
+    "skills-plugin/.claude-plugin/plugin.json": "95b9c7d0584f0a3076a2992989d9f527510ae03221c18948344a1028d1ce21af",
+    "skills-plugin/BUNDLE-GUIDE.md": "f152593c72324e4ab0287b679e31c00895773ae496ebd1c7595a41cdce71af8e",
+    "skills-plugin/skills/evolve/SKILL.md": "f4b4512899c181cbde60ac80cf3600562dc2115446558a004321f58928537b09",
+    "skills-plugin/skills/harness/SKILL.md": "4fa7f273dee6487715d0871e1a5550fbddc9512ffe576eca21cbbc80197f8bcd",
+    "skills-plugin/skills/harness/references/execution-modes.md": "26943f830dcac44200d643f1a9d9419515ab49a88c0f76f0a0019c7755728406",
+    "skills-plugin/skills/harness/references/model-selection-guide.md": "97f5e0798ca9174fed2a62567744166cbc3b7aaf0483172041c37e070cec9821",
+    "skills-plugin/skills/harness/references/orchestrator-template.md": "2bff264f544d76e3813b29b7d9ed3b5c80e91b1fe0ee5e8ca527fb4234038a87",
+    "skills-plugin/skills/harness/references/qa-agent-guide.md": "1111980410d5f9ba4796cafab1d4a20d7ee1d79f6fe2c072aba2d5ed5fc748aa",
+    "skills-plugin/skills/harness/references/skill-testing-guide.md": "e5eb734340dc26198f443e1339e7f8fa41c4a85026b6af7f08ad6ace60942a63",
+    "skills-plugin/skills/harness/references/skill-writing-guide.md": "3f2a12f9296d774d6d42e5387841e64574ee5804ff2177a21c7f9c02bb174888",
+    "skills-plugin/skills/harness/references/team-examples.md": "fe3dcd858f5563acbe5f70b3103f17cc6332f820f4968e59c330acc9955d7dba",
+    "skills-plugin/skills/harness/references/team-patterns.md": "64e4c8e407738f0a3328ed7baa0eea8e237bb2a1aedd6965a50dccff4432cefd",
+    "skills-plugin/skills/harness/references/workflow-recipes.md": "92455ae0d4049fb8d031ae9efe43b41e10d03da5e2d5df0727864fa11e791708",
+    "prompt.md": "4c28c9fbcc8179a8b8aaf7d8adc57da274ff7cc2c633822501166bdb8e0ccdad",
+    "claude-settings.json": "990560d4bd12b39b869b50b27dbf6277cbd52b07e206a5f0874a7c87ac5edc1b"
+  },
+  "outputs": {
+    "generated/build/claude/.claude/agents/sara-alternative-evaluator.md": "7e6cd69eebbd68a1d90f0edcd0a6901f013ef57e85145c6664cfb59a44483789",
+    "generated/build/claude/.claude/agents/sara-contract-reviewer.md": "9f28bfc47fa3d3db27dcc3ec2f6e1e243fb4106ec07cf8d088e7ad88be9c8845",
+    "generated/build/claude/.claude/agents/sara-decision-documenter.md": "ce679f1de2d3549eecc9d533e3a5c666e4a2ab1be036ace98e8e78854dc79d37",
+    "generated/build/claude/.claude/agents/sara-decision-packager.md": "2b9d3a920fada19716d0f6cb853ff2601f27afdc7108a2ea88c5379cf9f7c834",
+    "generated/build/claude/.claude/agents/sara-requirements-analyst.md": "f905482d2e73b216aeaa3c72db3937049a6b35c014dc80d6c0c2fd6faa5942be",
+    "generated/build/claude/.claude/agents/sara-solution-designer.md": "0086f0448dac1bf77cea6cfd769fddc58950f0f0bceac45de4849df406238655",
+    "generated/build/claude/.claude/skills/adr-generation/SKILL.md": "189f2669d370e76fa0a198cc7658aa5bc302b254a3c4abcb0232524088b7b460",
+    "generated/build/claude/.claude/skills/alternative-evaluation/SKILL.md": "0cefa189a12bdda0bcb314d84975f6e7873511d217701f1417aa0268bc37d691",
+    "generated/build/claude/.claude/skills/alternative-generation/SKILL.md": "375fac149183f1882b11cf5ccdb7fd8f1e91deb7bb1a7681f39a59d8c4aa56bb",
+    "generated/build/claude/.claude/skills/alternative-selection/SKILL.md": "5c1af9ef364b1dde1bb0dfc3ca66c25a1c83e642c2efeb17202659b7018ae51c",
+    "generated/build/claude/.claude/skills/architecture-decision-packaging/SKILL.md": "29f6e47a4cf3ca343b4bda40fe321400bd883ef01774124f7765fc78655e1533",
+    "generated/build/claude/.claude/skills/architecture-diagram/SKILL.md": "2fa0fc8862b78e84ecbd5643c6a3d5f5bc6a13e496ca1082dae2f5ad61457cf1",
+    "generated/build/claude/.claude/skills/assumptions-gap-register/SKILL.md": "da3ab931b2b68f95debfa89a349f7ad7e8dd228ccbefb338fa57e59a8667623c",
+    "generated/build/claude/.claude/skills/driver-identification/SKILL.md": "91a17b099fda3eb70f29145db2d45e0fb3c68c64d8fa95368d1948b91cf12316",
+    "generated/build/claude/.claude/skills/pattern-candidate-identification/SKILL.md": "b045d9059ac547bb4ecc31dec41b4adfdcb68e7fd803631786ea18fb9146a987",
+    "generated/build/claude/.claude/skills/patterns-compatibility/SKILL.md": "f6f5b6fa7797a6218da34bfc72bd52935e5db79edb89704622d02cb0aa8f7d5e",
+    "generated/build/claude/.claude/skills/quality-attribute-identification/SKILL.md": "a2337f662a754cb11aeaa5dfacb5db6b49e0e006a839824a065ea78aad6d7c53",
+    "generated/build/claude/.claude/skills/requirements-cross-analysis/SKILL.md": "909b4698e95a5ccdcba37b457e9f53ebdae368a04644c3f9712b44c6695a835f",
+    "generated/build/claude/.claude/skills/sara-artifact-review/SKILL.md": "44c31ac522da285e49a236d9abd8a407e3d6c7ca3729b2fa058805f997bd5dd4",
+    "generated/build/claude/.claude/skills/sara-artifact-review/references/architecture-decision.schema.json": "f92dce4acf005cbcf9d16270c9829299583e9fcdc765a34e35e1e129fdbbea19",
+    "generated/build/claude/.claude/skills/sara-artifact-review/references/sara-stage-artifacts.schema.json": "f30589f23f632a9003735c0c2ccc27ef5a1f5d09d5e4ec80e34e1b5eb91e2277",
+    "generated/build/claude/.claude/skills/sara-orchestrator/SKILL.md": "24ea3d5e537911b9e5c875a5109fae8f9c6a1ec19991d2cccd7c839b712abcd1",
+    "generated/build/claude/.claude/skills/trade-off-analysis/SKILL.md": "c4df88b3ff8fd384863fdb1e1e5aa5c49c056330c185b8c8cda096a52be2e54c",
+    "generated/build/claude/CLAUDE.md": "9d86c6140babdbd9e83df58dc7b6648712d928f2f58f30fcf88c33e5f4e71456",
+    "generated/build/claude/MATERIALIZATION_REPORT.md": "3eee52d549d7dab1b368c3e3e417a4eec404ea7d2e94cbc95392e80c9fabe667",
+    "generated/build/claude/README.md": "213849ce415bb90947d36370cd176a9c6ac765a6402dbc6cc802f51e93f56b35"
+  },
+  "specs": [],
+  "bundle_checks": {
+    "build/claude": {
+      "target": "claude",
+      "spec": null,
+      "passed": false,
+      "issues": [
+        "materialization-report.md: missing; every target must write its fidelity record"
+      ]
+    }
+  },
+  "packaged_bundles": {
+    "build/claude": {
+      "guide": "build/claude/BUNDLE-GUIDE.md",
+      "archive": "build/claude.zip"
+    }
+  },
+  "spec_package": null,
+  "spec_package_error": null
+}

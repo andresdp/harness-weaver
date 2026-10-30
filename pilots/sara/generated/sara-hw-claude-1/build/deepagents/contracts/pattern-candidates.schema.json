@@ -1,0 +1,66 @@
+{
+  "type": "object",
+  "required": [
+    "pattern_candidates"
+  ],
+  "properties": {
+    "pattern_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "pattern_name",
+          "description",
+          "addressed_concerns",
+          "source_requirement_ids",
+          "source_driver_names",
+          "rationale",
+          "limitations"
+        ],
+        "properties": {
+          "pattern_name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "addressed_concerns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_requirement_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "source_driver_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "minItems": 1
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/pattern-candidates.schema.json",
+  "title": "Pattern candidates",
+  "description": "Derived from the JSON structure block in the SARA skill 'pattern-candidate-identification' (NicolasMP51/software-architecture-agent@528ae7ce). Required keys mirror the block; extra keys are allowed. HarnessWeaver pilot contract, not an original SARA schema."
+}

@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AtamReviewFindingsArtifact",
+  "description": "Stage 5 review output: 06_review_findings.json",
+  "$defs": {
+    "SourceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^(evaluation_inputs|metadata|title)(\\.|\\[|$)"
+      },
+      "description": "JSON paths into 00_evaluation_inputs.json, e.g. evaluation_inputs.business_context.business_goals[0]. Required (non-empty) when basis is observed."
+    },
+    "Basis": {
+      "type": "string",
+      "enum": [
+        "observed",
+        "inferred",
+        "assumption"
+      ],
+      "description": "observed = stated in the inputs; inferred = reasoned from cited inputs (state the reasoning); assumption = not supported by the inputs and must also appear as a gap"
+    },
+    "Gap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^G-[0-9]+-[0-9]+$",
+          "description": "G-<stage>-<n>"
+        },
+        "gap_type": {
+          "type": "string",
+          "enum": [
+            "unknown",
+            "conflict",
+            "incomplete",
+            "assumption"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "What is unknown, conflicting, incomplete or assumed"
+        },
+        "affected_activity": {
+          "type": "string",
+          "enum": [
+            "establish-context",
+            "build-utility-tree",
+            "identify-approaches",
+            "analyze-scenarios",
+            "synthesize-and-review"
+          ]
+        },
+        "missing_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Evidence needed to resolve or reduce the gap"
+        },
+        "resolution_question": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Question for the architect or a stakeholder"
+        }
+      },
+      "required": [
+        "id",
+        "gap_type",
+        "description",
+        "affected_activity",
+        "missing_evidence",
+        "resolution_question"
+      ]
+    },
+    "AvailabilityAssessment": {
+      "additionalProperties": false,
+      "description": "Status for context, drivers, or architecture evidence availability.",
+      "properties": {
+        "evidence": {
+          "description": "At least one observed input or artifact fact supporting this status, including evidence of absence",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "value": {
+          "description": "Availability status",
+          "enum": [
+            "missing",
+            "partial",
+            "sufficient"
+          ],
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence",
+        "value"
+      ],
+      "title": "AtamAvailabilityAssessment",
+      "type": "object"
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "reviewed_artifact": {
+      "type": "string",
+      "const": "05_atam_report.json"
+    },
+    "deterministic_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ran": {
+          "type": "boolean"
+        },
+        "tool": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exit_code": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "ran",
+        "tool",
+        "exit_code",
+        "summary"
+      ]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^C-[0-9]+$"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "structure",
+              "semantic_state",
+              "evidence_traceability",
+              "uncertainty",
+              "method_coverage",
+              "reference_boundary"
+            ]
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail",
+              "warn"
+            ]
+          },
+          "location": {
+            "type": "string",
+            "minLength": 1,
+            "description": "JSON path in 05_atam_report.json, or 'report'"
+          },
+          "finding": {
+            "type": "string",
+            "minLength": 1
+          },
+          "correction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Concrete correction that adds no unsupported fact; null when result is pass"
+          }
+        },
+        "required": [
+          "id",
+          "category",
+          "result",
+          "location",
+          "finding",
+          "correction"
+        ]
+      },
+      "minItems": 1
+    },
+    "unsupported_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "location": {
+            "type": "string",
+            "minLength": 1
+          },
+          "claim": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "location",
+          "claim",
+          "reason"
+        ]
+      }
+    },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "applied": {
+          "type": "boolean"
+        },
+        "changed_locations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "remaining_failures": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^C-[0-9]+$"
+          }
+        }
+      },
+      "required": [
+        "applied",
+        "changed_locations",
+        "remaining_failures"
+      ]
+    },
+    "ready_for_architect_review": {
+      "type": "boolean"
+    },
+    "architect_review_focus": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "description": "method_coverage, evidence_grounding, risks, tradeoffs, unknowns items the architect must look at first"
+    }
+  },
+  "required": [
+    "reviewed_artifact",
+    "deterministic_validation",
+    "checks",
+    "unsupported_claims",
+    "revision",
+    "ready_for_architect_review",
+    "architect_review_focus"
+  ]
+}

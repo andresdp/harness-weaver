@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "required": [
+    "quality_attributes"
+  ],
+  "properties": {
+    "quality_attributes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "rationale",
+          "source_requirement_ids",
+          "evidence",
+          "priority"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_requirement_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "priority": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/quality-attributes.schema.json",
+  "title": "Quality attributes",
+  "description": "Derived from the JSON structure block in the SARA skill 'quality-attribute-identification' (NicolasMP51/software-architecture-agent@528ae7ce). Required keys mirror the block; extra keys are allowed. HarnessWeaver pilot contract, not an original SARA schema."
+}

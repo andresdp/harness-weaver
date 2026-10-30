@@ -1,0 +1,941 @@
+{
+  "analysis_records": [
+    {
+      "record_id": "AR-1",
+      "scenario_id": "FUN-1",
+      "approach_ids": ["AP-1", "AP-3", "AP-4"],
+      "evidence_ids": ["AE-1", "AE-4", "AE-5", "AE-6"],
+      "scenario_reference": {
+        "id": "FUN-1",
+        "text": "An application submits events that require the framework's event-processing services during normal operation, and the framework processes them completely and exactly as required; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Functionality",
+      "environment": "Normal operation.",
+      "stimulus": "An application submits events that require the framework's event-processing services.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "Events are held in an Event Queue component (evidence: AE-5)",
+        "The Event Manager interacts directly with application handlers (evidence: AE-4)",
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)",
+        "The architecture is documented with class diagrams, component descriptions and defined component interactions (evidence: AE-1)"
+      ],
+      "reasoning": "Events pass through the Event Queue to the Event Manager, which invokes handlers derived from a common base Handler, so the architecture gives one defined path for event processing. The supplied material does not describe how the Event Manager selects the handler for a given event, nor what happens to an event for which no handler exists. No response measure is supplied, so whether processing is complete and exactly as required cannot be determined.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-1",
+            "description": "Whether every submitted event reaches a handler that processes it as required is unresolved, because the handler-selection mechanism of the Event Manager is not described.",
+            "rationale": "The Event Manager calls application handlers directly and handlers are specializations of a base Handler, but the inputs do not state how an event is mapped to a handler or how unmatched events are treated; completeness of event processing therefore cannot be established from the supplied material.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-4", "AE-6", "AP-1", "BD-2"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-1",
+            "parameter": "Handler-selection and dispatch logic of the Event Manager toward application handlers",
+            "correlated_attribute": "Functionality",
+            "evidence_ids": ["AE-4", "AE-6"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-2",
+      "scenario_id": "FUN-2",
+      "approach_ids": ["AP-2"],
+      "evidence_ids": ["AE-5", "AE-8", "AE-9", "AE-14", "AE-15"],
+      "scenario_reference": {
+        "id": "FUN-2",
+        "text": "Several events arrive one after another while the system is running with its single Event Queue and Event Manager, and the Event Manager dispatches them to their handlers in First-Come-First-Served order; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Functionality",
+      "environment": "Normal operation with a single Event Queue and a single Event Manager.",
+      "stimulus": "Several events arrive one after another.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "Events are dispatched First-Come-First-Served (FIFO) (evidence: AE-9)",
+        "The architecture is limited to one Event Manager and one Event Queue (evidence: AE-14, AE-15)",
+        "Execution is on a single processor with sequential event processing (evidence: AE-8)",
+        "Events are held in an Event Queue component (evidence: AE-5)"
+      ],
+      "reasoning": "With exactly one Event Queue served by exactly one Event Manager on a single processor, there is a single point at which arrival order is recorded and a single consumer that removes events, so First-Come-First-Served dispatch follows from the structure. The same structure serializes all event processing, which ties the ordering guarantee to throughput. No response measure is supplied, so the scenario is judged only on whether the structure supports FIFO ordering, not on any timing target.",
+      "findings": {
+        "risks": [],
+        "non_risks": [
+          {
+            "id": "NR-1",
+            "description": "FIFO dispatch order is supported by the structure: one queue, one Event Manager and sequential processing leave no second consumer that could reorder events.",
+            "rationale": "The FIFO constraint, the limit of one Event Queue and one Event Manager, and sequential single-processor execution are all stated in the inputs; together they mean events are removed and dispatched in arrival order. This is reasoned from the structure, not from a test result.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-8", "AE-9", "AE-14", "AE-15", "AP-2"]
+          }
+        ],
+        "sensitivity_points": [
+          {
+            "id": "S-2",
+            "parameter": "Dispatch ordering policy of the single Event Queue (FIFO)",
+            "correlated_attribute": "Functionality",
+            "evidence_ids": ["AE-9", "AE-15"]
+          }
+        ],
+        "tradeoff_points": [
+          {
+            "id": "T-1",
+            "parameter": "Single Event Queue served sequentially by a single Event Manager on one processor",
+            "conflicting_attributes": [
+              "Functionality (strict FIFO ordering)",
+              "Conceptual Integrity (one deterministic execution order)",
+              "Performance (all events serialized behind one consumer)"
+            ],
+            "evidence_ids": ["AE-8", "AE-9", "AE-14", "AE-15"]
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "AR-3",
+      "scenario_id": "FUN-3",
+      "approach_ids": ["AP-5"],
+      "evidence_ids": ["AE-3", "AE-7", "AE-10"],
+      "scenario_reference": {
+        "id": "FUN-3",
+        "text": "No input has been received after the system has started, and the system remains in an idle wait state and resumes event processing when input arrives; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Functionality",
+      "environment": "The system has started and is awaiting input via the CLI.",
+      "stimulus": "No input is received.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "The system maintains an idle wait state until input is received (evidence: AE-10)",
+        "The system accepts input via a Command Line Interface (evidence: AE-7)",
+        "The Main module is part of the framework (evidence: AE-3)"
+      ],
+      "reasoning": "The framework, which owns the Main module, waits in an idle state until CLI input arrives, which corresponds directly to the stated idle-wait constraint. The supplied material does not describe how received CLI input is turned into an event and placed in the Event Queue, so the resumption half of the scenario is not traceable to a described mechanism. No response measure is supplied, so the time to resume processing cannot be assessed.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-2",
+            "description": "How the system leaves the idle wait state and turns CLI input into queued events is not described, so whether processing resumes correctly when input arrives is unresolved.",
+            "rationale": "The idle-wait requirement and CLI input are stated, and the Main module belongs to the framework, but no component is identified as converting input into events for the Event Queue; the idle state is documented while the resume path is not.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-3", "AE-7", "AE-10", "AP-5", "BD-5"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-3",
+            "parameter": "Blocking idle wait on CLI input inside the framework-owned Main control loop",
+            "correlated_attribute": "Functionality",
+            "evidence_ids": ["AE-3", "AE-7", "AE-10"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-4",
+      "scenario_id": "FUN-4",
+      "approach_ids": ["AP-3"],
+      "evidence_ids": ["AE-5", "AE-6", "AE-9"],
+      "scenario_reference": {
+        "id": "FUN-4",
+        "text": "A request to terminate the system is received during normal operation, and the STOP handler handles it and terminates the system; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Functionality",
+      "environment": "Normal operation.",
+      "stimulus": "A request to terminate the system is received.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)",
+        "Events are held in an Event Queue component (evidence: AE-5)",
+        "Events are dispatched First-Come-First-Served (FIFO) (evidence: AE-9)"
+      ],
+      "reasoning": "Termination is required to be handled by a STOP handler, and the architecture provides standard handlers derived from a base Handler, so a STOP handler fits the handler extension structure. The inputs do not say whether the STOP handler is one of the standard handlers, nor what happens to events still in the Event Queue when termination is requested. No response measure is supplied, so orderly termination cannot be assessed against a criterion.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-3",
+            "description": "Whether termination via the STOP handler is orderly, for example what happens to events remaining in the Event Queue, is unresolved.",
+            "rationale": "The STOP-handler constraint and the handler hierarchy are stated, but neither the STOP handler's place in that hierarchy nor the treatment of pending queued events on termination is described; with FIFO dispatch a STOP event can be preceded or followed by other queued events whose fate is not stated.",
+            "basis": "inferred",
+            "evidence_ids": ["BD-4", "AE-5", "AE-6", "AE-9", "AP-3"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-4",
+            "parameter": "Position of the STOP event in the single FIFO queue relative to pending events",
+            "correlated_attribute": "Functionality",
+            "evidence_ids": ["AE-5", "AE-9"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-5",
+      "scenario_id": "REL-1",
+      "approach_ids": ["AP-2", "AP-4"],
+      "evidence_ids": ["AE-2", "AE-8", "AE-11", "AE-14", "AE-15"],
+      "scenario_reference": {
+        "id": "REL-1",
+        "text": "A failure occurs in a framework component during event processing in normal operation, and the system recovers and resumes event processing immediately; response measure unspecified ('immediate' is not quantified).",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Reliability",
+      "environment": "Normal operation on a single processor with one Event Manager and one Event Queue.",
+      "stimulus": "A failure occurs in a framework component during event processing.",
+      "response_measure": "unspecified: 'immediate' recovery is not quantified in the inputs",
+      "architectural_decisions": [
+        "The architecture is limited to one Event Manager and one Event Queue (evidence: AE-14, AE-15)",
+        "Execution is on a single processor with sequential event processing (evidence: AE-8)",
+        "Application logic is embedded within framework components (evidence: AE-11)",
+        "Application logic and the framework are highly inter-dependent (evidence: AE-2)"
+      ],
+      "reasoning": "The architecture has exactly one Event Manager and one Event Queue on a single processor, and application logic is embedded within framework components. The supplied material does not describe fault detection, redundancy, restart, or persistence of the Event Queue, so it cannot be established how the system would recover from a failure of either single element, or whether queued events survive. Because application code is embedded in framework components, a fault in application logic may affect framework components as well, and no fault-isolation boundary is described. 'Immediate' recovery is not quantified, so attainment cannot be determined.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-4",
+            "description": "The single Event Manager and single Event Queue are potential single points of failure, and recovery after their failure is unresolved.",
+            "rationale": "The limits of one Event Manager and one Event Queue on a single processor are stated; the supplied material does not describe a redundant element, restart mechanism or queue persistence, so whether event processing can resume, and whether queued events are retained, cannot be determined.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-8", "AE-14", "AE-15", "AP-2", "BD-7"]
+          },
+          {
+            "id": "R-5",
+            "description": "A fault in application logic may propagate into framework components, because the two are not separated.",
+            "rationale": "Application logic is embedded within framework components and the two are described as highly inter-dependent; no fault-isolation mechanism between application and framework code is described, so containment of an application-level failure is unresolved.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-2", "AE-11", "AP-4", "BD-7"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-5",
+            "parameter": "Number of Event Manager and Event Queue instances (fixed at 1)",
+            "correlated_attribute": "Reliability",
+            "evidence_ids": ["AE-14", "AE-15"]
+          }
+        ],
+        "tradeoff_points": [
+          {
+            "id": "T-2",
+            "parameter": "Limit of one Event Manager and one Event Queue",
+            "conflicting_attributes": [
+              "Conceptual Integrity (single, simple execution model and ordering)",
+              "Reliability (no redundant element to take over on failure)"
+            ],
+            "evidence_ids": ["AE-9", "AE-14", "AE-15"]
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "AR-6",
+      "scenario_id": "REL-2",
+      "approach_ids": ["AP-3", "AP-5"],
+      "evidence_ids": ["AE-6", "AE-7", "AE-10"],
+      "scenario_reference": {
+        "id": "REL-2",
+        "text": "A user enters erroneous or invalid input through the CLI during normal operation, and the system detects and handles the error and continues to accept input; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Reliability",
+      "environment": "Normal operation, with the system waiting for input.",
+      "stimulus": "A user enters erroneous or invalid input through the CLI.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "The system accepts input via a Command Line Interface (evidence: AE-7)",
+        "The system maintains an idle wait state until input is received (evidence: AE-10)",
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)"
+      ],
+      "reasoning": "User input enters through the CLI while the system waits idle. Standard handlers derived from the base Handler could host error handling, but the supplied material does not describe any input-validation step or error handler, nor which component would detect invalid CLI input. Whether invalid input is detected, and whether the system returns to accepting input, therefore cannot be determined. No response measure is supplied.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-6",
+            "description": "Detection and handling of invalid CLI input is unresolved, because no validation step or error handler is described.",
+            "rationale": "CLI input and the standard/application handler structure are stated, but no component is identified as validating input or handling user errors; whether erroneous input could reach the Event Queue or stop the processing loop cannot be determined from the supplied material.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-6", "AE-7", "AP-5", "BD-7"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-6",
+            "parameter": "Point on the CLI input path where input is validated before being converted into events",
+            "correlated_attribute": "Reliability",
+            "evidence_ids": ["AE-7", "AE-10"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-7",
+      "scenario_id": "CI-1",
+      "approach_ids": ["AP-1", "AP-3", "AP-4", "AP-5"],
+      "evidence_ids": ["AE-1", "AE-3", "AE-4", "AE-5", "AE-6", "AE-11"],
+      "scenario_reference": {
+        "id": "CI-1",
+        "text": "An event is processed that involves the Main module, Event Queue, Event Manager and handlers during normal operation, and the components interact in a coordinated manner according to their defined interactions; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Conceptual Integrity",
+      "environment": "Normal operation.",
+      "stimulus": "An event is processed that involves the Main module, Event Queue, Event Manager and handlers.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "The architecture is documented with class diagrams, component descriptions and defined component interactions (evidence: AE-1)",
+        "The Main module is part of the framework (evidence: AE-3)",
+        "Events are held in an Event Queue component (evidence: AE-5)",
+        "The Event Manager interacts directly with application handlers (evidence: AE-4)",
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)",
+        "Application logic is embedded within framework components (evidence: AE-11)"
+      ],
+      "reasoning": "The documentation is stated to define the component interactions, the framework owns the Main module and control flow, and all handlers share one base Handler that the Event Manager invokes, which gives a uniform interaction contract. However, the class diagrams and interaction definitions themselves are not part of the supplied inputs, and application logic is embedded in framework components, so coordination also depends on application code respecting that contract. No response measure is supplied, so coordinated interaction can only be assessed qualitatively.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-7",
+            "description": "Coordinated interaction cannot be verified against the defined interactions, because those definitions are not part of the supplied material and application code is embedded in framework components.",
+            "rationale": "The inputs state that interactions are defined but supply only a prose summary; with application logic embedded in framework components and direct manager-to-handler calls, coordination depends on details that the evaluation cannot inspect.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-1", "AE-4", "AE-11", "AP-4"]
+          }
+        ],
+        "non_risks": [
+          {
+            "id": "NR-2",
+            "description": "Interaction between the Event Manager and handlers follows one uniform contract, because every handler derives from the same base Handler and control is owned by the framework.",
+            "rationale": "The base Handler extended by all standard and application-specific handlers, the framework-owned Main module and the documented component interactions together give a single interaction pattern for the Event Manager to invoke; this is reasoned from the described structure.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-1", "AE-3", "AE-4", "AE-6", "AP-3", "AP-5"]
+          }
+        ],
+        "sensitivity_points": [
+          {
+            "id": "S-7",
+            "parameter": "Uniform base Handler interface invoked by the Event Manager",
+            "correlated_attribute": "Conceptual Integrity",
+            "evidence_ids": ["AE-4", "AE-6"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-8",
+      "scenario_id": "CI-2",
+      "approach_ids": ["AP-2", "AP-3"],
+      "evidence_ids": ["AE-6", "AE-8", "AE-9", "AE-11", "AE-14", "AE-15"],
+      "scenario_reference": {
+        "id": "CI-2",
+        "text": "Events of the same kind are submitted at different times during normal operation, and the architecture handles them with consistent behavior; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Conceptual Integrity",
+      "environment": "Normal operation with sequential event processing.",
+      "stimulus": "Events of the same kind are submitted at different times.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "Events are dispatched First-Come-First-Served (FIFO) (evidence: AE-9)",
+        "Execution is on a single processor with sequential event processing (evidence: AE-8)",
+        "The architecture is limited to one Event Manager and one Event Queue (evidence: AE-14, AE-15)",
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)",
+        "Application logic is embedded within framework components (evidence: AE-11)"
+      ],
+      "reasoning": "Sequential FIFO processing through one queue and one Event Manager means events of the same kind always pass through the same path in arrival order, with no concurrent interleaving. Whether the outcome is consistent also depends on handler state carried between events and on application-specific handlers overriding standard behaviour, neither of which is described. No response measure is supplied.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-8",
+            "description": "Consistency of behaviour for repeated events of the same kind is unresolved where handlers keep state between events or application-specific handlers override standard behaviour.",
+            "rationale": "Application logic is embedded in framework components and application-specific handlers extend the base Handler, but the supplied material does not describe handler state or override rules, so whether the same event yields the same behaviour at different times cannot be determined.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-6", "AE-11", "AP-3"]
+          }
+        ],
+        "non_risks": [
+          {
+            "id": "NR-3",
+            "description": "Processing order and execution path for events of the same kind are deterministic, because there is one queue, one Event Manager and sequential FIFO processing.",
+            "rationale": "With a single consumer and no concurrent execution, events cannot be reordered or interleaved, which removes concurrency as a source of inconsistent behaviour; this is reasoned from the stated structure and constraints.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-8", "AE-9", "AE-14", "AE-15", "AP-2"]
+          }
+        ],
+        "sensitivity_points": [],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-9",
+      "scenario_id": "MOD-1",
+      "approach_ids": ["AP-3", "AP-4"],
+      "evidence_ids": ["AE-2", "AE-4", "AE-6", "AE-11", "AE-12"],
+      "scenario_reference": {
+        "id": "MOD-1",
+        "text": "A new demand on system functionality arises during development or maintenance, and the new application-specific functionality is added to the architecture; response measure unspecified.",
+        "type": "Growth"
+      },
+      "quality_attribute": "Modifiability",
+      "environment": "Development or maintenance time.",
+      "stimulus": "A new demand on system functionality arises.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)",
+        "Application logic is embedded within framework components (evidence: AE-11)",
+        "Application logic and the framework are highly inter-dependent (evidence: AE-2)",
+        "The Event Manager interacts directly with application handlers (evidence: AE-4)"
+      ],
+      "reasoning": "New application-specific functionality that can be expressed as event handling can be added as a new application-specific handler extending the base Handler, which localizes that kind of change. Functionality that does not fit a handler, or that touches application logic embedded within framework components, would require changing framework components, and the inter-dependence between application and framework makes the extent of such changes uncertain. No effort or time bound is supplied, so the cost of an addition cannot be determined.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-9",
+            "description": "New functionality that is not a pure handler extension is likely to require changes to framework components, with an extent that cannot be determined.",
+            "rationale": "Application logic is embedded within framework components and application and framework are highly inter-dependent, so changes to application behaviour can reach into the framework; without representative change requests the size of that ripple is unknown.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-2", "AE-11", "AP-4", "BD-10"]
+          }
+        ],
+        "non_risks": [
+          {
+            "id": "NR-4",
+            "description": "Adding a new event-handling behaviour as an application-specific handler has an explicit extension point.",
+            "rationale": "The base Handler is already extended by application-specific handlers, so a new handler subclass is an established way to add application functionality without altering the base; this is reasoned from the described structure.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-6", "AP-3", "BD-3"]
+          }
+        ],
+        "sensitivity_points": [
+          {
+            "id": "S-8",
+            "parameter": "Granularity of the base Handler extension point (what behaviour can be added by subclassing alone)",
+            "correlated_attribute": "Modifiability",
+            "evidence_ids": ["AE-6"]
+          }
+        ],
+        "tradeoff_points": [
+          {
+            "id": "T-3",
+            "parameter": "Direct interaction between the Event Manager and application handlers, without an intermediate dispatch layer",
+            "conflicting_attributes": [
+              "Performance (fewer components per transaction, the stated performance proxy)",
+              "Modifiability (the manager depends directly on application handlers)",
+              "Variability (harder to substitute or add applications)"
+            ],
+            "evidence_ids": ["AE-4", "AE-12"]
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "AR-10",
+      "scenario_id": "MOD-2",
+      "approach_ids": ["AP-4"],
+      "evidence_ids": ["AE-2", "AE-4", "AE-11"],
+      "scenario_reference": {
+        "id": "MOD-2",
+        "text": "A developer is asked to modify the framework during maintenance, and the modification is made quickly and cost-effectively; response measure unspecified (no time or cost target is given).",
+        "type": "Growth"
+      },
+      "quality_attribute": "Modifiability",
+      "environment": "Maintenance time.",
+      "stimulus": "A developer is asked to modify the framework.",
+      "response_measure": "unspecified: no time or cost target is given in the inputs",
+      "architectural_decisions": [
+        "Application logic and the framework are highly inter-dependent (evidence: AE-2)",
+        "Application logic is embedded within framework components (evidence: AE-11)",
+        "The Event Manager interacts directly with application handlers (evidence: AE-4)"
+      ],
+      "reasoning": "Because application logic is embedded in framework components and the Event Manager depends directly on application handlers, a modification to the framework may require coordinated changes in application code, and vice versa. This reasoning points to higher change cost, but no time, cost or effort target and no representative change request is supplied, so whether modifications are fast and cost-effective cannot be determined.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-10",
+            "description": "Framework modifications are likely to propagate into application code because of the tight application-framework coupling, which threatens fast, cost-effective modification.",
+            "rationale": "The inputs state that application logic and framework are highly inter-dependent, that application logic is embedded within framework components and that the Event Manager calls application handlers directly; these increase the number of places a change can touch, though the actual effort cannot be determined without a change budget.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-2", "AE-4", "AE-11", "AP-4", "BD-10"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-9",
+            "parameter": "Degree to which application logic is embedded within framework components",
+            "correlated_attribute": "Modifiability",
+            "evidence_ids": ["AE-2", "AE-11"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-11",
+      "scenario_id": "MOD-3",
+      "approach_ids": ["AP-5"],
+      "evidence_ids": ["AE-3", "AE-7", "AE-10"],
+      "scenario_reference": {
+        "id": "MOD-3",
+        "text": "A request is made to change the user interface from command-driven (CLI) to window-based during development, and the interface is changed; response measure unspecified.",
+        "type": "Growth"
+      },
+      "quality_attribute": "Modifiability",
+      "environment": "Development time.",
+      "stimulus": "A request is made to change the user interface from command-driven to window-based.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "The Main module is part of the framework (evidence: AE-3)",
+        "The system accepts input via a Command Line Interface (evidence: AE-7)",
+        "The system maintains an idle wait state until input is received (evidence: AE-10)"
+      ],
+      "reasoning": "Input arrives via the CLI and the framework-owned Main module maintains the idle wait for that input, so the input source is bound into the framework's control loop. The supplied material does not describe any separation between the input source and event processing. A window-based interface usually brings its own event loop, which would have to coexist with or replace the framework-owned loop, so whether the change is localized is unresolved. No response measure is supplied.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-11",
+            "description": "Replacing the CLI with a window-based interface may require changes to the framework's Main module and control loop, because input handling is not described as separated from event processing.",
+            "rationale": "CLI input and the idle wait are stated as part of the framework-owned execution; with no described input abstraction, the change from command-driven to window-based input may reach the framework core rather than a replaceable input component.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-3", "AE-7", "AE-10", "AP-5", "BD-10"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-10",
+            "parameter": "Binding of the CLI input source into the framework-owned Main control loop",
+            "correlated_attribute": "Modifiability",
+            "evidence_ids": ["AE-3", "AE-7"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-12",
+      "scenario_id": "VAR-1",
+      "approach_ids": ["AP-3", "AP-4"],
+      "evidence_ids": ["AE-2", "AE-3", "AE-6", "AE-11"],
+      "scenario_reference": {
+        "id": "VAR-1",
+        "text": "Architects of a future system want to reuse major parts of the framework when developing that architecture, and those parts are reused in the new architecture; response measure unspecified.",
+        "type": "Growth"
+      },
+      "quality_attribute": "Variability",
+      "environment": "Development of a future architecture.",
+      "stimulus": "Architects of a future system want to reuse major parts of the framework.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)",
+        "Application logic is embedded within framework components (evidence: AE-11)",
+        "Application logic and the framework are highly inter-dependent (evidence: AE-2)",
+        "The Main module is part of the framework (evidence: AE-3)"
+      ],
+      "reasoning": "The separation of standard handlers from application-specific handlers under a common base suggests that the base Handler and standard handlers are candidates for reuse. However, application logic is embedded within framework components and the two are highly inter-dependent, so the inputs do not establish which framework components are free of application logic. No reuse measure is supplied, so the extent of reuse cannot be determined.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-12",
+            "description": "Major framework parts may not be reusable for a future architecture without first separating embedded application logic.",
+            "rationale": "Application logic is embedded within framework components and framework and application are highly inter-dependent; the supplied material does not identify which components are application-independent, so reuse of major parts is uncertain.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-2", "AE-11", "AP-4", "BD-6"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-11",
+            "parameter": "Separation of application logic from framework components",
+            "correlated_attribute": "Variability",
+            "evidence_ids": ["AE-2", "AE-11"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-13",
+      "scenario_id": "VAR-2",
+      "approach_ids": ["AP-2", "AP-3"],
+      "evidence_ids": ["AE-6", "AE-14", "AE-15"],
+      "scenario_reference": {
+        "id": "VAR-2",
+        "text": "A request is made to expand the framework with new components or more sophisticated options during development, and the framework is extended to accommodate them; response measure unspecified.",
+        "type": "Growth"
+      },
+      "quality_attribute": "Variability",
+      "environment": "Development time.",
+      "stimulus": "A request is made to expand the framework with new components or more sophisticated options.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)",
+        "The architecture is limited to one Event Manager and one Event Queue (evidence: AE-14, AE-15)"
+      ],
+      "reasoning": "New handler types can be added through the base Handler extension point. Expansion that needs additional Event Managers or Event Queues, for example for prioritized or parallel processing as more sophisticated options, is bounded by the stated limit of one each; the inputs do not say whether that limit is a fixed design decision or a configurable parameter. No response measure is supplied, so the cost of expansion cannot be determined.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-13",
+            "description": "Expansion beyond new handlers, such as additional queues or managers, is constrained by the limit of one Event Manager and one Event Queue.",
+            "rationale": "The architecture limits of one Event Manager and one Event Queue are stated; whether they can be raised is not described, so options that need more than one queue or manager may require restructuring the dispatch core.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-14", "AE-15", "AP-2", "BD-6"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-12",
+            "parameter": "Architecture limit on Event Manager and Event Queue instances (1 each)",
+            "correlated_attribute": "Variability",
+            "evidence_ids": ["AE-14", "AE-15"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-14",
+      "scenario_id": "VAR-3",
+      "approach_ids": ["AP-2", "AP-4", "AP-5"],
+      "evidence_ids": ["AE-2", "AE-3", "AE-4", "AE-8", "AE-14", "AE-15"],
+      "scenario_reference": {
+        "id": "VAR-3",
+        "text": "Several applications are hooked up to the framework at the same time, and the framework serves all of them; response measure unspecified.",
+        "type": "Exploratory"
+      },
+      "quality_attribute": "Variability",
+      "environment": "Runtime, on a single processor with one Event Manager and one Event Queue.",
+      "stimulus": "Several applications are hooked up to the framework at the same time.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "The architecture is limited to one Event Manager and one Event Queue (evidence: AE-14, AE-15)",
+        "Execution is on a single processor with sequential event processing (evidence: AE-8)",
+        "The Event Manager interacts directly with application handlers (evidence: AE-4)",
+        "Application logic and the framework are highly inter-dependent (evidence: AE-2)",
+        "The Main module is part of the framework (evidence: AE-3)"
+      ],
+      "reasoning": "Several applications would share the single Event Queue and single Event Manager on one processor, inside one framework-owned Main module, while the Event Manager depends directly on application handlers and application logic is inter-dependent with the framework. The supplied material does not describe how multiple applications would be registered, how their events would be distinguished, or how they would be isolated from each other. Whether the framework can serve several applications at once therefore cannot be determined; the structure suggests it was not designed for that. No response measure is supplied.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-14",
+            "description": "Hooking several applications to the framework at the same time is structurally constrained and its feasibility is unresolved.",
+            "rationale": "One Event Manager and one Event Queue, sequential single-processor execution, a framework-owned Main module and direct, inter-dependent coupling to application handlers are stated; no multi-application registration or isolation mechanism is described, so concurrent use by several applications cannot be established.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-2", "AE-3", "AE-4", "AE-8", "AE-14", "AE-15", "AP-2", "AP-4"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-13",
+            "parameter": "Coupling of the single Event Manager to the application handlers of one application",
+            "correlated_attribute": "Variability",
+            "evidence_ids": ["AE-2", "AE-4"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-15",
+      "scenario_id": "PERF-1",
+      "approach_ids": ["AP-1", "AP-2", "AP-4"],
+      "evidence_ids": ["AE-4", "AE-7", "AE-8", "AE-9", "AE-12", "AE-13", "AE-14", "AE-15"],
+      "scenario_reference": {
+        "id": "PERF-1",
+        "text": "A user submits input that generates an event during normal operation with sequential processing on a single processor, and the system processes the operation at the fastest possible speed; response measure unspecified ('fastest possible speed' is not quantified).",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Performance",
+      "environment": "Normal operation with sequential event processing on a single processor.",
+      "stimulus": "A user submits input that generates an event.",
+      "response_measure": "unspecified: 'fastest possible speed' is not quantified in the inputs",
+      "architectural_decisions": [
+        "Performance is characterized by the number of components involved in a transaction, and transaction speed is described qualitatively as slow because of that number (evidence: AE-12, AE-13)",
+        "Execution is on a single processor with sequential event processing (evidence: AE-8)",
+        "Events are dispatched First-Come-First-Served (FIFO) (evidence: AE-9)",
+        "The architecture is limited to one Event Manager and one Event Queue (evidence: AE-14, AE-15)",
+        "The Event Manager interacts directly with application handlers (evidence: AE-4)",
+        "The system accepts input via a Command Line Interface (evidence: AE-7)"
+      ],
+      "reasoning": "Each event passes through several components (input, queue, manager, handler), and the inputs characterize transaction speed qualitatively as slow because of the number of components involved. All events are processed sequentially by one Event Manager from one FIFO queue, so a long-running handler delays every later event. 'Fastest possible speed' is not a measurable target, and no workload, benchmark or response-time target is supplied, so whether the scenario's response is attained cannot be determined; the findings below are potential latency risks only.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-15",
+            "description": "Potential latency risk from the number of components involved per transaction.",
+            "rationale": "The inputs use component count per transaction as the performance proxy and describe transaction speed qualitatively as slow for that reason; no workload, benchmark or response-time target is supplied, so the actual latency impact cannot be determined.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-12", "AE-13", "AP-1"]
+          },
+          {
+            "id": "R-16",
+            "description": "Potential head-of-line blocking: one slow handler delays all subsequent events in the single FIFO queue.",
+            "rationale": "Sequential processing on a single processor with one Event Manager and one FIFO queue means events wait for every earlier event to finish; whether this matters cannot be determined without a workload and a response-time target.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-8", "AE-9", "AE-14", "AE-15", "AP-2"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-14",
+            "parameter": "Number of components involved in an event transaction",
+            "correlated_attribute": "Performance",
+            "evidence_ids": ["AE-12", "AE-13"]
+          },
+          {
+            "id": "S-15",
+            "parameter": "Sequential, single-processor dispatch from one FIFO queue",
+            "correlated_attribute": "Performance",
+            "evidence_ids": ["AE-8", "AE-9"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-16",
+      "scenario_id": "SEC-1",
+      "approach_ids": [],
+      "evidence_ids": ["AE-7", "AE-17"],
+      "scenario_reference": {
+        "id": "SEC-1",
+        "text": "An unauthorized party attempts to access the system through its CLI input during normal operation, and the system prevents the access; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Security",
+      "environment": "Normal operation, with input accepted through the CLI.",
+      "stimulus": "An unauthorized party attempts to access the system.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "The system accepts input via a Command Line Interface (evidence: AE-7)"
+      ],
+      "reasoning": "Input is accepted through a CLI, and the inputs pose the probe question whether the system allows unauthorized access, but no authentication, authorization or access-control mechanism is described and no security approach was identified. Whether unauthorized access through the CLI is prevented therefore cannot be determined; the supplied material does not establish that such controls are absent either. Security is not among the named architectural drivers, so whether this scenario is in scope is also unresolved. No response measure is supplied.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-17",
+            "description": "Prevention of unauthorized access is unresolved, because no access-control mechanism is described for the CLI entry point.",
+            "rationale": "The CLI input path is stated and the inputs explicitly probe for unauthorized access, yet no authentication or authorization element appears in the described components; this establishes uncertainty about access control, not that it is missing in the real system.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-7", "AE-17"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-17",
+      "scenario_id": "SEC-2",
+      "approach_ids": ["AP-4"],
+      "evidence_ids": ["AE-2", "AE-11", "AE-18"],
+      "scenario_reference": {
+        "id": "SEC-2",
+        "text": "Data held in framework data structures is accessed from outside its owning component during normal operation, and the data remains properly encapsulated and confidential; response measure unspecified.",
+        "type": "Use Case"
+      },
+      "quality_attribute": "Security",
+      "environment": "Normal operation.",
+      "stimulus": "Data held in framework data structures is accessed from outside its owning component.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "Application logic is embedded within framework components (evidence: AE-11)",
+        "Application logic and the framework are highly inter-dependent (evidence: AE-2)"
+      ],
+      "reasoning": "Application logic is embedded within framework components and is highly inter-dependent with the framework, so application code runs with access to framework internals, which weakens the encapsulation boundary between application and framework data. The inputs probe for data confidentiality but describe no data-protection or encapsulation mechanism, so whether framework data structures remain encapsulated and confidential cannot be determined. No response measure is supplied.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-18",
+            "description": "Encapsulation and confidentiality of framework data structures are at risk, because application logic is embedded inside framework components.",
+            "rationale": "Embedding application logic within framework components and their high inter-dependence give application code reach into framework data; no data-protection or encapsulation mechanism is described, so confidentiality is unresolved.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-2", "AE-11", "AE-18", "AP-4"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-16",
+            "parameter": "Placement of application logic inside framework components",
+            "correlated_attribute": "Security",
+            "evidence_ids": ["AE-2", "AE-11"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-18",
+      "scenario_id": "PORT-1",
+      "approach_ids": ["AP-5"],
+      "evidence_ids": ["AE-7", "AE-8"],
+      "scenario_reference": {
+        "id": "PORT-1",
+        "text": "The implementation is moved to a different execution environment, and it executes there; response measure unspecified.",
+        "type": "Growth"
+      },
+      "quality_attribute": "Portability",
+      "environment": "Deployment time.",
+      "stimulus": "The implementation is moved to a different execution environment.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "The system accepts input via a Command Line Interface (evidence: AE-7)",
+        "Execution is on a single processor with sequential event processing (evidence: AE-8)"
+      ],
+      "reasoning": "The only environment facts supplied are CLI input and implied single-processor, sequential execution. The implementation language, platform dependencies and any abstraction isolating the framework from its environment are not described, so whether the implementation executes in a different environment cannot be determined. Environments without a CLI, or with multiple processors where sequential processing is relied on for FIFO ordering, would be the cases to examine. No response measure is supplied.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-19",
+            "description": "Execution in a different environment is unresolved, because platform dependencies are not described and the design relies on CLI input and sequential single-processor execution.",
+            "rationale": "CLI input and single-processor sequential execution are stated; no platform abstraction is described, so portability to environments with a different input model or execution model cannot be established.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-7", "AE-8", "AP-5"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-17",
+            "parameter": "Dependence on CLI input and on single-processor sequential execution",
+            "correlated_attribute": "Portability",
+            "evidence_ids": ["AE-7", "AE-8"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    },
+    {
+      "record_id": "AR-19",
+      "scenario_id": "PORT-2",
+      "approach_ids": ["AP-3"],
+      "evidence_ids": ["AE-1", "AE-6"],
+      "scenario_reference": {
+        "id": "PORT-2",
+        "text": "A decision is made to implement the framework in another programming language during development, and the architecture supports that implementation flexibly; response measure unspecified.",
+        "type": "Exploratory"
+      },
+      "quality_attribute": "Portability",
+      "environment": "Development time.",
+      "stimulus": "A decision is made to implement the framework in another programming language.",
+      "response_measure": "unspecified: no response measure is supplied in the inputs for this scenario",
+      "architectural_decisions": [
+        "A base Handler component is extended by standard handlers and application-specific handlers (evidence: AE-6)",
+        "The architecture is documented with class diagrams, component descriptions and defined component interactions (evidence: AE-1)"
+      ],
+      "reasoning": "Handlers are varied by extending a base Handler, and the architecture is documented with class diagrams, which suggests an object-oriented design. Re-implementation in another language with class inheritance would preserve this structure; in a language without inheritance the handler hierarchy would need restructuring. The current implementation language is not described, so the effort cannot be determined. No response measure is supplied.",
+      "findings": {
+        "risks": [
+          {
+            "id": "R-20",
+            "description": "Implementation in a language without class inheritance may require restructuring the handler hierarchy.",
+            "rationale": "The base Handler extended by standard and application-specific handlers and the class-diagram documentation imply reliance on inheritance; the implementation language and alternatives are not described, so the impact on other languages is uncertain.",
+            "basis": "inferred",
+            "evidence_ids": ["AE-1", "AE-6", "AP-3"]
+          }
+        ],
+        "non_risks": [],
+        "sensitivity_points": [
+          {
+            "id": "S-18",
+            "parameter": "Handler variation through class inheritance from a base Handler",
+            "correlated_attribute": "Portability",
+            "evidence_ids": ["AE-6"]
+          }
+        ],
+        "tradeoff_points": []
+      }
+    }
+  ],
+  "unanalyzed_scenarios": [],
+  "scenario_analysis_status": {
+    "value": "partial",
+    "evidence": [
+      "All 19 utility-tree scenarios have an analysis record (AR-1 to AR-19).",
+      "None of the 19 scenarios has a supplied response measure, so no finding states whether a response target is attained.",
+      "No scenario has a stakeholder priority, so the analysis is not ordered by importance or difficulty.",
+      "All risks, non-risks, sensitivity points and tradeoff points are inferred from the supplied description; no architect review of the analysis is recorded."
+    ]
+  },
+  "gaps": [
+    {
+      "id": "G-4-1",
+      "gap_type": "unknown",
+      "description": "The mechanism that converts CLI input into events, places them in the Event Queue and ends the idle wait is not described; this affects the analysis of FUN-3, REL-2 and MOD-3.",
+      "affected_activity": "analyze-scenarios",
+      "missing_evidence": "A description of the component and interaction that reads CLI input, validates it, creates events and enqueues them.",
+      "resolution_question": "Which component reads CLI input, how is it turned into events, and how does the system leave the idle wait state?"
+    },
+    {
+      "id": "G-4-2",
+      "gap_type": "unknown",
+      "description": "What happens to events remaining in the Event Queue, and to an in-progress handler, when the STOP handler terminates the system is not described (scenario FUN-4).",
+      "affected_activity": "analyze-scenarios",
+      "missing_evidence": "The termination sequence triggered by the STOP handler, including treatment of pending and in-progress events.",
+      "resolution_question": "When a STOP event is processed, are pending events processed, discarded or persisted, and how does the framework shut down?"
+    },
+    {
+      "id": "G-4-3",
+      "gap_type": "incomplete",
+      "description": "The documentation status says class diagrams and defined component interactions exist, but those diagrams and interaction definitions are not part of the supplied inputs, so coordination (CI-1) and consistency (CI-2) could only be analyzed from the prose summary.",
+      "affected_activity": "analyze-scenarios",
+      "missing_evidence": "The class diagrams and component interaction descriptions referenced by the documentation status.",
+      "resolution_question": "Can the class diagrams and interaction definitions be supplied for the evaluation?"
+    },
+    {
+      "id": "G-4-4",
+      "gap_type": "unknown",
+      "description": "No fault-isolation boundary between application logic embedded in framework components and the framework itself is described, so containment of application-level faults (REL-1) cannot be assessed.",
+      "affected_activity": "analyze-scenarios",
+      "missing_evidence": "A description of how exceptions or failures in application handlers or embedded application logic are caught and contained.",
+      "resolution_question": "If an application handler or embedded application logic fails, what happens to the Event Manager and the rest of the framework?"
+    },
+    {
+      "id": "G-4-5",
+      "gap_type": "unknown",
+      "description": "Whether the limit of one Event Manager and one Event Queue is a fixed design decision or a configurable parameter is not stated; this affects REL-1, VAR-2 and VAR-3.",
+      "affected_activity": "analyze-scenarios",
+      "missing_evidence": "The rationale for the one-manager, one-queue limit and whether it can be changed.",
+      "resolution_question": "Is the limit of one Event Manager and one Event Queue intended to be permanent, or can more instances be configured?"
+    },
+    {
+      "id": "G-4-6",
+      "gap_type": "unknown",
+      "description": "No mechanism for registering, distinguishing or isolating several applications using the framework at the same time is described (VAR-3).",
+      "affected_activity": "analyze-scenarios",
+      "missing_evidence": "A description of how applications attach to the framework and how their handlers and events are kept apart.",
+      "resolution_question": "Is the framework intended to serve more than one application at once, and if so how are applications attached and isolated?"
+    },
+    {
+      "id": "G-4-7",
+      "gap_type": "unknown",
+      "description": "Whether handlers keep state between events, and the rules by which application-specific handlers may override standard handler behaviour, are not described, which limits the analysis of consistent behaviour (CI-2).",
+      "affected_activity": "analyze-scenarios",
+      "missing_evidence": "Handler lifecycle and state description, and the override rules of the handler hierarchy.",
+      "resolution_question": "Are handlers stateless across events, and which standard behaviour may application-specific handlers override?"
+    }
+  ]
+}

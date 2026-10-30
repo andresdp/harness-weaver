@@ -1,0 +1,29 @@
+{
+  "selected_alternative_id": "A3",
+  "selection_rationale": "A3 is the best overall choice because it satisfies all stated requirements while preserving the simplest deployable shape, which makes it the strongest fit when requirement satisfaction is prioritized first, then drivers, then quality attributes, trade-offs, and risks. Compared with A1, it adds fresher rider/admin views through internal evented projections; compared with A2, it avoids the highest operational complexity and the consistency penalties of a distributed system. A3 therefore offers the best balance of compliance, usability, responsiveness, and maintainability without taking on microservices-level complexity.",
+  "supporting_evidence": [
+    "All requirements S1-S13 are satisfied.",
+    "Security, privacy, and regulatory compliance are explicitly addressed.",
+    "Time-sensitive rider interactions and real-time availability are supported via internal event publication and CQRS.",
+    "Cross-channel access for riders and administrators is preserved in a single deployable boundary.",
+    "Operational reporting and history retention are directly supported by specialized read models."
+  ],
+  "key_advantages": [
+    "A3 best satisfies the decision drivers while keeping the architecture simpler than A2.",
+    "It preserves user experience simplicity better than A2 and matches A1 on simplicity while improving read-side freshness.",
+    "It retains centralized transactional consistency for billing and rental workflows.",
+    "It provides sufficient interoperability through API gateway and hexagonal boundaries.",
+    "Its modular monolith structure offers a pragmatic path for the expected domain and team constraints."
+  ],
+  "key_limitations": [
+    "A3 has positive impacts on security and privacy, usability, performance/responsiveness, data consistency, interoperability, and compliance.",
+    "Availability is neutral rather than maximized, but this is acceptable because the option still avoids the broader outage and coordination risks of a distributed system.",
+    "Scalability is only partially positive, yet the requirement set does not demand microservices-level horizontal scale and the trade-off is favorable given the other priorities."
+  ],
+  "rejected_alternatives": [
+    {
+      "alternative_id": "A3",
+      "reason": "Selected because it satisfies all requirements and best balances the priorities: it keeps the simplicity and consistency advantages of a monolith while improving freshness of discovery and reporting through internal event-driven projections. This gives it the strongest overall fit when compared against A1 and A2."
+    }
+  ]
+}

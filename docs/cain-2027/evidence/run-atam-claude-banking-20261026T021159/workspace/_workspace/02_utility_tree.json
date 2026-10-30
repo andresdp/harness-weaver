@@ -1,0 +1,513 @@
+{
+  "root": "Utility",
+  "quality_attribute_nodes": [
+    {
+      "attribute_name": "Functionality",
+      "driver_ids": ["BD-2", "BD-4", "BD-5", "BD-9"],
+      "children": [
+        {
+          "scenario_id": "FUN-1",
+          "refinement": "Complete and correct event processing",
+          "scenario_description": "An application submits events that require the framework's event-processing services during normal operation, and the framework processes them completely and exactly as required; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-14",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[13]",
+              "evaluation_inputs.phase_1_discovery.evaluator_inquiry_questions[7]"
+            ]
+          },
+          "stimulus": "An application submits events that require the framework's event-processing services.",
+          "environment": "Normal operation.",
+          "response": "The framework processes the events completely and exactly as required.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-2", "BD-9"],
+          "evidence_ids": ["AE-1", "AE-4", "AE-5", "AE-6"]
+        },
+        {
+          "scenario_id": "FUN-2",
+          "refinement": "FIFO event dispatch",
+          "scenario_description": "Several events arrive one after another while the system is running with its single Event Queue and Event Manager, and the Event Manager dispatches them to their handlers in First-Come-First-Served order; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "derived_from_evidence",
+            "source_scenario_id": null,
+            "basis": "inferred",
+            "source_refs": [
+              "evaluation_inputs.phase_2_architectural_context.runtime_constraints[0]",
+              "evaluation_inputs.business_context.business_goals[1]"
+            ]
+          },
+          "stimulus": "Several events arrive one after another.",
+          "environment": "Normal operation with a single Event Queue and a single Event Manager.",
+          "response": "The Event Manager dispatches the events to their handlers in First-Come-First-Served order.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-2", "BD-9"],
+          "evidence_ids": ["AE-4", "AE-5", "AE-9", "AE-14", "AE-15"]
+        },
+        {
+          "scenario_id": "FUN-3",
+          "refinement": "Idle wait until input",
+          "scenario_description": "No input has been received after the system has started, and the system remains in an idle wait state and resumes event processing when input arrives; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "derived_from_driver",
+            "source_scenario_id": null,
+            "basis": "inferred",
+            "source_refs": [
+              "evaluation_inputs.business_context.technical_constraints[1]",
+              "evaluation_inputs.phase_2_architectural_context.runtime_constraints[1]"
+            ]
+          },
+          "stimulus": "No input is received.",
+          "environment": "The system has started and is awaiting input via the CLI.",
+          "response": "The system remains in an idle wait state and resumes event processing when input arrives.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-5", "BD-9"],
+          "evidence_ids": ["AE-7", "AE-10"]
+        },
+        {
+          "scenario_id": "FUN-4",
+          "refinement": "Termination via STOP handler",
+          "scenario_description": "A request to terminate the system is received during normal operation, and the STOP handler handles it and terminates the system; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "derived_from_driver",
+            "source_scenario_id": null,
+            "basis": "inferred",
+            "source_refs": [
+              "evaluation_inputs.business_context.technical_constraints[0]"
+            ]
+          },
+          "stimulus": "A request to terminate the system is received.",
+          "environment": "Normal operation.",
+          "response": "The STOP handler handles the request and terminates the system.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-4", "BD-9"],
+          "evidence_ids": ["AE-6"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Reliability",
+      "driver_ids": ["BD-7"],
+      "children": [
+        {
+          "scenario_id": "REL-1",
+          "refinement": "Recovery after failure",
+          "scenario_description": "A failure occurs in a framework component during event processing in normal operation, and the system recovers and resumes event processing immediately; response measure unspecified ('immediate' is not quantified).",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-3",
+            "basis": "observed",
+            "source_refs": ["evaluation_inputs.raw_candidate_scenarios[2]"]
+          },
+          "stimulus": "A failure occurs in a framework component during event processing.",
+          "environment": "Normal operation on a single processor with one Event Manager and one Event Queue.",
+          "response": "The system recovers and resumes event processing immediately.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-7"],
+          "evidence_ids": ["AE-8", "AE-14", "AE-15"]
+        },
+        {
+          "scenario_id": "REL-2",
+          "refinement": "Handling of user errors and invalid input",
+          "scenario_description": "A user enters erroneous or invalid input through the CLI during normal operation, and the system detects and handles the error and continues to accept input; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-4",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[3]",
+              "evaluation_inputs.phase_1_discovery.evaluator_inquiry_questions[2]"
+            ]
+          },
+          "stimulus": "A user enters erroneous or invalid input through the CLI.",
+          "environment": "Normal operation, with the system waiting for input.",
+          "response": "The system detects and handles the error and continues to accept input.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-7"],
+          "evidence_ids": ["AE-7", "AE-10"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Conceptual Integrity",
+      "driver_ids": ["BD-8"],
+      "children": [
+        {
+          "scenario_id": "CI-1",
+          "refinement": "Coordinated component interaction",
+          "scenario_description": "An event is processed that involves the Main module, Event Queue, Event Manager and handlers during normal operation, and the components interact in a coordinated manner according to their defined interactions; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-8",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[7]",
+              "evaluation_inputs.phase_1_discovery.evaluator_inquiry_questions[6]"
+            ]
+          },
+          "stimulus": "An event is processed that involves the Main module, Event Queue, Event Manager and handlers.",
+          "environment": "Normal operation.",
+          "response": "The components interact in a coordinated manner according to their defined interactions.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-2", "BD-8"],
+          "evidence_ids": ["AE-1", "AE-3", "AE-4", "AE-5", "AE-6"]
+        },
+        {
+          "scenario_id": "CI-2",
+          "refinement": "Consistent behavior",
+          "scenario_description": "Events of the same kind are submitted at different times during normal operation, and the architecture handles them with consistent behavior; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-13",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[12]",
+              "evaluation_inputs.phase_1_discovery.evaluator_inquiry_questions[3]"
+            ]
+          },
+          "stimulus": "Events of the same kind are submitted at different times.",
+          "environment": "Normal operation with sequential event processing.",
+          "response": "The architecture handles the events with consistent behavior.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-8"],
+          "evidence_ids": ["AE-6", "AE-8", "AE-9"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Modifiability",
+      "driver_ids": ["BD-3", "BD-10"],
+      "children": [
+        {
+          "scenario_id": "MOD-1",
+          "refinement": "Adding application-specific functionality",
+          "scenario_description": "A new demand on system functionality arises during development or maintenance, and the new application-specific functionality is added to the architecture; response measure unspecified.",
+          "scenario_type": "Growth",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-5",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[4]",
+              "evaluation_inputs.phase_1_discovery.evaluator_inquiry_questions[4]"
+            ]
+          },
+          "stimulus": "A new demand on system functionality arises.",
+          "environment": "Development or maintenance time.",
+          "response": "The new application-specific functionality is added to the architecture.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-3", "BD-10"],
+          "evidence_ids": ["AE-2", "AE-6", "AE-11"]
+        },
+        {
+          "scenario_id": "MOD-2",
+          "refinement": "Fast, cost-effective framework modification",
+          "scenario_description": "A developer is asked to modify the framework during maintenance, and the modification is made quickly and cost-effectively; response measure unspecified (no time or cost target is given).",
+          "scenario_type": "Growth",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-7",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[6]",
+              "evaluation_inputs.phase_1_discovery.evaluator_inquiry_questions[5]"
+            ]
+          },
+          "stimulus": "A developer is asked to modify the framework.",
+          "environment": "Maintenance time.",
+          "response": "The modification is made quickly and cost-effectively.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-10"],
+          "evidence_ids": ["AE-2", "AE-11"]
+        },
+        {
+          "scenario_id": "MOD-3",
+          "refinement": "Replacing the command-driven interface",
+          "scenario_description": "A request is made to change the user interface from command-driven (CLI) to window-based during development, and the interface is changed; response measure unspecified.",
+          "scenario_type": "Growth",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-16",
+            "basis": "observed",
+            "source_refs": ["evaluation_inputs.raw_candidate_scenarios[15]"]
+          },
+          "stimulus": "A request is made to change the user interface from command-driven to window-based.",
+          "environment": "Development time.",
+          "response": "The user interface is changed to a window-based interface.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-10"],
+          "evidence_ids": ["AE-3", "AE-7", "AE-10"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Variability",
+      "driver_ids": ["BD-1", "BD-3", "BD-6"],
+      "children": [
+        {
+          "scenario_id": "VAR-1",
+          "refinement": "Reuse of framework parts",
+          "scenario_description": "Architects of a future system want to reuse major parts of the framework when developing that architecture, and those parts are reused in the new architecture; response measure unspecified.",
+          "scenario_type": "Growth",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-6",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[5]",
+              "evaluation_inputs.phase_1_discovery.evaluator_inquiry_questions[0]"
+            ]
+          },
+          "stimulus": "Architects of a future system want to reuse major parts of the framework.",
+          "environment": "Development of a future architecture.",
+          "response": "The major framework parts are reused in the new architecture.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-1", "BD-6"],
+          "evidence_ids": ["AE-2", "AE-3", "AE-6", "AE-11"]
+        },
+        {
+          "scenario_id": "VAR-2",
+          "refinement": "Framework expansion",
+          "scenario_description": "A request is made to expand the framework with new components or more sophisticated options during development, and the framework is extended to accommodate them; response measure unspecified.",
+          "scenario_type": "Growth",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-9",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[8]",
+              "evaluation_inputs.phase_1_discovery.evaluator_inquiry_questions[1]"
+            ]
+          },
+          "stimulus": "A request is made to expand the framework with new components or more sophisticated options.",
+          "environment": "Development time.",
+          "response": "The framework is extended to accommodate the new components or options.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-6"],
+          "evidence_ids": ["AE-6", "AE-14", "AE-15"]
+        },
+        {
+          "scenario_id": "VAR-3",
+          "refinement": "Multiple applications at the same time",
+          "scenario_description": "Several applications are hooked up to the framework at the same time, and the framework serves all of them; response measure unspecified.",
+          "scenario_type": "Exploratory",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-15",
+            "basis": "observed",
+            "source_refs": ["evaluation_inputs.raw_candidate_scenarios[14]"]
+          },
+          "stimulus": "Several applications are hooked up to the framework at the same time.",
+          "environment": "Runtime, on a single processor with one Event Manager and one Event Queue.",
+          "response": "The framework serves all connected applications.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": ["BD-1", "BD-3", "BD-6"],
+          "evidence_ids": ["AE-2", "AE-3", "AE-8", "AE-14", "AE-15"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Performance",
+      "driver_ids": [],
+      "children": [
+        {
+          "scenario_id": "PERF-1",
+          "refinement": "Event processing speed",
+          "scenario_description": "A user submits input that generates an event during normal operation with sequential processing on a single processor, and the system processes the operation at the fastest possible speed; response measure unspecified ('fastest possible speed' is not quantified).",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-2",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[1]",
+              "evaluation_inputs.investigative_prompts.style_probes.questions[2]"
+            ]
+          },
+          "stimulus": "A user submits input that generates an event.",
+          "environment": "Normal operation with sequential event processing on a single processor.",
+          "response": "The system processes the operation at the fastest possible speed.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": [],
+          "evidence_ids": ["AE-7", "AE-8", "AE-9", "AE-12", "AE-13", "AE-19"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Security",
+      "driver_ids": [],
+      "children": [
+        {
+          "scenario_id": "SEC-1",
+          "refinement": "Preventing unauthorized access",
+          "scenario_description": "An unauthorized party attempts to access the system through its CLI input during normal operation, and the system prevents the access; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-1",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[0]",
+              "evaluation_inputs.investigative_prompts.style_probes.questions[0]"
+            ]
+          },
+          "stimulus": "An unauthorized party attempts to access the system.",
+          "environment": "Normal operation, with input accepted through the CLI.",
+          "response": "The system prevents the unauthorized access.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": [],
+          "evidence_ids": ["AE-7", "AE-17"]
+        },
+        {
+          "scenario_id": "SEC-2",
+          "refinement": "Data encapsulation and confidentiality",
+          "scenario_description": "Data held in framework data structures is accessed from outside its owning component during normal operation, and the data remains properly encapsulated and confidential; response measure unspecified.",
+          "scenario_type": "Use Case",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-11",
+            "basis": "observed",
+            "source_refs": [
+              "evaluation_inputs.raw_candidate_scenarios[10]",
+              "evaluation_inputs.investigative_prompts.style_probes.questions[1]"
+            ]
+          },
+          "stimulus": "Data held in framework data structures is accessed from outside its owning component.",
+          "environment": "Normal operation.",
+          "response": "The data remains properly encapsulated and confidential.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": [],
+          "evidence_ids": ["AE-2", "AE-11", "AE-18"]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Portability",
+      "driver_ids": [],
+      "children": [
+        {
+          "scenario_id": "PORT-1",
+          "refinement": "Execution in different environments",
+          "scenario_description": "The implementation is moved to a different execution environment, and it executes there; response measure unspecified.",
+          "scenario_type": "Growth",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-10",
+            "basis": "observed",
+            "source_refs": ["evaluation_inputs.raw_candidate_scenarios[9]"]
+          },
+          "stimulus": "The implementation is moved to a different execution environment.",
+          "environment": "Deployment time.",
+          "response": "The implementation executes in the new environment.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": [],
+          "evidence_ids": ["AE-7", "AE-8"]
+        },
+        {
+          "scenario_id": "PORT-2",
+          "refinement": "Implementation in other programming languages",
+          "scenario_description": "A decision is made to implement the framework in another programming language during development, and the architecture supports that implementation flexibly; response measure unspecified.",
+          "scenario_type": "Exploratory",
+          "origin": {
+            "kind": "raw_candidate_scenario",
+            "source_scenario_id": "RS-12",
+            "basis": "observed",
+            "source_refs": ["evaluation_inputs.raw_candidate_scenarios[11]"]
+          },
+          "stimulus": "A decision is made to implement the framework in another programming language.",
+          "environment": "Development time.",
+          "response": "The architecture supports implementation in the other language.",
+          "response_measure": {"value": null, "basis": "unspecified", "source_refs": []},
+          "priority_tuple": null,
+          "driver_ids": [],
+          "evidence_ids": ["AE-1", "AE-6"]
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    {
+      "id": "G-2-1",
+      "gap_type": "incomplete",
+      "description": "No response measure is stated in the inputs for any utility-tree scenario: FUN-1, FUN-2, FUN-3, FUN-4, REL-1, REL-2, CI-1, CI-2, MOD-1, MOD-2, MOD-3, VAR-1, VAR-2, VAR-3, PERF-1, SEC-1, SEC-2, PORT-1, PORT-2. All response measures are therefore left unspecified.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A stakeholder-stated, measurable response measure (for example a time, count, effort or pass/fail criterion) for each scenario.",
+      "resolution_question": "What measurable response would show that each scenario is satisfied?"
+    },
+    {
+      "id": "G-2-2",
+      "gap_type": "incomplete",
+      "description": "Scenario PERF-1 (from RS-2) asks for the 'fastest possible speed', which is not a measurable target; the inputs give only a qualitative 'slow' characterization and a component-count proxy, so no latency or throughput threshold exists for PERF-1.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A numeric latency or throughput target and a workload description for event processing.",
+      "resolution_question": "What response time or throughput, under what event workload, is acceptable for PERF-1?"
+    },
+    {
+      "id": "G-2-3",
+      "gap_type": "incomplete",
+      "description": "Scenario REL-1 (from RS-3) requires 'immediate recovery' after any failure, but neither the recovery time nor the kinds of failure in scope are quantified for REL-1.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A recovery-time target and a list of failure types (handler, Event Manager, Event Queue, process) in scope.",
+      "resolution_question": "Which failures must REL-1 cover, and within what time must the system recover?"
+    },
+    {
+      "id": "G-2-4",
+      "gap_type": "incomplete",
+      "description": "Scenario MOD-2 (from RS-7) requires modification to be 'cost-effective, fast and in minimal time', and MOD-1, MOD-3, VAR-1, VAR-2 describe changes without any effort, time or cost bound; no kind of change or effort budget is stated for MOD-2.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "Representative change requests with an effort, time or cost bound, and the set of components a change may touch.",
+      "resolution_question": "Which concrete changes are expected, and what effort or elapsed time is acceptable for each?"
+    },
+    {
+      "id": "G-2-5",
+      "gap_type": "unknown",
+      "description": "No importance or difficulty rating is supplied for any scenario (FUN-1, FUN-2, FUN-3, FUN-4, REL-1, REL-2, CI-1, CI-2, MOD-1, MOD-2, MOD-3, VAR-1, VAR-2, VAR-3, PERF-1, SEC-1, SEC-2, PORT-1, PORT-2), so every priority tuple is null and the scenarios are not ranked.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "Stakeholder-assigned importance (High/Medium/Low) and architect-assigned difficulty (High/Medium/Low) per scenario.",
+      "resolution_question": "Which scenarios do stakeholders rate as most important, and which does the architect rate as most difficult to achieve?"
+    },
+    {
+      "id": "G-2-6",
+      "gap_type": "conflict",
+      "description": "The Performance (PERF-1), Security (SEC-1, SEC-2) and Portability (PORT-1, PORT-2) nodes come only from raw candidate scenarios and style probes; none of these attributes is among the named architectural drivers (Variability, Reliability, Conceptual Integrity, Functionality, Modifiability), so whether they are in scope for the evaluation is unclear.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "Confirmation from stakeholders that performance, security and portability are quality attributes of concern for this system.",
+      "resolution_question": "Should performance, security and portability be treated as drivers for this evaluation, or are those candidate scenarios out of scope?"
+    },
+    {
+      "id": "G-2-7",
+      "gap_type": "assumption",
+      "description": "Scenarios FUN-2, FUN-3 and FUN-4 were derived by the evaluator from runtime and technical constraints (FIFO dispatch, idle wait, STOP handler termination) rather than supplied as candidate scenarios; their wording and relevance have not been confirmed by stakeholders.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "Stakeholder confirmation that the derived scenarios FUN-2, FUN-3 and FUN-4 reflect intended behavior.",
+      "resolution_question": "Do the derived scenarios for FIFO dispatch, idle wait and STOP-handler termination reflect the behavior stakeholders require?"
+    }
+  ]
+}

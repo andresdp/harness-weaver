@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "required": [
+    "selected_alternative_id",
+    "selection_rationale",
+    "supporting_evidence",
+    "key_advantages",
+    "key_limitations",
+    "rejected_alternatives"
+  ],
+  "properties": {
+    "selected_alternative_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "selection_rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "supporting_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "key_advantages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "key_limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rejected_alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alternative_id",
+          "reason"
+        ],
+        "properties": {
+          "alternative_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/alternative-selection.schema.json",
+  "title": "Alternative selection",
+  "description": "Derived from the JSON structure block in the SARA skill 'alternative-selection' (NicolasMP51/software-architecture-agent@528ae7ce). Required keys mirror the block; extra keys are allowed. HarnessWeaver pilot contract, not an original SARA schema."
+}

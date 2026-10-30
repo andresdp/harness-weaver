@@ -1,0 +1,48 @@
+{
+  "selected_alternative_id": "A1",
+  "selection_rationale": "Alternative A1 (layered modular monolith with a shared transactional database) is recommended. It has the most functional requirements rated satisfied of the three alternatives (10 of 13, against 9 for A2 and 8 for A3). It is the only alternative that satisfies S7 and the 'Consistent bike and rental state' and 'Bike location and availability tracking' drivers without eventual-consistency caveats, because bike registration, availability removal and rental creation happen in one local ACID transaction that biker and administrator views read directly. It is also the only alternative that keeps personal, payment and usage data in a single store without replication, which supports the high-priority GDPR driver. Session-independent time-based jobs cover rental expiry notification and overtime (S9) despite the 15-minute session timeout (S4), and ports and adapters isolate the variety of payment platforms and SMS/email providers. A2 adds read-model scalability and event decoupling, and A3 adds independent deployability and client-specific backends. However, the inputs state no load, scalability or release-independence needs that would justify the eventual consistency, data replication and operational complexity those alternatives bring. The recommendation is qualitative and based on the available evidence. It accepts known limitations: changes require redeploying the whole application, reporting shares the transactional database, fault isolation is weak, protection in transit is not specified, and biometric matching, navigation and the bike unlock mechanism remain unresolved. It relies on the assumptions that the expected load fits a single deployable, that reporting load is acceptable on the transactional database, and that payment and regional changes do not need independent release.",
+  "supporting_evidence": [
+    "alternative_evaluation.json: A1/S7 satisfied (registration, availability removal and rental creation in one local transaction); A2/S7 partially_satisfied; A3/S7 partially_satisfied",
+    "alternative_evaluation.json: A1 requirement statuses: 10 satisfied (S2, S4, S5, S7-S13), 3 partially_satisfied (S1, S3, S6); A2: 9 satisfied; A3: 8 satisfied",
+    "alternative_evaluation.json: A1/S4 satisfied (server-enforced logout and inactivity timeout); A3/S4 partially_satisfied",
+    "alternative_evaluation.json: A1/S9 satisfied (time-based jobs independent of user sessions)",
+    "alternative_evaluation.json: A1 driver 'Consistent bike and rental state' satisfied; A2 and A3 partially_satisfied",
+    "alternative_evaluation.json: A1 driver 'Bike location and availability tracking' satisfied; A2 and A3 partially_satisfied",
+    "alternative_evaluation.json: A1 driver 'GDPR and regional regulatory compliance' satisfied; A2 and A3 partially_satisfied",
+    "alternative_evaluation.json: A1 driver 'Third-party payment platform integration' satisfied; A1 QA Interoperability positive",
+    "alternative_evaluation.json: A1 QA Reliability (correctness of rental and bike state) positive; A2 and A3 mixed",
+    "alternative_evaluation.json: A1 driver 'Changeability of payment options and regulations' partially_satisfied; A3 satisfied",
+    "trade_off_analysis.json: A1 arch_tradeoff 'Trades independent deployability and fault isolation for transactional consistency and low operational complexity'",
+    "trade_off_analysis.json: A2 weaknesses 'Displayed availability is eventually consistent' and 'Personal data is replicated into read models and event records'",
+    "trade_off_analysis.json: A3 weaknesses 'Highest operational and development complexity ... with no stated scalability, load or team-size reason (S1-G67)'",
+    "trade_off_analysis.json: A1 risks referencing S2-G1, S2-G2, S2-G3 and S2-G12"
+  ],
+  "key_advantages": [
+    "Strong consistency of bike availability and rental state through local ACID transactions (S7, double-registration prevention).",
+    "Biker and administrator views read the same authoritative state, with no read-model lag.",
+    "Single store for personal, payment and usage data simplifies GDPR retention, erasure, encryption at rest and access control.",
+    "Rental expiry notification and overtime detection run independently of the 15-minute session (S4/S9).",
+    "Replaceable adapters for payment platforms, SMS/email providers and the bike/lock interface.",
+    "Fewest runtime components and lowest operational complexity (qualitative)."
+  ],
+  "key_limitations": [
+    "Changes, including a single payment adapter or regional compliance logic, require redeploying the whole application. The changeability driver is only partially satisfied, and the selection relies on S2-G3.",
+    "Reporting queries (S12, S13) share the transactional database with rental operations. That this is acceptable is an unmeasured assumption (S2-G2).",
+    "Weak fault isolation: a failure or slowness in one module (for example reporting or notification) can affect rental operations.",
+    "No edge security component, and protection in transit along the device-to-database path is not specified (S1 and the Security driver are partially satisfied).",
+    "Biometric matching and flushing (S3), navigation to the bike (S6) and the physical unlock mechanism and its failure handling are unresolved.",
+    "The external payment step relies on adapter-level retry and reconciliation, whose adequacy depends on unstated payment timing (S2-G12).",
+    "Scaling a single deployable is assumed sufficient, but no load targets exist (S1-G67, S2-G1).",
+    "Module boundaries may erode over time without discipline and tooling."
+  ],
+  "rejected_alternatives": [
+    {
+      "alternative_id": "A2",
+      "reason": "A2 keeps the transactional core of A1, but its displayed availability and fleet status are eventually consistent, so S7 and the consistency and availability-tracking drivers are only partially satisfied. It replicates personal data into read models and event records, so the GDPR driver is only partially satisfied. It adds a broker and gateway while still deploying as one unit, so it gains no changeability over A1. Its read-model separation would become preferable if measured reporting load or stated freshness tolerances showed A1's shared-database reporting to be inadequate, but no such evidence exists (S1-G67, S2-G2, S2-G4)."
+    },
+    {
+      "alternative_id": "A3",
+      "reason": "A3 is the only alternative that fully satisfies the changeability driver and explicitly handles client differences through BFFs. However, it has the fewest requirements rated satisfied (S1, S3, S4, S6 and S7 partially satisfied), depends on sagas whose compensation behaviour is unstated (S2-G10), and must coordinate GDPR erasure across service-private stores. It also carries the highest operational complexity, with no stated scalability, load, team-size or release-independence need to justify it (S1-G67, S2-G6, S2-G8)."
+    }
+  ]
+}

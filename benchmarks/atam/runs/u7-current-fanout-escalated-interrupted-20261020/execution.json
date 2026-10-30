@@ -1,0 +1,22 @@
+{
+  "record_version": "0.2",
+  "arm": "spec-guided",
+  "runtime": "deepagents",
+  "model": "openai:gpt-5.4-mini",
+  "settings": {
+    "streaming": true,
+    "verbose": true,
+    "request_timeout_seconds": 180,
+    "failure_type": "KeyboardInterrupt",
+    "execution_handle": "exec-session-81840"
+  },
+  "workflow_strategy": "fan_out_fan_in",
+  "agent_interaction": "parallel_specialist_delegation",
+  "harness_assets_sha256": "2d1502a9c549c2b8e456f0be7cd454c54484bd719d33d4f024d43a0a88a39a02",
+  "status": "failed",
+  "prediction": null,
+  "prediction_sha256": null,
+  "output_path": null,
+  "latency_seconds": null,
+  "cost": null
+}

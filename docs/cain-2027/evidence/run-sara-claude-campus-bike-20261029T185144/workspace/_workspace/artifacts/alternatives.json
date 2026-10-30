@@ -1,0 +1,138 @@
+{
+  "alternatives": [
+    {
+      "alternative_id": "A1",
+      "name": "Layered modular monolith behind a security gateway",
+      "description": "A single deployable backend split into capability modules (Identity, Fleet & Availability, Rentals, Payments, Notifications, Reporting), each internally layered, sharing one transactional database with per-module schemas. Web and mobile clients reach it through a thin API Gateway that terminates TLS, validates tokens issued by the Identity module (Federated Identity) and applies rate limiting. Bike registration and removal from the available list run in one local transaction; expiry notifications and usage queries are handled synchronously or by in-process scheduled jobs. Payment platforms and SMS/email providers are reached only through adapters wrapped by circuit breakers.",
+      "selected_patterns": [
+        "Modular Monolith",
+        "Layered Architecture",
+        "API Gateway",
+        "Federated Identity",
+        "Adapter (Integration Gateway)",
+        "Circuit Breaker"
+      ],
+      "addressed_drivers": [
+        "Security of user, biometric and payment data",
+        "GDPR and regional regulatory compliance",
+        "Third-party payment platform integration",
+        "Web and mobile client accessibility",
+        "Timely bike availability and location tracking",
+        "Rental lifecycle and time-based charging",
+        "Physical bike unlock by code",
+        "SMS and email message delivery",
+        "User authentication and session management",
+        "Usage history and administrative usage reporting",
+        "Service availability to riders",
+        "Evolution of payment methods and jurisdictions",
+        "Low carbon footprint"
+      ],
+      "rationale": "The requirements describe a small set of cohesive capabilities with a strong consistency need: S7 requires a registered bike to leave the available list 'as soon as' it is registered, and concurrent registration of the same bike (S1-G20) is easiest to prevent with a local transaction. A modular monolith provides that with the lowest operational and resource footprint (Low carbon footprint), while module boundaries plus adapters keep payment platforms and jurisdiction-specific concerns replaceable. The gateway is used only as a security boundary (compatibility condition for API Gateway + Modular Monolith), and Saga and Service Registry are deliberately omitted because they are redundant in a single deployable unit.",
+      "assumptions": [
+        "The expected number of bikes and concurrent riders can be served by horizontally replicating a single deployable backend against one database.",
+        "Restarting or redeploying the whole backend as one unit is acceptable for the service's availability expectations.",
+        "Biometric thumb-impression verification is performed on the device by its native authenticator, and only an authentication assertion or token is sent to the backend.",
+        "Bike location and status reach the backend through an interface (e.g. a lock or telematics provider) that can be wrapped by an adapter.",
+        "Usage history (S11) and hourly/daily usage (S13) can be computed by querying the transactional rental data without unacceptable load on rider-facing operations."
+      ],
+      "limitations": [
+        "All capabilities scale and fail together; a defect or overload in Reporting can affect bike search and rental.",
+        "Bulk location updates and reporting queries compete for the same database.",
+        "Adding asynchronous behavior later (e.g. a broker for notifications) requires refactoring the in-process scheduling.",
+        "Does not use the client-specific shaping that a BFF would give web and mobile clients."
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "name": "Event-driven microservices on the provided platform infrastructure",
+      "description": "Independently deployable services (Identity, Fleet & Availability, Rental, Payment, Notification, Reporting), each layered internally and owning its data, deployed on the container orchestration platform. An API Gateway is the single entry point for web and mobile clients and validates tokens from the Identity service (Federated Identity); routes are resolved through service registry and discovery. Services communicate via publish-subscribe events on the message broker (BikeRegistered, PaymentAuthorized, RentalExpiringSoon, RentalEnded). The rental flow across Rental, Fleet & Availability and Payment is coordinated by a saga with compensations. Reporting maintains CQRS read models for usage history and hourly/daily aggregates. Payment and Notification services reach external providers through adapters protected by circuit breakers.",
+      "selected_patterns": [
+        "Microservices Architecture",
+        "Layered Architecture",
+        "API Gateway",
+        "Service Registry and Discovery",
+        "Publish-Subscribe",
+        "Saga",
+        "Command Query Responsibility Segregation (CQRS)",
+        "Federated Identity",
+        "Adapter (Integration Gateway)",
+        "Circuit Breaker"
+      ],
+      "addressed_drivers": [
+        "Security of user, biometric and payment data",
+        "GDPR and regional regulatory compliance",
+        "Third-party payment platform integration",
+        "Web and mobile client accessibility",
+        "Timely bike availability and location tracking",
+        "Rental lifecycle and time-based charging",
+        "Physical bike unlock by code",
+        "SMS and email message delivery",
+        "User authentication and session management",
+        "Usage history and administrative usage reporting",
+        "Service availability to riders",
+        "Evolution of payment methods and jurisdictions"
+      ],
+      "rationale": "The project description lists container orchestration, service registry and discovery, API gateway, message broker and distributed tracing as available, which matches this style. Separating services isolates faults (a Payment provider outage does not stop bike search, Service availability to riders), confines payment and personal data to fewer services (ISO 27001/GDPR scoping), and lets the Fleet & Availability service scale with location traffic. Because the rental flow then spans services, Saga is required (dependent relationship), and Publish-Subscribe plus CQRS feed availability, notification and reporting consumers without synchronous coupling.",
+      "assumptions": [
+        "The organization can operate a container orchestration platform, message broker, service registry and distributed tracing in production.",
+        "A short, eventually consistent delay between a bike registration and its removal from the available list satisfies 'as soon as' in S7.",
+        "Concurrent registration attempts for the same bike can be serialized within the single service that owns bike availability.",
+        "The expected scale or availability needs justify the higher resource footprint of multiple services, broker and registry.",
+        "Biometric thumb-impression verification is performed on the device by its native authenticator, and only an authentication assertion or token is sent to the backend.",
+        "Bike location and status reach the backend through an interface (e.g. a lock or telematics provider) that can be wrapped by an adapter."
+      ],
+      "limitations": [
+        "Highest operational complexity and infrastructure footprint, in tension with the driver 'Low carbon footprint', which it does not address.",
+        "Saga compensation design depends on the undecided timing of payment relative to registration (S1-G17, S1-G22).",
+        "Eventual consistency of availability and read models must be handled in rider and administrator views.",
+        "Personal data is replicated into read models, enlarging the scope of GDPR retention and erasure handling."
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "name": "Modular monolith core with client-specific BFFs and event-driven side effects",
+      "description": "The same capability modules as A1 in one layered deployable core, but fronted by two Backends for Frontend: a mobile BFF (device-local biometric login, code scanning, navigation, nearby bikes) and a web BFF (rider web access, history downloads, administrator fleet status and usage views) that also keeps tokens server-side for browsers. The BFFs validate tokens from the Identity module (Federated Identity) and act as the security boundary, so no separate API Gateway is used. Bike registration and removal from availability stay in one local transaction; side effects (verification and expiry notifications, usage records, administrator status refresh) are published as events through a message broker using a transactional outbox. A Reporting module keeps CQRS read models for three-month history and hourly/daily aggregated usage. External providers are reached through adapters with circuit breakers.",
+      "selected_patterns": [
+        "Modular Monolith",
+        "Layered Architecture",
+        "Backend for Frontend (BFF)",
+        "Publish-Subscribe",
+        "Command Query Responsibility Segregation (CQRS)",
+        "Federated Identity",
+        "Adapter (Integration Gateway)",
+        "Circuit Breaker"
+      ],
+      "addressed_drivers": [
+        "Security of user, biometric and payment data",
+        "GDPR and regional regulatory compliance",
+        "Third-party payment platform integration",
+        "Web and mobile client accessibility",
+        "Timely bike availability and location tracking",
+        "Rental lifecycle and time-based charging",
+        "Physical bike unlock by code",
+        "SMS and email message delivery",
+        "User authentication and session management",
+        "Usage history and administrative usage reporting",
+        "Ease of use for all riders",
+        "Service availability to riders",
+        "Evolution of payment methods and jurisdictions",
+        "Low carbon footprint"
+      ],
+      "rationale": "Stage 1 shows that web and mobile clients differ in capability (biometric login S3, scanning and navigation S6) and that reporting views (S11, S13) differ in query shape from the transactional rental model. A3 keeps A1's strong consistency for S6/S7 (compatibility condition for Publish-Subscribe + Modular Monolith: the critical step stays transactional), while using BFFs to tailor each client and events to decouple notifications and reporting from rider flows. CQRS is limited to reporting and history views, as required by the CQRS + Modular Monolith condition, and can hold aggregated usage for administrators. The BFFs take over the gateway's edge-security responsibilities, satisfying the API Gateway + BFF condition when only one of them is used.",
+      "assumptions": [
+        "The web and mobile flows differ enough (biometric login, scanning and navigation on mobile; downloads and administration on web) to justify two separate BFFs.",
+        "A message broker is acceptable as an additional runtime component alongside the single deployable core.",
+        "Usage history (S11) and hourly/daily usage (S13) may lag the transactional rental data by the event propagation delay.",
+        "The expected number of bikes and concurrent riders can be served by horizontally replicating a single deployable backend against one database.",
+        "Biometric thumb-impression verification is performed on the device by its native authenticator, and only an authentication assertion or token is sent to the backend.",
+        "Bike location and status reach the backend through an interface (e.g. a lock or telematics provider) that can be wrapped by an adapter."
+      ],
+      "limitations": [
+        "The core still scales and fails as one unit, although notifications and reporting are decoupled through events.",
+        "Two BFFs plus a broker add components compared with A1; edge security must be implemented consistently in both BFFs.",
+        "Reliable event publication (transactional outbox) and idempotent consumers add implementation complexity.",
+        "Read models replicate usage data, so GDPR retention rules must also be applied to them."
+      ]
+    }
+  ]
+}

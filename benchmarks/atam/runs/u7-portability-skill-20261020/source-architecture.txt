@@ -1,0 +1,15 @@
+Presentation of the Architecture
+This architecture represents a system designed to manage orders and their subsequent distribution.
+The structure shows a clear separation of responsibilities into different modules, which promotes
+modularity and facilitates the maintenance and scalability of the system.
+
+
+
+
+                                Figure 1: System architecture design
+
+
+
+
+                                                 1
+

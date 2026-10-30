@@ -1,0 +1,572 @@
+{
+  "root": "Utility",
+  "quality_attribute_nodes": [
+    {
+      "attribute_name": "Security",
+      "driver_ids": [
+        "BD-9"
+      ],
+      "children": [
+        {
+          "scenario_id": "RS-1",
+          "refinement": "Prevention of unauthorized access",
+          "scenario_description": "When a user attempts unauthorized access, the system prevents access to the system.",
+          "stimulus": "A user attempts unauthorized access",
+          "environment": "During normal system use",
+          "response": "The system prevents access to the system",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-1",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[0]"
+          ]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Performance",
+      "driver_ids": [
+        "BD-9"
+      ],
+      "children": [
+        {
+          "scenario_id": "RS-2",
+          "refinement": "Speed of operation processing",
+          "scenario_description": "When the system processes operations, it processes them in the fastest possible speed.",
+          "stimulus": "The system processes operations",
+          "environment": "During normal operation",
+          "response": "The system processes them in the fastest possible speed",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-2",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[1]"
+          ]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Reliability",
+      "driver_ids": [
+        "BD-7"
+      ],
+      "children": [
+        {
+          "scenario_id": "RS-3",
+          "refinement": "Immediate recovery after failure",
+          "scenario_description": "When a failure occurs, the system recovers immediately.",
+          "stimulus": "A failure occurs",
+          "environment": "During system operation",
+          "response": "The system recovers immediately",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-3",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[2]"
+          ]
+        },
+        {
+          "scenario_id": "RS-13",
+          "refinement": "Consistent behavior of the architecture",
+          "scenario_description": "When the architecture is exercised, it exhibits consistent behavior.",
+          "stimulus": "The architecture is exercised",
+          "environment": "During normal use",
+          "response": "The architecture exhibits consistent behavior",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-13",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[12]"
+          ]
+        },
+        {
+          "scenario_id": "RS-14",
+          "refinement": "Correct and complete behavior",
+          "scenario_description": "When the framework is used, it is complete, clear and performs exactly as required.",
+          "stimulus": "The framework is used",
+          "environment": "During normal operation",
+          "response": "The framework is complete, clear and performs exactly as required",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-14",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[13]"
+          ]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Modifiability",
+      "driver_ids": [
+        "BD-10"
+      ],
+      "children": [
+        {
+          "scenario_id": "RS-5",
+          "refinement": "Accommodation of new functionality demands",
+          "scenario_description": "When new demands arise, the system accommodates them.",
+          "stimulus": "New demands arise on the system",
+          "environment": "After deployment",
+          "response": "The system accommodates the new demands",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-5",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[4]"
+          ]
+        },
+        {
+          "scenario_id": "RS-6",
+          "refinement": "Reusability of major framework parts",
+          "scenario_description": "When future projects are developed, major parts of the framework are reusable.",
+          "stimulus": "Future projects are developed",
+          "environment": "For future use",
+          "response": "Major parts of the framework are reusable",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-6",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[5]"
+          ]
+        },
+        {
+          "scenario_id": "RS-7",
+          "refinement": "Fast and cost-effective framework modification",
+          "scenario_description": "When the framework is modified, the modification is cost-effective, fast and in minimal time.",
+          "stimulus": "The framework is modified",
+          "environment": "During maintenance",
+          "response": "The modification is cost-effective, fast and in minimal time",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-7",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[6]"
+          ]
+        },
+        {
+          "scenario_id": "RS-9",
+          "refinement": "Expansion to support more sophisticated options",
+          "scenario_description": "When the framework is expanded, it allows more sophisticated options.",
+          "stimulus": "The framework is expanded",
+          "environment": "In the future",
+          "response": "The framework allows more sophisticated options",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-9",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[8]"
+          ]
+        },
+        {
+          "scenario_id": "RS-10",
+          "refinement": "Execution in different environments",
+          "scenario_description": "When the implementation is deployed, it can execute in different environments.",
+          "stimulus": "The implementation is deployed",
+          "environment": "In different environments",
+          "response": "The implementation executes in different environments",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-10",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[9]"
+          ]
+        },
+        {
+          "scenario_id": "RS-12",
+          "refinement": "Implementation flexibility across programming languages",
+          "scenario_description": "When the implementation is developed, it allows flexible implementation using other programming languages.",
+          "stimulus": "The implementation is developed",
+          "environment": "For future implementation choices",
+          "response": "The implementation allows flexible use of other programming languages",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-12",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[11]"
+          ]
+        },
+        {
+          "scenario_id": "RS-15",
+          "refinement": "Concurrent support for multiple applications",
+          "scenario_description": "When multiple applications are hooked up to the framework at the same time, the framework supports them.",
+          "stimulus": "Multiple applications are hooked up to the framework at the same time",
+          "environment": "During future extension",
+          "response": "The framework supports multiple applications at the same time",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-15",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[14]"
+          ]
+        },
+        {
+          "scenario_id": "RS-16",
+          "refinement": "Change of interface style from command-driven to window-based",
+          "scenario_description": "When the interface is changed from command-driven to window-based, the framework supports the change.",
+          "stimulus": "The interface changes from command-driven to window-based",
+          "environment": "During interface redesign",
+          "response": "The framework supports the change",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-16",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[15]"
+          ]
+        }
+      ]
+    },
+    {
+      "attribute_name": "Functionality",
+      "driver_ids": [
+        "BD-2",
+        "BD-3",
+        "BD-4",
+        "BD-5"
+      ],
+      "children": [
+        {
+          "scenario_id": "RS-4",
+          "refinement": "Handling of user errors",
+          "scenario_description": "When a user makes an error in using the system, the system handles the error.",
+          "stimulus": "A user makes an error in using the system",
+          "environment": "During normal use",
+          "response": "The system handles the error",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-4",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[3]"
+          ]
+        },
+        {
+          "scenario_id": "RS-8",
+          "refinement": "Coordinated interaction among framework components",
+          "scenario_description": "When framework components interact, they do so in a coordinated manner.",
+          "stimulus": "Framework components interact",
+          "environment": "During normal operation",
+          "response": "They interact in a coordinated manner",
+          "response_measure": null,
+          "response_measure_basis": "missing",
+          "priority_tuple": null,
+          "priority_basis": null,
+          "origin": "raw_candidate_scenario",
+          "raw_scenario_id": "RS-8",
+          "source_refs": [
+            "evaluation_inputs.raw_candidate_scenarios[7]"
+          ]
+        }
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "RS-1",
+      "scenario_text": "When a user attempts unauthorized access, the system prevents access to the system.",
+      "primary_quality_attribute": [
+        "Security"
+      ]
+    },
+    {
+      "scenario_id": "RS-2",
+      "scenario_text": "When the system processes operations, it processes them in the fastest possible speed.",
+      "primary_quality_attribute": [
+        "Performance"
+      ]
+    },
+    {
+      "scenario_id": "RS-3",
+      "scenario_text": "When a failure occurs, the system recovers immediately.",
+      "primary_quality_attribute": [
+        "Reliability"
+      ]
+    },
+    {
+      "scenario_id": "RS-4",
+      "scenario_text": "When a user makes an error in using the system, the system handles the error.",
+      "primary_quality_attribute": [
+        "Functionality"
+      ]
+    },
+    {
+      "scenario_id": "RS-5",
+      "scenario_text": "When new demands arise, the system accommodates them.",
+      "primary_quality_attribute": [
+        "Modifiability"
+      ]
+    },
+    {
+      "scenario_id": "RS-6",
+      "scenario_text": "When future projects are developed, major parts of the framework are reusable.",
+      "primary_quality_attribute": [
+        "Modifiability"
+      ]
+    },
+    {
+      "scenario_id": "RS-7",
+      "scenario_text": "When the framework is modified, the modification is cost-effective, fast and in minimal time.",
+      "primary_quality_attribute": [
+        "Modifiability"
+      ]
+    },
+    {
+      "scenario_id": "RS-8",
+      "scenario_text": "When framework components interact, they do so in a coordinated manner.",
+      "primary_quality_attribute": [
+        "Functionality"
+      ]
+    },
+    {
+      "scenario_id": "RS-9",
+      "scenario_text": "When the framework is expanded, it allows more sophisticated options.",
+      "primary_quality_attribute": [
+        "Modifiability"
+      ]
+    },
+    {
+      "scenario_id": "RS-10",
+      "scenario_text": "When the implementation is deployed, it can execute in different environments.",
+      "primary_quality_attribute": [
+        "Modifiability"
+      ]
+    },
+    {
+      "scenario_id": "RS-12",
+      "scenario_text": "When the implementation is developed, it allows flexible implementation using other programming languages.",
+      "primary_quality_attribute": [
+        "Modifiability"
+      ]
+    },
+    {
+      "scenario_id": "RS-13",
+      "scenario_text": "When the architecture is exercised, it exhibits consistent behavior.",
+      "primary_quality_attribute": [
+        "Reliability"
+      ]
+    },
+    {
+      "scenario_id": "RS-14",
+      "scenario_text": "When the framework is used, it is complete, clear and performs exactly as required.",
+      "primary_quality_attribute": [
+        "Reliability"
+      ]
+    },
+    {
+      "scenario_id": "RS-15",
+      "scenario_text": "When multiple applications are hooked up to the framework at the same time, the framework supports them.",
+      "primary_quality_attribute": [
+        "Modifiability"
+      ]
+    },
+    {
+      "scenario_id": "RS-16",
+      "scenario_text": "When the interface is changed from command-driven to window-based, the framework supports the change.",
+      "primary_quality_attribute": [
+        "Modifiability"
+      ]
+    }
+  ],
+  "analysis_order": [
+    "RS-1",
+    "RS-2",
+    "RS-3",
+    "RS-4",
+    "RS-5",
+    "RS-6",
+    "RS-7",
+    "RS-8",
+    "RS-9",
+    "RS-10",
+    "RS-12",
+    "RS-13",
+    "RS-14",
+    "RS-15",
+    "RS-16"
+  ],
+  "driver_status": {
+    "evidence": [
+      "01_context.json lists 5 architectural drivers and 5 business/technical drivers, but no scenario in 02_utility_tree.json has an observed response measure",
+      "15 raw candidate scenarios were refined into utility-tree scenarios, while RS-11 was not included because it is a security/data-structure concern without a stated measurable response"
+    ],
+    "value": "partial"
+  },
+  "gaps": [
+    {
+      "id": "G-2-1",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-1, so the security scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A stated authorization or confidentiality threshold for unauthorized-access prevention",
+      "resolution_question": "What measurable security requirement should be used for RS-1?"
+    },
+    {
+      "id": "G-2-2",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-2, so the performance scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A quantitative response target for operation-processing speed",
+      "resolution_question": "What measurable performance requirement should be used for RS-2?"
+    },
+    {
+      "id": "G-2-3",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-3, so the recovery scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A recovery-time or recovery-success target after failure",
+      "resolution_question": "What measurable recovery requirement should be used for RS-3?"
+    },
+    {
+      "id": "G-2-4",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-4, so the user-error handling scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A response criterion for handling user errors",
+      "resolution_question": "What measurable handling requirement should be used for RS-4?"
+    },
+    {
+      "id": "G-2-5",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-5, so the functionality-change scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable accommodation criterion for new demands",
+      "resolution_question": "What measurable requirement should be used for RS-5?"
+    },
+    {
+      "id": "G-2-6",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-6, so the reusability scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable reuse target for major framework parts",
+      "resolution_question": "What measurable reuse requirement should be used for RS-6?"
+    },
+    {
+      "id": "G-2-7",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-7, so the modification-cost scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable time or cost target for framework modification",
+      "resolution_question": "What measurable modification requirement should be used for RS-7?"
+    },
+    {
+      "id": "G-2-8",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-8, so the coordination scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable coordination or interaction criterion among components",
+      "resolution_question": "What measurable interaction requirement should be used for RS-8?"
+    },
+    {
+      "id": "G-2-9",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-9, so the expansion scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable expansion criterion for additional options",
+      "resolution_question": "What measurable expansion requirement should be used for RS-9?"
+    },
+    {
+      "id": "G-2-10",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-10, so the multi-environment execution scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable portability or deployment target across environments",
+      "resolution_question": "What measurable environment-execution requirement should be used for RS-10?"
+    },
+    {
+      "id": "G-2-11",
+      "gap_type": "incomplete",
+      "description": "RS-11 was not included because the input does not state a measurable response for secure data structures or encapsulation.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable security or encapsulation target tied to RS-11",
+      "resolution_question": "What measurable requirement should be used if RS-11 is to be kept in the utility tree?"
+    },
+    {
+      "id": "G-2-12",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-12, so the language-flexibility scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable portability or implementation flexibility target",
+      "resolution_question": "What measurable implementation-flexibility requirement should be used for RS-12?"
+    },
+    {
+      "id": "G-2-13",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-13, so the consistency scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable behavioral consistency target",
+      "resolution_question": "What measurable consistency requirement should be used for RS-13?"
+    },
+    {
+      "id": "G-2-14",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-14, so the correctness/completeness scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable correctness or completeness target",
+      "resolution_question": "What measurable requirement should be used for RS-14?"
+    },
+    {
+      "id": "G-2-15",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-15, so the concurrent multi-application scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable multi-application support target",
+      "resolution_question": "What measurable requirement should be used for RS-15?"
+    },
+    {
+      "id": "G-2-16",
+      "gap_type": "incomplete",
+      "description": "No stated measurable response exists for RS-16, so the UI-change scenario cannot be quantified from the inputs.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "A measurable support criterion for changing the interface style",
+      "resolution_question": "What measurable requirement should be used for RS-16?"
+    },
+    {
+      "id": "G-2-17",
+      "gap_type": "assumption",
+      "description": "The input lists five architectural drivers, but it does not provide stakeholder prioritization or difficulty evidence for any scenario, so priority tuples are intentionally omitted.",
+      "affected_activity": "build-utility-tree",
+      "missing_evidence": "Ranked stakeholder priorities and evidence of implementation difficulty for each scenario",
+      "resolution_question": "Which scenarios are highest priority, and what evidence establishes their relative difficulty?"
+    }
+  ]
+}

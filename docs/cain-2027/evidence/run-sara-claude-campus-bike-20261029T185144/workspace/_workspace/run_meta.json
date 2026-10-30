@@ -1,0 +1,19 @@
+{
+  "runId": null,
+  "mode": "fallback (sequential Agent calls; Workflow tool unavailable; no schema-checked return values)",
+  "started": "2026-10-29",
+  "startStage": 1,
+  "inputs": {
+    "project_description": "../input/project-description.json -> _workspace/00_input/project_description.md (verbatim)",
+    "functional_requirements": "../input/functional-requirements.json -> _workspace/00_input/functional_requirements.md (verbatim)"
+  },
+  "outputDir": "../output",
+  "final_report": "../output/report.json",
+  "interruptions": [
+    "Stage 4 review cut off by session usage limit (HTTP 429); resumed in a new session with stages 1-4 preserved. SARA agent types were not registered after resume, so the Stage 4 and package reviews ran as general-purpose agents following .claude/agents/sara-contract-reviewer.md. Packaging was a deterministic jq copy that followed architecture-decision-packaging/SKILL.md."
+  ],
+  "reviews": { "1": "pass", "2": "pass", "3": "pass", "4": "pass_with_findings (1 major, 4 minor; carried)", "5_package": "pass" },
+  "selected_alternative_id": "A3",
+  "gap_entries": { "total": 86, "open": 57, "relied_upon": 21, "noted": 8 },
+  "outcome": "completed"
+}

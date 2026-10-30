@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "required": [
+    "trade_offs"
+  ],
+  "properties": {
+    "trade_offs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "alternative_id",
+          "strengths",
+          "weaknesses",
+          "qa_tensions",
+          "arch_tradeoff",
+          "risks"
+        ],
+        "properties": {
+          "alternative_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "strengths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "weaknesses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "qa_tensions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "arch_tradeoff": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "risks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "minItems": 1
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/trade-off-analysis.schema.json",
+  "title": "Trade-off analysis",
+  "description": "Derived from the JSON structure block in the SARA skill 'trade-off-analysis' (NicolasMP51/software-architecture-agent@528ae7ce). Required keys mirror the block; extra keys are allowed. HarnessWeaver pilot contract, not an original SARA schema."
+}

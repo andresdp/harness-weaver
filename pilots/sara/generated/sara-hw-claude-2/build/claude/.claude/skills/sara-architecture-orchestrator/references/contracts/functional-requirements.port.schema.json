@@ -1,0 +1,11 @@
+{
+  "type": [
+    "string",
+    "array",
+    "object"
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/functional-requirements.port.schema.json",
+  "title": "functional-requirements",
+  "description": "Input port functional_requirements: the functional requirements supplied at run time (each ideally with an identifier such as RF1). Format is not fixed by SARA (harvest defect D8), so strings, lists and objects are accepted."
+}

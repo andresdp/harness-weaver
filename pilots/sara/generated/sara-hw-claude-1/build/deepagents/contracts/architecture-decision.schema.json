@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/architecture-decision.schema.json",
+  "title": "SARA standalone architecture decision package",
+  "description": "HarnessWeaver pilot envelope for SARA Stage 4 outputs when running on the JSON-only HarnessWeaver DeepAgents host. The ADR and Mermaid source remain text fields; this is not an original SARA output contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "selected_alternative_id",
+    "selection_rationale",
+    "adr_markdown",
+    "architecture_diagram_mermaid"
+  ],
+  "properties": {
+    "selected_alternative_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "selection_rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "adr_markdown": {
+      "type": "string",
+      "minLength": 80,
+      "pattern": "^# ADR:"
+    },
+    "architecture_diagram_mermaid": {
+      "type": "string",
+      "minLength": 20,
+      "pattern": "^(flowchart|graph|sequenceDiagram|classDiagram|stateDiagram|erDiagram|C4Context|C4Container|C4Component|C4Dynamic)"
+    }
+  }
+}

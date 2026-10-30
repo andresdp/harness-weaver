@@ -1,0 +1,78 @@
+{
+  "host": "harnessweaver.hosts.deepagents",
+  "started_at": "2026-10-29T14:56:12.232130+00:00",
+  "finished_at": "2026-10-29T15:00:18.760799+00:00",
+  "status": "completed",
+  "bundle": "bundle",
+  "wiring_sha256": "3bd48299f211bcb5f8215fa2c9e78e157aab2e2d1c275e0dbb07a3fbd45fdf6d",
+  "spec": {
+    "path": "../../harnessspec.yaml",
+    "id": "sara-architecture-design",
+    "version": "0.2"
+  },
+  "stages": [
+    {
+      "number": 1,
+      "dir": "stage1-requirements_drivers",
+      "status": "completed",
+      "elapsed_seconds": 43.419,
+      "artifacts": [
+        "requirements_analysis.json",
+        "quality_attributes.json",
+        "drivers.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    },
+    {
+      "number": 2,
+      "dir": "stage2-solution_design",
+      "status": "completed",
+      "elapsed_seconds": 33.639,
+      "artifacts": [
+        "pattern_candidates.json",
+        "pattern_compatibility.json",
+        "alternatives.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    },
+    {
+      "number": 3,
+      "dir": "stage3-alternative_evaluation",
+      "status": "completed",
+      "elapsed_seconds": 139.423,
+      "artifacts": [
+        "alternative_evaluation.json",
+        "trade_off_analysis.json",
+        "alternative_selection.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    },
+    {
+      "number": 4,
+      "dir": "stage4-architecture_decision",
+      "status": "completed",
+      "elapsed_seconds": 30.039,
+      "artifacts": [
+        "adr.json",
+        "architecture_decision.json"
+      ],
+      "problems": [],
+      "repair_attempts": 0,
+      "structured_output": true,
+      "warnings": []
+    }
+  ],
+  "human_gates": [],
+  "output": "output/architecture_decision.json",
+  "output_sha256": "94e9d7e25f1411ce9386f877a031a92cff6e03a22bd9bbfb65b1c079e8f35ff9",
+  "problems": []
+}

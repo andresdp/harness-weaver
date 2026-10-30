@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sara-stage-artifacts.schema.json",
+  "title": "SARA intermediate artifact shapes (harness reference)",
+  "description": "Declarative shapes derived from the 'Expected Output' sections of the SARA stage SKILL.md files, plus the harness gap register. Used by the sara-contract-reviewer as a reading reference. Enumerations marked as harness additions narrow free-text values the source left open.",
+  "$defs": {
+    "stringList": { "type": "array", "items": { "type": "string" } },
+    "priority": { "type": "string", "enum": ["high", "medium", "low"] },
+    "satisfaction": { "type": "string", "enum": ["satisfied", "partially_satisfied", "not_satisfied", "unclear"] },
+
+    "requirements_analysis": {
+      "type": "object",
+      "required": ["requirements", "cross_requirement_relationships"],
+      "properties": {
+        "requirements": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["requirement_id", "requirement_description", "implicit_behaviors", "ambiguities"],
+            "properties": {
+              "requirement_id": { "type": "string", "minLength": 1 },
+              "requirement_description": { "type": "string", "minLength": 1 },
+              "implicit_behaviors": { "$ref": "#/$defs/stringList" },
+              "ambiguities": { "$ref": "#/$defs/stringList" }
+            }
+          }
+        },
+        "cross_requirement_relationships": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["requirement_ids", "relationship_type", "description", "evidence"],
+            "properties": {
+              "requirement_ids": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+              "relationship_type": { "type": "string", "description": "Harness enumeration: dependency | overlap | conflict | shared_concern | inconsistency | shared_data | shared_functionality" },
+              "description": { "type": "string" },
+              "evidence": { "$ref": "#/$defs/stringList" }
+            }
+          }
+        }
+      }
+    },
+
+    "quality_attributes": {
+      "type": "object",
+      "required": ["quality_attributes"],
+      "properties": {
+        "quality_attributes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "description", "rationale", "source_requirement_ids", "evidence", "priority"],
+            "properties": {
+              "name": { "type": "string" }, "description": { "type": "string" }, "rationale": { "type": "string" },
+              "source_requirement_ids": { "$ref": "#/$defs/stringList" },
+              "evidence": { "$ref": "#/$defs/stringList" },
+              "priority": { "$ref": "#/$defs/priority" }
+            }
+          }
+        }
+      }
+    },
+
+    "drivers": {
+      "type": "object",
+      "required": ["drivers"],
+      "properties": {
+        "drivers": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["name", "description", "driver_type", "priority", "source_requirement_ids", "supporting_evidence"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 }, "description": { "type": "string" },
+              "driver_type": { "type": "string", "enum": ["functional_requirement", "quality_attribute", "constraint", "integration_concern", "business_concern", "technical_concern"] },
+              "priority": { "$ref": "#/$defs/priority" },
+              "source_requirement_ids": { "$ref": "#/$defs/stringList" },
+              "supporting_evidence": { "$ref": "#/$defs/stringList" }
+            }
+          }
+        }
+      }
+    },
+
+    "pattern_candidates": {
+      "type": "object",
+      "required": ["pattern_candidates"],
+      "properties": {
+        "pattern_candidates": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["pattern_name", "description", "addressed_concerns", "source_requirement_ids", "source_driver_names", "rationale", "limitations"],
+            "properties": {
+              "pattern_name": { "type": "string" }, "description": { "type": "string" },
+              "addressed_concerns": { "$ref": "#/$defs/stringList" },
+              "source_requirement_ids": { "$ref": "#/$defs/stringList" },
+              "source_driver_names": { "$ref": "#/$defs/stringList" },
+              "rationale": { "type": "string" },
+              "limitations": { "$ref": "#/$defs/stringList" }
+            }
+          }
+        }
+      }
+    },
+
+    "pattern_compatibility": {
+      "type": "object",
+      "required": ["compatibility_analysis"],
+      "properties": {
+        "compatibility_analysis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["patterns", "relationship", "rationale", "conditions", "affected_drivers"],
+            "properties": {
+              "patterns": { "type": "array", "minItems": 2, "items": { "type": "string" } },
+              "relationship": { "type": "string", "description": "Harness enumeration: compatible | complementary | conflicting | redundant | dependent | conditionally_compatible" },
+              "rationale": { "type": "string" },
+              "conditions": { "$ref": "#/$defs/stringList" },
+              "affected_drivers": { "$ref": "#/$defs/stringList" }
+            }
+          }
+        }
+      }
+    },
+
+    "alternatives": {
+      "type": "object",
+      "required": ["alternatives"],
+      "properties": {
+        "alternatives": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["alternative_id", "name", "description", "selected_patterns", "addressed_drivers", "rationale", "assumptions", "limitations"],
+            "properties": {
+              "alternative_id": { "type": "string", "pattern": "^A[0-9]+$" },
+              "name": { "type": "string" }, "description": { "type": "string" },
+              "selected_patterns": { "$ref": "#/$defs/stringList" },
+              "addressed_drivers": { "$ref": "#/$defs/stringList" },
+              "rationale": { "type": "string" },
+              "assumptions": { "$ref": "#/$defs/stringList" },
+              "limitations": { "$ref": "#/$defs/stringList" }
+            }
+          }
+        }
+      }
+    },
+
+    "alternative_evaluation": {
+      "type": "object",
+      "required": ["evaluations"],
+      "properties": {
+        "evaluations": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["alternative_id", "requirement_evaluations", "quality_attribute_evaluations", "driver_evaluations"],
+            "properties": {
+              "alternative_id": { "type": "string" },
+              "requirement_evaluations": { "type": "array", "items": { "type": "object",
+                "required": ["requirement_id", "status", "rationale", "evidence"],
+                "properties": { "requirement_id": { "type": "string" }, "status": { "$ref": "#/$defs/satisfaction" },
+                  "rationale": { "type": "string" }, "evidence": { "$ref": "#/$defs/stringList" } } } },
+              "quality_attribute_evaluations": { "type": "array", "items": { "type": "object",
+                "required": ["quality_attribute", "impact", "rationale", "evidence"],
+                "properties": { "quality_attribute": { "type": "string" },
+                  "impact": { "type": "string", "description": "Harness enumeration: positive | neutral | negative | mixed | unclear" },
+                  "rationale": { "type": "string" }, "evidence": { "$ref": "#/$defs/stringList" } } } },
+              "driver_evaluations": { "type": "array", "items": { "type": "object",
+                "required": ["driver", "status", "rationale", "evidence"],
+                "properties": { "driver": { "type": "string" }, "status": { "$ref": "#/$defs/satisfaction" },
+                  "rationale": { "type": "string" }, "evidence": { "$ref": "#/$defs/stringList" } } } }
+            }
+          }
+        }
+      }
+    },
+
+    "trade_off_analysis": {
+      "type": "object",
+      "required": ["trade_offs"],
+      "properties": {
+        "trade_offs": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["alternative_id", "strengths", "weaknesses", "qa_tensions", "arch_tradeoff", "risks"],
+            "properties": {
+              "alternative_id": { "type": "string" },
+              "strengths": { "$ref": "#/$defs/stringList" }, "weaknesses": { "$ref": "#/$defs/stringList" },
+              "qa_tensions": { "$ref": "#/$defs/stringList" }, "arch_tradeoff": { "$ref": "#/$defs/stringList" },
+              "risks": { "$ref": "#/$defs/stringList" }
+            }
+          }
+        }
+      }
+    },
+
+    "alternative_selection": {
+      "type": "object",
+      "required": ["selected_alternative_id", "selection_rationale", "supporting_evidence", "key_advantages", "key_limitations", "rejected_alternatives"],
+      "properties": {
+        "selected_alternative_id": { "type": "string", "minLength": 1 },
+        "selection_rationale": { "type": "string", "minLength": 1 },
+        "supporting_evidence": { "$ref": "#/$defs/stringList" },
+        "key_advantages": { "$ref": "#/$defs/stringList" },
+        "key_limitations": { "$ref": "#/$defs/stringList" },
+        "rejected_alternatives": { "type": "array", "items": { "type": "object",
+          "required": ["alternative_id", "reason"],
+          "properties": { "alternative_id": { "type": "string" }, "reason": { "type": "string" } } } }
+      }
+    },
+
+    "stage_assumptions_gaps": {
+      "description": "Harness addition: per-stage register written by the assumptions-gap-register skill.",
+      "type": "object",
+      "required": ["stage", "entries"],
+      "properties": {
+        "stage": { "type": "integer", "minimum": 1, "maximum": 4 },
+        "entries": { "type": "array", "items": { "$ref": "#/$defs/gap_entry" } }
+      }
+    },
+
+    "gap_entry": {
+      "type": "object",
+      "required": ["id", "kind", "statement", "origin", "source_refs", "related_ids", "status", "resolution_needed"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^S[1-4]-G[0-9]+$" },
+        "kind": { "type": "string", "enum": ["ambiguity", "assumption", "inference", "unresolved_gap", "process_note"] },
+        "statement": { "type": "string", "minLength": 1 },
+        "origin": { "type": "string" },
+        "source_refs": { "$ref": "#/$defs/stringList" },
+        "related_ids": { "$ref": "#/$defs/stringList" },
+        "status": { "type": "string", "enum": ["open", "relied_upon", "noted"] },
+        "resolution_needed": { "type": "string" }
+      }
+    },
+
+    "assumptions_and_gaps_package": {
+      "description": "Harness addition: merged register written to the output directory by the packager (sidecar to the contract file).",
+      "type": "object",
+      "required": ["selected_alternative_id", "entries", "review_findings_carried"],
+      "properties": {
+        "selected_alternative_id": { "type": "string" },
+        "entries": { "type": "array", "items": { "allOf": [ { "$ref": "#/$defs/gap_entry" } ] } },
+        "review_findings_carried": { "type": "array", "items": { "type": "object",
+          "required": ["stage", "severity", "artifact", "issue"],
+          "properties": { "stage": { "type": "integer" }, "severity": { "type": "string" },
+            "artifact": { "type": "string" }, "issue": { "type": "string" }, "evidence": { "type": "string" } } } }
+      }
+    }
+  }
+}

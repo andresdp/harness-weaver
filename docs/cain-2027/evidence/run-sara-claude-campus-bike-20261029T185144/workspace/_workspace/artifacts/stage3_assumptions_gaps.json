@@ -1,0 +1,115 @@
+{
+  "stage": 3,
+  "entries": [
+    {
+      "id": "S3-G1",
+      "kind": "unresolved_gap",
+      "statement": "For the selected alternative A3, S1 is only partially satisfied, and so is the driver 'Security of user, biometric and payment data': the BFFs are the security boundary, and A3 does not describe encryption from the BFFs to the database or at rest, so the 'end-to-end ... between user device and app database' clause is not demonstrably met.",
+      "origin": "alternative_evaluation.json#/evaluations/2/requirement_evaluations/0",
+      "source_refs": ["A3", "S1", "Security of user, biometric and payment data"],
+      "related_ids": ["S1-G1"],
+      "status": "open",
+      "resolution_needed": "Must user information be encrypted beyond the edge (BFF-to-database in transit and/or at rest in the database), and for which data?"
+    },
+    {
+      "id": "S3-G2",
+      "kind": "unresolved_gap",
+      "statement": "For A3, the driver 'GDPR and regional regulatory compliance' is only partially satisfied. The jurisdiction, identity-provider data residency and retention policy are undetermined, and A3's CQRS read models replicate usage data, so retention and erasure rules must cover them.",
+      "origin": "alternative_evaluation.json#/evaluations/2/driver_evaluations/1",
+      "source_refs": ["A3", "S11", "S13", "GDPR and regional regulatory compliance"],
+      "related_ids": ["S1-G30", "S1-G43", "S2-G16", "S2-G17"],
+      "status": "open",
+      "resolution_needed": "Which jurisdiction applies, and what retention and erasure rules govern rental records and their derived read models?"
+    },
+    {
+      "id": "S3-G3",
+      "kind": "unresolved_gap",
+      "statement": "For A3, the driver 'Physical bike unlock by code' is only partially satisfied: getting the unlock to the physical bike relies on an assumed adapter-wrapped lock or telematics interface.",
+      "origin": "alternative_evaluation.json#/evaluations/2/driver_evaluations/6",
+      "source_refs": ["A3", "S6", "Physical bike unlock by code"],
+      "related_ids": ["S1-G16", "S1-G44", "S2-G4"],
+      "status": "open",
+      "resolution_needed": "Do bikes have connected locks, and what interface does the system use to unlock them?"
+    },
+    {
+      "id": "S3-G4",
+      "kind": "unresolved_gap",
+      "statement": "For A3, the driver 'Ease of use for all riders' is only partially satisfied: the BFFs tailor each client, but ease of use depends on client design that no alternative describes, and there is no usability criterion.",
+      "origin": "alternative_evaluation.json#/evaluations/2/driver_evaluations/10",
+      "source_refs": ["A3", "S5", "S6", "S9", "Ease of use for all riders"],
+      "related_ids": ["S2-G10"],
+      "status": "open",
+      "resolution_needed": "What usability criteria or target rider groups must the clients satisfy?"
+    },
+    {
+      "id": "S3-G5",
+      "kind": "unresolved_gap",
+      "statement": "For A3, the driver 'Service availability to riders' is only partially satisfied: the core scales and fails as one unit, and no uptime target exists to judge whether that is acceptable.",
+      "origin": "alternative_evaluation.json#/evaluations/2/driver_evaluations/11",
+      "source_refs": ["A3", "Service availability to riders"],
+      "related_ids": ["S1-G50", "S2-G2"],
+      "status": "open",
+      "resolution_needed": "What availability target applies, and is a whole-core restart or redeploy acceptable?"
+    },
+    {
+      "id": "S3-G6",
+      "kind": "unresolved_gap",
+      "statement": "For A3, the driver 'Low carbon footprint' is only partially satisfied: two BFFs and a broker add components compared with A1. Without a footprint metric this judgement is qualitative.",
+      "origin": "alternative_evaluation.json#/evaluations/2/driver_evaluations/13",
+      "source_refs": ["A3", "A1", "Low carbon footprint"],
+      "related_ids": ["S1-G52"],
+      "status": "open",
+      "resolution_needed": "How should the software carbon footprint be measured, and is the extra footprint of BFFs and a broker acceptable?"
+    },
+    {
+      "id": "S3-G7",
+      "kind": "unresolved_gap",
+      "statement": "A3 publishes verification notifications as events through a broker (transactional outbox). Its propagation delay has not been measured and could be significant if the verification code really expires after 30 seconds rather than 30 minutes.",
+      "origin": "alternative_selection.json#/key_limitations/5",
+      "source_refs": ["A3", "S2", "SMS and email message delivery"],
+      "related_ids": ["S1-G4", "S1-G38"],
+      "status": "open",
+      "resolution_needed": "Is the verification code valid for 30 seconds or 30 minutes, and what end-to-end delivery time is acceptable?"
+    },
+    {
+      "id": "S3-G8",
+      "kind": "assumption",
+      "statement": "The judgement that A3's single core database can absorb bike location updates and rider transactions is qualitative; no load or fleet-size data exists (QA Performance rated mixed).",
+      "origin": "alternative_evaluation.json#/evaluations/2/quality_attribute_evaluations/5",
+      "source_refs": ["A3", "S5", "S7", "Timely bike availability and location tracking"],
+      "related_ids": ["S1-G49", "S2-G1"],
+      "status": "relied_upon",
+      "resolution_needed": "What are the expected fleet size, location-update frequency and peak number of concurrent riders?"
+    },
+    {
+      "id": "S3-G9",
+      "kind": "unresolved_gap",
+      "statement": "Problem in an earlier artifact: A3's description assigns history downloads to the web BFF and lists no history function for the mobile BFF, while the driver 'Web and mobile client accessibility' includes S11. Mobile access to usage history is therefore not described.",
+      "origin": "alternatives.json#/alternatives/2/description",
+      "source_refs": ["A3", "S11", "Web and mobile client accessibility"],
+      "related_ids": ["S1-G3", "S2-G10"],
+      "status": "open",
+      "resolution_needed": "Must bikers be able to view and download usage history from the mobile app as well as the web?"
+    },
+    {
+      "id": "S3-G10",
+      "kind": "assumption",
+      "statement": "A3's S13 evaluation (satisfied) holds only under the Stage 1 interpretation that administrators obtain hourly and daily usage information, because the requirement text is incomplete.",
+      "origin": "alternative_evaluation.json#/evaluations/2/requirement_evaluations/12",
+      "source_refs": ["A3", "S13", "Usage history and administrative usage reporting"],
+      "related_ids": ["S1-G34", "S1-G35"],
+      "status": "relied_upon",
+      "resolution_needed": "Confirm that S13 means administrators view (or export) hourly and daily usage reports, and whether those must be aggregated."
+    },
+    {
+      "id": "S3-G11",
+      "kind": "process_note",
+      "statement": "The margin of A3 over A1 is narrow and qualitative. It rests mainly on A3's explicit navigation and scanning support (S6), reporting decoupled through read models, and client-specific BFFs. A1 is better on footprint and simplicity and would be preferable if the broker or two BFFs prove unjustified (S2-G10, S2-G11). Every evaluation is qualitative; no measured evidence was available.",
+      "origin": "alternative_selection.json#/rejected_alternatives/0",
+      "source_refs": ["A3", "A1"],
+      "related_ids": ["S2-G10", "S2-G11"],
+      "status": "noted",
+      "resolution_needed": ""
+    }
+  ]
+}

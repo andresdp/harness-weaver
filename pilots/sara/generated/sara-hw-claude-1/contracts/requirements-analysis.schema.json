@@ -1,0 +1,84 @@
+{
+  "type": "object",
+  "required": [
+    "requirements",
+    "cross_requirement_relationships"
+  ],
+  "properties": {
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "requirement_id",
+          "requirement_description",
+          "implicit_behaviors",
+          "ambiguities"
+        ],
+        "properties": {
+          "requirement_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requirement_description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "implicit_behaviors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ambiguities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "cross_requirement_relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "requirement_ids",
+          "relationship_type",
+          "description",
+          "evidence"
+        ],
+        "properties": {
+          "requirement_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "relationship_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/requirements-analysis.schema.json",
+  "title": "Requirements analysis",
+  "description": "Derived from the JSON structure block in the SARA skill 'requirements-cross-analysis' (NicolasMP51/software-architecture-agent@528ae7ce). Required keys mirror the block; extra keys are allowed. HarnessWeaver pilot contract, not an original SARA schema."
+}

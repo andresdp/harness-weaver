@@ -1,0 +1,17 @@
+{
+  "sandbox": "run-sara-deepagents-campus-bike-20261029T145335",
+  "checked_at": "2026-10-29T15:01:44+00:00",
+  "report": "output/architecture_decision.json",
+  "report_sha256": "94e9d7e25f1411ce9386f877a031a92cff6e03a22bd9bbfb65b1c079e8f35ff9",
+  "passed": true,
+  "checks": {
+    "no-reference-leakage": {
+      "passed": true,
+      "problems": []
+    },
+    "schema": {
+      "passed": true,
+      "problems": []
+    }
+  }
+}

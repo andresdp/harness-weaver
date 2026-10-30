@@ -1,0 +1,12 @@
+{
+  "runId": null,
+  "localRunLabel": "sara-20261029-220838",
+  "mode": "fallback_sequential_agent",
+  "startTime": "2026-10-29T22:08:38",
+  "startStage": 1,
+  "inputs": ["../input/project-description.json", "../input/functional-requirements.json"],
+  "outputs": ["../output/report.json", "../output/architecture_decision.json", "../output/adr.md", "../output/architecture_diagram.mmd", "../output/assumptions_and_gaps.json"],
+  "outcome": "ok",
+  "selected_alternative_id": "A1",
+  "stage_verdicts": {"1": "pass", "2": "pass", "3": "pass", "4": "pass_with_findings", "package": "pass"}
+}

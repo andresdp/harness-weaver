@@ -1,0 +1,180 @@
+{
+  "system_name": "campus-bike",
+  "prioritization_note": "Priority reflects architectural significance (breadth of impact across requirements, strength of evidence, and cost of getting it wrong). The input's numeric requirement priority is not used because its direction is undefined.",
+  "drivers": [
+    {
+      "name": "Protection and regulatory compliance of personal, biometric, location and payment data",
+      "description": "The system handles identity/contact data, credentials, biometric data, biker location, usage history and payment information, and must comply with GDPR, the Privacy Directive, ISO 27001 and local regulations (EU or China depending on location). This includes end-to-end protection between user device and data store, disposal of biometric data after login, and access separation between bikers and administrators.",
+      "driver_type": "quality_attribute",
+      "priority": "high",
+      "source_requirement_ids": ["S1", "S3", "S5", "S8", "S11", "S12", "S13"],
+      "supporting_evidence": [
+        "Project description: 'comply with the General Data Protection Regulation (GDPR) and the Privacy Directive'",
+        "Project description: 'comply with the relevant security and data protection standards, such as ISO 27001'",
+        "Project description: 'ensure the security and privacy of user data, including payment information'",
+        "S1: 'end-to-end encryption of information between user device and app database'",
+        "S3: 'flush out user thumb impression as soon as the user has been able to login'",
+        "quality_attributes.json: security (high)"
+      ]
+    },
+    {
+      "name": "Consistent bike availability and rental state under concurrent use",
+      "description": "Bike availability is shared state read by all bikers (S5) and administrators (S12) and changed by registration (S6/S7). A bike must be registered by at most one biker, removed from the available list 'as soon as' it is registered, and its rental duration/expiry/overtime must be tracked correctly because charges depend on it.",
+      "driver_type": "quality_attribute",
+      "priority": "high",
+      "source_requirement_ids": ["S5", "S6", "S7", "S9", "S10", "S12"],
+      "supporting_evidence": [
+        "S7: 'As soon as the bike is registered it must be removed from the list of available bikes'",
+        "S6: bike is selected and navigated to before registration, without reservation",
+        "S12: 'view all of the bikes in the city as available or under utilization'",
+        "S9: 'Any overtime rides are subject to additional charges'",
+        "quality_attributes.json: data consistency / correctness (high), performance (timeliness) (medium)"
+      ]
+    },
+    {
+      "name": "Integration with multiple third-party payment platforms",
+      "description": "Bikers pay by bank account or debit/credit card, and the system must be compatible with a variety of third-party payment platforms so rental fees (including overtime charges) can be paid seamlessly; cash is 'currently' not supported, indicating payment methods may change.",
+      "driver_type": "integration_concern",
+      "priority": "high",
+      "source_requirement_ids": ["S8", "S9"],
+      "supporting_evidence": [
+        "Project description: 'compatible with a variety of third-party payment platforms to allow users to pay for the bike rental fee seamlessly'",
+        "S8: 'pay via their bank account or by their debit/credit card. Currently cash payments are not supported'",
+        "S9: 'overtime rides are subject to additional charges'",
+        "quality_attributes.json: interoperability (high), modifiability (low)"
+      ]
+    },
+    {
+      "name": "Bike location tracking and code-based registration/unlocking of physical bikes",
+      "description": "The system must know the location and availability of bikes, display available bikes within a biker-defined proximity (and a 1000 m radius per the project description), guide the biker to the selected bike, and register/unlock the bike through a QR code scan or four-digit code. This involves interaction between the system, the biker's device and the bikes; the bike-side interaction is not specified.",
+      "driver_type": "functional_requirement",
+      "priority": "high",
+      "source_requirement_ids": ["S5", "S6", "S7"],
+      "supporting_evidence": [
+        "Project description: 'tracking and displaying the location of available bikes within a 1000-meter radius and unlocking them using a QR code'",
+        "S5: 'view all of available bikes in close proximity defined by him/her'",
+        "S6: 'navigate to the available bike'; 'scan the code on bike scanner or by inputting the four digit code to register the bike'",
+        "quality_attributes.json: interoperability (high), performance (timeliness) (medium)"
+      ]
+    },
+    {
+      "name": "Multi-channel access through web and mobile devices",
+      "description": "All rider functionality must be accessible through both web and mobile devices to maximize service availability, while some capabilities (biometric login, code scanning, device location) depend on device features.",
+      "driver_type": "constraint",
+      "priority": "high",
+      "source_requirement_ids": ["S3", "S5", "S6"],
+      "supporting_evidence": [
+        "Project description: 'available on web and mobile devices'",
+        "Project description: 'accessible through both web and mobile devices to maximize the availability of the service'",
+        "S3: 'biometric thumb-impression'",
+        "quality_attributes.json: portability (medium), availability (medium)"
+      ]
+    },
+    {
+      "name": "Time-driven rental lifecycle and notifications",
+      "description": "Rentals have durations from minutes up to one week; the system must notify the biker X minutes before expiry and apply overtime charges, independently of whether the biker is active in the app (sessions expire after 15 minutes of inactivity). Verification codes also have time-limited validity.",
+      "driver_type": "functional_requirement",
+      "priority": "medium",
+      "source_requirement_ids": ["S2", "S4", "S6", "S9", "S10"],
+      "supporting_evidence": [
+        "S9: 'notify the biker X minutes prior to the expiry of their rental time'",
+        "S10: 'rent a bike for specific minutes, a day or for a week at maximum'",
+        "S4: 'after an inactivity of 15 minutes'",
+        "S2: verification code validity period",
+        "requirements_analysis.json: conflict S4/S6/S9/S10 on session expiry during active rentals"
+      ]
+    },
+    {
+      "name": "Service availability for riders",
+      "description": "Riders must be able to find, register and pay for bikes whenever the service is offered, and rentals spanning up to a week require continuous operation for notifications and charging. No quantitative target is given.",
+      "driver_type": "quality_attribute",
+      "priority": "medium",
+      "source_requirement_ids": ["S5", "S6", "S8", "S9", "S10"],
+      "supporting_evidence": [
+        "Project description: 'to maximize the availability of the service'",
+        "S10: 'a week at maximum'",
+        "quality_attributes.json: availability (medium)"
+      ]
+    },
+    {
+      "name": "Region-dependent regulatory compliance",
+      "description": "The applicable standards and regulations (EU or China) depend on the deployment location, which is not stated; the system must be able to satisfy the applicable regime.",
+      "driver_type": "constraint",
+      "priority": "medium",
+      "source_requirement_ids": [],
+      "supporting_evidence": [
+        "Project description: 'comply with local regulations and standards, including EU or China standards, depending on the location of the university'",
+        "quality_attributes.json: modifiability (low), security (high)"
+      ]
+    },
+    {
+      "name": "Ease of use for all riders",
+      "description": "The application must be user-friendly for all potential riders, including convenient login, proximity-based discovery, navigation, simple code entry and seamless payment.",
+      "driver_type": "quality_attribute",
+      "priority": "medium",
+      "source_requirement_ids": ["S3", "S5", "S6", "S8"],
+      "supporting_evidence": [
+        "Project description: 'user-friendly and easy to use for all potential riders'",
+        "Project description: 'pay for the bike rental fee seamlessly'",
+        "quality_attributes.json: usability (medium)"
+      ]
+    },
+    {
+      "name": "Usage history and administrative usage information",
+      "description": "Rental records must be retained and retrievable for bikers (view/download up to 3 months) and aggregated hourly and daily for administrators, together with a city-wide view of bike status; retention must be reconciled with GDPR.",
+      "driver_type": "functional_requirement",
+      "priority": "medium",
+      "source_requirement_ids": ["S11", "S12", "S13"],
+      "supporting_evidence": [
+        "S11: 'view and download their bike usage history up to last 3 months'",
+        "S12: 'view all of the bikes in the city as available or under utilization'",
+        "S13: 'hourly and daily usage of the bikes'",
+        "quality_attributes.json: auditability / traceability of usage data (low)"
+      ]
+    },
+    {
+      "name": "User verification via external SMS/email delivery",
+      "description": "Registration requires sending a time-limited verification code by SMS or email, which depends on external message delivery.",
+      "driver_type": "integration_concern",
+      "priority": "low",
+      "source_requirement_ids": ["S1", "S2"],
+      "supporting_evidence": [
+        "S2: 'send a verification code via an SMS or email'",
+        "quality_attributes.json: interoperability (high)"
+      ]
+    },
+    {
+      "name": "Minimized carbon footprint",
+      "description": "The software should be designed to minimize the carbon footprint and promote sustainable mobility; whether this targets software resource usage or mobility outcomes is unclear.",
+      "driver_type": "business_concern",
+      "priority": "low",
+      "source_requirement_ids": [],
+      "supporting_evidence": [
+        "Project description: 'designed to minimize the carbon footprint and promote sustainable mobility'",
+        "quality_attributes.json: sustainability (low)"
+      ]
+    }
+  ],
+  "open_issues_affecting_drivers": [
+    "S2 verification code validity: 30 minutes vs 30 seconds (inconsistency).",
+    "S6 fixed 90-minute registration vs S10 minutes/day/week rentals (conflict).",
+    "S5 biker-defined proximity vs 1000 m radius in project description (inconsistency).",
+    "S4 15-minute inactivity logout vs long active rentals and expiry notifications (S6, S9, S10).",
+    "Rental end / bike return is not specified, yet S7, S9 and S12 depend on it.",
+    "Bike-side interaction for unlocking and location tracking is not described ('scan the code on bike scanner' is ambiguous).",
+    "Deployment jurisdiction (EU or China) and scope (city vs campus) are not stated.",
+    "Pricing model, value of X (S9), overtime charge rule, and S11 download format ('in the form.') are unspecified.",
+    "S13 is missing its verb ('do an hourly and daily usage'); S12 'under utilization' is ambiguous.",
+    "No quantitative quality targets (users, bikes, response times, availability levels) are given."
+  ],
+  "stakeholder_stated_technology_options": {
+    "note": "The project description states the design 'can rely on' these technologies. They are recorded verbatim for the Solution Design stage as permitted options, not as drivers or decisions.",
+    "items": [
+      "container orchestration platform",
+      "service registry and discovery",
+      "API gateway",
+      "message broker",
+      "distributed tracing"
+    ]
+  }
+}

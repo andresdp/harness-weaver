@@ -1,0 +1,136 @@
+{
+  "alternatives": [
+    {
+      "alternative_id": "A1",
+      "name": "Layered modular monolith with a shared transactional database",
+      "description": "A single deployable back end serving the web app, the mobile app and the administrator console. It is divided into modules (identity and session, bike fleet, rental, payment, notification, usage and reporting). Each module is layered internally (API, application, data access), and dependencies on external systems (payment platforms, SMS/email providers, bike/lock interface, persistence) sit behind ports with replaceable adapters. All modules use one transactional database with a schema per module, so bike registration, availability removal and rental creation happen in one local transaction. Modules call each other synchronously through their public interfaces. Rental expiry notifications and overtime detection run as time-based jobs inside the rental module, independent of user sessions. Clients authenticate (email/password or biometric) and receive an access token carrying identity and role, with logout and the 15-minute inactivity timeout enforced on the server.",
+      "selected_patterns": [
+        "Modular Monolith",
+        "Layered Architecture",
+        "Ports and Adapters",
+        "Shared Database",
+        "Access Token"
+      ],
+      "addressed_drivers": [
+        "Consistent bike and rental state",
+        "Bike registration and unlocking",
+        "Bike location and availability tracking",
+        "Security of user and payment data",
+        "GDPR and regional regulatory compliance",
+        "Third-party payment platform integration",
+        "External SMS and email delivery",
+        "Changeability of payment options and regulations",
+        "Web and mobile client access",
+        "Biker authentication and session management",
+        "Rental lifecycle timing",
+        "Usage history and administrative reporting",
+        "Sustainable mobility goal"
+      ],
+      "rationale": "This alternative favours strong consistency and low operational complexity. S7 and the inferred one-active-registration-per-bike rule are met directly by local ACID transactions (Modular Monolith + Shared Database, complementary). Payment platform variety and change (S8, project description) and external SMS/email (S2) are isolated by Ports and Adapters (complementary with Modular Monolith; conditionally compatible with Layered Architecture under dependency inversion). Personal, payment and usage data sit in one store, so encryption at rest, access control, retention and erasure for GDPR are applied in one place. No scalability or load targets are stated (S1-G67), so independent scaling is not required by the evidence. Using a single deployment needs fewer runtime resources, which relates weakly to the sustainability goal. The permitted technologies (gateway, broker, registry, tracing) are not used. They are permitted, not mandated.",
+      "assumptions": [
+        "The expected number of users, fleet size and concurrent rentals can be served by scaling a single deployable application horizontally or vertically.",
+        "Fleet-wide status (S12) and hourly/daily usage aggregation (S13) can be computed from the transactional database without unacceptable impact on rental operations.",
+        "Different parts of the system do not need to be released on independent schedules (for example payment or regional compliance changes)."
+      ],
+      "limitations": [
+        "The whole application must be scaled and redeployed together; a change to one payment adapter requires redeploying everything.",
+        "A failure in one module (for example reporting) can affect rental operations.",
+        "Module boundaries in the code and the database rely on discipline and tooling and may erode over time.",
+        "Synchronous coupling between modules means notification or reporting slowness can affect the calling module unless it is handled carefully.",
+        "Reporting queries share the transactional database with rental operations.",
+        "Does not resolve how the bike/lock interface works (S1-G55) or where biometric matching happens (S1-G9); it only isolates them behind ports and the authentication module."
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "name": "Event-driven modular monolith with API gateway and CQRS read models",
+      "description": "A single deployable back end with the same module split as A1 (identity and session, bike fleet, rental, payment, notification, usage and reporting), each layered and using ports and adapters for external systems, on one shared transactional database. In addition, modules publish domain events (for example BikeRegistered, RentalStarted, RentalExpiring, RentalEnded) through a message broker. These events are recorded in the same transaction as the state change and published afterwards. Atomic operations (registration plus availability removal plus rental creation) stay in local transactions. Delay-tolerant consequences (expiry notifications, overtime charge triggers, updates to the nearby-bikes, fleet-status, usage-history and hourly/daily-usage read models) are handled by event subscribers. An API gateway in front of the application is the single entry point for web, mobile and administrator clients. It terminates TLS, validates access tokens and rejects revoked or expired sessions.",
+      "selected_patterns": [
+        "Modular Monolith",
+        "Layered Architecture",
+        "Ports and Adapters",
+        "Shared Database",
+        "Publish-Subscribe",
+        "CQRS",
+        "API Gateway",
+        "Access Token"
+      ],
+      "addressed_drivers": [
+        "Consistent bike and rental state",
+        "Bike registration and unlocking",
+        "Bike location and availability tracking",
+        "Rental lifecycle timing",
+        "Usage history and administrative reporting",
+        "Security of user and payment data",
+        "GDPR and regional regulatory compliance",
+        "Third-party payment platform integration",
+        "External SMS and email delivery",
+        "Changeability of payment options and regulations",
+        "Web and mobile client access",
+        "Biker authentication and session management",
+        "Permitted technology context"
+      ],
+      "rationale": "This alternative keeps the local-transaction consistency of a single application for S6/S7 while decoupling the parts of the requirements that have several independent consumers. Rental time events drive the S9 notification and overtime charging independently of the S4 session. Availability changes feed both the biker proximity view (S5) and the administrator fleet view (S12), and rental events feed S11 history and S13 aggregates. The combination uses only supported relationships. Modular Monolith + Publish-Subscribe and Modular Monolith + CQRS are conditionally compatible, under the conditions that atomic operations stay transactional and CQRS is applied only to the read-heavy S5/S11/S12/S13 concerns. Publish-Subscribe + Shared Database is conditionally compatible if events are recorded atomically with state changes and subscribers are idempotent. CQRS + Shared Database is compatible. Modular Monolith + API Gateway is conditionally compatible, with the gateway limited to edge security and deployed redundantly. Access Token + API Gateway is complementary. The broker and gateway are within the permitted technology context.",
+      "assumptions": [
+        "A bounded delay between a state change and the update of read models (nearby available bikes, fleet status, usage history) is acceptable to stakeholders, provided that bike registration itself re-checks availability on the transactional model.",
+        "The expected number of users, fleet size and concurrent rentals can be served by scaling a single deployable application together with a message broker.",
+        "Operating a message broker and an API gateway in addition to the application is acceptable to the operating organization.",
+        "Different parts of the system do not need to be released on independent schedules."
+      ],
+      "limitations": [
+        "Read models are eventually consistent, so a bike may briefly still appear in the nearby list after registration (S7 gives no time bound, S1-G24).",
+        "More moving parts than A1 (broker, gateway, event store table, read models), with event delivery, idempotency and replay to design and test.",
+        "Personal data is replicated into read models and event records, which enlarges the data subject to encryption, retention and erasure under GDPR.",
+        "The application still scales and deploys as one unit; the payment capability cannot be released independently.",
+        "The API gateway adds a hop and must be redundant to avoid becoming a single point of failure."
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "name": "Event-driven microservices with API gateway, client-specific backends and sagas",
+      "description": "The back end is split into independently deployable services along the same capabilities (identity and session, bike fleet, rental, payment, notification, usage and reporting), each owning its private data store. Services communicate mainly through events on a message broker. Cross-service business transactions (rental start: register and unlock the bike, mark it unavailable, authorize payment; rental end: release the bike, compute and collect overtime) run as sagas with compensating actions for failed unlock or payment. A reporting service maintains CQRS read models built from events for S11 history and S13 hourly/daily usage, and the fleet service maintains the proximity and fleet-status views. An API gateway is the single edge entry point, validating access tokens. Behind it, separate backends for frontend serve the mobile app (biometric login, location, code scanning), the web app and the administrator console. Payment, notification and fleet services integrate with external platforms, providers and bikes through ports and adapters.",
+      "selected_patterns": [
+        "Microservices",
+        "Database per Service",
+        "Saga",
+        "Publish-Subscribe",
+        "CQRS",
+        "API Gateway",
+        "Backend for Frontend",
+        "Ports and Adapters",
+        "Access Token"
+      ],
+      "addressed_drivers": [
+        "Changeability of payment options and regulations",
+        "Third-party payment platform integration",
+        "Security of user and payment data",
+        "GDPR and regional regulatory compliance",
+        "Web and mobile client access",
+        "Bike location and availability tracking",
+        "Bike registration and unlocking",
+        "Consistent bike and rental state",
+        "Rental lifecycle timing",
+        "Usage history and administrative reporting",
+        "Biker authentication and session management",
+        "External SMS and email delivery",
+        "Usability for all riders",
+        "Permitted technology context"
+      ],
+      "rationale": "This alternative favours independent deployment, isolation and evolvability. The payment capability (S8 'Currently', 'a variety of third-party payment platforms') and region-dependent compliance can change and be released independently. Credential, payment and personal data are confined to their owning services (Microservices depends on Database per Service), which narrows access and the scope of compliance controls. Because data is distributed, consistency of bike and rental state is maintained by sagas (Database per Service depends on Saga; Saga + Publish-Subscribe and Saga + Microservices are complementary), and cross-service reporting is served by CQRS read models (complementary with Database per Service and Publish-Subscribe). Device-dependent differences between web and mobile clients (S3 biometric, S5 location, S6 scanning) are handled by BFFs. API Gateway + BFF is conditionally compatible: the gateway handles edge security and the BFFs handle client-specific composition. Access Token is complementary with Microservices and API Gateway and compatible with BFF. All runtime technologies used (orchestration, registry and discovery, gateway, broker, tracing) are in the permitted technology context.",
+      "assumptions": [
+        "Payment integration and region-specific compliance logic change often enough, or must be released independently enough, to justify independently deployable services.",
+        "Eventual consistency during a rental start or end (for example a bike marked unavailable while payment authorization is pending) is acceptable, provided double registration of a bike is prevented by the fleet service.",
+        "The operating organization can run a container orchestration platform, service registry and discovery, message broker and distributed tracing, which the project description permits.",
+        "Web, mobile and administrator clients need materially different APIs, which justifies separate backends for frontend."
+      ],
+      "limitations": [
+        "Highest operational and development complexity of the alternatives (service discovery, distributed tracing, saga compensation, broker operation), with no stated scalability, load or team-size reason that requires it (S1-G67).",
+        "Saga compensations depend on unstated behaviour for failed unlock (S1-G23) and payment timing (S1-G27).",
+        "Bike registration consistency (S7) depends on correctly designed saga steps and idempotent handlers rather than a single transaction.",
+        "More network communication carries personal and payment data, widening the surface that must be encrypted (S1) and audited (ISO 27001).",
+        "GDPR erasure and retention (S1-G40) must be coordinated across several service-private stores and read models.",
+        "BFFs may duplicate logic if web and mobile flows turn out to be similar (S1-G11 unresolved)."
+      ]
+    }
+  ]
+}

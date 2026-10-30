@@ -1,0 +1,47 @@
+{
+  "selected_alternative_id": "A3",
+  "selection_rationale": "Alternative A3, a modular monolith core with client-specific Backends for Frontend and event-driven side effects, is recommended because it satisfies the most functional requirements (12 of 13; S1 is partially satisfied, as in every alternative) and matches or exceeds the other alternatives on the high-priority drivers. Like A1, it registers a bike and removes it from the available list in one local transaction. That meets S7's 'as soon as' and guards against concurrent registration, which the eventually consistent A2 can only claim under an unverified assumption. Unlike A1 and A2, its mobile BFF explicitly covers code scanning and navigation to the selected bike (S6). Its CQRS read models serve the three-month history and hourly/daily usage (S11, S13) without loading the transactional store, and its BFFs are the only architectural support for web/mobile tailoring and ease of use. The cost is two BFFs plus a message broker with a transactional outbox: a larger footprint and more implementation complexity than A1, edge security duplicated across the BFFs, read models that widen GDPR retention scope, and a core that still fails as one unit. A1 is a close second and becomes preferable if the broker or BFFs prove unjustified. The recommendation is qualitative and based on the stated alternatives; no measured performance, load or footprint data exists.",
+  "supporting_evidence": [
+    "alternative_evaluation.json: A3/S6 satisfied (mobile BFF 'code scanning, navigation, nearby bikes'); A1/S6 and A2/S6 partially_satisfied (no navigation element)",
+    "alternative_evaluation.json: A3/S7 satisfied and A1/S7 satisfied (local transaction); A2/S7 unclear (eventual consistency, relies on S2-G7)",
+    "alternative_evaluation.json: A1/S1, A2/S1, A3/S1 partially_satisfied (encryption beyond the edge not described in any alternative)",
+    "alternative_evaluation.json: A3/S11 and A3/S13 satisfied via CQRS read models; A1/S11 and A1/S13 satisfied only under assumption S2-G5",
+    "alternative_evaluation.json: A3 driver 'Timely bike availability and location tracking' satisfied; A2 partially_satisfied",
+    "alternative_evaluation.json: A3 driver 'Rental lifecycle and time-based charging' satisfied; A2 partially_satisfied (saga depends on S2-G15)",
+    "alternative_evaluation.json: A3 driver 'Ease of use for all riders' partially_satisfied; A1 and A2 unclear",
+    "alternative_evaluation.json: A3 QA Portability positive and QA Usability positive; A1 neutral/neutral, A2 neutral/mixed",
+    "alternative_evaluation.json: A1 driver 'Low carbon footprint' satisfied, A3 partially_satisfied, A2 not_satisfied",
+    "alternative_evaluation.json: A2 QA Availability positive; A1 and A3 mixed",
+    "trade_off_analysis.json: A3 strengths 'Keeps A1's transactional guarantee for S6/S7 ... while moving notifications and reporting to events'",
+    "trade_off_analysis.json: A3 weaknesses and risks (two BFFs, broker, outbox complexity, replicated read models, core fails as one unit)",
+    "trade_off_analysis.json: A2 risks S2-G6, S2-G9, S2-G15; A1 risks shared-database contention and Reporting affecting rider flows"
+  ],
+  "key_advantages": [
+    "Strong consistency for bike registration and availability (S6/S7) through a local transaction, with protection against concurrent registration.",
+    "Explicit support for navigation, code scanning and nearby bikes in the mobile BFF (S5, S6), and device-local biometric login (S3).",
+    "Reporting and usage history (S11, S13) are served from CQRS read models, isolating them from rider-facing transactions and allowing aggregated administrator data (S1-G35).",
+    "Reliable, decoupled delivery of verification and expiry notifications through a transactional outbox (S2, S9).",
+    "Client-specific BFFs support the web and mobile accessibility driver and are the only architectural contribution to ease of use; browser tokens are kept server-side (S4).",
+    "Payment and messaging providers are isolated behind adapters with circuit breakers, supporting several payment platforms and future payment methods (S8)."
+  ],
+  "key_limitations": [
+    "S1 is only partially satisfied: the BFFs are the security boundary, and encryption from the BFFs to the database or at rest is not described; the scope of 'end-to-end' is undetermined (S1-G1).",
+    "Edge security (token validation, rate limiting) must be implemented consistently in two BFFs.",
+    "CQRS read models replicate usage data, so GDPR retention and erasure rules must also cover them; the jurisdiction and retention policy are open (S1-G43, S1-G30, S2-G17).",
+    "The core still scales and fails as one unit; 'Service availability to riders' is only partially satisfied, and no uptime target exists (S1-G50).",
+    "Two BFFs plus a message broker and outbox add components and implementation complexity compared with A1; 'Low carbon footprint' is only partially satisfied.",
+    "Side effects (notifications, administrator status refresh, read models) lag by the event propagation delay, which is a risk if the 30-second verification expiry applies (S1-G4); this is unmeasured.",
+    "Unlocking the physical bike relies on an assumed adapter-wrapped lock interface (S2-G4); 'Physical bike unlock by code' is only partially satisfied.",
+    "The justification for two BFFs depends on web and mobile flows actually differing (S2-G10); mobile access to history downloads is not described."
+  ],
+  "rejected_alternatives": [
+    {
+      "alternative_id": "A1",
+      "reason": "A1 matches A3 on strong consistency for S7 and has the smallest footprint (the only alternative that satisfies 'Low carbon footprint'), but it identifies no element for navigation to the selected bike (S6 partially satisfied). It runs reporting queries against the transactional database under assumption S2-G5, so Reporting can affect bike search and rental. It offers no client-specific support for web/mobile tailoring or ease of use (unclear). The margin is narrow and qualitative: A1 would be preferable if a message broker or two BFFs prove unjustified (S2-G10, S2-G11)."
+    },
+    {
+      "alternative_id": "A2",
+      "reason": "A2 offers the best fault isolation and independent scaling, but S7 is unclear because availability removal is eventually consistent (relies on S2-G7). The high-priority driver 'Timely bike availability and location tracking' and the driver 'Rental lifecycle and time-based charging' are only partially satisfied (saga compensations depend on undecided payment timing, S2-G15). It does not satisfy 'Low carbon footprint', and its value depends on unverified scale and operational capacity (S2-G6, S2-G9)."
+    }
+  ]
+}

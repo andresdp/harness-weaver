@@ -1,0 +1,106 @@
+{
+  "trade_offs": [
+    {
+      "alternative_id": "A1",
+      "strengths": [
+        "Has the most requirements rated satisfied of the three (10 of 13). In particular, S7 is satisfied directly by one local ACID transaction covering registration, availability removal and rental creation (alternative_evaluation.json A1/S7 satisfied).",
+        "Satisfies the 'Consistent bike and rental state' and 'Bike location and availability tracking' drivers without eventual-consistency caveats. Biker (S5) and administrator (S12) views read the same transactional state.",
+        "Personal, payment and usage data are kept in one store with no read-model or event replication. GDPR retention and erasure therefore apply in one place, the only alternative rated 'satisfied' on the GDPR driver.",
+        "Session-independent time-based jobs cover S9 and the S4/S9 conflict. Server-side enforcement covers S4.",
+        "Ports and adapters isolate payment platforms and SMS/email providers (Interoperability positive).",
+        "Fewest runtime components and least operational complexity (qualitative, from alternatives.json A1 rationale)."
+      ],
+      "weaknesses": [
+        "Changeability is only partially satisfied. A change to one payment adapter or to regional compliance logic requires redeploying the whole application.",
+        "Has no edge component, and protection in transit along the device-to-database path is not described (S1 and Security driver partially satisfied).",
+        "Reporting (S12, S13) shares the transactional database with rental operations, and synchronous coupling between modules can propagate slowness.",
+        "Fault isolation is weak: a failure in one module (for example reporting) can affect rentals.",
+        "Module boundaries rely on discipline and may erode.",
+        "Biometric matching (S3), navigation (S6) and the physical unlock mechanism are not resolved. This is common to all alternatives."
+      ],
+      "qa_tensions": [
+        "Reliability (correctness) vs Modifiability: one shared transactional store gives strong consistency but couples deployment and data schema across modules.",
+        "Privacy and Regulatory Compliance vs Security isolation: a single store simplifies GDPR controls but places credentials, payment and personal data in one process and database.",
+        "Performance (timeliness) of availability updates vs performance of reporting (qualitative): immediate availability comes from the same database that serves reporting queries."
+      ],
+      "arch_tradeoff": [
+        "Trades independent deployability and fault isolation for transactional consistency and low operational complexity.",
+        "Trades read/write separation, which would protect rental operations from reporting load, for a simpler single data model with no replication.",
+        "Avoids the permitted gateway and broker technologies, which keeps the runtime small but leaves no centralized edge security component."
+      ],
+      "risks": [
+        "If load or reporting volume grows beyond what one deployable and one database can serve, A1's assumptions S2-G1 and S2-G2 fail. No load targets exist (S1-G67), so this risk is qualitative and unmeasured.",
+        "If payment or regional changes must be released independently, A1's assumption S2-G3 fails and the whole-redeploy limitation becomes significant.",
+        "The external payment step outside the local transaction relies on retry and reconciliation at the adapter. Its adequacy depends on unstated payment timing and platform capabilities (S2-G12).",
+        "Module boundaries may erode over time, reducing the benefit of the modular split (qualitative)."
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "strengths": [
+        "Keeps local-transaction atomicity for registration, availability removal and rental creation, so double registration is prevented on the authoritative model.",
+        "Dedicated CQRS read models separate S5, S11, S12 and S13 reads from rental operations (Usage history and administrative reporting satisfied, without A1's shared-database reporting risk).",
+        "Rental time events drive S9 notifications and overtime independently of S4 sessions.",
+        "The API gateway centralizes TLS, token validation and session revocation (S4 satisfied).",
+        "Adding new event consumers (for example new reports) does not require changing producers (qualitative)."
+      ],
+      "weaknesses": [
+        "S7 and the 'Consistent bike and rental state' and 'Bike location and availability tracking' drivers are only partially satisfied. Displayed availability is eventually consistent, and a registered bike may briefly appear in the nearby list.",
+        "Personal data is replicated into read models and event records, so the GDPR driver is only partially satisfied.",
+        "The gateway terminates TLS, so protection of the hops from gateway to application to database is not described (relevant to S1).",
+        "More moving parts than A1 (broker, gateway, event table, read models), with event delivery, idempotency and replay to design and test.",
+        "Still a single deployable unit, so changeability is only partially satisfied, the same as A1."
+      ],
+      "qa_tensions": [
+        "Performance (read offloading) vs Reliability (displayed-state correctness): read models offload queries but lag the transactional state.",
+        "Security (centralized edge) vs Privacy and Regulatory Compliance: the gateway centralizes edge controls, while events and read models widen the replicated personal data.",
+        "Modifiability (event decoupling) vs operational simplicity: decoupled consumers come with broker and outbox infrastructure."
+      ],
+      "arch_tradeoff": [
+        "Trades immediate consistency of displayed availability for isolating read-heavy concerns from rental operations.",
+        "Trades additional infrastructure (broker, gateway) for decoupled, delay-tolerant handling of notifications, overtime and reporting.",
+        "Retains single-unit deployment, so it gains no independent release of payment or compliance capabilities in return for its added complexity."
+      ],
+      "risks": [
+        "The acceptable lag between registration and removal from biker and administrator views is not stated (S1-G24, S2-G4). If stakeholders require immediacy, S7 may not be met.",
+        "GDPR erasure and retention for replicated data depend on an unstated retention rule (S2-G11).",
+        "It assumes the organization can operate a broker and gateway (S2-G5), which the project description permits but does not confirm.",
+        "Gateway redundancy is needed to avoid a single point of failure. No availability target exists (S1-G67), so the size of this risk is qualitative."
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "strengths": [
+        "The only alternative that fully satisfies the 'Changeability of payment options and regulations' driver: payment and region-dependent compliance can be released independently.",
+        "BFFs explicitly handle device-specific differences between mobile, web and administrator clients (Portability positive).",
+        "Credential, payment and personal data are confined to their owning services, narrowing access.",
+        "Service isolation limits how far faults spread (qualitative).",
+        "Compensation for failed unlock and payment is modelled explicitly, whereas A1 and A2 leave failed unlock unaddressed."
+      ],
+      "weaknesses": [
+        "Has the fewest requirements rated satisfied of the three (8 of 13): S1, S3, S4, S6 and S7 are partially satisfied. Gateway enforcement of logout and inactivity (S4) is not described.",
+        "Consistency of bike and rental state relies on sagas and idempotent handlers. Intermediate states (bike unavailable while payment is pending) are assumed acceptable (S2-G7).",
+        "GDPR erasure and retention must be coordinated across several service-private stores and read models.",
+        "More network communication carries personal and payment data, widening the surface that must be encrypted and audited.",
+        "Has the highest operational and development complexity (orchestration, discovery, tracing, saga compensation), with no stated scalability, load or team-size reason (S1-G67).",
+        "BFFs may duplicate logic if web and mobile flows turn out to be similar (S1-G11)."
+      ],
+      "qa_tensions": [
+        "Modifiability (independent deployment) vs Reliability (correctness of rental and bike state): distributed data requires sagas and eventual consistency.",
+        "Security (data confinement) vs Security (network surface): confining data narrows access but multiplies the network paths carrying sensitive data.",
+        "Portability (BFFs) vs Modifiability (duplication): tailored backends risk duplicated logic if client flows are similar."
+      ],
+      "arch_tradeoff": [
+        "Trades transactional consistency and operational simplicity for independent deployability, isolation and evolvability.",
+        "Trades a single compliance boundary for per-service data ownership, which requires cross-store coordination of erasure and retention.",
+        "Uses the full permitted technology context. This is allowed, but nothing in the requirements mandates it."
+      ],
+      "risks": [
+        "Saga compensations depend on unstated behaviour for failed unlock and payment timing (S1-G23, S1-G27, S2-G10). A wrong compensation design could leave bikes or charges in inconsistent states.",
+        "The benefit of independent deployment depends on how often payment and regional rules change (S2-G6), which is unstated.",
+        "It depends on the operator's ability to run orchestration, discovery, broker and tracing (S2-G8), which is not confirmed.",
+        "Complexity and cost are judged qualitatively. There is no measured evidence or stated scale that justifies them (S1-G67)."
+      ]
+    }
+  ]
+}

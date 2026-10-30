@@ -1,0 +1,20 @@
+{
+  "record_version": "0.2",
+  "arm": "spec-guided",
+  "runtime": "deepagents",
+  "model": "openai:gpt-5.4-mini",
+  "settings": {
+    "streaming": false,
+    "verbose": false,
+    "harness_spec": "0.2",
+    "failure": "sandbox DNS"
+  },
+  "workflow_strategy": "sequential_pipeline",
+  "agent_interaction": "typed_artifact_handoffs",
+  "status": "failed",
+  "prediction": null,
+  "prediction_sha256": null,
+  "output_path": null,
+  "latency_seconds": null,
+  "cost": null
+}

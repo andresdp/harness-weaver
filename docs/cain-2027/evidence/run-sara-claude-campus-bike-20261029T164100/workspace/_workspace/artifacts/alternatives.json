@@ -1,0 +1,206 @@
+{
+  "system_name": "campus-bike",
+  "generation_notes": [
+    "Alternatives differ on three structural decisions: (1) backend decomposition (single modular deployable vs fully distributed services vs monolithic core with extracted integration services); (2) how state changes propagate (synchronous in-process vs broker-based events); (3) how the unspecified bike-side interaction is handled (adapter in the core vs dedicated Device Gateway).",
+    "Each alternative uses only pattern combinations marked compatible, complementary or dependency in pattern_compatibility.json; where a combination is marked conflict or mutually_exclusive, the stated conditions are applied and listed under 'compatibility_conditions_applied'.",
+    "Pattern names are copied exactly from pattern_candidates.json and driver names exactly from drivers.json.",
+    "Alternatives are not evaluated, ranked or selected here (Stage 3)."
+  ],
+  "alternatives": [
+    {
+      "alternative_id": "A1",
+      "name": "Modular monolith with hexagonal integration boundaries",
+      "description": "A single backend deployable, run redundantly (at least two instances behind a load balancer), partitioned into modules: Identity & Access, Fleet & Rental (authoritative bike availability and rental records), Payment, Notification & Verification, and Usage Reporting. Each module that talks to an external party exposes ports with provider-specific adapters (payment platforms, SMS/email, push, maps/navigation, bike lock/registration). One transactional database holds bike and rental state; registration is a single conditional update that creates the rental and marks the bike unavailable atomically. Personal data lives in a segregated, encrypted schema accessible only to the Identity module; card/bank data is tokenized by payment providers. A durable scheduler inside the Fleet & Rental module fires pre-expiry notifications and overtime charging. Usage aggregates and per-biker history are maintained as read models in the same database, updated within the same transaction. Web and mobile clients call channel-specific API modules of the same deployable.",
+      "selected_patterns": [
+        "Modular Monolith (domain-partitioned modules in a single deployable)",
+        "Hexagonal Architecture (Ports and Adapters)",
+        "Atomic conditional state transition with Optimistic Concurrency Control (single authoritative bike state)",
+        "Scheduler / Durable Timer for time-based rental events",
+        "CQRS (Command Query Responsibility Segregation) with read models",
+        "Saga (orchestrated or choreographed) for rental and payment",
+        "Circuit Breaker with Retry and Timeout for external integrations",
+        "Centralized Identity and Access Management with token-based authentication",
+        "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)"
+      ],
+      "key_decisions": [
+        "Backend decomposition: one deployable with enforced module boundaries.",
+        "Bike availability and rental state: single authoritative store, atomic conditional update; availability queries read the authoritative state, so S7 removal is immediate.",
+        "Propagation: synchronous in-process updates of read models (no message broker).",
+        "External integrations: ports and adapters with timeouts, retries and circuit breakers; an orchestrated saga only for the asynchronous external payment step.",
+        "Bike interaction: modeled as a port with an adapter; no dedicated device-ingestion component.",
+        "Channels: channel-specific API modules inside the deployable (no separate BFF deployables, no API gateway)."
+      ],
+      "compatibility_conditions_applied": [
+        "Modular Monolith + Saga: saga confined to third-party payment confirmation and overtime charging.",
+        "CQRS + Modular Monolith: read models updated synchronously in the same transaction, avoiding the CQRS vs S7 timeliness conflict.",
+        "CQRS + Sensitive Data Isolation: administrator read models (S13) hold aggregated/pseudonymized data only; per-biker history follows the same retention rules as source data.",
+        "Modular Monolith + Sensitive Data Isolation: separate store/credentials for the personal-data schema.",
+        "Hexagonal + Circuit Breaker: idempotency keys on payment retries.",
+        "Scheduler + IAM: notifications delivered via session-independent channels (push/SMS/email)."
+      ],
+      "addressed_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Consistent bike availability and rental state under concurrent use",
+        "Integration with multiple third-party payment platforms",
+        "Bike location tracking and code-based registration/unlocking of physical bikes",
+        "Multi-channel access through web and mobile devices",
+        "Time-driven rental lifecycle and notifications",
+        "Service availability for riders",
+        "Region-dependent regulatory compliance",
+        "Usage history and administrative usage information",
+        "User verification via external SMS/email delivery",
+        "Minimized carbon footprint"
+      ],
+      "rationale": "This alternative prioritizes the consistency driver and simplicity. The bike/rental state is shared among S5, S7, S12 and S9/S10, and S6 provides no reservation, so concurrent registration must be resolved atomically; a single transactional store does this directly and lets availability views read the authoritative state, satisfying S7 'as soon as' without a latency assumption. Integration variability (a 'variety' of payment platforms, SMS/email, region-specific providers for EU/China) is handled by adapters rather than deployment boundaries. With no load or growth evidence (scalability excluded in Stage 1), independent scaling is not required, and fewer runtime components is consistent with the carbon-footprint constraint if read as resource efficiency. Availability relies on running redundant instances of the deployable and on circuit breakers isolating external failures.",
+      "assumptions": [
+        "Expected load can be served by horizontally replicated instances of one deployable sharing one database (no load figures are given).",
+        "Bike interaction can be expressed as request/response calls (e.g. unlock after code validation) through an adapter; continuous bike telemetry is either not needed or low volume.",
+        "A single deployment per jurisdiction is acceptable; EU vs China differences are handled by configuration and adapter selection.",
+        "'End-to-end encryption' (S1) is satisfied by TLS on all hops plus encryption at rest of sensitive data; this reading is unconfirmed.",
+        "Biometric matching occurs on the device; the server never receives the thumb impression (S3 ambiguity)."
+      ],
+      "limitations": [
+        "The deployable and its database are shared failure domains; a defect in one module (e.g. reporting) can affect rider-facing functions.",
+        "Module boundary erosion is possible without enforcement tooling.",
+        "Personal-data isolation is logical (shared process), weaker than physical separation for ISO 27001 scoping.",
+        "Does not use the permitted message broker, service registry or distributed tracing; adding them later requires restructuring of propagation and observability.",
+        "Open requirement issues (rental end/return, payment timing, value of X, S4 vs S9) remain unresolved and affect Fleet & Rental and Payment module design."
+      ]
+    },
+    {
+      "alternative_id": "A2",
+      "name": "Event-driven microservices behind an API gateway with backends-for-frontends",
+      "description": "The backend consists of independently deployable services on a container orchestration platform with service discovery: Identity (IAM), Rental & Fleet (owns authoritative bike availability and rental records together), Payment, Notification & Verification, and Usage Reporting, each with its own data store. An API Gateway is the single entry point for TLS, token validation and rate limiting; thin BFFs serve the mobile app (biometric unlock, code scanning, push), the web application, and the administrator console. Services communicate through a message broker: Rental & Fleet publishes BikeRegistered/RentalStarted/RentalNearingExpiry/RentalExpired/RentalEnded events via a transactional outbox; a durable scheduler in Rental & Fleet emits time-based events. An orchestrated saga coordinates rental and payment, including overtime charges. Usage Reporting and the admin city-wide view are CQRS read models fed by events; biker proximity queries are served by Rental & Fleet from the authoritative state. Payment and Identity services hold sensitive data in segregated stores; other services use pseudonymous identifiers. Distributed tracing correlates requests and events across services.",
+      "selected_patterns": [
+        "Microservices",
+        "API Gateway",
+        "Backends for Frontends (BFF)",
+        "Event-Driven Architecture (Publish-Subscribe via message broker)",
+        "Atomic conditional state transition with Optimistic Concurrency Control (single authoritative bike state)",
+        "CQRS (Command Query Responsibility Segregation) with read models",
+        "Saga (orchestrated or choreographed) for rental and payment",
+        "Scheduler / Durable Timer for time-based rental events",
+        "Hexagonal Architecture (Ports and Adapters)",
+        "Circuit Breaker with Retry and Timeout for external integrations",
+        "Centralized Identity and Access Management with token-based authentication",
+        "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)",
+        "Distributed Tracing and centralized audit logging"
+      ],
+      "key_decisions": [
+        "Backend decomposition: capability-aligned services with database-per-service; bike availability and rental creation deliberately kept in one service.",
+        "Propagation: asynchronous events via message broker with transactional outbox; read models for admin and reporting are eventually consistent.",
+        "Rental-payment consistency: orchestrated saga with compensations and idempotent payment steps.",
+        "Channels: API gateway plus thin BFFs per client type (mobile, web, admin).",
+        "Bike interaction: adapter inside Rental & Fleet service; no dedicated device-ingestion component.",
+        "Observability: distributed tracing with redacted, pseudonymized trace data."
+      ],
+      "compatibility_conditions_applied": [
+        "Microservices + Atomic conditional state transition: bike availability and rental creation owned by one Rental & Fleet service.",
+        "CQRS + Atomic conditional state transition: biker availability/proximity reads use the authoritative state; CQRS restricted to admin views (S12) and reporting (S11, S13).",
+        "EDA + Atomic conditional state transition: events published after commit via transactional outbox; idempotent consumers.",
+        "API Gateway + Sensitive Data Isolation: mutual TLS between gateway and services, encryption at rest; application-level field encryption if the strict reading of S1 is confirmed.",
+        "API Gateway + BFF: gateway limited to cross-cutting concerns; BFFs kept thin.",
+        "Distributed Tracing + Sensitive Data Isolation: pseudonymous identifiers only, redaction, limited retention.",
+        "Scheduler + Microservices: durable job store with locking to avoid double firing.",
+        "Microservices + API Gateway / broker: gateway and broker deployed redundantly."
+      ],
+      "addressed_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Consistent bike availability and rental state under concurrent use",
+        "Integration with multiple third-party payment platforms",
+        "Bike location tracking and code-based registration/unlocking of physical bikes",
+        "Multi-channel access through web and mobile devices",
+        "Time-driven rental lifecycle and notifications",
+        "Service availability for riders",
+        "Region-dependent regulatory compliance",
+        "Ease of use for all riders",
+        "Usage history and administrative usage information",
+        "User verification via external SMS/email delivery"
+      ],
+      "rationale": "This alternative prioritizes fault isolation, sensitive-data isolation and use of the permitted platform technologies. Rider-facing discovery and registration (Rental & Fleet) keep working when Payment, Notification or Reporting are degraded, because they are coupled asynchronously through events. Identity and Payment data are physically segregated in dedicated services, narrowing the GDPR/ISO 27001 scope and enabling region-specific data residency. Web/mobile/admin differences (S3 biometric login, S5/S6 device sensors, S12/S13 administrator role) are handled by BFFs. The consistency driver is protected by keeping the authoritative bike state and rental creation in one service, which the compatibility analysis identified as the condition for combining microservices with atomic registration. The design uses all technologies the project description says it can rely on.",
+      "assumptions": [
+        "The organization can operate a container orchestration platform, broker, service discovery and tracing stack in compliance with ISO 27001.",
+        "Eventual consistency of admin views (S12) and usage reports (S11, S13) is acceptable; only biker-facing availability must be immediate.",
+        "Bike interaction can be handled through an adapter within the Rental & Fleet service.",
+        "'End-to-end encryption' (S1) is satisfied by TLS/mTLS on all hops plus encryption at rest; this reading is unconfirmed.",
+        "Biometric matching occurs on the device (S3 ambiguity).",
+        "Payment timing (before/after ride, pre-authorization) will be clarified to fix saga steps."
+      ],
+      "limitations": [
+        "The main traditional motivation for microservices (independent scaling) is not evidenced; decomposition is justified by isolation, not load.",
+        "Highest number of runtime components (gateway, BFFs, services, broker, tracing, per-service stores), in tension with the carbon-footprint constraint if read as resource efficiency.",
+        "Saga and outbox add coordination complexity; compensation for a physically unlocked bike is not straightforward.",
+        "More components that must be secured, audited and kept available; the gateway and broker become critical infrastructure.",
+        "Eventual consistency may show stale status to administrators."
+      ]
+    },
+    {
+      "alternative_id": "A3",
+      "name": "Monolithic rental core with extracted integration services and a bike device gateway",
+      "description": "A hybrid: a modular core deployable holds Identity & Access, Fleet & Rental (authoritative bike availability and rental records with atomic conditional registration and a durable scheduler) and Usage Reporting, sharing one transactional database with a segregated personal-data schema. Capabilities whose isolation is driven by external dependencies are extracted as separate services: a Payment Integration service (hexagonal adapters per payment platform, provider tokenization, segregated store), a Notification & Verification service (SMS/email/push adapters), and a Device Gateway that ingests bike location/lock telemetry and relays unlock commands. The core and extracted services communicate through a message broker (core publishes rental events via outbox; Device Gateway publishes telemetry; Payment publishes payment outcomes). An orchestrated saga in the core coordinates rental and asynchronous payment. An API Gateway fronts the core and exposes a single entry point for web and mobile channels. Distributed tracing covers the core, broker and extracted services.",
+      "selected_patterns": [
+        "Modular Monolith (domain-partitioned modules in a single deployable)",
+        "Hexagonal Architecture (Ports and Adapters)",
+        "Atomic conditional state transition with Optimistic Concurrency Control (single authoritative bike state)",
+        "Event-Driven Architecture (Publish-Subscribe via message broker)",
+        "Scheduler / Durable Timer for time-based rental events",
+        "Saga (orchestrated or choreographed) for rental and payment",
+        "Device Gateway for bike connectivity (IoT ingestion and command channel)",
+        "API Gateway",
+        "Circuit Breaker with Retry and Timeout for external integrations",
+        "Centralized Identity and Access Management with token-based authentication",
+        "Sensitive Data Isolation (payment tokenization delegated to payment providers and segregated personal-data store)",
+        "Distributed Tracing and centralized audit logging"
+      ],
+      "key_decisions": [
+        "Backend decomposition: monolithic core for consistency-critical capabilities; separate services only for external-integration capabilities (payment, notification/verification, bike connectivity).",
+        "Bike availability and rental state: atomic conditional update in the core database; biker availability reads are immediate.",
+        "Propagation: message broker between core and extracted services, with outbox; in-core read models updated synchronously.",
+        "Bike interaction: dedicated Device Gateway service for telemetry and unlock commands.",
+        "Payment: physically isolated Payment Integration service with per-provider adapters and tokenization; saga orchestrated by the core.",
+        "Channels: API gateway in front of the core; no separate BFF deployables."
+      ],
+      "compatibility_conditions_applied": [
+        "Modular Monolith vs Microservices (mutually exclusive): hybrid allowed by stating which boundaries are extracted and why — only payment, notification/verification and bike connectivity, each driven by an external dependency.",
+        "Device Gateway vs Hexagonal (redundant): Device Gateway used only under the assumption that bikes are connected devices reporting location; hexagonal adapters used for payment and messaging providers.",
+        "EDA + Atomic conditional state transition: outbox, idempotent consumers.",
+        "Device Gateway + EDA: location telemetry during rentals treated as personal data and minimized.",
+        "Modular Monolith + API Gateway: gateway justified because there are several backends (core plus extracted services).",
+        "API Gateway + Sensitive Data Isolation: mTLS behind gateway, encryption at rest.",
+        "Distributed Tracing + Sensitive Data Isolation: pseudonymous identifiers, redaction, limited retention.",
+        "Hexagonal + Circuit Breaker: idempotency keys on payment retries."
+      ],
+      "addressed_drivers": [
+        "Protection and regulatory compliance of personal, biometric, location and payment data",
+        "Consistent bike availability and rental state under concurrent use",
+        "Integration with multiple third-party payment platforms",
+        "Bike location tracking and code-based registration/unlocking of physical bikes",
+        "Multi-channel access through web and mobile devices",
+        "Time-driven rental lifecycle and notifications",
+        "Service availability for riders",
+        "Region-dependent regulatory compliance",
+        "Usage history and administrative usage information",
+        "User verification via external SMS/email delivery"
+      ],
+      "rationale": "This alternative draws boundaries where the evidence points to them: the consistency-critical shared state (S5, S6, S7, S9, S10, S12) stays in one transactional core, while capabilities dominated by external parties whose behaviour the system does not control — a 'variety' of payment platforms (S8), SMS/email delivery (S2), and the bikes themselves (project description: tracking and QR unlocking) — are isolated so their failures, protocols and region-specific variants do not destabilize the core. Payment data gets physical isolation, narrowing the compliance scope for payment information explicitly named in the project description. Bike location tracking is treated as a dedicated ingestion concern under the assumption that bikes report their location. It uses a subset of the permitted technologies (API gateway, message broker, distributed tracing) where they serve these boundaries.",
+      "assumptions": [
+        "Bikes are connected devices (smart locks) that report location and accept unlock commands; if not, the Device Gateway is unnecessary and the bike interaction reverts to an adapter in the core.",
+        "Payment providers may confirm asynchronously, justifying broker-based communication and a saga for the payment step.",
+        "Core load can be served by replicated instances of one deployable (no load figures are given).",
+        "'End-to-end encryption' (S1) is satisfied by TLS/mTLS plus encryption at rest; unconfirmed.",
+        "Biometric matching occurs on the device (S3 ambiguity)."
+      ],
+      "limitations": [
+        "Depends heavily on the unresolved bike-side interaction; the Device Gateway may turn out unnecessary or insufficient.",
+        "Two architectural styles coexist, requiring clear rules for what belongs in the core vs a service.",
+        "The core remains a shared failure domain for identity, rental and reporting.",
+        "Personal data in the core (identity, location, history) has only logical isolation, unlike payment data.",
+        "Broker, gateway and tracing add runtime components compared with A1."
+      ]
+    }
+  ],
+  "design_space_notes": [
+    "Considered and not generated: a fully distributed design with CQRS also for biker-facing availability; rejected as an alternative because the compatibility analysis marks CQRS vs atomic availability as conflicting with S7 'as soon as' unless a latency bound is accepted, which no requirement provides.",
+    "Considered and not generated: a layered monolith without hexagonal boundaries; it does not add a meaningful decision beyond A1 and leaves the payment-platform variety driver weakly addressed (Layered vs Hexagonal marked redundant)."
+  ]
+}

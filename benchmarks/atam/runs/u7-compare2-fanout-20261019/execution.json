@@ -1,0 +1,20 @@
+{
+  "record_version": "0.2",
+  "arm": "spec-guided",
+  "runtime": "deepagents",
+  "model": "openai:gpt-5.4-mini",
+  "settings": {
+    "streaming": false,
+    "verbose": false,
+    "harness_spec": "0.2"
+  },
+  "workflow_strategy": "fan_out_fan_in",
+  "agent_interaction": "parallel_specialist_delegation",
+  "harness_assets_sha256": "6e4db7bc46801eb989906e0d2198b2ef05c3d39a733e0c068267e1faf9e13375",
+  "status": "succeeded",
+  "prediction": "prediction-<redacted-uuid>.json",
+  "prediction_sha256": "34080e8a81ef6ae949ddcb788274759dfc3f68b907f096fcf4f9ee45b602afad",
+  "output_path": "prediction-<redacted-uuid>.json",
+  "latency_seconds": 46.72,
+  "cost": null
+}

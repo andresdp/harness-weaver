@@ -1,0 +1,56 @@
+# Wiring for the HarnessWeaver DeepAgents stage host (python -m harnessweaver.hosts.deepagents).
+# Generated from ../../harnessspec.yaml. The model is not pinned; pass it with the host's --model argument.
+# No human_gates: runtime human-in-the-loop is disabled. Architect review happens after the run (see README.md).
+wiring_version: "0.1"
+spec: {path: ../../harnessspec.yaml, id: sara-architecture-design, version: "0.2"}
+inputs:
+  - port: project_description
+    path: /artifacts/00_project_description.json
+  - port: functional_requirements
+    path: /artifacts/00_functional_requirements.json
+stages:
+  - number: 1
+    dir: stage1-requirements_drivers
+    handoff_prompt: >-
+      Run Stage 1 Requirements & Drivers: analyze the project description and functional requirements in
+      /artifacts/00_project_description.json and /artifacts/00_functional_requirements.json and produce the
+      requirements analysis, quality attributes and architectural drivers, following AGENTS.md.
+    artifacts: [requirements_analysis.json, quality_attributes.json, drivers.json]
+    schemas:
+      requirements_analysis.json: contracts/requirements-analysis.schema.json
+      quality_attributes.json: contracts/quality-attributes.schema.json
+      drivers.json: contracts/drivers.schema.json
+  - number: 2
+    dir: stage2-solution_design
+    handoff_prompt: >-
+      Run Stage 2 Solution Design: from /artifacts/requirements_analysis.json, /artifacts/quality_attributes.json and
+      /artifacts/drivers.json, identify pattern candidates, analyze their compatibility and generate architecture
+      alternatives, following AGENTS.md.
+    artifacts: [pattern_candidates.json, pattern_compatibility.json, alternatives.json]
+    schemas:
+      pattern_candidates.json: contracts/pattern-candidates.schema.json
+      pattern_compatibility.json: contracts/pattern-compatibility.schema.json
+      alternatives.json: contracts/alternatives.schema.json
+  - number: 3
+    dir: stage3-alternative_evaluation
+    handoff_prompt: >-
+      Run Stage 3 Alternative Evaluation: evaluate /artifacts/alternatives.json against the Stage 1 artifacts,
+      analyze trade-offs and select exactly one alternative, following AGENTS.md.
+    artifacts: [alternative_evaluation.json, trade_off_analysis.json, alternative_selection.json]
+    schemas:
+      alternative_evaluation.json: contracts/alternative-evaluation.schema.json
+      trade_off_analysis.json: contracts/trade-off-analysis.schema.json
+      alternative_selection.json: contracts/alternative-selection.schema.json
+  - number: 4
+    dir: stage4-architecture_decision
+    handoff_prompt: >-
+      Run Stage 4 Architecture Decision & Modeling: document the alternative selected in
+      /artifacts/alternative_selection.json as an ADR (/artifacts/adr.json) and a high-level Mermaid component diagram
+      packaged in /artifacts/architecture_decision.json, following AGENTS.md.
+    artifacts: [adr.json, architecture_decision.json]
+    schemas:
+      adr.json: contracts/adr.schema.json
+      architecture_decision.json: contracts/architecture-decision.schema.json
+output:
+  artifact: architecture_decision.json
+  schema: contracts/architecture-decision.schema.json

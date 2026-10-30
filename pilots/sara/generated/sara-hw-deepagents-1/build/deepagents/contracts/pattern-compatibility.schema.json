@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "required": [
+    "compatibility_analysis"
+  ],
+  "properties": {
+    "compatibility_analysis": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "patterns",
+          "relationship",
+          "rationale",
+          "conditions",
+          "affected_drivers"
+        ],
+        "properties": {
+          "patterns": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          },
+          "relationship": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "affected_drivers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harnessweaver.local/sara/pattern-compatibility.schema.json",
+  "title": "Pattern compatibility",
+  "description": "Derived from the JSON structure block in the SARA skill 'patterns-compatibility' (NicolasMP51/software-architecture-agent@528ae7ce). Required keys mirror the block; extra keys are allowed. HarnessWeaver pilot contract, not an original SARA schema."
+}
